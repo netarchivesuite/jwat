@@ -36,6 +36,7 @@
 package org.jhove2.module.format.arc;
 
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * ARC record parser.
@@ -44,9 +45,9 @@ import java.io.IOException;
  */
 public class ArcRecord extends ArcRecordBase {
 
-	public static final String PROTOCOL_HTTP = "http";
-	public static final String PROTOCOL_HTTPS = "https";
-	public static final String PROTOCOL_NO_TYPE = "no-type";
+	public static final String CONTENT_TYPE_NO_TYPE = "no-type";
+
+	public HttpResponse httpResponse = null;
 
 	protected ArcRecord() {
 	}
@@ -88,12 +89,14 @@ public class ArcRecord extends ArcRecordBase {
 	    payload = null;
 		if (r_length != null && r_length > 0L) {
 			payload = new ArcPayload(in, r_length.longValue());
-			if ((PROTOCOL_HTTP.equals(protocol) || PROTOCOL_HTTPS.equals(protocol)) 
-					&& !PROTOCOL_NO_TYPE.equals(r_contentType)) {
+			if (HttpResponse.isSupported(protocol)
+							&& !CONTENT_TYPE_NO_TYPE.equals(r_contentType)) {
+				httpResponse = HttpResponse.parseProtocolResponse(payload.in,
+														r_length.longValue());
 			}
 		}
-		else if ((PROTOCOL_HTTP.equals(protocol) || PROTOCOL_HTTPS.equals(protocol)) 
-					&& !PROTOCOL_NO_TYPE.equals(r_contentType)) {
+		else if (HttpResponse.isSupported(protocol)
+							&& !CONTENT_TYPE_NO_TYPE.equals(r_contentType)) {
 			// TODO warning payload expected
 		}
 	    return;
@@ -111,6 +114,24 @@ public class ArcRecord extends ArcRecordBase {
 	    // error has already been reported.
 	}
 	*/
+
+	/**
+	 * Checks if the ARC record has warnings.
+	 * @return true/false based on whether the ARC record has warnings or not 
+	 */
+	@Override
+	public boolean hasWarnings() {
+	    return ((httpResponse != null) && (httpResponse.hasWarnings()));
+	}
+
+	/**
+	 * Gets Network doc warnings.
+	 * @return validation errors list/
+	 */
+	@Override
+	public Collection<String> getWarnings() {
+	    return (hasWarnings())? httpResponse.getWarnings() : null;
+	}
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder(256);

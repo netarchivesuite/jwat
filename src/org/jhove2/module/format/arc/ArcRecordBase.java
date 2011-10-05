@@ -128,13 +128,6 @@ public abstract class ArcRecordBase {
 	protected ArcPayload payload;
 
 	/**
-	 * Protocol response fields
-	 */
-	private Integer protocolResultCode;
-	private String protocolVersion;
-	private String protocolContentType;
-
-	/**
 	 * Creates an ARC record with the specified version and record description
 	 * @param version ARC record version
 	 * @param desc record description
@@ -241,7 +234,7 @@ public abstract class ArcRecordBase {
 	 * @return true/false based on whether the ARC record has warnings or not 
 	 */
 	public boolean hasWarnings() {
-	    return ((payload != null) && (payload.hasWarnings()));
+	    return false;
 	}
 
 	/**
@@ -249,7 +242,7 @@ public abstract class ArcRecordBase {
 	 * @return validation errors list/
 	 */
 	public Collection<String> getWarnings() {
-	    return (hasWarnings())? payload.getWarnings() : null;
+	    return null;
 	}
 
 	public void close() {
@@ -257,6 +250,13 @@ public abstract class ArcRecordBase {
 	        payload.close();
 	    }
 	}
+
+	/**
+	 * Protocol response fields
+	 */
+	//private Integer protocolResultCode;
+	//private String protocolVersion;
+	//private String protocolContentType;
 
 	/**
 	 * Network doc setter.
@@ -278,6 +278,17 @@ public abstract class ArcRecordBase {
 	}
 	*/
 
+	/**
+	 * Gets network doc content type.
+	 * @return the content type of the network doc.
+	 */
+	/*
+	public String getFormat(){
+		return (protocolContentType != null && protocolContentType.length() > 0)
+				? protocolContentType : r_contentType;
+	}
+	*/
+
 	protected abstract void processPayload(ByteCountingInputStream in) throws IOException;
 
 	/**
@@ -290,6 +301,7 @@ public abstract class ArcRecordBase {
 	 * Validates the network doc. This method is called when processing compressed ARC.
 	 * @throws IOException
 	 */
+	/*
 	public final void validateNetworkDocContent(InputStream in)
 													throws IOException {
 		if(payload != null && !isNetworkDocValidated){
@@ -301,15 +313,7 @@ public abstract class ArcRecordBase {
 			}
 		}
 	}
-
-	/**
-	 * Gets network doc content type.
-	 * @return the content type of the network doc.
-	 */
-	public String getFormat(){
-		return (protocolContentType != null && protocolContentType.length() > 0)
-				? protocolContentType : r_contentType;
-	}
+	*/
 
 	/**
 	 * Specifies whether the ARC record has a payload or not.
@@ -644,30 +648,6 @@ public abstract class ArcRecordBase {
 	}
 
 	/**
-	 * protocolResultCode getter
-	 * @return the protocolResultCode
-	 */
-	public Integer getProtocolResultCode() {
-		return protocolResultCode;
-	}
-
-	/**
-	 * protocolVersion getter
-	 * @return the protocolVersion
-	 */
-	public String getProtocolVersion() {
-		return protocolVersion;
-	}
-
-	/**
-	 * protocolContentType getter
-	 * @return the protocolContentType
-	 */
-	public String getProtocolContentType() {
-		return protocolContentType;
-	}
-
-	/**
 	 * isNetworkDocValidated getter
 	 * @return the isNetworkDocValidated
 	 */
@@ -707,18 +687,6 @@ public abstract class ArcRecordBase {
 			if (r_length != null) {
 			    builder.append(", length: ").append(r_length);
 			}
-		}
-		if (protocolResultCode != null) {
-		    builder.append(", protocolResultCode: ")
-		    	.append(protocolResultCode);
-		}
-		if (protocolVersion != null) {
-		    builder.append(", protocolVersion: ")
-		    	.append(protocolVersion);
-		}
-		if (protocolContentType != null) {
-		    builder.append(", protocolContentType: ")
-		    	.append(protocolContentType);
 		}
 		return builder.toString();
 	}

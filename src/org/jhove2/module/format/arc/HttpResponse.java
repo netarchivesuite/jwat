@@ -50,10 +50,17 @@ import java.util.List;
  */
 public class HttpResponse {
 
+	public static final String PROTOCOL_HTTP = "http";
+	public static final String PROTOCOL_HTTPS = "https";
+
 	private final static int LF = '\n';
 	private final static int CR = '\r';
+
 	private final static String HTTP = "HTTP";
 	private final static String CONTENT_TYPE = "Content-Type:".toUpperCase();
+
+	/** <code>InputStream</code> to read payload. */
+	public InputStream in;
 
 	/** Protocol response result code */
 	public String resultCode;
@@ -70,22 +77,22 @@ public class HttpResponse {
 	/** Warnings detected when processing HTTP protocol response. */
 	private List<String> warnings = null;
 
+	public static boolean isSupported(String protocol) {
+		return ((PROTOCOL_HTTP.equalsIgnoreCase(protocol) || PROTOCOL_HTTPS.equalsIgnoreCase(protocol)));
+	}
+
 	/**
-	 * Reads the HTTP protocol response, if required.
+	 * Reads the HTTP protocol response.
 	 * @param in input response
-	 * @param containsProtocolResponse specifies if the network doc must 
-	 * contain protocol response or not.  
 	 * @throws IOException
 	 */
-	/*
-	private void parseProtocolResponse(InputStream in,
-                                           boolean containsProtocolResponse) 
-	                                                     throws IOException{
-		if (containsProtocolResponse) {
-			objectSize = this.readProtocolResponse(this.in, length);
-		}
+	public static HttpResponse parseProtocolResponse(InputStream in, long length) 
+	                                                     throws IOException {
+		HttpResponse hr = new HttpResponse();
+		hr.in = in;
+		hr.objectSize = hr.readProtocolResponse(in, length);
+		return hr;
 	}
-	*/
 
 	/**
 	 * Checks protocol response validity.
@@ -245,7 +252,56 @@ public class HttpResponse {
 	    this.warnings.add(w);
 	}
 
-    private final static class LineToken
+	/**
+	 * protocolResultCode getter
+	 * @return the protocolResultCode
+	 */
+	/*
+	public Integer getProtocolResultCode() {
+		return protocolResultCode;
+	}
+	*/
+
+	/**
+	 * protocolVersion getter
+	 * @return the protocolVersion
+	 */
+	/*
+	public String getProtocolVersion() {
+		return protocolVersion;
+	}
+	*/
+
+	/**
+	 * protocolContentType getter
+	 * @return the protocolContentType
+	 */
+	/*
+	public String getProtocolContentType() {
+		return protocolContentType;
+	}
+	*/
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder(256);
+		/*
+		if (protocolResultCode != null) {
+		    builder.append(", protocolResultCode: ")
+		    	.append(protocolResultCode);
+		}
+		if (protocolVersion != null) {
+		    builder.append(", protocolVersion: ")
+		    	.append(protocolVersion);
+		}
+		if (protocolContentType != null) {
+		    builder.append(", protocolContentType: ")
+		    	.append(protocolContentType);
+		}
+		*/
+		return builder.toString();
+	}
+
+	private final static class LineToken
     {
         public final String line;
         public final int consumed;
