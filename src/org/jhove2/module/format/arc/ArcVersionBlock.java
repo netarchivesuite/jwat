@@ -49,10 +49,10 @@ public class ArcVersionBlock extends ArcRecordBase
 	 */
 
 	/** Did we find the magic ARC number. */
-	public boolean isMagicArcFile;
+	public boolean isMagicArcFile = false;
 
 	/** Did we find a valid version number. */
-	public boolean isVersionValid;
+	public boolean isVersionValid = false;
 
 	/** Did we recognize the field description line. */
 	public boolean isValidFieldDesc = false;
@@ -98,6 +98,7 @@ public class ArcVersionBlock extends ArcRecordBase
 	 */
 	public static ArcVersionBlock parseVersionBlock(ByteCountingInputStream in) {
 		ArcVersionBlock vb = new ArcVersionBlock();
+		vb.versionBlock = vb;
 		try {
 			vb.isMagicArcFile = false;
 			vb.isVersionValid = false;
@@ -182,6 +183,15 @@ public class ArcVersionBlock extends ArcRecordBase
 	}
 
 	/**
+	 * Checks if the ARC record is valid.
+	 * @return true/false based on whether the ARC record is valid or not 
+	 */
+	@Override
+	public boolean isValid() {
+	    return (isMagicArcFile && isVersionValid && isValidFieldDesc && super.isValid());
+	}
+
+	/**
 	 * Checks if the processed file is an ARC file.
 	 */
 	protected void checkFileDesc(String recordLine) {
@@ -214,7 +224,7 @@ public class ArcVersionBlock extends ArcRecordBase
 		isVersionValid = (version != null);
 		if(!isVersionValid) {
 			// Add validation error
-			addValidationError(ArcErrorType.INVALID,  ARC_FILE,
+			addValidationError(ArcErrorType.INVALID, ARC_FILE,
 				"Invalid version : [version number : " + versionNumber 
 				 + ",reserved : " + reserved +']');
 		}
@@ -257,20 +267,13 @@ public class ArcVersionBlock extends ArcRecordBase
 			xml = new String(bytes);
 			payload.close();
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.jhove2.module.format.arc.ArcRecordBase#validateNetworkDoc()
-	 */
-	/*
-	@Override
-	public void validateNetworkDoc() {
+		/*
 		if((this.getNetworkDoc() == null) && ArcVersion.VERSION_1_1.equals(version)){
 			this.addValidationError(ArcErrorType.INVALID, ARC_FILE,
             "Required network doc not found in the version block");
 		}
+		*/
 	}
-	*/
 
 	@Override
 	public String toString(){

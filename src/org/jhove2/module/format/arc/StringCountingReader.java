@@ -74,11 +74,11 @@ public class StringCountingReader extends StringReader
     }
 
     @Override
-    public void mark(int readlimit) {
+    public synchronized void mark(int readlimit) {
     }
 
     @Override
-    public void reset() throws IOException {
+    public synchronized void reset() throws IOException {
     	throw new UnsupportedOperationException();
     }
 

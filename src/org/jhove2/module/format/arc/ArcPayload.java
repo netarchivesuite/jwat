@@ -46,11 +46,11 @@ import java.io.InputStream;
  */
 public class ArcPayload {
 
-	/** Payload length. */
-	public long length;
-
 	/** Payload content. */
-	public InputStream in;
+	protected InputStream in;
+
+	/** Payload length. */
+	protected long length;
 
 	/**
 	 * Creates new <code>NetworkDoc</code> instance.
@@ -65,7 +65,15 @@ public class ArcPayload {
 			throw new IllegalArgumentException("in");
 		}
 		this.length = length;
-		this.in = new BufferedInputStream(new ByteBoundInputStream(in, length));
+		this.in = new BufferedInputStream(new ByteBoundInputStream(in, length), 4096);
+	}
+
+	public InputStream getInputStream() {
+		return in;
+	}
+
+	public long getLength() {
+		return length;
 	}
 
 	/**

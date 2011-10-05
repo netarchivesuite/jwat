@@ -253,6 +253,44 @@ public class HttpResponse {
 	}
 
 	/**
+	 * Protocol response fields
+	 */
+	//private Integer protocolResultCode;
+	//private String protocolVersion;
+	//private String protocolContentType;
+
+	/**
+	 * Network doc setter.
+	 * @throws IOException
+	 */
+	/*
+	public void setNetworkDoc() throws IOException{
+		ArcPayload networkDoc = this.processNetworkDoc();
+		if(networkDoc != null){
+			this.payload = networkDoc;
+			this.protocolResultCode = this.parseInteger(networkDoc.resultCode,
+					                                    null,true);
+			this.protocolVersion = this.parseString(networkDoc.protocolVersion,
+					                                null, true);
+			this.protocolContentType = this.parseString(networkDoc.contentType,
+					                                    null,true);
+		}
+		this.validateNetworkDoc();
+	}
+	*/
+
+	/**
+	 * Gets network doc content type.
+	 * @return the content type of the network doc.
+	 */
+	/*
+	public String getFormat(){
+		return (protocolContentType != null && protocolContentType.length() > 0)
+				? protocolContentType : r_contentType;
+	}
+	*/
+
+	/**
 	 * protocolResultCode getter
 	 * @return the protocolResultCode
 	 */
@@ -282,22 +320,32 @@ public class HttpResponse {
 	}
 	*/
 
+	/**
+	 * Gets ARC record object size.
+	 * @return the object size
+	 */
+	/*
+	public long getObjectSize() {
+		return (payload != null) ? payload.objectSize : 0L;
+	}
+	*/
+
 	public String toString() {
 		StringBuilder builder = new StringBuilder(256);
-		/*
-		if (protocolResultCode != null) {
-		    builder.append(", protocolResultCode: ")
-		    	.append(protocolResultCode);
+		builder.append("\nHttpResponse : [\n");
+		if (resultCode != null) {
+		    builder.append(", HttpResultCode: ")
+		    	.append(resultCode);
 		}
 		if (protocolVersion != null) {
-		    builder.append(", protocolVersion: ")
+		    builder.append(", HttpProtocolVersion: ")
 		    	.append(protocolVersion);
 		}
-		if (protocolContentType != null) {
-		    builder.append(", protocolContentType: ")
-		    	.append(protocolContentType);
+		if (contentType != null) {
+		    builder.append(", HttpContentType: ")
+		    	.append(contentType);
 		}
-		*/
+		builder.append("]\n");
 		return builder.toString();
 	}
 

@@ -71,6 +71,9 @@ public abstract class ArcRecordBase {
     /** Validation errors */
     protected List<ArcValidationError> errors = null;
 
+    /** Do the record fields comply in number with the one dictated by its version. */
+    public boolean hasCompliantFields = false;
+
     /*
 	 * Raw fields.
 	 */
@@ -122,7 +125,7 @@ public abstract class ArcRecordBase {
 	public Date archiveDate;
 
 	/** Specifies whether the network has been already validated or not. */
-	private boolean isNetworkDocValidated = false;
+	//private boolean isNetworkDocValidated = false;
 
 	/** Network doc parser. */
 	protected ArcPayload payload;
@@ -133,19 +136,16 @@ public abstract class ArcRecordBase {
 	 * @param desc record description
 	 */
 	public void parseRecord(String recordLine) {
-    	// TODO
-    	/*
-        // Parse URL Record Definition
-        String[] hdr = this.parse(recordDef, fieldDesc, this.fields);
-        // Extract mandatory version-independent header data.
-        this.valid = (hdr.length == fieldDesc.length); 
-        if(!this.valid) {
-            this.addValidationError(ErrorType.INVALID, ARC_RECORD,
-                    "URL record definition and record definition are not compliant");
-        }
-        */
+		hasCompliantFields = false;
 		if (recordLine != null) {
 			String[] records = recordLine.split(" ", -1);
+			// Compare to expected numbers of fields.
+	        // Extract mandatory version-independent header data.
+	        hasCompliantFields = (records.length == versionBlock.descValidator.fieldNames.length); 
+	        if(!hasCompliantFields) {
+	            this.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+	                    "URL record definition and record definition are not compliant");
+	        }
 			// Parse
 	        r_url = FieldValidator.getArrayValue(records, 0);
 	        r_ipAddress = FieldValidator.getArrayValue(records, 1);
@@ -200,7 +200,7 @@ public abstract class ArcRecordBase {
 	 * @return true/false based on whether the ARC record is valid or not 
 	 */
 	public boolean isValid() {
-	    return (!hasErrors());
+	    return (hasCompliantFields && !hasErrors());
 	}
 
     public boolean hasErrors() {
@@ -251,45 +251,17 @@ public abstract class ArcRecordBase {
 	    }
 	}
 
-	/**
-	 * Protocol response fields
-	 */
-	//private Integer protocolResultCode;
-	//private String protocolVersion;
-	//private String protocolContentType;
-
-	/**
-	 * Network doc setter.
-	 * @throws IOException
-	 */
-	/*
-	public void setNetworkDoc() throws IOException{
-		ArcPayload networkDoc = this.processNetworkDoc();
-		if(networkDoc != null){
-			this.payload = networkDoc;
-			this.protocolResultCode = this.parseInteger(networkDoc.resultCode,
-					                                    null,true);
-			this.protocolVersion = this.parseString(networkDoc.protocolVersion,
-					                                null, true);
-			this.protocolContentType = this.parseString(networkDoc.contentType,
-					                                    null,true);
-		}
-		this.validateNetworkDoc();
-	}
-	*/
-
-	/**
-	 * Gets network doc content type.
-	 * @return the content type of the network doc.
-	 */
-	/*
-	public String getFormat(){
-		return (protocolContentType != null && protocolContentType.length() > 0)
-				? protocolContentType : r_contentType;
-	}
-	*/
-
 	protected abstract void processPayload(ByteCountingInputStream in) throws IOException;
+
+	/**
+	 * isNetworkDocValidated getter
+	 * @return the isNetworkDocValidated
+	 */
+	/*
+	public boolean isNetworkDocValidated() {
+		return isNetworkDocValidated;
+	}
+	*/
 
 	/**
 	 * Validates the network doc. Subclasses have to check the 
@@ -368,16 +340,6 @@ public abstract class ArcRecordBase {
 		return isValid;
 	}
 	
-	/**
-	 * Gets ARC record object size.
-	 * @return the object size
-	 */
-	/*
-	public long getObjectSize() {
-		return (payload != null) ? payload.objectSize : 0L;
-	}
-	*/
-
 	/**
 	 * Returns an Integer object holding the value of the specified string.
 	 * @param intStr the value to parse.
@@ -645,14 +607,6 @@ public abstract class ArcRecordBase {
 	 */
 	public String getProtocol() {
 		return protocol;
-	}
-
-	/**
-	 * isNetworkDocValidated getter
-	 * @return the isNetworkDocValidated
-	 */
-	public boolean isNetworkDocValidated() {
-		return isNetworkDocValidated;
 	}
 
 	public String toString() {

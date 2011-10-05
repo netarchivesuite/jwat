@@ -100,13 +100,13 @@ public class ByteCountingInputStream extends FilterInputStream
     }
 
     @Override
-    public void mark(int readlimit) {
+    public synchronized void mark(int readlimit) {
         //super.mark(readlimit);
         //this.mark = this.offset;
     }
 
     @Override
-    public void reset() throws IOException {
+    public synchronized void reset() throws IOException {
         // Will not work unless the whole stream is not in the buffer.
     	//super.reset();
         //this.offset = this.mark;

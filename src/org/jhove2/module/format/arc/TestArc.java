@@ -10,8 +10,10 @@ import java.io.RandomAccessFile;
 public class TestArc {
 
 	//static String arcFile = "/home/test/QUICKSTART/oldjobs/1_1316696892071/arcs/1-1-20110922131213-00000-svc-VirtualBox.arc";
-	static String arcFile = "/home/nicl/BnF/jhove2-bnf/src/test/resources/examples/arc/small_BNF.arc";
-
+	//static String arcFile = "/home/nicl/BnF/jhove2-bnf/src/test/resources/examples/arc/small_BNF.arc";
+	//static String arcFile = "/home/test/QUICKSTART/oldjobs/4_1317731601951/arcs/4-3-20111004123336-00000-svc-VirtualBox.arc";
+	static String arcFile = "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.arc";
+	
 	public static void main(String[] args) {
 		File file = new File( arcFile );
 		try {
@@ -41,6 +43,10 @@ public class TestArc {
 				System.out.println( "       minor: " + version.reserved );
 				System.out.println( "      origin: " + version.originCode );
 				System.out.println( version.xml );
+				System.out.println( "compl.fields: " + version.hasCompliantFields );
+				System.out.println( "       magic: " + version.isMagicArcFile );
+				System.out.println( "validVersion: " + version.isVersionValid );
+				System.out.println( "ValidFldDesc: " + version.isValidFieldDesc );
 				System.out.println( "      errors: " + version.hasErrors() );
 				System.out.println( "    warnings: " + version.hasWarnings() );
 
@@ -55,7 +61,7 @@ public class TestArc {
 							System.out.println( "              " + arcRecord.url.getSchemeSpecificPart() );
 						}
 						System.out.println( "      ipaddr: " + arcRecord.r_ipAddress + " - " + arcRecord.inetAddress );
-						System.out.println( "        date: " + arcRecord.r_archiveDate + " - " + arcRecord.archiveDate.toString() );
+						System.out.println( "        date: " + arcRecord.r_archiveDate + " - " + arcRecord.archiveDate );
 						System.out.println( "content-type: " + arcRecord.r_contentType );
 						System.out.println( " result-code: " + arcRecord.r_resultCode );
 						System.out.println( "    checksum: " + arcRecord.r_checksum );
@@ -63,8 +69,6 @@ public class TestArc {
 						System.out.println( "      offset: " + arcRecord.r_offset );
 						System.out.println( "    filename: " + arcRecord.r_filename );
 						System.out.println( "      length: " + arcRecord.r_length );
-						System.out.println( "      errors: " + arcRecord.hasErrors() );
-						System.out.println( "    warnings: " + arcRecord.hasWarnings() );
 						if (arcRecord.httpResponse != null ) {
 							System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
 							System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
@@ -72,6 +76,8 @@ public class TestArc {
 							System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
 							save( arcRecord.r_url, arcRecord.httpResponse );
 						}
+						System.out.println( "      errors: " + arcRecord.hasErrors() );
+						System.out.println( "    warnings: " + arcRecord.hasWarnings() );
 						++records;
 					}
 					else {
@@ -117,12 +123,12 @@ public class TestArc {
 				else {
 					filename = url.substring( fidx, lidx ).replace( '/', '_' );
 				}
-				System.out.println( filename );
-
 				try {
 					byte[] bytes = new byte[ 1024 ];
 					int read;
-					RandomAccessFile ram = new RandomAccessFile( filename, "rw" );
+					File file = new File( "tmp/", filename );
+					System.out.println( "            > " + file.getPath() );
+					RandomAccessFile ram = new RandomAccessFile( file, "rw" );
 					ram.setLength( 0 );
 					ram.seek( 0 );
 					while ( (read = httpResponse.in.read( bytes )) != -1 ) {

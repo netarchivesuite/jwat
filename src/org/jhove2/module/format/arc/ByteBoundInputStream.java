@@ -77,6 +77,22 @@ public final class ByteBoundInputStream extends FilterInputStream
 	}
 
 	@Override
+	public boolean markSupported() {
+		return false;
+	}
+
+	@Override
+	public synchronized void mark(int readlimit) {
+		//super.mark(readlimit);
+	}
+
+	@Override
+	public synchronized void reset() throws IOException {
+		//super.reset();
+    	throw new UnsupportedOperationException();
+	}
+
+	@Override
 	public int read(byte b[], int off, int len) throws IOException {
 		int l = -1;
 		if (this.remaining > 0L) {

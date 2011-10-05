@@ -102,19 +102,6 @@ public class ArcRecord extends ArcRecordBase {
 	    return;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jhove2.module.format.arc.ArcRecordBase#validateNetworkDoc()
-	 */
-	/*
-	@Override
-	public void validateNetworkDoc() {
-	    // Nothing to validate: network doc can only be invalid if missing
-	    // while length is not zero. This can only occur if an error
-	    // occurred while parsing the length value. so the validation
-	    // error has already been reported.
-	}
-	*/
-
 	/**
 	 * Checks if the ARC record has warnings.
 	 * @return true/false based on whether the ARC record has warnings or not 
@@ -138,6 +125,9 @@ public class ArcRecord extends ArcRecordBase {
 		builder.append("\nArcRecord [");
 		builder.append( super.toString() );
 		builder.append(']');
+		if ( payload != null ) {
+			builder.append( payload.toString() );
+		}
 		return builder.toString();
 	}
 }
