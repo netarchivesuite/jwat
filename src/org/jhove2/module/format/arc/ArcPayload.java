@@ -46,45 +46,55 @@ import java.io.InputStream;
  */
 public class ArcPayload {
 
-	/** Payload content. */
-	protected InputStream in;
+    /** Payload content. */
+    private static final int BUFFER_SIZE = 4096;
 
-	/** Payload length. */
-	protected long length;
+    /** Payload content. */
+    protected InputStream in;
 
-	/**
-	 * Creates new <code>NetworkDoc</code> instance.
-	 * @param in the input stream to parse.
-	 * @param length network doc length.
-	 * @param containsProtocolResponse specifies if the network doc 
-	 * must contain protocol response or not.  
-	 * @throws IOException
-	 */
-	public ArcPayload(InputStream in, long length) throws IOException {
-		if (in == null) {
-			throw new IllegalArgumentException("in");
-		}
-		this.length = length;
-		this.in = new BufferedInputStream(new ByteBoundInputStream(in, length), 4096);
-	}
+    /** Payload length. */
+    protected long length;
 
-	public InputStream getInputStream() {
-		return in;
-	}
+    /**
+     * Creates new <code>ArcPayload</code> instance.
+     * @param in the input stream to parse.
+     * @param length payload length.
+     * @throws IOException io exception in reading process
+     */
+    public ArcPayload(InputStream in, long length) throws IOException {
+        if (in == null) {
+            throw new IllegalArgumentException("in");
+        }
+        this.length = length;
+        this.in = new BufferedInputStream(
+                        new ByteBoundInputStream(in, length), BUFFER_SIZE);
+    }
 
-	public long getLength() {
-		return length;
-	}
+    /**
+     * Get <code>InputStream</code> to read payload data.
+     * @return <code>InputStream</code> to read payload data.
+     */
+    public InputStream getInputStream() {
+        return in;
+    }
 
-	/**
-	 * Closes the this payload stream, skipping unread bytes in the process.
-	 */
-	public void close() {
-	    try {
-	        in.close();
-	    }
-	    catch (IOException e) { /* Ignore... */ }
-	    in = null;
-	}
+    /**
+     * Get payload length.
+     * @return payload length
+     */
+    public long getLength() {
+        return length;
+    }
+
+    /**
+     * Closes the this payload stream, skipping unread bytes in the process.
+     */
+    public void close() {
+        try {
+            in.close();
+        }
+        catch (IOException e) { /* Ignore... */ }
+        in = null;
+    }
 
 }

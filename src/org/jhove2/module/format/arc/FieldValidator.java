@@ -39,31 +39,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Field validator utility class. 
+ * Field validator utility class.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public class FieldValidator {
 
-	protected String[] fieldNames;
+    /** Array of field names. */
+    protected String[] fieldNames;
 
-	protected Map<String, Integer> fieldIdxMap = new HashMap<String, Integer>();
+    /** <code>Map</code> of field name to field index mappings. */
+    protected Map<String, Integer> fieldIdxMap = new HashMap<String, Integer>();
 
-	protected FieldValidator() {
-	}
+    /**
+     * Protected constructor to ensure correct instantiation.
+     */
+    protected FieldValidator() {
+    }
 
-	public static FieldValidator prepare(String[] fieldNames) {
-		FieldValidator fd = new FieldValidator();
-		fd.fieldNames = fieldNames;
-		for (int i=0; i<fieldNames.length; ++i) {
-			fd.fieldIdxMap.put(fieldNames[i], i);
-		}
-		return fd;
-	}
+    /**
+     * Prepares a validator for use on a given set of fields.
+     * @param fieldNames array of field names.
+     * @return validator used to look field by field name->index.
+     */
+    public static FieldValidator prepare(String[] fieldNames) {
+        FieldValidator fd = new FieldValidator();
+        fd.fieldNames = fieldNames;
+        for (int i=0; i<fieldNames.length; ++i) {
+            fd.fieldIdxMap.put(fieldNames[i], i);
+        }
+        return fd;
+    }
 
+    /**
+     * Checks to if the index is out of bounds in the give array and also
+     * if the value if null or empty.
+     * @param array source value array
+     * @param idx desired index into array
+     * @return value index in array or null
+     */
     public static String getArrayValue(String[] array, int idx) {
         return ((array.length > idx) && (array[idx] != null) &&
-                (array[idx].length() != 0))? array[idx]: null;
+                (array[idx].length() != 0))? array[idx] : null;
     }
 
     /*

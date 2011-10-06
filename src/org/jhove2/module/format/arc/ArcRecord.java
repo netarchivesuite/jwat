@@ -45,89 +45,104 @@ import java.util.Collection;
  */
 public class ArcRecord extends ArcRecordBase {
 
-	public static final String CONTENT_TYPE_NO_TYPE = "no-type";
+    /** Special content-type for none. */
+    public static final String CONTENT_TYPE_NO_TYPE = "no-type";
 
-	public HttpResponse httpResponse = null;
+    /** HttpResponse header content parse from payload. */
+    public HttpResponse httpResponse = null;
 
-	protected ArcRecord() {
-	}
+    /**
+     * Protected constructor to force instantiation of record header
+     * from stream.
+     */
+    protected ArcRecord() {
+    }
 
-	public static ArcRecord parseArcRecord(ByteCountingInputStream in,
-										ArcVersionBlock versionBlock) {
-		ArcRecord ar = new ArcRecord();
-		ar.versionBlock = versionBlock;
-		ar.version = versionBlock.version;
-		try {
-			// Read record line.
-			// Looping past empty lines.
-			ar.startOffset = in.getOffset();
-			String recordLine = in.readLine();
-			while ((recordLine != null) && (recordLine.length() == 0)) { 
-				ar.startOffset = in.getOffset();
-				recordLine = in.readLine();
-			}
-			if (recordLine != null) {
-				ar.parseRecord(recordLine);
-			}
-			else {
-				// EOF
-				ar = null;
-			}
-			if (ar != null) {
-				ar.processPayload(in);
-			}
-		}
-		catch (IOException e) {
-		}
-		return ar;
-	}
+    /**
+     * Creates new <code>ArcRecord</code> based on data read from input
+     * stream.
+     * @param in <code>InputStream</code> used to read record header
+     * @param versionBlock ARC file <code>VersionBlock</code>
+     * @return an <code>ArcRecord</code> or null if none was found.
+     */
+    public static ArcRecord parseArcRecord(ByteCountingInputStream in,
+                                        ArcVersionBlock versionBlock) {
+        ArcRecord ar = new ArcRecord();
+        ar.versionBlock = versionBlock;
+        ar.version = versionBlock.version;
+        try {
+            // Read record line.
+            // Looping past empty lines.
+            ar.startOffset = in.getOffset();
+            String recordLine = in.readLine();
+            while ((recordLine != null) && (recordLine.length() == 0)) {
+                ar.startOffset = in.getOffset();
+                recordLine = in.readLine();
+            }
+            if (recordLine != null) {
+                ar.parseRecord(recordLine);
+            }
+            else {
+                // EOF
+                ar = null;
+            }
+            if (ar != null) {
+                ar.processPayload(in);
+            }
+        }
+        catch (IOException e) { /* Ignore */ }
+        return ar;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jhove2.module.format.arc.ArcRecordBase#parseNetworkDoc()
-	 */
-	protected void processPayload(ByteCountingInputStream in) throws IOException {
-	    payload = null;
-		if (r_length != null && r_length > 0L) {
-			payload = new ArcPayload(in, r_length.longValue());
-			if (HttpResponse.isSupported(protocol)
-							&& !CONTENT_TYPE_NO_TYPE.equals(r_contentType)) {
-				httpResponse = HttpResponse.parseProtocolResponse(payload.in,
-														r_length.longValue());
-			}
-		}
-		else if (HttpResponse.isSupported(protocol)
-							&& !CONTENT_TYPE_NO_TYPE.equals(r_contentType)) {
-			// TODO warning payload expected
-		}
-	    return;
-	}
-	
-	/**
-	 * Checks if the ARC record has warnings.
-	 * @return true/false based on whether the ARC record has warnings or not 
-	 */
-	@Override
-	public boolean hasWarnings() {
-	    return ((httpResponse != null) && (httpResponse.hasWarnings()));
-	}
+    /* (non-Javadoc)
+     * @see org.jhove2.module.format.arc.ArcRecordBase#parseNetworkDoc()
+     */
+    @Override
+    protected void processPayload(ByteCountingInputStream in) throws IOException {
+        payload = null;
+        if (recLength != null && recLength > 0L) {
+            payload = new ArcPayload(in, recLength.longValue());
+            if (HttpResponse.isSupported(protocol)
+                            && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
+                httpResponse = HttpResponse.parseProtocolResponse(payload.in,
+                                                        recLength.longValue());
+            }
+        }
+        else if (HttpResponse.isSupported(protocol)
+                            && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
+            // TODO warning payload expected
+        }
+        return;
+    }
 
-	/**
-	 * Gets Network doc warnings.
-	 * @return validation errors list/
-	 */
-	@Override
-	public Collection<String> getWarnings() {
-	    return (hasWarnings())? httpResponse.getWarnings() : null;
-	}
+    /**
+     * Checks if the ARC record has warnings.
+     * @return true/false based on whether the ARC record has warnings or not
+     */
+    @Override
+    public boolean hasWarnings() {
+        return ((httpResponse != null) && (httpResponse.hasWarnings()));
+    }
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder(256);
-		builder.append("\nArcRecord [");
-		builder.append( super.toString() );
-		builder.append(']');
-		if ( payload != null ) {
-			builder.append( payload.toString() );
-		}
-		return builder.toString();
-	}
+    /**
+     * Gets Network doc warnings.
+     * @return validation errors list/
+     */
+    @Override
+    public Collection<String> getWarnings() {
+        return (hasWarnings())? httpResponse.getWarnings() : null;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(256);
+        builder.append("\nArcRecord [");
+        builder.append(super.toString());
+        builder.append(']');
+        if (httpResponse != null) {
+            builder.append(httpResponse.toString());
+        }
+        return builder.toString();
+    }
+
 }

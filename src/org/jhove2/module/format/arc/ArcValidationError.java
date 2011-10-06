@@ -40,8 +40,8 @@ package org.jhove2.module.format.arc;
  *
  * @author lbihanic, selghissassi
  */
-public class ArcValidationError
-{
+public class ArcValidationError {
+
     /** Supported error types {@link ArcErrorType}. */
     public final ArcErrorType error;
 
@@ -52,7 +52,7 @@ public class ArcValidationError
     public final String value;
 
     /**
-     * Creates new <code>ValidationError</code>. 
+     * Creates new <code>ValidationError</code>.
      * @param error error type {@link ArcErrorType}.
      * @param field field name.
      * @param value field value.
@@ -71,17 +71,18 @@ public class ArcValidationError
 
     @Override
     public String toString(){
-    	StringBuilder builder = new StringBuilder();
-    	builder.append('[');
-    	builder.append("error: ");
-    	builder.append(error);
-    	builder.append(", field: ");
-    	builder.append(field);
-    	if(value != null && value.length() != 0){
-    		builder.append(", value: ");
-        	builder.append(value);
-    	}
-     	builder.append(']');
-    	return builder.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append('[');
+        builder.append("error: ");
+        builder.append(error);
+        builder.append(", field: ");
+        builder.append(field);
+        if(value != null && value.length() != 0){
+            builder.append(", value: ");
+            builder.append(value);
+        }
+         builder.append(']');
+        return builder.toString();
     }
+
 }

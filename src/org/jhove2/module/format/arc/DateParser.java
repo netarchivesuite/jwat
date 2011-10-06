@@ -45,53 +45,58 @@ import java.util.TimeZone;
  *
  * @author lbihanic, selghissassi
  */
-public class DateParser {
-	// Allowed format.
-	private static final String FORMAT = "yyyyMMddHHmmss";
-	private final DateFormat dateFormat;
-	//simple date format is not thread safe
-	private final static ThreadLocal<DateParser> parser =
-		new ThreadLocal<DateParser>() {
-		public DateParser initialValue() {
-			return new DateParser();
-		}
-	};
-	/**
-	 * Creates a new <code>DateParser</code>.
-	 */
-	private DateParser() {
-		dateFormat = new SimpleDateFormat(FORMAT);
-		dateFormat.setLenient(false);
-		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-	}
+public final class DateParser {
 
-	/**
-	 * Parses a date.
-	 * @param dateToParse date to parse.
-	 * @return the formatted date.
-	 */
-	private Date doParse(String dateToParse){
-		Date formattedDate = null;
-		try {
-			if((dateToParse != null) && dateToParse.length() == 14){
-				formattedDate = dateFormat.parse(dateToParse);
-			}
-		}
-		catch (Exception e) { /* Ignore */ }
-		return formattedDate;
-	}
+    /** Allowed format string. */
+    private static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
 
-	/**
-	 * Parses the date using the format yyyyMMddHHmmss
-	 * @param dateToParse the date to parse
-	 * @return the formatted date or <code>null</code> based on whether the date 
-	 * to parse is compliant with the format yyyyMMddHHmmss or not
-	 */
-	public static Date getDate(String dateToParse)  {
-		Date formattedDate =  parser.get().doParse(dateToParse);
-		boolean isValid = (formattedDate == null) ? false : 
-			                                      (formattedDate.getTime() > 0);
-		return isValid ? formattedDate : null;
-	}
+    /** Allowed <code>DateFormat</code>. */
+    private final DateFormat dateFormat;
+
+    /** Basic <code>DateFormat</code> is not thread safe. */
+    private static final ThreadLocal<DateParser> DateParserTL =
+        new ThreadLocal<DateParser>() {
+        public DateParser initialValue() {
+            return new DateParser();
+        }
+    };
+
+    /**
+     * Creates a new <code>DateParser</code>.
+     */
+    private DateParser() {
+        dateFormat = new SimpleDateFormat(ARC_DATE_FORMAT);
+        dateFormat.setLenient(false);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
+    /**
+     * Parses a date.
+     * @param dateStr date to parse
+     * @return the formatted date
+     */
+    private Date parseDate(String dateStr) {
+        Date date = null;
+        try {
+            if ((dateStr != null)
+                            && dateStr.length() == ARC_DATE_FORMAT.length()) {
+                date = dateFormat.parse(dateStr);
+            }
+        } catch (Exception e) { /* Ignore */ }
+        return date;
+    }
+
+    /**
+     * Parses the date using the format yyyyMMddHHmmss.
+     * @param dateStr the date to parse
+     * @return the formatted date or <code>null</code> based on whether the date
+     * to parse is compliant with the format yyyyMMddHHmmss or not
+     */
+    public static Date getDate(String dateStr) {
+        Date date = DateParserTL.get().parseDate(dateStr);
+        boolean isValid = (date == null) ? false
+                                         : (date.getTime() > 0);
+        return isValid ? date : null;
+    }
 
 }

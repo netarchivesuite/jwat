@@ -73,7 +73,7 @@ public final class ByteBoundInputStream extends FilterInputStream
 	@Override
 	public int available() throws IOException {
 		return (remaining > Integer.MAX_VALUE)?
-								Integer.MAX_VALUE: (int)(remaining);
+								Integer.MAX_VALUE : (int)(remaining);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public final class ByteBoundInputStream extends FilterInputStream
 		if (this.remaining > 0L) {
 			l = super.read(b, off, (int)Math.min(len, remaining));
 			if(l > 0){
-				remaining -=l;
+				remaining -= l;
 			}
 		}
 		return l;
@@ -120,7 +120,7 @@ public final class ByteBoundInputStream extends FilterInputStream
 		if(l > 0L){
 			l = super.skip(l);
 			if(l > 0L){
-				remaining -=l;
+				remaining -= l;
 			}
 		}
 		return l;

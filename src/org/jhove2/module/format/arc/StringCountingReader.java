@@ -44,33 +44,34 @@ import java.io.StringReader;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class StringCountingReader extends StringReader
-{
-	/** New line delimiter. */
-	protected final static int NL = '\n';
+public class StringCountingReader extends StringReader {
 
-	/** Version block header length. */
-	protected final long consumedLength;
+    /** New line delimiter. */
+    protected static final int NL = '\n';
 
-	/** Offset relative to begining of stream. */
-	protected long offset = 0;
+    /** Version block header length. */
+    protected final long consumedLength;
 
-	/** Relative byte counter. */
-	protected long counter = 0;
+    /** Offset relative to beginning of stream. */
+    protected long offset = 0;
 
-	/**
-	 * Creates version block header.
-	 * @param header version block header.
-	 * @param consumedLength version block header length.
-	 */
-	public StringCountingReader(String string, long consumedLength) {
-		super(string);
-		this.consumedLength = consumedLength;
-	}
+    /** Relative byte counter. */
+    protected long counter = 0;
 
-	@Override
+    /**
+     * Creates a new <code>StringReader</code> that keeps track of
+     * consumed characters.
+     * @param string Arbitrary string.
+     * @param consumedLength version block header length.
+     */
+    public StringCountingReader(String string, long consumedLength) {
+        super(string);
+        this.consumedLength = consumedLength;
+    }
+
+    @Override
     public boolean markSupported() {
-    	return false;
+        return false;
     }
 
     @Override
@@ -79,16 +80,16 @@ public class StringCountingReader extends StringReader
 
     @Override
     public synchronized void reset() throws IOException {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
-	/**
-	 * Consumed length getter.
-	 * @return the consumed length
-	 */
-	public long getConsumedDataLength() {
-		return this.consumedLength;
-	}
+    /**
+     * Consumed length getter.
+     * @return the consumed length
+     */
+    public long getConsumedDataLength() {
+        return this.consumedLength;
+    }
 
     /**
      * Retrieve the current byte offset value.
@@ -105,26 +106,30 @@ public class StringCountingReader extends StringReader
      * @return
      */
     public void setCounter(long bytes) {
-    	counter = bytes;
+        counter = bytes;
     }
 
+    /**
+     * Get the current number of read characters.
+     * @return number of read characters
+     */
     public long getCounter() {
-    	return counter;
+        return counter;
     }
 
     @Override
     public int read() throws IOException {
-    	int c = super.read();
-    	if (c != -1) {
-    		++offset;
-    		++counter;
-    	}
-    	return c;
+        int c = super.read();
+        if (c != -1) {
+            ++offset;
+            ++counter;
+        }
+        return c;
     }
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
-    	int n = super.read(cbuf, off, len);
+        int n = super.read(cbuf, off, len);
         if (n > 0) {
             offset += n;
             counter += n;
@@ -139,11 +144,18 @@ public class StringCountingReader extends StringReader
         return n;
     }
 
+    /**
+     * Reads a line defined as characters read until encountering a
+     * <code>LF</code> or EOF.
+     * @return Line read from buffered <code>StringReader</code>
+     * @throws IOException
+     */
     public String readLine() throws IOException {
-	    StringBuilder buf = new StringBuilder();
-	    for (int c=read(); (c != -1) && (c != NL); c=read()) {
-	        buf.append((char)c);
-	    }
-	    return buf.toString();
-	}
+        StringBuilder buf = new StringBuilder();
+        for (int c=read(); (c != -1) && (c != NL); c=read()) {
+            buf.append((char)c);
+        }
+        return buf.toString();
+    }
+
 }

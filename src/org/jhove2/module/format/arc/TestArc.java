@@ -25,20 +25,20 @@ public class TestArc {
 			ArcVersionBlock version = parser.getVersionBlock();
 
 			if ( version != null ) {
-				System.out.println( "         url: " + version.r_url + " - " + version.url );
+				System.out.println( "         url: " + version.recUrl + " - " + version.url );
 				if ( version.url != null ) {
 					System.out.println( "              " + version.url.getScheme() );
 					System.out.println( "              " + version.url.getSchemeSpecificPart() );
 				}
-				System.out.println( "      ipaddr: " + version.r_ipAddress + " - " + version.inetAddress );
-				System.out.println( "        date: " + version.r_archiveDate + " - " + version.archiveDate );
-				System.out.println( "content-type: " + version.r_contentType );
-				System.out.println( " result-code: " + version.r_resultCode );
-				System.out.println( "    checksum: " + version.r_checksum );
-				System.out.println( "    location: " + version.r_location );
-				System.out.println( "      offset: " + version.r_offset );
-				System.out.println( "    filename: " + version.r_filename );
-				System.out.println( "      length: " + version.r_length );
+				System.out.println( "      ipaddr: " + version.recIpAddress + " - " + version.inetAddress );
+				System.out.println( "        date: " + version.recArchiveDate + " - " + version.archiveDate );
+				System.out.println( "content-type: " + version.recContentType );
+				System.out.println( " result-code: " + version.recResultCode );
+				System.out.println( "    checksum: " + version.recChecksum );
+				System.out.println( "    location: " + version.recLocation );
+				System.out.println( "      offset: " + version.recOffset );
+				System.out.println( "    filename: " + version.recFilename );
+				System.out.println( "      length: " + version.recLength );
 				System.out.println( "       major: " + version.versionNumber );
 				System.out.println( "       minor: " + version.reserved );
 				System.out.println( "      origin: " + version.originCode );
@@ -55,26 +55,26 @@ public class TestArc {
 					ArcRecord arcRecord = parser.getNextArcRecord();
 					if ( arcRecord != null ) {
 						System.out.println( "------------" );
-						System.out.println( "         url: " + arcRecord.r_url + " - " + arcRecord.url );
+						System.out.println( "         url: " + arcRecord.recUrl + " - " + arcRecord.url );
 						if ( arcRecord.url != null ) {
 							System.out.println( "              " + arcRecord.url.getScheme() );
 							System.out.println( "              " + arcRecord.url.getSchemeSpecificPart() );
 						}
-						System.out.println( "      ipaddr: " + arcRecord.r_ipAddress + " - " + arcRecord.inetAddress );
-						System.out.println( "        date: " + arcRecord.r_archiveDate + " - " + arcRecord.archiveDate );
-						System.out.println( "content-type: " + arcRecord.r_contentType );
-						System.out.println( " result-code: " + arcRecord.r_resultCode );
-						System.out.println( "    checksum: " + arcRecord.r_checksum );
-						System.out.println( "    location: " + arcRecord.r_location );
-						System.out.println( "      offset: " + arcRecord.r_offset );
-						System.out.println( "    filename: " + arcRecord.r_filename );
-						System.out.println( "      length: " + arcRecord.r_length );
+						System.out.println( "      ipaddr: " + arcRecord.recIpAddress + " - " + arcRecord.inetAddress );
+						System.out.println( "        date: " + arcRecord.recArchiveDate + " - " + arcRecord.archiveDate );
+						System.out.println( "content-type: " + arcRecord.recContentType );
+						System.out.println( " result-code: " + arcRecord.recResultCode );
+						System.out.println( "    checksum: " + arcRecord.recChecksum );
+						System.out.println( "    location: " + arcRecord.recLocation );
+						System.out.println( "      offset: " + arcRecord.recOffset );
+						System.out.println( "    filename: " + arcRecord.recFilename );
+						System.out.println( "      length: " + arcRecord.recLength );
 						if (arcRecord.httpResponse != null ) {
 							System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
 							System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
 							System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
 							System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
-							save( arcRecord.r_url, arcRecord.httpResponse );
+							save( arcRecord.recUrl, arcRecord.httpResponse );
 						}
 						System.out.println( "      errors: " + arcRecord.hasErrors() );
 						System.out.println( "    warnings: " + arcRecord.hasWarnings() );

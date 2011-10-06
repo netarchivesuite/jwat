@@ -42,56 +42,91 @@ package org.jhove2.module.format.arc;
  */
 public final class ArcConstants {
 
-	/** Arc file magic number */
-	public static final String ARC_SCHEME = "filedesc://";
+    /** Arc file magic number. */
+    public static final String ARC_SCHEME = "filedesc://";
 
-	/** Version block content type */
-	public static final String VERSION_BLOCK_CONTENT_TYPE = "text/plain"; 
+    /** Version block content type. */
+    public static final String VERSION_BLOCK_CONTENT_TYPE = "text/plain";
 
-	/**
-	 * Version block fields.
-	 */
-	public static final String URL_FIELD                = "URL";
-	public static final String IP_ADDRESS_FIELD         = "IP-address";
-	public static final String DATE_FIELD               = "Archive-date";
-	public static final String CONTENT_TYPE_FIELD       = "Content-type";
-	public static final String LENGTH_FIELD             = "Archive-length";
-	public static final String RESULT_CODE_FIELD        = "Result-code";
-	public static final String CHECKSUM_FIELD           = "Checksum";
-	public static final String LOCATION_FIELD           = "Location";
-	public static final String OFFSET_FIELD             = "Offset";
-	public static final String FILENAME_FIELD           = "Filename";
-	public static final String VERSION_FIELD            = "Version-number";
-	public static final String RESERVED_FIELD           = "Reserved";
-	public static final String ORIGIN_FIELD             = "Origin-code";
+    /**
+     * Record block fields.
+     */
 
-	/** Version-1-block fields */
-	public static final String[] VERSION_1_BLOCK_FIELDS = {
-	        URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
-	        LENGTH_FIELD};
-	/** Version-2-block fields */
-	public static final String[] VERSION_2_BLOCK_FIELDS = {
-	        URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
-	        RESULT_CODE_FIELD, CHECKSUM_FIELD, LOCATION_FIELD,
-	        OFFSET_FIELD, FILENAME_FIELD,
-	        LENGTH_FIELD };
+    /** Url fieldname. */
+    public static final String URL_FIELD                = "URL";
+    /** Ip-Address fieldname. */
+    public static final String IP_ADDRESS_FIELD         = "IP-address";
+    /** Date fieldname. */
+    public static final String DATE_FIELD               = "Archive-date";
+    /** Content-Type fieldname. */
+    public static final String CONTENT_TYPE_FIELD       = "Content-type";
+    /** Result-Code fieldname. */
+    public static final String RESULT_CODE_FIELD        = "Result-code";
+    /** Checksum fieldname. */
+    public static final String CHECKSUM_FIELD           = "Checksum";
+    /** Location fieldname. */
+    public static final String LOCATION_FIELD           = "Location";
+    /** Offset fieldname. */
+    public static final String OFFSET_FIELD             = "Offset";
+    /** Filename fieldname. */
+    public static final String FILENAME_FIELD           = "Filename";
+    /** Length fieldname. */
+    public static final String LENGTH_FIELD             = "Archive-length";
 
-	/** Version description fields */
-	public static final String[] VERSION_DESC_FIELDS = {
-		VERSION_FIELD, RESERVED_FIELD, ORIGIN_FIELD };
+    /**
+     * Version block fields.
+     */
 
-	public static final String VERSION_1_BLOCK_DEF =
-					join(' ', VERSION_1_BLOCK_FIELDS);
-	public static final String VERSION_2_BLOCK_DEF =
-					join(' ', VERSION_2_BLOCK_FIELDS);
+    /** Version fieldname. */
+    public static final String VERSION_FIELD            = "Version-number";
+    /** Reserved fieldname. */
+    public static final String RESERVED_FIELD           = "Reserved";
+    /** Origin fieldname. */
+    public static final String ORIGIN_FIELD             = "Origin-code";
 
-	private static final String join(char sep, String... elts) {
-		StringBuilder buf = new StringBuilder();
-		for (String s : elts) {
-			buf.append(s).append(sep);
-		}
-		buf.setLength(buf.length() - 1);
-		return buf.toString();
-	}
+    /** Version-1-block fields. */
+    public static final String[] VERSION_1_BLOCK_FIELDS = {
+            URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
+            LENGTH_FIELD};
+    /** Version-2-block fields. */
+    public static final String[] VERSION_2_BLOCK_FIELDS = {
+            URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
+            RESULT_CODE_FIELD, CHECKSUM_FIELD, LOCATION_FIELD,
+            OFFSET_FIELD, FILENAME_FIELD,
+            LENGTH_FIELD };
+
+    /** Version description fields. */
+    public static final String[] VERSION_DESC_FIELDS = {
+        VERSION_FIELD, RESERVED_FIELD, ORIGIN_FIELD };
+
+    /** Version 1 description string. */
+    public static final String VERSION_1_BLOCK_DEF =
+                    join(' ', VERSION_1_BLOCK_FIELDS);
+
+    /** Version 2 description string. */
+    public static final String VERSION_2_BLOCK_DEF =
+                    join(' ', VERSION_2_BLOCK_FIELDS);
+
+    /**
+     * Helper method for converting an array in a string using a specified
+     * separator.
+     * @param sep desired separator
+     * @param elts array of string to join
+     * @return an array joined into a string
+     */
+    private static String join(char sep, String... elts) {
+        StringBuilder buf = new StringBuilder();
+        for (String s : elts) {
+            buf.append(s).append(sep);
+        }
+        buf.setLength(buf.length() - 1);
+        return buf.toString();
+    }
+
+    /**
+     * No constructor for this utility class, static access only.
+     */
+    private ArcConstants() {
+    }
 
 }

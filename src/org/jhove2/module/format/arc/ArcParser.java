@@ -44,52 +44,60 @@ import java.io.InputStream;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class ArcParser 
-{
-	protected ByteCountingInputStream in;
+public class ArcParser  {
 
-	protected ArcVersionBlock versionBlock = null;
+    /** ARC file <code>InputStream</code>. */
+    protected ByteCountingInputStream in;
 
-	protected ArcRecord arcRecord = null;
+    /** ARC version block object. */
+    protected ArcVersionBlock versionBlock = null;
 
-	/**
-	 * Creates a new ARC parser.
-	 */
-	public ArcParser(InputStream in) {
-		super();
-		if (in == null) {
-		    throw new IllegalArgumentException("in");
-		}
-		this.in = new ByteCountingInputStream(in);
-	}
+    /** Current ARC record object. */
+    protected ArcRecord arcRecord = null;
 
-	public long getOffset() {
-		return in.getOffset();
-	}
+    /**
+     * Creates a new ARC parser from an <code>InputStream</code>.
+     * @param in ARC file <code>InputStream</code>
+     */
+    public ArcParser(InputStream in) {
+        super();
+        if (in == null) {
+            throw new IllegalArgumentException("in");
+        }
+        this.in = new ByteCountingInputStream(in);
+    }
 
-	/**
-	 * Parses and gets the version block of the ARC file.
-	 * @return the version block of the ARC file
-	 * @throws IOException
-	 * @throws JHOVE2Exception 
-	 */
-	public ArcVersionBlock getVersionBlock() throws IOException {
-		versionBlock = ArcVersionBlock.parseVersionBlock(in);
-		return versionBlock;
-	}
+    /**
+     * Get the currect offset in the ARC <code>InputStream</code>.
+     * @return offset in ARC <code>InputStream</code>
+     */
+    public long getOffset() {
+        return in.getOffset();
+    }
 
-	/**
-	 * Parses and gets the next ARC record.
-	 * @param version ARC file version
-	 * @param fields URL record definition fields 
-	 * @return the next ARC record
-	 * @throws IOException
-	 */
-	public ArcRecord getNextArcRecord() throws IOException {
-		if ( arcRecord != null ) {
-			arcRecord.close();
-		}
-		arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
-		return arcRecord;
-	}
+    /**
+     * Parses and gets the version block of the ARC file.
+     * @return the version block of the ARC file
+     * @throws IOException io exception in reading process
+     */
+    public ArcVersionBlock getVersionBlock() throws IOException {
+        versionBlock = ArcVersionBlock.parseVersionBlock(in);
+        return versionBlock;
+    }
+
+    /**
+     * Parses and gets the next ARC record.
+     * @param version ARC file version
+     * @param fields URL record definition fields
+     * @return the next ARC record
+     * @throws IOException io exception in reading process
+     */
+    public ArcRecord getNextArcRecord() throws IOException {
+        if (arcRecord != null) {
+            arcRecord.close();
+        }
+        arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
+        return arcRecord;
+    }
+
 }

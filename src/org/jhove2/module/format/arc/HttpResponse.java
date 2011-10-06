@@ -53,11 +53,11 @@ public class HttpResponse {
 	public static final String PROTOCOL_HTTP = "http";
 	public static final String PROTOCOL_HTTPS = "https";
 
-	private final static int LF = '\n';
-	private final static int CR = '\r';
+	protected final static int LF = '\n';
+	protected final static int CR = '\r';
 
-	private final static String HTTP = "HTTP";
-	private final static String CONTENT_TYPE = "Content-Type:".toUpperCase();
+	protected final static String HTTP = "HTTP";
+	protected final static String CONTENT_TYPE = "Content-Type:".toUpperCase();
 
 	/** <code>InputStream</code> to read payload. */
 	public InputStream in;
@@ -75,7 +75,7 @@ public class HttpResponse {
 	public long objectSize = 0L;
 
 	/** Warnings detected when processing HTTP protocol response. */
-	private List<String> warnings = null;
+	protected List<String> warnings = null;
 
 	public static boolean isSupported(String protocol) {
 		return ((PROTOCOL_HTTP.equalsIgnoreCase(protocol) || PROTOCOL_HTTPS.equalsIgnoreCase(protocol)));
@@ -99,7 +99,7 @@ public class HttpResponse {
 	 * @param firstLine the first line of the HTTP response 
 	 * @return true/false based on whether the protocol response is valid or not.
 	 */
-	private boolean isProtocolResponseValid(String firstLine){
+	protected boolean isProtocolResponseValid(String firstLine){
 		boolean isValid = (firstLine != null);
 		if(isValid){
 			String [] parameters = firstLine.split(" ");
@@ -128,7 +128,7 @@ public class HttpResponse {
 	 * @return the bytes read
 	 * @throws IOException
 	 */
-	private long readProtocolResponse(InputStream in, long recordlength) 
+	protected long readProtocolResponse(InputStream in, long recordlength) 
 							throws IOException {
 		long remaining = recordlength;
 		boolean firstLineMatched = false;
@@ -193,7 +193,7 @@ public class HttpResponse {
 	 * @return
 	 * @throws IOException
 	 */
-	public LineToken readStringUntilCRLF(InputStream in, long max)
+	protected LineToken readStringUntilCRLF(InputStream in, long max)
 	                                                    throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(256);
 		int b;

@@ -181,6 +181,6 @@ public class ByteCountingInputStream extends FilterInputStream
 				--i;
 			}
 		}
-		return (bos!=null)? bos.toString("US-ASCII"): null;
+		return (bos!=null)? bos.toString("US-ASCII") : null;
 	}
 }
