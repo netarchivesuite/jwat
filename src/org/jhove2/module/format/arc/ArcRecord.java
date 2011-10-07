@@ -104,7 +104,7 @@ public class ArcRecord extends ArcRecordBase {
             payload = new ArcPayload(in, recLength.longValue());
             if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
-                httpResponse = HttpResponse.parseProtocolResponse(payload.in,
+                httpResponse = HttpResponse.processPayload(payload.in,
                                                         recLength.longValue());
             }
         }

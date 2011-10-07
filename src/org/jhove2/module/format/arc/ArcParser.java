@@ -87,8 +87,6 @@ public class ArcParser  {
 
     /**
      * Parses and gets the next ARC record.
-     * @param version ARC file version
-     * @param fields URL record definition fields
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
@@ -97,6 +95,25 @@ public class ArcParser  {
             arcRecord.close();
         }
         arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
+        return arcRecord;
+    }
+
+    /**
+     * Parses and gets the next ARC record.
+     * @param inExt ARC record <code>InputStream</code>
+     * @param offset offset dictated by external factors
+     * @return the next ARC record
+     * @throws IOException io exception in reading process
+     */
+    public ArcRecord getNextArcRecord(InputStream inExt, long offset)
+                                                        throws IOException {
+        if (arcRecord != null) {
+            arcRecord.close();
+        }
+        ByteCountingInputStream bcin = new ByteCountingInputStream(inExt);
+        arcRecord = ArcRecord.parseArcRecord(bcin, versionBlock);
+        arcRecord.startOffset = offset;
+        bcin.close();
         return arcRecord;
     }
 

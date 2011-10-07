@@ -50,43 +50,59 @@ import java.util.List;
  */
 public class HttpResponse {
 
+    /** Http scheme. */
 	public static final String PROTOCOL_HTTP = "http";
+	/** Https scheme. */
 	public static final String PROTOCOL_HTTPS = "https";
 
-	protected final static int LF = '\n';
-	protected final static int CR = '\r';
+	/** Line feed constant. */
+	protected static final int LF = '\n';
+	/** Carriage return constant. */
+	protected static final int CR = '\r';
 
-	protected final static String HTTP = "HTTP";
-	protected final static String CONTENT_TYPE = "Content-Type:".toUpperCase();
+	/** Http protocol. */
+	protected static final String HTTP = "HTTP";
+
+	/** Content-type header name. */
+	protected static final String CONTENT_TYPE = "Content-Type:".toUpperCase();
 
 	/** <code>InputStream</code> to read payload. */
-	public InputStream in;
+	protected InputStream in;
 
-	/** Protocol response result code */
+	/** Http result code. */
 	public String resultCode;
 
-	/** Protocol response version */
+	/** Http protocol version. */
 	public String protocolVersion;
 
-	/** Protocol response content type */
+	/** Http content Content-type. */
 	public String contentType;
 
-	/** Object size, in bytes */
+	/** Object size, in bytes. */
 	public long objectSize = 0L;
 
 	/** Warnings detected when processing HTTP protocol response. */
 	protected List<String> warnings = null;
 
+	/**
+	 * Boolean indicating whether a protocol is supported by this 
+	 * payload inspector.
+	 * @param protocol protocol name
+	 * @return true/false if the protocol is supported or not.
+	 */
 	public static boolean isSupported(String protocol) {
-		return ((PROTOCOL_HTTP.equalsIgnoreCase(protocol) || PROTOCOL_HTTPS.equalsIgnoreCase(protocol)));
+		return ((PROTOCOL_HTTP.equalsIgnoreCase(protocol)
+		        || PROTOCOL_HTTPS.equalsIgnoreCase(protocol)));
 	}
 
 	/**
-	 * Reads the HTTP protocol response.
-	 * @param in input response
-	 * @throws IOException
+	 * Reads the HTTP protocol response and return it as an object.
+	 * @param in payload input stream
+	 * @param length payload length
+	 * @return <code>HttpResponse</code> based on the http headers
+	 * @throws IOException io exception while identifying http header.
 	 */
-	public static HttpResponse parseProtocolResponse(InputStream in, long length) 
+	public static HttpResponse processPayload(InputStream in, long length) 
 	                                                     throws IOException {
 		HttpResponse hr = new HttpResponse();
 		hr.in = in;
@@ -99,14 +115,14 @@ public class HttpResponse {
 	 * @param firstLine the first line of the HTTP response 
 	 * @return true/false based on whether the protocol response is valid or not.
 	 */
-	protected boolean isProtocolResponseValid(String firstLine){
+	protected boolean isProtocolResponseValid(String firstLine) {
 		boolean isValid = (firstLine != null);
 		if(isValid){
 			String [] parameters = firstLine.split(" ");
 			if(parameters.length < 2 || !parameters[0].startsWith(HTTP)) {
 				isValid = false;
 			}
-			if(isValid) {
+			if (isValid) {
 				try {
 					int parameter = Integer.parseInt(parameters[1]);
 					if(parameter < 100 || parameter > 999) {
@@ -126,7 +142,7 @@ public class HttpResponse {
 	 * @param in the input stream to parse.
 	 * @param recordlength the record length.
 	 * @return the bytes read
-	 * @throws IOException
+	 * @throws IOException io exception while reading http headers
 	 */
 	protected long readProtocolResponse(InputStream in, long recordlength) 
 							throws IOException {
@@ -169,7 +185,7 @@ public class HttpResponse {
 				this.contentType = l.substring(l.indexOf(':') + 1).trim();
 			}
 		}
-		if (invalidProtocolResponse){
+		if (invalidProtocolResponse) {
 			//if the protocol response is invalid, re-read the input stream. In this case
 			//the object of the ARC record is equal to network doc.
 			in.reset();
@@ -187,11 +203,11 @@ public class HttpResponse {
 	}
 
 	/**
-	 * Read a CRLF terminated string in the stream (keep track of the position)
+	 * Read a CRLF terminated string in the stream (keep track of the position).
 	 * @param in the input stream to parse
 	 * @param max the max length 
-	 * @return
-	 * @throws IOException
+	 * @return a CRLF terminated string
+	 * @throws IOException io exception while reading line
 	 */
 	protected LineToken readStringUntilCRLF(InputStream in, long max)
 	                                                    throws IOException {
@@ -234,30 +250,32 @@ public class HttpResponse {
 	}
 
 	/**
-	 * warnings getter
+	 * Warnings getter.
 	 * @return the warnings
 	 */
 	public List<String> getWarnings() {
 		return Collections.unmodifiableList(this.warnings);
 	}
 
+	/**
+	 * Boolean indicating whether this http noted any warnings while parsing 
+	 * the headers.
+	 * @return true/false indicating if there are warnings
+	 */
 	public boolean hasWarnings() {
-	    return ((this.warnings != null) && (this.warnings.isEmpty() == false));
+	    return ((warnings != null) && warnings.isEmpty());
 	}
 
+	/**
+	 * Add an additional warning message to the list.
+	 * @param w warning message
+	 */
 	private void addWarning(String w) {
 	    if (this.warnings == null) {
 	        this.warnings = new LinkedList<String>();
 	    }
 	    this.warnings.add(w);
 	}
-
-	/**
-	 * Protocol response fields
-	 */
-	//private Integer protocolResultCode;
-	//private String protocolVersion;
-	//private String protocolContentType;
 
 	/**
 	 * Network doc setter.
@@ -280,56 +298,38 @@ public class HttpResponse {
 	*/
 
 	/**
-	 * Gets network doc content type.
-	 * @return the content type of the network doc.
+	 * Result-Code getter
+	 * @return the ResultCode
 	 */
-	/*
-	public String getFormat(){
-		return (protocolContentType != null && protocolContentType.length() > 0)
-				? protocolContentType : r_contentType;
+	public String getProtocolResultCode() {
+		return resultCode;
 	}
-	*/
-
-	/**
-	 * protocolResultCode getter
-	 * @return the protocolResultCode
-	 */
-	/*
-	public Integer getProtocolResultCode() {
-		return protocolResultCode;
-	}
-	*/
 
 	/**
 	 * protocolVersion getter
 	 * @return the protocolVersion
 	 */
-	/*
 	public String getProtocolVersion() {
 		return protocolVersion;
 	}
-	*/
 
 	/**
-	 * protocolContentType getter
-	 * @return the protocolContentType
+	 * Content-Type getter
+	 * @return the Content-Type
 	 */
-	/*
 	public String getProtocolContentType() {
-		return protocolContentType;
+		return contentType;
 	}
-	*/
 
 	/**
 	 * Gets ARC record object size.
 	 * @return the object size
 	 */
-	/*
 	public long getObjectSize() {
-		return (payload != null) ? payload.objectSize : 0L;
+		return objectSize;
 	}
-	*/
 
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(256);
 		builder.append("\nHttpResponse : [\n");
@@ -349,8 +349,7 @@ public class HttpResponse {
 		return builder.toString();
 	}
 
-	private final static class LineToken
-    {
+	private static final class LineToken {
         public final String line;
         public final int consumed;
         public final boolean missingLf;
@@ -364,4 +363,5 @@ public class HttpResponse {
             this.missingCr = missingCr;
         }
     }
+
 }
