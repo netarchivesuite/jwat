@@ -46,21 +46,19 @@ import java.io.InputStream;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class ByteCountingInputStream extends FilterInputStream
-{
-	/** New line delimiter. */
-	public final static int NL = '\n';
+public class ByteCountingInputStream extends FilterInputStream {
 
-	/** Offset relative to begining of stream. */
-	protected long offset = 0;
+    /** New line delimiter. */
+    public static final int NL = '\n';
 
-	/** Relative byte counter. */
-	protected long counter = 0;
+    /** Offset relative to begining of stream. */
+    protected long consumed = 0;
 
-	//protected long mark = 0L;
+    /** Relative byte counter. */
+    protected long counter = 0;
 
     /**
-     * Constructs an <code>InputStream</code> that counts the bytes 
+     * Constructs an <code>InputStream</code> that counts the bytes
      * its reads.
      * @param parent InputStream to wrap
      */
@@ -68,16 +66,12 @@ public class ByteCountingInputStream extends FilterInputStream
         super(parent);
     }
 
-	public long getConsumedDataLength() {
-		return offset;
-	}
-
     /**
-     * Retrieve the current byte offset value.
-     * @return current byte offset in stream
+     * Retrieve the number of consumed bytes by this stream.
+     * @return current byte offset in this stream
      */
-    public long getOffset() {
-        return offset;
+    public long getConsumed() {
+        return consumed;
     }
 
     /**
@@ -87,47 +81,46 @@ public class ByteCountingInputStream extends FilterInputStream
      * @return
      */
     public void setCounter(long bytes) {
-    	counter = bytes;
+        counter = bytes;
     }
 
+    /**
+     * Retrieve the current relative counter value.
+     * @return current relative counter value
+     */
     public long getCounter() {
-    	return counter;
+        return counter;
     }
 
-	@Override
+    @Override
     public boolean markSupported() {
-    	return false;
+        return false;
     }
 
     @Override
     public synchronized void mark(int readlimit) {
-        //super.mark(readlimit);
-        //this.mark = this.offset;
     }
 
     @Override
     public synchronized void reset() throws IOException {
-        // Will not work unless the whole stream is not in the buffer.
-    	//super.reset();
-        //this.offset = this.mark;
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int read() throws IOException {
         int b = super.read();
         if (b != -1) {
-        	++offset;
-        	++counter;
+            ++consumed;
+            ++counter;
         }
         return b;
     }
 
     @Override
-    public int read(byte b[], int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         int n = super.read(b, off, len);
         if (n > 0) {
-            offset += n;
+            consumed += n;
             counter += n;
         }
         return n;
@@ -136,51 +129,52 @@ public class ByteCountingInputStream extends FilterInputStream
     @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        this.offset += n;
+        this.consumed += n;
         return n;
     }
 
     /**
-     * Read a single line into a string.  
+     * Read a single line into a string.
      * @return single string line
-     * @throws IOException
+     * @throws IOException io exception while reading line
      */
     public String readLine() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
         int b;
         while (true) {
-        	b = this.read();
+            b = this.read();
             if (b == -1) {
-            	return null;	//Unexpected EOF
+                return null;    //Unexpected EOF
             }
             if (b == NL){
-            	break;
+                break;
             }
             bos.write(b);
         }
         return bos.toString("US-ASCII");
     }
 
-	/**
-	 * Read several lines into one string.
-	 * @param lines number of lines to read
-	 * @return String counting the requested amount of lines.
-	 * @throws IOException
-	 */
-	public String readLines(int lines) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
-		int i = lines;
-		while (i > 0) {
-			int b = this.read();
-			if (b == -1) {
-				bos = null;
-				break; 			// Unexpected EOF!
-			}
-			bos.write(b);
-			if (b == NL) {
-				--i;
-			}
-		}
-		return (bos!=null)? bos.toString("US-ASCII") : null;
-	}
+    /**
+     * Read several lines into one string.
+     * @param lines number of lines to read
+     * @return String counting the requested amount of lines.
+     * @throws IOException io exception while reading line
+     */
+    public String readLines(int lines) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        int i = lines;
+        while (i > 0) {
+            int b = this.read();
+            if (b == -1) {
+                bos = null;
+                break;             // Unexpected EOF!
+            }
+            bos.write(b);
+            if (b == NL) {
+                --i;
+            }
+        }
+        return (bos!=null)? bos.toString("US-ASCII") : null;
+    }
+
 }

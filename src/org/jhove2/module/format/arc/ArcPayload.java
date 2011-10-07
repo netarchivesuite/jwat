@@ -88,12 +88,10 @@ public class ArcPayload {
 
     /**
      * Closes the this payload stream, skipping unread bytes in the process.
+     * @throws IOException io exception in closing process
      */
-    public void close() {
-        try {
-            in.close();
-        }
-        catch (IOException e) { /* Ignore... */ }
+    public void close() throws IOException {
+        in.close();
         in = null;
     }
 

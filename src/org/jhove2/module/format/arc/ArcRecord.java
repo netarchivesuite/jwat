@@ -73,10 +73,10 @@ public class ArcRecord extends ArcRecordBase {
         try {
             // Read record line.
             // Looping past empty lines.
-            ar.startOffset = in.getOffset();
+            ar.startOffset = in.getConsumed();
             String recordLine = in.readLine();
             while ((recordLine != null) && (recordLine.length() == 0)) {
-                ar.startOffset = in.getOffset();
+                ar.startOffset = in.getConsumed();
                 recordLine = in.readLine();
             }
             if (recordLine != null) {

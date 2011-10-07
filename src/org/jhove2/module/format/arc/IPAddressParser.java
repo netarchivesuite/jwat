@@ -44,28 +44,40 @@ import java.util.regex.Pattern;
  *
  * @author lbihanic, selghissassi
  */
-public class IPAddressParser {
-	private static final String IP_ADDRESS_REG_EXP = 
-		"([0-9a-fA-F]{0,4}:){0,6}(" +             // Optional IPv6 start
+public final class IPAddressParser {
+
+    /** Regular expression for Ipv4 or Ipv6 address. */
+    private static final String IP_ADDRESS_REG_EXP =
+        "([0-9a-fA-F]{0,4}:){0,6}(" +             // Optional IPv6 start
         "([0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4})|" + // True IPv6 address or
         "(([0-9]{1,3}\\.){3}[0-9]{1,3}))";      // Standalone or mixed IPv4 address
-	private static final Pattern IP_ADDRESS_PATTERN = Pattern.compile(IP_ADDRESS_REG_EXP);
-	/**
-	 * Checks the validity of an IP address. Supports both IP v4 and IP v6 formats.
-	 * @param ipAddress the IP address
-	 * @return true/false based on whether IP address is valid or not
-	 */
-	public static InetAddress getAddress(String ipAddress){
-		boolean isValid = (ipAddress == null) ? false :
-			IP_ADDRESS_PATTERN.matcher(ipAddress).matches();
-		InetAddress inetAddress = null;
-		if(isValid){
-			try {
-				inetAddress = InetAddress.getByName(ipAddress);
-			} catch (UnknownHostException e) {
-				isValid = false;
-			}
-		}
-		return (isValid)? inetAddress : null;
-	}
+
+    /** IpAddress compiled regex pattern. */
+    private static final Pattern IP_ADDRESS_PATTERN = Pattern.compile(IP_ADDRESS_REG_EXP);
+
+    /**
+     * Checks the validity of an IP address. Supports both IP v4 and IP v6 formats.
+     * @param ipAddress the IP address
+     * @return true/false based on whether IP address is valid or not
+     */
+    public static InetAddress getAddress(String ipAddress){
+        boolean isValid = (ipAddress == null) ? false
+                            : IP_ADDRESS_PATTERN.matcher(ipAddress).matches();
+        InetAddress inetAddress = null;
+        if(isValid){
+            try {
+                inetAddress = InetAddress.getByName(ipAddress);
+            } catch (UnknownHostException e) {
+                isValid = false;
+            }
+        }
+        return (isValid) ? inetAddress : null;
+    }
+
+    /**
+     * No constructor for this utility class, static access only.
+     */
+    private IPAddressParser() {
+    }
+
 }

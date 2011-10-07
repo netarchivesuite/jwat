@@ -252,7 +252,7 @@ public abstract class ArcRecordBase {
      * Close resources associated with the ARC record. 
      * Mainly payload stream if any.
      */
-    public void close() {
+    public void close() throws IOException {
         if (payload != null) {
             payload.close();
         }

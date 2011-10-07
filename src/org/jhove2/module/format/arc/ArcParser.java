@@ -72,7 +72,7 @@ public class ArcParser  {
      * @return offset in ARC <code>InputStream</code>
      */
     public long getOffset() {
-        return in.getOffset();
+        return in.getConsumed();
     }
 
     /**

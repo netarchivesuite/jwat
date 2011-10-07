@@ -46,83 +46,85 @@ import java.io.InputStream;
  *
  * @author lbihanic, selghissassi
  */
-public final class ByteBoundInputStream extends FilterInputStream
-{
-	/** Remaining bytes. */
-	private long remaining;
+public final class ByteBoundInputStream extends FilterInputStream {
 
-	/**
-	 * Creates new <code>NetworkDocInputStream</code>. 
-	 * 
-	 * @param in the input stream to parse.
-	 * @param remaining remaining bytes.
-	 */
-	public ByteBoundInputStream(InputStream in, long remaining) {
-		super(in);
-		this.remaining = remaining;
-	}
+    /** Remaining bytes. */
+    private long remaining;
 
-	@Override
-	public void close() throws IOException {
-		if (remaining > 0L) {
-			System.out.println("skipping: " + remaining);
-			skip(remaining);
-		}
-	}
+    /**
+     * Creates new <code>NetworkDocInputStream</code>.
+     *
+     * @param in the input stream to parse.
+     * @param remaining remaining bytes.
+     */
+    public ByteBoundInputStream(InputStream in, long remaining) {
+        super(in);
+        this.remaining = remaining;
+    }
 
-	@Override
-	public int available() throws IOException {
-		return (remaining > Integer.MAX_VALUE)?
-								Integer.MAX_VALUE : (int)(remaining);
-	}
+    @Override
+    public void close() throws IOException {
+        if (remaining > 0L) {
+            long skip = remaining;
+            skip -= skip(remaining);
+            if (skip > 0) {
+                throw new IOException("Illegal internal state.");
+            }
+        }
+    }
 
-	@Override
-	public boolean markSupported() {
-		return false;
-	}
+    @Override
+    public int available() throws IOException {
+        return (remaining > Integer.MAX_VALUE)
+                                ? Integer.MAX_VALUE : (int)(remaining);
+    }
 
-	@Override
-	public synchronized void mark(int readlimit) {
-		//super.mark(readlimit);
-	}
+    @Override
+    public boolean markSupported() {
+        return false;
+    }
 
-	@Override
-	public synchronized void reset() throws IOException {
-		//super.reset();
-    	throw new UnsupportedOperationException();
-	}
+    @Override
+    public synchronized void mark(int readlimit) {
+    }
 
-	@Override
-	public int read(byte b[], int off, int len) throws IOException {
-		int l = -1;
-		if (this.remaining > 0L) {
-			l = super.read(b, off, (int)Math.min(len, remaining));
-			if(l > 0){
-				remaining -= l;
-			}
-		}
-		return l;
-	}
+    @Override
+    public synchronized void reset() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public int read() throws IOException {
-		int b = -1;
-		if (remaining > 0L) {
-			b = super.read();
-			--remaining;
-		}
-		return b;
-	}
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int l = -1;
+        if (this.remaining > 0L) {
+            l = super.read(b, off, (int)Math.min(len, remaining));
+            if(l > 0){
+                remaining -= l;
+            }
+        }
+        return l;
+    }
 
-	@Override
-	public long skip(long n) throws IOException {
-		long l = Math.min(n, remaining);
-		if(l > 0L){
-			l = super.skip(l);
-			if(l > 0L){
-				remaining -= l;
-			}
-		}
-		return l;
-	}
+    @Override
+    public int read() throws IOException {
+        int b = -1;
+        if (remaining > 0L) {
+            b = super.read();
+            --remaining;
+        }
+        return b;
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+        long l = Math.min(n, remaining);
+        if(l > 0L){
+            l = super.skip(l);
+            if (l > 0L) {
+                remaining -= l;
+            }
+        }
+        return l;
+    }
+
 }

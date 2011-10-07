@@ -114,7 +114,7 @@ public class ArcVersionBlock extends ArcRecordBase {
             vb.isVersionValid = false;
             vb.isValidFieldDesc = false;
             // Read 3 line header.
-            vb.startOffset = in.getOffset();
+            vb.startOffset = in.getConsumed();
             String recordLine = in.readLine();
             in.setCounter(0);
             String versionLine = in.readLine();
