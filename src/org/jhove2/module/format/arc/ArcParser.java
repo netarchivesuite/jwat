@@ -68,6 +68,26 @@ public class ArcParser  {
     }
 
     /**
+     * Close all open resources. 
+     */
+    public void close() {
+        if (arcRecord != null) {
+            try {
+                arcRecord.close();
+            }
+            catch (IOException e) { /* ignore */ }
+            arcRecord = null;
+        }
+        if (in != null) {
+            try {
+                in.close();
+            }
+            catch (IOException e) { /* ignore */ }
+            in = null;
+        }
+    }
+
+    /**
      * Get the currect offset in the ARC <code>InputStream</code>.
      * @return offset in ARC <code>InputStream</code>
      */

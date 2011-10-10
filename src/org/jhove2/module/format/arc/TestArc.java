@@ -87,6 +87,8 @@ public class TestArc {
 				System.out.println( "------------" );
 				System.out.println( "     Records: " + records );
 			}
+			parser.close();
+			in.close();
 		}
 		catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
