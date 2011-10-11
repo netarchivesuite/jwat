@@ -491,7 +491,7 @@ public abstract class ArcRecordBase {
     protected Date parseDate(String dateStr) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
-                date = DateParser.getDate(dateStr);
+                date = ArcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
                     addValidationError(ArcErrorType.INVALID, ArcConstants.DATE_FIELD, dateStr);

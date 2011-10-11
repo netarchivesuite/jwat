@@ -45,7 +45,7 @@ import java.util.TimeZone;
  *
  * @author lbihanic, selghissassi
  */
-public final class DateParser {
+public final class ArcDateParser {
 
     /** Allowed format string. */
     private static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
@@ -54,17 +54,17 @@ public final class DateParser {
     private final DateFormat dateFormat;
 
     /** Basic <code>DateFormat</code> is not thread safe. */
-    private static final ThreadLocal<DateParser> DateParserTL =
-        new ThreadLocal<DateParser>() {
-        public DateParser initialValue() {
-            return new DateParser();
+    private static final ThreadLocal<ArcDateParser> DateParserTL =
+        new ThreadLocal<ArcDateParser>() {
+        public ArcDateParser initialValue() {
+            return new ArcDateParser();
         }
     };
 
     /**
      * Creates a new <code>DateParser</code>.
      */
-    private DateParser() {
+    private ArcDateParser() {
         dateFormat = new SimpleDateFormat(ARC_DATE_FORMAT);
         dateFormat.setLenient(false);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
