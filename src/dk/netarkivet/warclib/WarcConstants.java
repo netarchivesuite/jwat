@@ -1,7 +1,7 @@
 package dk.netarkivet.warclib;
+
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class WarcConstants {
 
@@ -40,12 +40,12 @@ public class WarcConstants {
 	public static final int FN_IDX_WARC_TARGET_URI = 11;
 	public static final int FN_IDX_WARC_TRUNCATED = 12;
 	public static final int FN_IDX_WARC_WARCINFO_ID = 13;
-	public static final int FN_IDX_WARC_FILENAME = 14;
-	public static final int FN_IDX_WARC_PROFILE = 15;
+	public static final int FN_IDX_WARC_FILENAME = 14;					// warcinfo only
+	public static final int FN_IDX_WARC_PROFILE = 15;					// revisit only
 	public static final int FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE = 16;
-	public static final int FN_IDX_WARC_SEGMENT_ORIGIN_ID = 17;
+	public static final int FN_IDX_WARC_SEGMENT_ORIGIN_ID = 17;			// continuation only
 	public static final int FN_IDX_WARC_SEGMENT_NUMBER = 18;
-	public static final int FN_IDX_WARC_SEGMENT_TOTAL_LENGTH = 19;
+	public static final int FN_IDX_WARC_SEGMENT_TOTAL_LENGTH = 19;		//continuation only
 
 	public static final Map<String, Integer> fieldNameIdxMap = new HashMap<String, Integer>();
 
@@ -102,7 +102,18 @@ public class WarcConstants {
 		recordTypeIdxMap.put( RT_CONTINUATION, RT_IDX_CONTINUATION );
 	}
 
-	//'warcinfo', 'response', 'resource', 'request', 'metadata', 'revisit', 'conversion', 'continuation'
+	public static final String PROFILE_IdENTICAL_PAYLOAD_DIGEST =
+			"http://netpreserve.org/warc/1.0/revisit/identical-payload-digest";
+
+	public static final String PROFILE_SERVER_NOT_MODIFIED =
+			"http://netpreserve.org/warc/1.0/revisit/server-not-modified";
+
+	//"application/warc"
+	//"application/warc-fields"
+
+	//"text/dns"
+	//"application/http;msgtype=request"
+	//"application/http;msgtype=response"
 
 	/*
 	WARC-Type
@@ -126,12 +137,7 @@ public class WarcConstants {
 	WARC-Segment-Total-Length
 	*/
 
-	//"application/warc"
-	//"application/warc-fields"
-
-	//"text/dns"
-	//"application/http;msgtype=request"
-	//"application/http;msgtype=response"
+	//'warcinfo', 'response', 'resource', 'request', 'metadata', 'revisit', 'conversion', 'continuation'
 
 	private WarcConstants() {
 	}

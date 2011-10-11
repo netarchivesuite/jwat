@@ -1,9 +1,9 @@
 package dk.netarkivet.warclib;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.jhove2.module.format.arc.ByteCountingInputStream;
-
 
 public class WarcParser {
 
