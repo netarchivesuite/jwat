@@ -19,23 +19,35 @@ public class WarcRecord {
     /** Validation errors */
     protected List<ArcValidationError> errors = null;
 
-    boolean bMagic;
-	boolean bVersion;
+    /*
+     * Version related fields.
+     */
+
+    boolean bMagicIdentified;
+	boolean bVersionParsed;
 
 	int major = -1;
 	int minor = -1;
 
-	String warcType;
+	/*
+	 * Warc-Field related fields.
+	 */
+
+	boolean bMandatoryMissing;
+
+	String warcTypeStr;
+	Integer warcTypeIdx;
 
 	// warcinfo only
 	String warcFilename;
 
-	String warcRecordId;
+	String warcRecordIdStr;
 	URI warcRecordIdUri;
 
-	String warcDate;
-	Date warcDateDate;
+	String warcDateStr;
+	Date warcDate;
 
+	String contentLengthStr;
 	Long contentLength;
 
 	String contentType;
@@ -45,16 +57,16 @@ public class WarcRecord {
 	String warcIpAddress;
 	InetAddress warcInetAddress;
 
-	String warcConcurrentTo;
+	String warcConcurrentToStr;
 	URI warcConcurrentToUri;
 
-	String warcRefersTo;
+	String warcRefersToStr;
 	URI warcRefersToUri;
 
-	String warcTargetUri;
+	String warcTargetUriStr;
 	URI warcTargetUriUri;
 
-	String warcWarcinfoId;
+	String warcWarcinfoIdStr;
 	URI warcWarcInfoIdUri;
 
 	String warcBlockDigest;
@@ -66,31 +78,33 @@ public class WarcRecord {
 	// revisit only
 	String warcProfile;
 
+	String warcSegmentNumberStr;
 	Integer warcSegmentNumber;
 
 	// continuation only
-	String warcSegmentOriginId;
+	String warcSegmentOriginIdStr;
 	URI warcSegmentOriginIdUrl;
 
 	//continuation only
+	String warcSegmentTotalLengthStr;
 	Long warcSegmentTotalLength;
 
 	public static WarcRecord parseRecord(ByteCountingInputStream in) {
 		WarcRecord wr = new WarcRecord();
 		try {
 			if (wr.checkMagicVersion(in)) {
-				System.out.println(wr.bMagic);
-				System.out.println(wr.bVersion);
+				System.out.println(wr.bMagicIdentified);
+				System.out.println(wr.bVersionParsed);
 				System.out.println(wr.major + "." + wr.minor);
 
 				wr.parseFields(in);
 
-				if (wr.warcType != null) {
-					Integer rt_idx = WarcConstants.recordTypeIdxMap.get(wr.warcType);
+				if (wr.warcTypeStr != null) {
+					Integer rt_idx = WarcConstants.recordTypeIdxMap.get(wr.warcTypeStr);
 					if (rt_idx != null) {
 						System.out.println("WARC-Type-Idx: " + rt_idx.intValue());
 					}
-					System.out.println("WARC-Type: " + wr.warcType);
+					System.out.println("WARC-Type: " + wr.warcTypeStr);
 				}
 				if (wr.contentLength != null) {
 					in.skip(wr.contentLength);
@@ -107,9 +121,9 @@ public class WarcRecord {
 		return wr;
 	}
 
-	public boolean checkMagicVersion(ByteCountingInputStream in) throws IOException {
-		bMagic = false;
-		bVersion = false;
+	protected boolean checkMagicVersion(ByteCountingInputStream in) throws IOException {
+		bMagicIdentified = false;
+		bVersionParsed = false;
 		String tmpStr;
 		boolean bSeekMagic = true;
 		while (bSeekMagic) {
@@ -117,11 +131,11 @@ public class WarcRecord {
 			if (tmpStr != null) {
 				if (tmpStr.length() > 0) {
 					if (tmpStr.startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
-						bMagic = true;
+						bMagicIdentified = true;
 						String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
 						String[] tmpArr = versionStr.split("\\.", -1);		// Slow?
 						if (tmpArr.length >= 2 && tmpArr.length <= 4) {
-							bVersion = true;
+							bVersionParsed = true;
 							int[] versionArr = new int[tmpArr.length];
 							for (int i=0; i<tmpArr.length; ++i) {
 								try {
@@ -149,10 +163,10 @@ public class WarcRecord {
 				bSeekMagic = false;
 			}
 		}
-		return bMagic;
+		return bMagicIdentified;
 	}
 
-	public void parseFields(ByteCountingInputStream in) throws IOException {
+	protected void parseFields(ByteCountingInputStream in) throws IOException {
 		String tmpStr;
 		boolean bFields = true;
 		while (bFields) {
@@ -173,19 +187,24 @@ public class WarcRecord {
 								switch (fn_idx.intValue()) {
 								case WarcConstants.FN_IDX_WARC_TYPE:
 									// TODO
-									warcType = value;
+									warcTypeStr = value;
+									warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr);
+									if (warcTypeIdx == null && warcTypeStr != null && warcTypeStr.length() > 0) {
+										warcTypeIdx = WarcConstants.RT_IDX_UNKNOWN;
+									}
 									break;
 								case WarcConstants.FN_IDX_WARC_RECORD_ID:
-									warcRecordId = value;
+									warcRecordIdStr = value;
 									warcRecordIdUri = parseUri(value,
 											WarcConstants.FN_WARC_RECORD_ID);
 									break;
 								case WarcConstants.FN_IDX_WARC_DATE:
-									warcDate = value;
-									warcDateDate = parseDate(value,
+									warcDateStr = value;
+									warcDate = parseDate(value,
 											WarcConstants.FN_WARC_DATE);
 									break;
 								case WarcConstants.FN_IDX_CONTENT_LENGTH:
+									contentLengthStr = value;
 									contentLength = parseLong(value,
 											WarcConstants.FN_CONTENT_LENGTH);
 									break;
@@ -194,7 +213,7 @@ public class WarcRecord {
 									contentType = value;
 									break;
 								case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-									warcConcurrentTo = value;
+									warcConcurrentToStr = value;
 									warcConcurrentToUri = parseUri(value,
 											WarcConstants.FN_WARC_CONCURRENT_TO);
 									break;
@@ -212,12 +231,12 @@ public class WarcRecord {
 											WarcConstants.FN_WARC_IP_ADDRESS);
 									break;
 								case WarcConstants.FN_IDX_WARC_REFERS_TO:
-									warcRefersTo = value;
+									warcRefersToStr = value;
 									warcRefersToUri = parseUri(value,
 											WarcConstants.FN_WARC_REFERS_TO);
 									break;
 								case WarcConstants.FN_IDX_WARC_TARGET_URI:
-									warcTargetUri = value;
+									warcTargetUriStr = value;
 									warcTargetUriUri = parseUri(value,
 											WarcConstants.FN_WARC_TARGET_URI);
 									break;
@@ -226,7 +245,7 @@ public class WarcRecord {
 									warcTruncated = value;
 									break;
 								case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
-									warcWarcinfoId = value;
+									warcWarcinfoIdStr = value;
 									warcWarcInfoIdUri = parseUri(value,
 											WarcConstants.FN_WARC_WARCINFO_ID);
 									break;
@@ -243,15 +262,17 @@ public class WarcRecord {
 									warcIdentifiedPayloadType = value;
 									break;
 								case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
-									warcSegmentOriginId = value;
+									warcSegmentOriginIdStr = value;
 									warcSegmentOriginIdUrl = parseUri(value,
 											WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
 									break;
 								case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
+									warcSegmentNumberStr = value;
 									warcSegmentNumber = parseInteger(value,
 											WarcConstants.FN_WARC_SEGMENT_NUMBER);
 									break;
 								case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
+									warcSegmentTotalLengthStr = value;
 									warcSegmentTotalLength = parseLong(value,
 											WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
 									break;
@@ -276,9 +297,112 @@ public class WarcRecord {
 				bFields = false;
 			}
 		}
+
+		bMandatoryMissing = false;
+
+		/*
+		 * Mandatory fields.
+		 */
+
+		if (warcTypeIdx == null) {
+			// Mandatory valid Warc-Type missing.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+            bMandatoryMissing = true;
+		}
+		if (warcRecordIdUri == null) {
+			// Mandatory valid Warc-Record-Id missing.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_RECORD_ID, warcRecordIdStr);
+            bMandatoryMissing = true;
+		}
+		if (warcDate == null) {
+			// Mandatory valid Warc-Date missing.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_DATE, warcDateStr);
+            bMandatoryMissing = true;
+		}
+		if (contentLength == null) {
+			// Mandatory valid Content-Length missing.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_CONTENT_LENGTH, contentLengthStr);
+            bMandatoryMissing = true;
+		}
+
+		if (warcTypeIdx != null && warcTypeIdx == 0) {
+			// Warc-Type not recognized.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+		}
+
+		/*
+		 * Content-Type should be present if Content-Length > 0
+		 */
+
+		if (contentLength != null && contentLength.longValue() > 0L &&
+						(contentType == null || contentType.length() == 0)) {
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_CONTENT_TYPE, contentType);
+		}
+
+		/*
+		 * Warc record type dependent policies. 
+		 */
+
+		if (warcTypeIdx != null) {
+			/*
+			 * Warcinfo record should have "application/warc-fields" content-type.
+			 */
+
+			if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
+				if (!WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentType)) {
+					// Recommended content-type is "application/warc-fields".
+				}
+			}
+
+			if (warcTypeIdx  > 0) {
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentType);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentToUri, warcConcurrentToStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcInfoIdUri, warcWarcinfoIdStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfile, warcProfile);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
+			}
+		}
+
 	}
 
-    /**
+	protected void check_field_policy(int rtype, int ftype, Object fieldObj, String fieldStr) {
+		int policy = WarcConstants.field_policy[rtype][ftype];
+		switch (policy) {
+		case WarcConstants.POLICY_MANDATORY:
+			if (fieldObj == null) {
+	            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+			}
+            break;
+		case WarcConstants.POLICY_SHALL:
+			if (fieldObj == null) {
+	            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+			}
+            break;
+		case WarcConstants.POLICY_MAY:
+			break;
+		case WarcConstants.POLICY_MAY_NOT:
+			if (fieldObj != null) {
+	            addValidationError(ArcErrorType.INVALID, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+			}
+			break;
+		case WarcConstants.POLICY_SHALL_NOT:
+			if (fieldObj != null) {
+	            addValidationError(ArcErrorType.INVALID, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+			}
+			break;
+		case WarcConstants.POLICY_IGNORE:
+		default:
+			break;
+		}
+	}
+
+	/**
      * Checks if the ARC record has errors.
      * @return true/false based on whether the ARC record is valid or not
      */
