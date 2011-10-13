@@ -38,7 +38,7 @@ public class WarcRecord {
 	String warcTypeStr;
 	Integer warcTypeIdx;
 
-	// warcinfo only
+	// Warcinfo record only
 	String warcFilename;
 
 	String warcRecordIdStr;
@@ -75,17 +75,17 @@ public class WarcRecord {
 
 	String warcIdentifiedPayloadType;
 
-	// revisit only
+	// revisit record only
 	String warcProfile;
 
 	String warcSegmentNumberStr;
 	Integer warcSegmentNumber;
 
-	// continuation only
+	// continuation record only
 	String warcSegmentOriginIdStr;
 	URI warcSegmentOriginIdUrl;
 
-	//continuation only
+	//continuation record only
 	String warcSegmentTotalLengthStr;
 	Long warcSegmentTotalLength;
 
@@ -93,18 +93,14 @@ public class WarcRecord {
 		WarcRecord wr = new WarcRecord();
 		try {
 			if (wr.checkMagicVersion(in)) {
-				System.out.println(wr.bMagicIdentified);
-				System.out.println(wr.bVersionParsed);
-				System.out.println(wr.major + "." + wr.minor);
+				//System.out.println(wr.bMagicIdentified);
+				//System.out.println(wr.bVersionParsed);
+				//System.out.println(wr.major + "." + wr.minor);
 
 				wr.parseFields(in);
 
-				if (wr.warcTypeStr != null) {
-					Integer rt_idx = WarcConstants.recordTypeIdxMap.get(wr.warcTypeStr);
-					if (rt_idx != null) {
-						System.out.println("WARC-Type-Idx: " + rt_idx.intValue());
-					}
-					System.out.println("WARC-Type: " + wr.warcTypeStr);
+				if (wr.warcTypeIdx != null) {
+					// TODO payload processing
 				}
 				if (wr.contentLength != null) {
 					in.skip(wr.contentLength);
@@ -186,7 +182,6 @@ public class WarcRecord {
 							if (fn_idx != null) {
 								switch (fn_idx.intValue()) {
 								case WarcConstants.FN_IDX_WARC_TYPE:
-									// TODO
 									warcTypeStr = value;
 									warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr);
 									if (warcTypeIdx == null && warcTypeStr != null && warcTypeStr.length() > 0) {

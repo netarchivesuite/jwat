@@ -27,6 +27,8 @@ public class TestWarc {
 
 			while ( (record = parser.nextRecord()) != null ) {
 				System.out.println("--------------");
+				System.out.println("       Version: " + record.bMagicIdentified + " " + record.bVersionParsed + " " + record.major + "." + record.minor);
+				System.out.println("       TypeIdx: " + record.warcTypeIdx);
 				System.out.println("          Type: " + record.warcTypeStr);
 				System.out.println("      Filename: " + record.warcFilename);
 				System.out.println("     Record-ID: " + record.warcRecordIdUri);

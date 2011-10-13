@@ -3,6 +3,13 @@ package dk.netarkivet.warclib;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class containing all relevant WARC constants and structures. 
+ * Including but not limited to field names and mime-types.
+ * Also includes not statically initialized structures form validation.  
+ * @author nicl
+ *
+ */
 public class WarcConstants {
 
 	/** Warc header start with this string including trailing version information. */
@@ -273,6 +280,9 @@ public class WarcConstants {
 
 	//'warcinfo', 'response', 'resource', 'request', 'metadata', 'revisit', 'conversion', 'continuation'
 
+	/**
+	 * This utility class does not require instantiation.
+	 */
 	private WarcConstants() {
 	}
 
