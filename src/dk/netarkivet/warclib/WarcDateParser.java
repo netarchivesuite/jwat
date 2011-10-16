@@ -40,11 +40,10 @@ public class WarcDateParser {
         try {
             if ((dateStr != null)
                             && dateStr.length() == WARC_DATE_FORMAT.length() - 4) {
-                date = dateFormat.parse(dateStr);
+            	// Support upper/lower-case.
+                date = dateFormat.parse(dateStr.toUpperCase());
             }
-        } catch (Exception e) { /* Ignore */
-        	System.out.println( e );
-        }
+        } catch (Exception e) { /* Ignore */ }
         return date;
     }
 

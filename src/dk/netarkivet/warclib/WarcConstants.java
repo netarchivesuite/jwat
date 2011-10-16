@@ -88,25 +88,25 @@ public class WarcConstants {
 	public static final Map<String, Integer> fieldNameIdxMap = new HashMap<String, Integer>();
 
 	static {
-		fieldNameIdxMap.put(FN_WARC_TYPE.toUpperCase(), FN_IDX_WARC_TYPE);
-		fieldNameIdxMap.put(FN_WARC_RECORD_ID.toUpperCase(), FN_IDX_WARC_RECORD_ID);
-		fieldNameIdxMap.put(FN_WARC_DATE.toUpperCase(), FN_IDX_WARC_DATE);
-		fieldNameIdxMap.put(FN_CONTENT_LENGTH.toUpperCase(), FN_IDX_CONTENT_LENGTH);
-		fieldNameIdxMap.put(FN_CONTENT_TYPE.toUpperCase(), FN_IDX_CONTENT_TYPE);
-		fieldNameIdxMap.put(FN_WARC_CONCURRENT_TO.toUpperCase(), FN_IDX_WARC_CONCURRENT_TO);
-		fieldNameIdxMap.put(FN_WARC_BLOCK_DIGEST.toUpperCase(), FN_IDX_WARC_BLOCK_DIGEST);
-		fieldNameIdxMap.put(FN_WARC_PAYLOAD_DIGEST.toUpperCase(), FN_IDX_WARC_PAYLOAD_DIGEST);
-		fieldNameIdxMap.put(FN_WARC_IP_ADDRESS.toUpperCase(), FN_IDX_WARC_IP_ADDRESS);
-		fieldNameIdxMap.put(FN_WARC_REFERS_TO.toUpperCase(), FN_IDX_WARC_REFERS_TO);
-		fieldNameIdxMap.put(FN_WARC_TARGET_URI.toUpperCase(), FN_IDX_WARC_TARGET_URI);
-		fieldNameIdxMap.put(FN_WARC_TRUNCATED.toUpperCase(), FN_IDX_WARC_TRUNCATED);
-		fieldNameIdxMap.put(FN_WARC_WARCINFO_ID.toUpperCase(), FN_IDX_WARC_WARCINFO_ID);
-		fieldNameIdxMap.put(FN_WARC_FILENAME.toUpperCase(), FN_IDX_WARC_FILENAME);
-		fieldNameIdxMap.put(FN_WARC_PROFILE.toUpperCase(), FN_IDX_WARC_PROFILE);
-		fieldNameIdxMap.put(FN_WARC_IDENTIFIED_PAYLOAD_TYPE.toUpperCase(), FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE);
-		fieldNameIdxMap.put(FN_WARC_SEGMENT_ORIGIN_ID.toUpperCase(), FN_IDX_WARC_SEGMENT_ORIGIN_ID);
-		fieldNameIdxMap.put(FN_WARC_SEGMENT_NUMBER.toUpperCase(), FN_IDX_WARC_SEGMENT_NUMBER);
-		fieldNameIdxMap.put(FN_WARC_SEGMENT_TOTAL_LENGTH.toUpperCase(), FN_IDX_WARC_SEGMENT_TOTAL_LENGTH);
+		fieldNameIdxMap.put(FN_WARC_TYPE.toLowerCase(), FN_IDX_WARC_TYPE);
+		fieldNameIdxMap.put(FN_WARC_RECORD_ID.toLowerCase(), FN_IDX_WARC_RECORD_ID);
+		fieldNameIdxMap.put(FN_WARC_DATE.toLowerCase(), FN_IDX_WARC_DATE);
+		fieldNameIdxMap.put(FN_CONTENT_LENGTH.toLowerCase(), FN_IDX_CONTENT_LENGTH);
+		fieldNameIdxMap.put(FN_CONTENT_TYPE.toLowerCase(), FN_IDX_CONTENT_TYPE);
+		fieldNameIdxMap.put(FN_WARC_CONCURRENT_TO.toLowerCase(), FN_IDX_WARC_CONCURRENT_TO);
+		fieldNameIdxMap.put(FN_WARC_BLOCK_DIGEST.toLowerCase(), FN_IDX_WARC_BLOCK_DIGEST);
+		fieldNameIdxMap.put(FN_WARC_PAYLOAD_DIGEST.toLowerCase(), FN_IDX_WARC_PAYLOAD_DIGEST);
+		fieldNameIdxMap.put(FN_WARC_IP_ADDRESS.toLowerCase(), FN_IDX_WARC_IP_ADDRESS);
+		fieldNameIdxMap.put(FN_WARC_REFERS_TO.toLowerCase(), FN_IDX_WARC_REFERS_TO);
+		fieldNameIdxMap.put(FN_WARC_TARGET_URI.toLowerCase(), FN_IDX_WARC_TARGET_URI);
+		fieldNameIdxMap.put(FN_WARC_TRUNCATED.toLowerCase(), FN_IDX_WARC_TRUNCATED);
+		fieldNameIdxMap.put(FN_WARC_WARCINFO_ID.toLowerCase(), FN_IDX_WARC_WARCINFO_ID);
+		fieldNameIdxMap.put(FN_WARC_FILENAME.toLowerCase(), FN_IDX_WARC_FILENAME);
+		fieldNameIdxMap.put(FN_WARC_PROFILE.toLowerCase(), FN_IDX_WARC_PROFILE);
+		fieldNameIdxMap.put(FN_WARC_IDENTIFIED_PAYLOAD_TYPE.toLowerCase(), FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE);
+		fieldNameIdxMap.put(FN_WARC_SEGMENT_ORIGIN_ID.toLowerCase(), FN_IDX_WARC_SEGMENT_ORIGIN_ID);
+		fieldNameIdxMap.put(FN_WARC_SEGMENT_NUMBER.toLowerCase(), FN_IDX_WARC_SEGMENT_NUMBER);
+		fieldNameIdxMap.put(FN_WARC_SEGMENT_TOTAL_LENGTH.toLowerCase(), FN_IDX_WARC_SEGMENT_TOTAL_LENGTH);
 	}
 
 	/*
@@ -135,14 +135,34 @@ public class WarcConstants {
 	public static final Map<String, Integer> recordTypeIdxMap = new HashMap<String, Integer>();
 
 	static {
-		recordTypeIdxMap.put( RT_WARCINFO, RT_IDX_WARCINFO );
-		recordTypeIdxMap.put( RT_RESPONSE, RT_IDX_RESPONSE );
-		recordTypeIdxMap.put( RT_RESOURCE, RT_IDX_RESOURCE );
-		recordTypeIdxMap.put( RT_REQUEST, RT_IDX_REQUEST );
-		recordTypeIdxMap.put( RT_METADATA, RT_IDX_METADATA );
-		recordTypeIdxMap.put( RT_REVISIT, RT_IDX_REVISIT );
-		recordTypeIdxMap.put( RT_CONVERSION, RT_IDX_CONVERSION );
-		recordTypeIdxMap.put( RT_CONTINUATION, RT_IDX_CONTINUATION );
+		recordTypeIdxMap.put(RT_WARCINFO.toLowerCase(), RT_IDX_WARCINFO);
+		recordTypeIdxMap.put(RT_RESPONSE.toLowerCase(), RT_IDX_RESPONSE);
+		recordTypeIdxMap.put(RT_RESOURCE.toLowerCase(), RT_IDX_RESOURCE);
+		recordTypeIdxMap.put(RT_REQUEST.toLowerCase(), RT_IDX_REQUEST);
+		recordTypeIdxMap.put(RT_METADATA.toLowerCase(), RT_IDX_METADATA);
+		recordTypeIdxMap.put(RT_REVISIT.toLowerCase(), RT_IDX_REVISIT);
+		recordTypeIdxMap.put(RT_CONVERSION.toLowerCase(), RT_IDX_CONVERSION);
+		recordTypeIdxMap.put(RT_CONTINUATION.toLowerCase(), RT_IDX_CONTINUATION);
+	}
+
+	public static final String TT_LENGTH = "length";
+	public static final String TT_TIME = "time";
+	public static final String TT_DISCONNECT = "disconnect";
+	public static final String TT_UNSPECIFIED = "unspecified";
+
+	public static final int TT_IDX_FUTURE_REASON = 0;
+	public static final int TT_IDX_LENGTH = 1;
+	public static final int TT_IDX_TIME = 2;
+	public static final int TT_IDX_DISCONNECT = 3;
+	public static final int TT_IDX_UNSPECIFIED = 4;
+
+	public static final Map<String, Integer> truncatedTypeIdxMap = new HashMap<String, Integer>();
+
+	static {
+		truncatedTypeIdxMap.put(TT_LENGTH.toLowerCase(), TT_IDX_LENGTH);
+		truncatedTypeIdxMap.put(TT_TIME.toLowerCase(), TT_IDX_TIME);
+		truncatedTypeIdxMap.put(TT_DISCONNECT.toLowerCase(), TT_IDX_DISCONNECT);
+		truncatedTypeIdxMap.put(TT_UNSPECIFIED.toLowerCase(), TT_IDX_UNSPECIFIED);
 	}
 
 	/*
@@ -154,6 +174,19 @@ public class WarcConstants {
 
 	public static final String PROFILE_SERVER_NOT_MODIFIED =
 			"http://netpreserve.org/warc/1.0/revisit/server-not-modified";
+
+	public static final int PROFILE_IDX_UNKNOWN = 0;
+	public static final int PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST = 1;
+	public static final int PROFILE_IDX_SERVER_NOT_MODIFIED = 2;
+
+	public static final Map<String, Integer> profileIdxMap = new HashMap<String, Integer>();
+
+	static {
+		profileIdxMap.put(PROFILE_IDENTICAL_PAYLOAD_DIGEST.toLowerCase(),
+				PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST);
+		profileIdxMap.put(PROFILE_SERVER_NOT_MODIFIED.toLowerCase(),
+				PROFILE_IDX_SERVER_NOT_MODIFIED);
+	}
 
 	/*
 	 * Warc content types.

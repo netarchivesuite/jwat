@@ -26,43 +26,13 @@ public class TestWarc {
 			WarcRecord record;
 
 			while ( (record = parser.nextRecord()) != null ) {
-				System.out.println("--------------");
-				System.out.println("       Version: " + record.bMagicIdentified + " " + record.bVersionParsed + " " + record.major + "." + record.minor);
-				System.out.println("       TypeIdx: " + record.warcTypeIdx);
-				System.out.println("          Type: " + record.warcTypeStr);
-				System.out.println("      Filename: " + record.warcFilename);
-				System.out.println("     Record-ID: " + record.warcRecordIdUri);
-				System.out.println("          Date: " + record.warcDate);
-				System.out.println("Content-Length: " + record.contentLength);
-				System.out.println("  Content-Type: " + record.contentType);
-				System.out.println("     Truncated: " + record.warcTruncated);
-				System.out.println("   InetAddress: " + record.warcInetAddress);
-				System.out.println("  ConcurrentTo: " + record.warcConcurrentToUri);
-				System.out.println("      RefersTo: " + record.warcRefersToUri);
-				System.out.println("     TargetUri: " + record.warcTargetUriUri);
-				System.out.println("   WarcInfo-Id: " + record.warcWarcInfoIdUri);
-				System.out.println("   BlockDigest: " + record.warcBlockDigest);
-				System.out.println(" PayloadDigest: " + record.warcPayloadDigest);
-				System.out.println("IdentPloadType: " + record.warcIdentifiedPayloadType);
-				System.out.println("       Profile: " + record.warcProfile);
-				System.out.println("      Segment#: " + record.warcSegmentNumber);
-				System.out.println(" SegmentOrg-Id: " + record.warcSegmentOriginIdUrl);
-				System.out.println("SegmentTLength: " + record.warcSegmentTotalLength);
+				printRecord(record);
+				printRecordErrors(record);
+
 				++records;
 
 				if (record.hasErrors()) {
-					Collection<ArcValidationError> errorCol = record.getValidationErrors();
-					errors += errorCol.size();
-
-					if (errorCol != null && errorCol.size() > 0) {
-						Iterator<ArcValidationError> iter = errorCol.iterator();
-						while (iter.hasNext()) {
-							ArcValidationError error = iter.next();
-							System.out.println( error.error );
-							System.out.println( error.field );
-							System.out.println( error.value );
-						}
-					}
+					errors += record.getValidationErrors().size();
 				}
 			}
 
@@ -79,6 +49,46 @@ public class TestWarc {
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	public static void printRecord(WarcRecord record) {
+		System.out.println("--------------");
+		System.out.println("       Version: " + record.bMagicIdentified + " " + record.bVersionParsed + " " + record.major + "." + record.minor);
+		System.out.println("       TypeIdx: " + record.warcTypeIdx);
+		System.out.println("          Type: " + record.warcTypeStr);
+		System.out.println("      Filename: " + record.warcFilename);
+		System.out.println("     Record-ID: " + record.warcRecordIdUri);
+		System.out.println("          Date: " + record.warcDate);
+		System.out.println("Content-Length: " + record.contentLength);
+		System.out.println("  Content-Type: " + record.contentType);
+		System.out.println("     Truncated: " + record.warcTruncatedStr);
+		System.out.println("   InetAddress: " + record.warcInetAddress);
+		System.out.println("  ConcurrentTo: " + record.warcConcurrentToUri);
+		System.out.println("      RefersTo: " + record.warcRefersToUri);
+		System.out.println("     TargetUri: " + record.warcTargetUriUri);
+		System.out.println("   WarcInfo-Id: " + record.warcWarcInfoIdUri);
+		System.out.println("   BlockDigest: " + record.warcBlockDigest);
+		System.out.println(" PayloadDigest: " + record.warcPayloadDigest);
+		System.out.println("IdentPloadType: " + record.warcIdentifiedPayloadType);
+		System.out.println("       Profile: " + record.warcProfileStr);
+		System.out.println("      Segment#: " + record.warcSegmentNumber);
+		System.out.println(" SegmentOrg-Id: " + record.warcSegmentOriginIdUrl);
+		System.out.println("SegmentTLength: " + record.warcSegmentTotalLength);
+	}
+
+	public static void printRecordErrors(WarcRecord record) {
+		if (record.hasErrors()) {
+			Collection<ArcValidationError> errorCol = record.getValidationErrors();
+			if (errorCol != null && errorCol.size() > 0) {
+				Iterator<ArcValidationError> iter = errorCol.iterator();
+				while (iter.hasNext()) {
+					ArcValidationError error = iter.next();
+					System.out.println( error.error );
+					System.out.println( error.field );
+					System.out.println( error.value );
+				}
+			}
 		}
 	}
 

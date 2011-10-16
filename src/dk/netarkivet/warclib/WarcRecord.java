@@ -50,9 +50,11 @@ public class WarcRecord {
 	String contentLengthStr;
 	Long contentLength;
 
+	String contentTypeStr;
 	String contentType;
 
-	String warcTruncated;
+	String warcTruncatedStr;
+	Integer warcTruncatedIdx;
 
 	String warcIpAddress;
 	InetAddress warcInetAddress;
@@ -69,14 +71,18 @@ public class WarcRecord {
 	String warcWarcinfoIdStr;
 	URI warcWarcInfoIdUri;
 
+	String warcBlockDigestStr;
 	String warcBlockDigest;
 
+	String warcPayloadDigestStr;
 	String warcPayloadDigest;
 
+	String warcIdentifiedPayloadTypeStr;
 	String warcIdentifiedPayloadType;
 
 	// revisit record only
-	String warcProfile;
+	String warcProfileStr;
+	Integer warcProfileIdx;
 
 	String warcSegmentNumberStr;
 	Integer warcSegmentNumber;
@@ -126,7 +132,7 @@ public class WarcRecord {
 			tmpStr = in.readLine();
 			if (tmpStr != null) {
 				if (tmpStr.length() > 0) {
-					if (tmpStr.startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
+					if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
 						bMagicIdentified = true;
 						String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
 						String[] tmpArr = versionStr.split("\\.", -1);		// Slow?
@@ -178,12 +184,15 @@ public class WarcRecord {
 							String field = tmpStr.substring(0, idx);
 							String value = tmpStr.substring(idx + 1).trim();
 
-							Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toUpperCase());
+							Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
 							if (fn_idx != null) {
 								switch (fn_idx.intValue()) {
 								case WarcConstants.FN_IDX_WARC_TYPE:
-									warcTypeStr = value;
-									warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr);
+									warcTypeStr = parseString(value,
+											WarcConstants.FN_WARC_TYPE);
+									if (warcTypeStr != null) {
+										warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
+									}
 									if (warcTypeIdx == null && warcTypeStr != null && warcTypeStr.length() > 0) {
 										warcTypeIdx = WarcConstants.RT_IDX_UNKNOWN;
 									}
@@ -204,8 +213,9 @@ public class WarcRecord {
 											WarcConstants.FN_CONTENT_LENGTH);
 									break;
 								case WarcConstants.FN_IDX_CONTENT_TYPE:
-									// TODO
-									contentType = value;
+									contentTypeStr = value;
+									contentType = parseContentType(value,
+											WarcConstants.FN_CONTENT_TYPE);
 									break;
 								case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
 									warcConcurrentToStr = value;
@@ -214,11 +224,15 @@ public class WarcRecord {
 									break;
 								case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
 									// TODO
-									warcBlockDigest = value;
+									warcBlockDigestStr = value;
+									warcBlockDigest = parseDigest(value,
+											WarcConstants.FN_WARC_BLOCK_DIGEST);
 									break;
 								case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
 									// TODO
-									warcPayloadDigest = value;
+									warcPayloadDigestStr = value;
+									warcPayloadDigest = parseDigest(value,
+											WarcConstants.FN_WARC_PAYLOAD_DIGEST);
 									break;
 								case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
 									warcIpAddress = value;
@@ -236,8 +250,14 @@ public class WarcRecord {
 											WarcConstants.FN_WARC_TARGET_URI);
 									break;
 								case WarcConstants.FN_IDX_WARC_TRUNCATED:
-									// TODO
-									warcTruncated = value;
+									warcTruncatedStr = parseString(value,
+											WarcConstants.FN_WARC_TRUNCATED);
+									if (warcTruncatedStr != null) {
+										warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
+									}
+									if (warcTruncatedIdx == null && warcTruncatedStr != null && warcTruncatedStr.length() > 0) {
+										warcTruncatedIdx = WarcConstants.TT_IDX_FUTURE_REASON;
+									}
 									break;
 								case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
 									warcWarcinfoIdStr = value;
@@ -245,16 +265,23 @@ public class WarcRecord {
 											WarcConstants.FN_WARC_WARCINFO_ID);
 									break;
 								case WarcConstants.FN_IDX_WARC_FILENAME:
-									// TODO
-									warcFilename = value;
+									warcFilename = parseString(value,
+											WarcConstants.FN_WARC_FILENAME);
 									break;
 								case WarcConstants.FN_IDX_WARC_PROFILE:
-									// TODO
-									warcProfile = value;
+									warcProfileStr = parseString(value,
+											WarcConstants.FN_WARC_PROFILE);
+									if (warcProfileStr != null) {
+										warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
+									}
+									if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
+										warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
+									}
 									break;
 								case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
-									// TODO
-									warcIdentifiedPayloadType = value;
+									warcIdentifiedPayloadTypeStr = value;
+									warcIdentifiedPayloadType = parseContentType(value,
+											WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
 									break;
 								case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
 									warcSegmentOriginIdStr = value;
@@ -294,6 +321,16 @@ public class WarcRecord {
 		}
 
 		bMandatoryMissing = false;
+
+		/*
+		 * Unknowns.
+		 */
+
+		if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
+		}
+
+		if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
+		}
 
 		/*
 		 * Mandatory fields.
@@ -357,7 +394,7 @@ public class WarcRecord {
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcInfoIdUri, warcWarcinfoIdStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);
-				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfile, warcProfile);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileStr, warcProfileStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
@@ -555,6 +592,14 @@ public class WarcRecord {
             addValidationError(ArcErrorType.MISSING, field, uriStr);
         }
         return uri;
+    }
+
+    protected String parseContentType(String contentType, String field) {
+    	return parseString(contentType, field);
+    }
+
+    protected String parseDigest(String digest, String field) {
+    	return parseString(digest, field);
     }
 
 }
