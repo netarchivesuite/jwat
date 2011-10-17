@@ -18,6 +18,10 @@ public class WarcConstants {
 	/** Warc mime type. */
 	public static final String WARC_MIME_TYPE = "application/warc";
 
+	public static final int FN_MAX_NUMBER = 19+1;
+
+	public static final int RT_MAX_NUMBER = 8+1;
+
 	/*
 	 * Warc field names.
 	 */
@@ -107,6 +111,12 @@ public class WarcConstants {
 		fieldNameIdxMap.put(FN_WARC_SEGMENT_ORIGIN_ID.toLowerCase(), FN_IDX_WARC_SEGMENT_ORIGIN_ID);
 		fieldNameIdxMap.put(FN_WARC_SEGMENT_NUMBER.toLowerCase(), FN_IDX_WARC_SEGMENT_NUMBER);
 		fieldNameIdxMap.put(FN_WARC_SEGMENT_TOTAL_LENGTH.toLowerCase(), FN_IDX_WARC_SEGMENT_TOTAL_LENGTH);
+	}
+
+	public static final boolean[] fieldNamesRepeatableLookup = new boolean[FN_MAX_NUMBER];
+
+	static {
+		fieldNamesRepeatableLookup[FN_IDX_WARC_CONCURRENT_TO] = true;
 	}
 
 	/*
@@ -208,7 +218,7 @@ public class WarcConstants {
 	public static final int[][] field_policy;
 
 	static {
-		field_policy = new int[8+1][19+1];
+		field_policy = new int[RT_MAX_NUMBER][FN_MAX_NUMBER];
 
 		// Warc-Record-id
 		// Warc-Type

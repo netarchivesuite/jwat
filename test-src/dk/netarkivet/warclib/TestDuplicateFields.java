@@ -15,25 +15,22 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestWarcNextRecord {
+public class TestDuplicateFields {
 
 	private int expected_records;
+	private int expected_duplicates;
 	private String warcFile;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{822, "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/archive/tools/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/distribute/arcrepository/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{68, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00000.warc"},
-				{63, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00001.warc"},
-				{4, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105140044-00002.warc"}
+				{1, 6, "test-duplicate-fields.warc"}
 		});
 	}
 
-	public TestWarcNextRecord(int records, String warcFile) {
+	public TestDuplicateFields(int records, int duplicates, String warcFile) {
 		this.expected_records = records;
+		this.expected_duplicates = duplicates;
 		this.warcFile = warcFile;
 	}
 
@@ -44,6 +41,7 @@ public class TestWarcNextRecord {
 
 		int records = 0;
 		int errors = 0;
+		int duplicates = 0;
 
 		try {
 			in = new FileInputStream( file );
@@ -65,7 +63,6 @@ public class TestWarcNextRecord {
 			System.out.println("--------------");
 			System.out.println("       Records: " + records);
 			System.out.println("        Errors: " + errors);
-
 			parser.close();
 			in.close();
 		}
@@ -77,7 +74,7 @@ public class TestWarcNextRecord {
 		}
 
 		Assert.assertEquals(expected_records, records);
-		Assert.assertEquals(0, errors);
+		Assert.assertEquals(expected_duplicates, errors);
 	}
 
 }

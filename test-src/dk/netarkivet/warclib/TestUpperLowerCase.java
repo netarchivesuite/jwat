@@ -17,7 +17,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestUpperLowerCase {
 
-	private int expected;
+	private int expected_records;
 	private String warcFile;
 
 	@Parameters
@@ -27,8 +27,8 @@ public class TestUpperLowerCase {
 		});
 	}
 
-	public TestUpperLowerCase(int expected, String warcFile) {
-		this.expected = expected;
+	public TestUpperLowerCase(int records, String warcFile) {
+		this.expected_records = records;
 		this.warcFile = warcFile;
 	}
 
@@ -71,7 +71,7 @@ public class TestUpperLowerCase {
 			Assert.fail("Unexpected io exception");
 		}
 
-		Assert.assertEquals(expected, records);
+		Assert.assertEquals(expected_records, records);
 		Assert.assertEquals(0, errors);
 	}
 

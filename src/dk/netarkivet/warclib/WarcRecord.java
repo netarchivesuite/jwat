@@ -123,6 +123,13 @@ public class WarcRecord {
 		return wr;
 	}
 
+    /**
+     * Close resources associated with the WARC record. 
+     * Mainly payload stream if any.
+     */
+	public void close() throws IOException {
+	}
+
 	protected boolean checkMagicVersion(ByteCountingInputStream in) throws IOException {
 		bMagicIdentified = false;
 		bVersionParsed = false;
@@ -170,6 +177,7 @@ public class WarcRecord {
 
 	protected void parseFields(ByteCountingInputStream in) throws IOException {
 		String tmpStr;
+		boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 		boolean bFields = true;
 		while (bFields) {
 			tmpStr = in.readLine();
@@ -186,118 +194,125 @@ public class WarcRecord {
 
 							Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
 							if (fn_idx != null) {
-								switch (fn_idx.intValue()) {
-								case WarcConstants.FN_IDX_WARC_TYPE:
-									warcTypeStr = parseString(value,
-											WarcConstants.FN_WARC_TYPE);
-									if (warcTypeStr != null) {
-										warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
+								if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
+									seen[fn_idx] = true;
+									switch (fn_idx.intValue()) {
+									case WarcConstants.FN_IDX_WARC_TYPE:
+										warcTypeStr = parseString(value,
+												WarcConstants.FN_WARC_TYPE);
+										if (warcTypeStr != null) {
+											warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
+										}
+										if (warcTypeIdx == null && warcTypeStr != null && warcTypeStr.length() > 0) {
+											warcTypeIdx = WarcConstants.RT_IDX_UNKNOWN;
+										}
+										break;
+									case WarcConstants.FN_IDX_WARC_RECORD_ID:
+										warcRecordIdStr = value;
+										warcRecordIdUri = parseUri(value,
+												WarcConstants.FN_WARC_RECORD_ID);
+										break;
+									case WarcConstants.FN_IDX_WARC_DATE:
+										warcDateStr = value;
+										warcDate = parseDate(value,
+												WarcConstants.FN_WARC_DATE);
+										break;
+									case WarcConstants.FN_IDX_CONTENT_LENGTH:
+										contentLengthStr = value;
+										contentLength = parseLong(value,
+												WarcConstants.FN_CONTENT_LENGTH);
+										break;
+									case WarcConstants.FN_IDX_CONTENT_TYPE:
+										contentTypeStr = value;
+										contentType = parseContentType(value,
+												WarcConstants.FN_CONTENT_TYPE);
+										break;
+									case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
+										warcConcurrentToStr = value;
+										warcConcurrentToUri = parseUri(value,
+												WarcConstants.FN_WARC_CONCURRENT_TO);
+										break;
+									case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
+										// TODO
+										warcBlockDigestStr = value;
+										warcBlockDigest = parseDigest(value,
+												WarcConstants.FN_WARC_BLOCK_DIGEST);
+										break;
+									case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
+										// TODO
+										warcPayloadDigestStr = value;
+										warcPayloadDigest = parseDigest(value,
+												WarcConstants.FN_WARC_PAYLOAD_DIGEST);
+										break;
+									case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
+										warcIpAddress = value;
+										warcInetAddress = parseIpAddress(value,
+												WarcConstants.FN_WARC_IP_ADDRESS);
+										break;
+									case WarcConstants.FN_IDX_WARC_REFERS_TO:
+										warcRefersToStr = value;
+										warcRefersToUri = parseUri(value,
+												WarcConstants.FN_WARC_REFERS_TO);
+										break;
+									case WarcConstants.FN_IDX_WARC_TARGET_URI:
+										warcTargetUriStr = value;
+										warcTargetUriUri = parseUri(value,
+												WarcConstants.FN_WARC_TARGET_URI);
+										break;
+									case WarcConstants.FN_IDX_WARC_TRUNCATED:
+										warcTruncatedStr = parseString(value,
+												WarcConstants.FN_WARC_TRUNCATED);
+										if (warcTruncatedStr != null) {
+											warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
+										}
+										if (warcTruncatedIdx == null && warcTruncatedStr != null && warcTruncatedStr.length() > 0) {
+											warcTruncatedIdx = WarcConstants.TT_IDX_FUTURE_REASON;
+										}
+										break;
+									case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
+										warcWarcinfoIdStr = value;
+										warcWarcInfoIdUri = parseUri(value,
+												WarcConstants.FN_WARC_WARCINFO_ID);
+										break;
+									case WarcConstants.FN_IDX_WARC_FILENAME:
+										warcFilename = parseString(value,
+												WarcConstants.FN_WARC_FILENAME);
+										break;
+									case WarcConstants.FN_IDX_WARC_PROFILE:
+										warcProfileStr = parseString(value,
+												WarcConstants.FN_WARC_PROFILE);
+										if (warcProfileStr != null) {
+											warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
+										}
+										if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
+											warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
+										}
+										break;
+									case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
+										warcIdentifiedPayloadTypeStr = value;
+										warcIdentifiedPayloadType = parseContentType(value,
+												WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
+										break;
+									case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
+										warcSegmentOriginIdStr = value;
+										warcSegmentOriginIdUrl = parseUri(value,
+												WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
+										break;
+									case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
+										warcSegmentNumberStr = value;
+										warcSegmentNumber = parseInteger(value,
+												WarcConstants.FN_WARC_SEGMENT_NUMBER);
+										break;
+									case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
+										warcSegmentTotalLengthStr = value;
+										warcSegmentTotalLength = parseLong(value,
+												WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
+										break;
 									}
-									if (warcTypeIdx == null && warcTypeStr != null && warcTypeStr.length() > 0) {
-										warcTypeIdx = WarcConstants.RT_IDX_UNKNOWN;
-									}
-									break;
-								case WarcConstants.FN_IDX_WARC_RECORD_ID:
-									warcRecordIdStr = value;
-									warcRecordIdUri = parseUri(value,
-											WarcConstants.FN_WARC_RECORD_ID);
-									break;
-								case WarcConstants.FN_IDX_WARC_DATE:
-									warcDateStr = value;
-									warcDate = parseDate(value,
-											WarcConstants.FN_WARC_DATE);
-									break;
-								case WarcConstants.FN_IDX_CONTENT_LENGTH:
-									contentLengthStr = value;
-									contentLength = parseLong(value,
-											WarcConstants.FN_CONTENT_LENGTH);
-									break;
-								case WarcConstants.FN_IDX_CONTENT_TYPE:
-									contentTypeStr = value;
-									contentType = parseContentType(value,
-											WarcConstants.FN_CONTENT_TYPE);
-									break;
-								case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-									warcConcurrentToStr = value;
-									warcConcurrentToUri = parseUri(value,
-											WarcConstants.FN_WARC_CONCURRENT_TO);
-									break;
-								case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
-									// TODO
-									warcBlockDigestStr = value;
-									warcBlockDigest = parseDigest(value,
-											WarcConstants.FN_WARC_BLOCK_DIGEST);
-									break;
-								case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
-									// TODO
-									warcPayloadDigestStr = value;
-									warcPayloadDigest = parseDigest(value,
-											WarcConstants.FN_WARC_PAYLOAD_DIGEST);
-									break;
-								case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
-									warcIpAddress = value;
-									warcInetAddress = parseIpAddress(value,
-											WarcConstants.FN_WARC_IP_ADDRESS);
-									break;
-								case WarcConstants.FN_IDX_WARC_REFERS_TO:
-									warcRefersToStr = value;
-									warcRefersToUri = parseUri(value,
-											WarcConstants.FN_WARC_REFERS_TO);
-									break;
-								case WarcConstants.FN_IDX_WARC_TARGET_URI:
-									warcTargetUriStr = value;
-									warcTargetUriUri = parseUri(value,
-											WarcConstants.FN_WARC_TARGET_URI);
-									break;
-								case WarcConstants.FN_IDX_WARC_TRUNCATED:
-									warcTruncatedStr = parseString(value,
-											WarcConstants.FN_WARC_TRUNCATED);
-									if (warcTruncatedStr != null) {
-										warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
-									}
-									if (warcTruncatedIdx == null && warcTruncatedStr != null && warcTruncatedStr.length() > 0) {
-										warcTruncatedIdx = WarcConstants.TT_IDX_FUTURE_REASON;
-									}
-									break;
-								case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
-									warcWarcinfoIdStr = value;
-									warcWarcInfoIdUri = parseUri(value,
-											WarcConstants.FN_WARC_WARCINFO_ID);
-									break;
-								case WarcConstants.FN_IDX_WARC_FILENAME:
-									warcFilename = parseString(value,
-											WarcConstants.FN_WARC_FILENAME);
-									break;
-								case WarcConstants.FN_IDX_WARC_PROFILE:
-									warcProfileStr = parseString(value,
-											WarcConstants.FN_WARC_PROFILE);
-									if (warcProfileStr != null) {
-										warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
-									}
-									if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
-										warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
-									}
-									break;
-								case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
-									warcIdentifiedPayloadTypeStr = value;
-									warcIdentifiedPayloadType = parseContentType(value,
-											WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
-									break;
-								case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
-									warcSegmentOriginIdStr = value;
-									warcSegmentOriginIdUrl = parseUri(value,
-											WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
-									break;
-								case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
-									warcSegmentNumberStr = value;
-									warcSegmentNumber = parseInteger(value,
-											WarcConstants.FN_WARC_SEGMENT_NUMBER);
-									break;
-								case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
-									warcSegmentTotalLengthStr = value;
-									warcSegmentTotalLength = parseLong(value,
-											WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
-									break;
+								}
+								else {
+									// Duplicate field.
+						            addValidationError(ArcErrorType.INVALID, field, value);
 								}
 							}
 							else {
@@ -327,9 +342,13 @@ public class WarcRecord {
 		 */
 
 		if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
+			// Warning: Unknown Warc-Type.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
 		}
 
 		if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
+			// Warning: Unknown Warc-Profile.
+            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_PROFILE, warcProfileStr);
 		}
 
 		/*
@@ -382,7 +401,7 @@ public class WarcRecord {
 
 			if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
 				if (!WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentType)) {
-					// Recommended content-type is "application/warc-fields".
+					// Warning: Recommended content-type is "application/warc-fields".
 				}
 			}
 

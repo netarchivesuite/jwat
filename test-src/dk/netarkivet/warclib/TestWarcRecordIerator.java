@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestWarcRecordIerator {
 
-	private int expected;
+	private int expected_records;
 	private String warcFile;
 
 	@Parameters
@@ -33,8 +33,8 @@ public class TestWarcRecordIerator {
 		});
 	}
 
-	public TestWarcRecordIerator(int expected, String warcFile) {
-		this.expected = expected;
+	public TestWarcRecordIerator(int records, String warcFile) {
+		this.expected_records = records;
 		this.warcFile = warcFile;
 	}
 
@@ -81,7 +81,7 @@ public class TestWarcRecordIerator {
 			Assert.fail("Unexpected io exception");
 		}
 
-		Assert.assertEquals(expected, records);
+		Assert.assertEquals(expected_records, records);
 		Assert.assertEquals(0, errors);
 	}
 

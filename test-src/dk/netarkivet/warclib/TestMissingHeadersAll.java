@@ -1,15 +1,16 @@
 package dk.netarkivet.warclib;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.jhove2.module.format.arc.ArcValidationError;
 import org.junit.Assert;
@@ -21,18 +22,25 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestMissingHeadersAll {
 
+	private int expected_records;
 	private String warcFile;
+	private Set<String> fieldNamesSet;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{"test-missing-all-except-warctype.warc"},
-				{"test-missing-fields.warc"}
+				{2, "test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
+				{4, "test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
+				{1, "test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
+				{1, "test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
+				{1, "test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
 		});
 	}
 
-	public TestMissingHeadersAll(String warcFile) {
+	public TestMissingHeadersAll(int records, String warcFile, String fieldNames) {
+		this.expected_records = records;
 		this.warcFile = warcFile;
+		this.fieldNamesSet = new HashSet<String>(Arrays.asList((fieldNames.split(",", -1))));
 	}
 
 	@Test
@@ -50,43 +58,20 @@ public class TestMissingHeadersAll {
 			WarcRecord record;
 
 			while ( (record = parser.nextRecord()) != null ) {
-				System.out.println("--------------");
-				System.out.println("       Version: " + record.bMagicIdentified + " " + record.bVersionParsed + " " + record.major + "." + record.minor);
-				System.out.println("       TypeIdx: " + record.warcTypeIdx);
-				System.out.println("          Type: " + record.warcTypeStr);
-				System.out.println("      Filename: " + record.warcFilename);
-				System.out.println("     Record-ID: " + record.warcRecordIdUri);
-				System.out.println("          Date: " + record.warcDate);
-				System.out.println("Content-Length: " + record.contentLength);
-				System.out.println("  Content-Type: " + record.contentType);
-				System.out.println("     Truncated: " + record.warcTruncatedStr);
-				System.out.println("   InetAddress: " + record.warcInetAddress);
-				System.out.println("  ConcurrentTo: " + record.warcConcurrentToUri);
-				System.out.println("      RefersTo: " + record.warcRefersToUri);
-				System.out.println("     TargetUri: " + record.warcTargetUriUri);
-				System.out.println("   WarcInfo-Id: " + record.warcWarcInfoIdUri);
-				System.out.println("   BlockDigest: " + record.warcBlockDigest);
-				System.out.println(" PayloadDigest: " + record.warcPayloadDigest);
-				System.out.println("IdentPloadType: " + record.warcIdentifiedPayloadType);
-				System.out.println("       Profile: " + record.warcProfileStr);
-				System.out.println("      Segment#: " + record.warcSegmentNumber);
-				System.out.println(" SegmentOrg-Id: " + record.warcSegmentOriginIdUrl);
-				System.out.println("SegmentTLength: " + record.warcSegmentTotalLength);
+				TestWarc.printRecord(record);
+				TestWarc.printRecordErrors(record);
+
 				++records;
 
 				if (record.hasErrors()) {
-					Collection<ArcValidationError> errorCol = record.getValidationErrors();
-					errors += errorCol.size();
+					errors += record.getValidationErrors().size();
 
-					if (errorCol != null && errorCol.size() > 0) {
-						Iterator<ArcValidationError> iter = errorCol.iterator();
-						while (iter.hasNext()) {
-							ArcValidationError error = iter.next();
-							System.out.println( error.error );
-							System.out.println( error.field );
-							System.out.println( error.value );
-						}
-					}
+					Assert.assertTrue(fieldNamesSet.containsAll(
+							filter(record.getValidationErrors())
+							));
+				}
+				else {
+					Assert.fail("There must be errors.");
 				}
 			}
 
@@ -103,8 +88,16 @@ public class TestMissingHeadersAll {
 			Assert.fail("Unexpected io exception");
 		}
 
-		//Assert.assertEquals(expected, records);
+		Assert.assertEquals(expected_records, records);
 		//Assert.assertEquals(0, errors);
+	}
+
+	public List<String> filter(Collection<ArcValidationError> errors) {
+		List<String> fields = new ArrayList<String>();
+		for (ArcValidationError error : errors) {
+			fields.add(error.field);
+		}
+		return fields;
 	}
 
 }
