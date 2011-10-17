@@ -67,7 +67,7 @@ public class ArcPayload {
         }
         this.length = length;
         this.in = new BufferedInputStream(
-                        new ByteBoundInputStream(in, length), BUFFER_SIZE);
+                        new FixedLengthInputStream(in, length), BUFFER_SIZE);
     }
 
     /**

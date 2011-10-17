@@ -46,7 +46,7 @@ import java.io.InputStream;
  *
  * @author lbihanic, selghissassi
  */
-public final class ByteBoundInputStream extends FilterInputStream {
+public final class FixedLengthInputStream extends FilterInputStream {
 
     /** Remaining bytes. */
     private long remaining;
@@ -57,7 +57,7 @@ public final class ByteBoundInputStream extends FilterInputStream {
      * @param in the input stream to parse.
      * @param remaining remaining bytes.
      */
-    public ByteBoundInputStream(InputStream in, long remaining) {
+    public FixedLengthInputStream(InputStream in, long remaining) {
         super(in);
         this.remaining = remaining;
     }

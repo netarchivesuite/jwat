@@ -53,7 +53,7 @@ public class ArcParser  {
     protected ArcVersionBlock versionBlock = null;
 
     /** Current ARC record object. */
-    protected ArcRecord arcRecord = null;
+    protected ArcRecord current_record = null;
 
     /**
      * Creates a new ARC parser from an <code>InputStream</code>.
@@ -68,15 +68,15 @@ public class ArcParser  {
     }
 
     /**
-     * Close all open resources. 
+     * Close current record resources and parser inputstream. 
      */
     public void close() {
-        if (arcRecord != null) {
+        if (current_record != null) {
             try {
-                arcRecord.close();
+                current_record.close();
             }
             catch (IOException e) { /* ignore */ }
-            arcRecord = null;
+            current_record = null;
         }
         if (in != null) {
             try {
@@ -111,11 +111,11 @@ public class ArcParser  {
      * @throws IOException io exception in reading process
      */
     public ArcRecord getNextArcRecord() throws IOException {
-        if (arcRecord != null) {
-            arcRecord.close();
+        if (current_record != null) {
+            current_record.close();
         }
-        arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
-        return arcRecord;
+        current_record = ArcRecord.parseArcRecord(in, versionBlock);
+        return current_record;
     }
 
     /**
@@ -127,14 +127,14 @@ public class ArcParser  {
      */
     public ArcRecord getNextArcRecord(InputStream inExt, long offset)
                                                         throws IOException {
-        if (arcRecord != null) {
-            arcRecord.close();
+        if (current_record != null) {
+            current_record.close();
         }
         ByteCountingInputStream bcin = new ByteCountingInputStream(inExt);
-        arcRecord = ArcRecord.parseArcRecord(bcin, versionBlock);
-        arcRecord.startOffset = offset;
+        current_record = ArcRecord.parseArcRecord(bcin, versionBlock);
+        current_record.startOffset = offset;
         bcin.close();
-        return arcRecord;
+        return current_record;
     }
 
 }
