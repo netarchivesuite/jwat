@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.jhove2.module.format.arc.ArcValidationError;
-
 public class TestWarc {
 
 	static String warcFile = "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc";
@@ -64,7 +62,7 @@ public class TestWarc {
 		System.out.println("  Content-Type: " + record.contentType);
 		System.out.println("     Truncated: " + record.warcTruncatedStr);
 		System.out.println("   InetAddress: " + record.warcInetAddress);
-		System.out.println("  ConcurrentTo: " + record.warcConcurrentToUri);
+		System.out.println("  ConcurrentTo: " + record.warcConcurrentToUriList);
 		System.out.println("      RefersTo: " + record.warcRefersToUri);
 		System.out.println("     TargetUri: " + record.warcTargetUriUri);
 		System.out.println("   WarcInfo-Id: " + record.warcWarcInfoIdUri);
@@ -79,11 +77,11 @@ public class TestWarc {
 
 	public static void printRecordErrors(WarcRecord record) {
 		if (record.hasErrors()) {
-			Collection<ArcValidationError> errorCol = record.getValidationErrors();
+			Collection<WarcValidationError> errorCol = record.getValidationErrors();
 			if (errorCol != null && errorCol.size() > 0) {
-				Iterator<ArcValidationError> iter = errorCol.iterator();
+				Iterator<WarcValidationError> iter = errorCol.iterator();
 				while (iter.hasNext()) {
-					ArcValidationError error = iter.next();
+					WarcValidationError error = iter.next();
 					System.out.println( error.error );
 					System.out.println( error.field );
 					System.out.println( error.value );

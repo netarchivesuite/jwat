@@ -224,7 +224,8 @@ public class WarcConstants {
 		// Warc-Type
 		// Warc-Date
 		// Content-Length
-		for (int i=1; i<=8; ++i) {
+		// Also required for unknown warc-types.
+		for (int i=0; i<=8; ++i) {
 			field_policy[i][FN_IDX_WARC_RECORD_ID] = POLICY_MANDATORY;
 			field_policy[i][FN_IDX_WARC_TYPE] = POLICY_MANDATORY;
 			field_policy[i][FN_IDX_WARC_DATE] = POLICY_MANDATORY;

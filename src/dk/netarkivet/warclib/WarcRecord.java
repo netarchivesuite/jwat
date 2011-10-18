@@ -3,21 +3,20 @@ package dk.netarkivet.warclib;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jhove2.module.format.arc.ArcErrorType;
-import org.jhove2.module.format.arc.ArcValidationError;
 import org.jhove2.module.format.arc.ByteCountingInputStream;
 import org.jhove2.module.format.arc.IPAddressParser;
 
 public class WarcRecord {
 
     /** Validation errors */
-    protected List<ArcValidationError> errors = null;
+    protected List<WarcValidationError> errors = null;
 
     /*
      * Version related fields.
@@ -59,8 +58,8 @@ public class WarcRecord {
 	String warcIpAddress;
 	InetAddress warcInetAddress;
 
-	String warcConcurrentToStr;
-	URI warcConcurrentToUri;
+	List<String> warcConcurrentToStrList;
+	List<URI> warcConcurrentToUriList;
 
 	String warcRefersToStr;
 	URI warcRefersToUri;
@@ -228,9 +227,20 @@ public class WarcRecord {
 												WarcConstants.FN_CONTENT_TYPE);
 										break;
 									case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-										warcConcurrentToStr = value;
-										warcConcurrentToUri = parseUri(value,
+										if (value != null && value.trim().length() > 0) {
+											if (warcConcurrentToStrList == null) {
+												warcConcurrentToStrList = new ArrayList<String>();
+											}
+											warcConcurrentToStrList.add( value );
+										}
+										URI tmpUri = parseUri(value,
 												WarcConstants.FN_WARC_CONCURRENT_TO);
+										if (tmpUri != null) {
+											if (warcConcurrentToUriList == null) {
+												warcConcurrentToUriList = new ArrayList<URI>();
+											}
+											warcConcurrentToUriList.add(tmpUri);
+										}
 										break;
 									case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
 										// TODO
@@ -312,7 +322,7 @@ public class WarcRecord {
 								}
 								else {
 									// Duplicate field.
-						            addValidationError(ArcErrorType.INVALID, field, value);
+						            addValidationError(WarcErrorType.DUPLICATE, field, value);
 								}
 							}
 							else {
@@ -338,17 +348,17 @@ public class WarcRecord {
 		bMandatoryMissing = false;
 
 		/*
-		 * Unknowns.
+		 * Unknown Warc-Type and/or Warc-Profile.
 		 */
 
 		if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
 			// Warning: Unknown Warc-Type.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+            addValidationError(WarcErrorType.UNKNOWN, WarcConstants.FN_WARC_TYPE, warcTypeStr);
 		}
 
 		if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
 			// Warning: Unknown Warc-Profile.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_PROFILE, warcProfileStr);
+            addValidationError(WarcErrorType.UNKNOWN, WarcConstants.FN_WARC_PROFILE, warcProfileStr);
 		}
 
 		/*
@@ -357,37 +367,35 @@ public class WarcRecord {
 
 		if (warcTypeIdx == null) {
 			// Mandatory valid Warc-Type missing.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_TYPE, warcTypeStr);
             bMandatoryMissing = true;
 		}
 		if (warcRecordIdUri == null) {
 			// Mandatory valid Warc-Record-Id missing.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_RECORD_ID, warcRecordIdStr);
+            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_RECORD_ID, warcRecordIdStr);
             bMandatoryMissing = true;
 		}
 		if (warcDate == null) {
 			// Mandatory valid Warc-Date missing.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_DATE, warcDateStr);
+            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_DATE, warcDateStr);
             bMandatoryMissing = true;
 		}
 		if (contentLength == null) {
 			// Mandatory valid Content-Length missing.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_CONTENT_LENGTH, contentLengthStr);
+            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_CONTENT_LENGTH, contentLengthStr);
             bMandatoryMissing = true;
 		}
 
-		if (warcTypeIdx != null && warcTypeIdx == 0) {
-			// Warc-Type not recognized.
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_WARC_TYPE, warcTypeStr);
-		}
-
 		/*
-		 * Content-Type should be present if Content-Length > 0
+		 * Content-Type should be present if Content-Length > 0.
+		 * Exception for continuation records.
 		 */
 
 		if (contentLength != null && contentLength.longValue() > 0L &&
 						(contentType == null || contentType.length() == 0)) {
-            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_CONTENT_TYPE, contentType);
+			if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
+	            addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, contentType);
+			}
 		}
 
 		/*
@@ -400,57 +408,127 @@ public class WarcRecord {
 			 */
 
 			if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
-				if (!WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentType)) {
-					// Warning: Recommended content-type is "application/warc-fields".
+				if (contentType != null && !WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentType)) {
+		            addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, "application/warc-fields");
 				}
 			}
+
+			if (warcTypeIdx == WarcConstants.RT_IDX_RESPONSE) {
+				if (warcSegmentNumber != null && warcSegmentNumber != 1) {
+		            addValidationError(WarcErrorType.INVALID, WarcConstants.FN_WARC_SEGMENT_NUMBER, warcSegmentNumber.toString());
+				}
+			}
+
+			if (warcTypeIdx == WarcConstants.RT_IDX_CONTINUATION) {
+				if (warcSegmentNumber != null && warcSegmentNumber < 2) {
+		            addValidationError(WarcErrorType.INVALID, WarcConstants.FN_WARC_SEGMENT_NUMBER, warcSegmentNumber.toString());
+				}
+			}
+
+			/*
+			 * Check
+			 */
 
 			if (warcTypeIdx  > 0) {
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentType);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
-				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentToUri, warcConcurrentToStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentToUriList, warcConcurrentToStrList);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TRUNCATED, warcTruncatedIdx, warcTruncatedStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcInfoIdUri, warcWarcinfoIdStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_BLOCK_DIGEST, warcBlockDigest, warcBlockDigestStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST, warcPayloadDigest, warcPayloadDigestStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);
-				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileStr, warcProfileStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileIdx, warcProfileStr);
+				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE, warcIdentifiedPayloadType, warcIdentifiedPayloadTypeStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
 				check_field_policy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
 			}
 		}
-
 	}
 
-	protected void check_field_policy(int rtype, int ftype, Object fieldObj, String fieldStr) {
+	protected void check_field_policy(int rtype, int ftype, Object fieldObj, String valueStr) {
 		int policy = WarcConstants.field_policy[rtype][ftype];
 		switch (policy) {
 		case WarcConstants.POLICY_MANDATORY:
 			if (fieldObj == null) {
-	            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+	            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
 			}
             break;
 		case WarcConstants.POLICY_SHALL:
 			if (fieldObj == null) {
-	            addValidationError(ArcErrorType.MISSING, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+	            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
 			}
             break;
 		case WarcConstants.POLICY_MAY:
 			break;
 		case WarcConstants.POLICY_MAY_NOT:
 			if (fieldObj != null) {
-	            addValidationError(ArcErrorType.INVALID, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+	            addValidationError(WarcErrorType.UNWANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
 			}
 			break;
 		case WarcConstants.POLICY_SHALL_NOT:
 			if (fieldObj != null) {
-	            addValidationError(ArcErrorType.INVALID, WarcConstants.FN_IDX_STRINGS[ftype], fieldStr);
+	            addValidationError(WarcErrorType.UNWANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
 			}
 			break;
 		case WarcConstants.POLICY_IGNORE:
 		default:
 			break;
 		}
+	}
+
+	protected void check_field_policy(int rtype, int ftype, List<?> fieldObj, List<String> valueList) {
+		String valueStr = null;
+		int policy = WarcConstants.field_policy[rtype][ftype];
+		switch (policy) {
+		case WarcConstants.POLICY_MANDATORY:
+			if (fieldObj == null) {
+				valueStr = listToStr(valueList);
+	            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+			}
+            break;
+		case WarcConstants.POLICY_SHALL:
+			if (fieldObj == null) {
+				valueStr = listToStr(valueList);
+	            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+			}
+            break;
+		case WarcConstants.POLICY_MAY:
+			break;
+		case WarcConstants.POLICY_MAY_NOT:
+			if (fieldObj != null) {
+				valueStr = listToStr(valueList);
+	            addValidationError(WarcErrorType.UNWANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+			}
+			break;
+		case WarcConstants.POLICY_SHALL_NOT:
+			if (fieldObj != null) {
+				valueStr = listToStr(valueList);
+	            addValidationError(WarcErrorType.UNWANTED, WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+			}
+			break;
+		case WarcConstants.POLICY_IGNORE:
+		default:
+			break;
+		}
+	}
+
+	protected String listToStr(List<String> list) {
+		StringBuffer sb = new StringBuffer();
+		String str = null;
+		if (list != null) {
+			for (int i=0; i<list.size(); ++i) {
+				if (i != 0) {
+					sb.append(", ");
+				}
+				sb.append(list.get(i));
+			}
+			str = sb.toString();
+		}
+		return str;
 	}
 
 	/**
@@ -465,7 +543,7 @@ public class WarcRecord {
      * Validation errors getter.
      * @return validation errors list
      */
-    public Collection<ArcValidationError> getValidationErrors() {
+    public Collection<WarcValidationError> getValidationErrors() {
         return (hasErrors())? Collections.unmodifiableList(errors) : null;
     }
 
@@ -475,12 +553,12 @@ public class WarcRecord {
      * @param field the field name
      * @param value the error value
      */
-    protected void addValidationError(ArcErrorType errorType,
+    protected void addValidationError(WarcErrorType errorType,
                                       String field, String value) {
         if (errors == null) {
-            errors = new LinkedList<ArcValidationError>();
+            errors = new LinkedList<WarcValidationError>();
         }
-        errors.add(new ArcValidationError(errorType, field, value));
+        errors.add(new WarcValidationError(errorType, field, value));
     }
 
     /**
@@ -497,12 +575,12 @@ public class WarcRecord {
             }
             catch (Exception e) {
                 // Invalid integer value.
-                this.addValidationError(ArcErrorType.INVALID, field, intStr);
+                this.addValidationError(WarcErrorType.INVALID, field, intStr);
             }
          }
          else {
              // Missing integer value.
-             addValidationError(ArcErrorType.MISSING, field, intStr);
+             addValidationError(WarcErrorType.EMPTY, field, intStr);
          }
          return iVal;
     }
@@ -521,12 +599,12 @@ public class WarcRecord {
             }
             catch (Exception e) {
                 // Invalid long value.
-                this.addValidationError(ArcErrorType.INVALID, field, longStr);
+                this.addValidationError(WarcErrorType.INVALID, field, longStr);
             }
          }
          else {
              // Missing long value.
-             addValidationError(ArcErrorType.MISSING, field, longStr);
+             addValidationError(WarcErrorType.EMPTY, field, longStr);
          }
          return lVal;
     }
@@ -540,7 +618,7 @@ public class WarcRecord {
      */
     protected String parseString(String str, String field) {
         if (((str == null) || (str.trim().length() == 0))) {
-            this.addValidationError(ArcErrorType.MISSING, field, str);
+            this.addValidationError(WarcErrorType.EMPTY, field, str);
         }
         return str;
     }
@@ -556,12 +634,12 @@ public class WarcRecord {
                 date = WarcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addValidationError(ArcErrorType.INVALID, field, dateStr);
+                    addValidationError(WarcErrorType.INVALID, field, dateStr);
                 }
         }
         else {
             // Missing date.
-            addValidationError(ArcErrorType.MISSING, field, dateStr);
+            addValidationError(WarcErrorType.EMPTY, field, dateStr);
         }
         return date;
     }
@@ -577,12 +655,12 @@ public class WarcRecord {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid ip address.
-                addValidationError(ArcErrorType.INVALID, field, ipAddress);
+                addValidationError(WarcErrorType.INVALID, field, ipAddress);
             }
         }
         else {
             // Missing ip address.
-            addValidationError(ArcErrorType.MISSING, field, ipAddress);
+            addValidationError(WarcErrorType.EMPTY, field, ipAddress);
         }
         return inetAddr;
     }
@@ -603,12 +681,12 @@ public class WarcRecord {
             }
             catch (Exception e) {
                 // Invalid URI.
-                addValidationError(ArcErrorType.INVALID, field, uriStr);
+                addValidationError(WarcErrorType.INVALID, field, uriStr);
             }
         }
         else {
             // Missing URI.
-            addValidationError(ArcErrorType.MISSING, field, uriStr);
+            addValidationError(WarcErrorType.EMPTY, field, uriStr);
         }
         return uri;
     }

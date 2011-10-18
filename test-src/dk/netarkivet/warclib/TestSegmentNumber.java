@@ -15,25 +15,23 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestDuplicateFields {
+public class TestSegmentNumber {
 
 	private int expected_records;
-	private int expected_duplicates;
-	private int expected_concurrenttos;
+	private Integer[] expected_errors;
 	private String warcFile;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 6, 0, "test-duplicate-fields.warc"},
-				{1, 0, 3, "test-duplicate-concurrentto.warc"}
+				{2, new Integer[]{1, 0}, "test-segment-number-continuation.warc"},
+				{2, new Integer[]{0, 1}, "test-segment-number-response.warc"}
 		});
 	}
 
-	public TestDuplicateFields(int records, int duplicates, int concurrenttos, String warcFile) {
+	public TestSegmentNumber(int records, Integer[] errors, String warcFile) {
 		this.expected_records = records;
-		this.expected_duplicates = duplicates;
-		this.expected_concurrenttos = concurrenttos;
+		this.expected_errors = errors;
 		this.warcFile = warcFile;
 	}
 
@@ -44,7 +42,6 @@ public class TestDuplicateFields {
 
 		int records = 0;
 		int errors = 0;
-		int duplicates = 0;
 
 		try {
 			in = new FileInputStream( file );
@@ -56,26 +53,14 @@ public class TestDuplicateFields {
 				TestWarc.printRecord(record);
 				TestWarc.printRecordErrors(record);
 
-				++records;
-
+				errors = 0;
 				if (record.hasErrors()) {
-					errors += record.getValidationErrors().size();
+					errors = record.getValidationErrors().size();
 				}
 
-				// Check number of concurrentto fields.
-				if (expected_concurrenttos == 0) {
-					if (record.warcConcurrentToUriList != null) {
-						Assert.fail("Not expecting any concurrent-to fields");
-					}
-				}
-				else {
-					if (record.warcConcurrentToUriList == null) {
-						Assert.fail("Expecting concurrent-to fields");
-					}
-					else {
-						Assert.assertEquals(record.warcConcurrentToUriList.size(), 3);
-					}
-				}
+				Assert.assertEquals(expected_errors[records].intValue(), errors);
+
+				++records;
 			}
 
 			System.out.println("--------------");
@@ -92,7 +77,6 @@ public class TestDuplicateFields {
 		}
 
 		Assert.assertEquals(expected_records, records);
-		Assert.assertEquals(expected_duplicates, errors);
 	}
 
 }

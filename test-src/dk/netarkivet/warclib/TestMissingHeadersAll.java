@@ -12,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jhove2.module.format.arc.ArcValidationError;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,9 +91,9 @@ public class TestMissingHeadersAll {
 		//Assert.assertEquals(0, errors);
 	}
 
-	public List<String> filter(Collection<ArcValidationError> errors) {
+	public List<String> filter(Collection<WarcValidationError> errors) {
 		List<String> fields = new ArrayList<String>();
-		for (ArcValidationError error : errors) {
+		for (WarcValidationError error : errors) {
 			fields.add(error.field);
 		}
 		return fields;
