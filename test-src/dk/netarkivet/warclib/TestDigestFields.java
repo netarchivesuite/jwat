@@ -15,7 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestSegmentNumber {
+public class TestDigestFields {
 
 	private int expected_records;
 	private int[] expected_errors;
@@ -24,12 +24,11 @@ public class TestSegmentNumber {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{2, new int[]{1, 0}, "test-segment-number-continuation.warc"},
-				{2, new int[]{0, 1}, "test-segment-number-response.warc"}
+				{4, new int[]{0, 2, 2, 2}, "test-digest-fields.warc"}
 		});
 	}
 
-	public TestSegmentNumber(int records, int[] errors, String warcFile) {
+	public TestDigestFields(int records, int[] errors, String warcFile) {
 		this.expected_records = records;
 		this.expected_errors = errors;
 		this.warcFile = warcFile;

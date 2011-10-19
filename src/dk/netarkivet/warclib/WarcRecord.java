@@ -1,6 +1,8 @@
 package dk.netarkivet.warclib;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jhove2.module.format.arc.ArcErrorType;
 import org.jhove2.module.format.arc.ByteCountingInputStream;
 import org.jhove2.module.format.arc.IPAddressParser;
 
@@ -71,10 +74,10 @@ public class WarcRecord {
 	URI warcWarcInfoIdUri;
 
 	String warcBlockDigestStr;
-	String warcBlockDigest;
+	WarcDigest warcBlockDigest;
 
 	String warcPayloadDigestStr;
-	String warcPayloadDigest;
+	WarcDigest warcPayloadDigest;
 
 	String warcIdentifiedPayloadTypeStr;
 	String warcIdentifiedPayloadType;
@@ -135,7 +138,7 @@ public class WarcRecord {
 		String tmpStr;
 		boolean bSeekMagic = true;
 		while (bSeekMagic) {
-			tmpStr = in.readLine();
+			tmpStr = readLine(in);
 			if (tmpStr != null) {
 				if (tmpStr.length() > 0) {
 					if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
@@ -695,8 +698,71 @@ public class WarcRecord {
     	return parseString(contentType, field);
     }
 
-    protected String parseDigest(String digest, String field) {
-    	return parseString(digest, field);
+    protected WarcDigest parseDigest(String labelledDigest, String field) {
+        WarcDigest digest = null;
+        if (labelledDigest != null && labelledDigest.length() > 0) {
+                digest = WarcDigest.parseDigest(labelledDigest);
+                if (digest == null) {
+                    // Invalid digest.
+                    addValidationError(WarcErrorType.INVALID, field, labelledDigest);
+                }
+        }
+        else {
+            // Missing date.
+            addValidationError(WarcErrorType.EMPTY, field, labelledDigest);
+        }
+        return digest;
+    }
+
+    protected String readLine(InputStream in) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        int b;
+        while (true) {
+            b = in.read();
+            if (b == -1) {
+                return null;    //Unexpected EOF
+            }
+            if (b == '\n') {
+                break;
+            }
+            if (b != '\r') {
+                bos.write(b);
+            }
+        }
+        return bos.toString("US-ASCII");
+    }
+
+    protected String readHeaderLine(InputStream in) throws IOException {
+    	ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
+    	StringBuilder sb = new StringBuilder(128);
+    	int state = 0;
+    	int b;
+    	while (true) {
+    		b = in.read();
+    		if (b == -1) {
+    			// EOF.
+    			return null;
+    		}
+    		switch (state) {
+    		case 0:
+    			switch (b) {
+    			case ':':
+    				state = 1;
+    				break;
+    			case '\r':
+    				break;
+    			case '\n':
+    				break;
+    			default:
+    				if (b < 33 && b>127) {
+    					// Not US-ASCII...
+    				}
+    				bos.write(b);
+    				break;
+    			}
+    			break;
+    		}
+    	}
     }
 
 }
