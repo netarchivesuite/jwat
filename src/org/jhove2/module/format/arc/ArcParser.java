@@ -38,6 +38,8 @@ package org.jhove2.module.format.arc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * ARC file parser.
@@ -135,6 +137,47 @@ public class ArcParser  {
         current_record.startOffset = offset;
         bcin.close();
         return current_record;
+    }
+
+    public Iterator<ArcRecord> iterator() {
+        return new Iterator<ArcRecord>() {
+
+            private ArcRecord next;
+
+            private ArcRecord current;
+
+            @Override
+            public boolean hasNext() {
+                if (next == null) {
+                    try {
+                        next = getNextArcRecord();
+                    }
+                    catch (IOException e) { /* ignore for now */ }
+                }
+                return (next != null);
+            }
+
+            @Override
+            public ArcRecord next() {
+                if (next == null) {
+                    try {
+                        next = getNextArcRecord();
+                    }
+                    catch (IOException e) { /* ignore for now */}
+                }
+                if (next == null) {
+                    throw new NoSuchElementException();
+                }
+                current = next;
+                next = null;
+                return current;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
 }

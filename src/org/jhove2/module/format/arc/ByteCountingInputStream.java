@@ -51,7 +51,7 @@ public class ByteCountingInputStream extends FilterInputStream {
     /** New line delimiter. */
     public static final int NL = '\n';
 
-    /** Offset relative to begining of stream. */
+    /** Offset relative to beginning of stream. */
     protected long consumed = 0;
 
     /** Relative byte counter. */
@@ -174,7 +174,7 @@ public class ByteCountingInputStream extends FilterInputStream {
                 --i;
             }
         }
-        return (bos!=null)? bos.toString("US-ASCII") : null;
+        return (bos!=null) ? bos.toString("US-ASCII") : null;
     }
 
 }
