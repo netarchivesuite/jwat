@@ -7,7 +7,7 @@ WARC-Block-Digest: sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV
 WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 Content-Type: application/http; msgtype=response
-Content-Length: 680
+Content-Length: 697
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -43,7 +43,7 @@ WARC-Block-Digest: sha1:
 WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 Content-Type: application/http; msgtype=response
-Content-Length: 680
+Content-Length: 697
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -79,7 +79,7 @@ WARC-Block-Digest:     :2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV
 WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 Content-Type: application/http; msgtype=response
-Content-Length: 680
+Content-Length: 697
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -115,7 +115,7 @@ WARC-Block-Digest: monkeypowah!
 WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 Content-Type: application/http; msgtype=response
-Content-Length: 680
+Content-Length: 697
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT

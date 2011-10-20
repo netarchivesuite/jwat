@@ -140,6 +140,7 @@ public class WarcRecord {
 		while (bSeekMagic) {
 			tmpStr = readLine(in);
 			if (tmpStr != null) {
+				System.out.println(tmpStr);
 				if (tmpStr.length() > 0) {
 					if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
 						bMagicIdentified = true;
@@ -163,6 +164,7 @@ public class WarcRecord {
 					}
 					else {
 						// Gibberish.
+	                    addValidationError(WarcErrorType.INVALID, "Data", null);
 					}
 				}
 				else {
@@ -184,6 +186,7 @@ public class WarcRecord {
 		while (bFields) {
 			tmpStr = in.readLine();
 			if (tmpStr != null) {
+				System.out.println(tmpStr);
 				while (tmpStr.endsWith("\r")) {
 					tmpStr = tmpStr.substring(0, tmpStr.length() - 1);
 				}
@@ -761,6 +764,16 @@ public class WarcRecord {
     				break;
     			}
     			break;
+    		case 1:
+    			switch (b) {
+    			case '\r':
+    				break;
+    			case '\n':
+    				break;
+   				default:
+    				bos.write(b);
+   					break;
+    			}
     		}
     	}
     }
