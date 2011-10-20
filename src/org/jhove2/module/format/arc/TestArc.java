@@ -25,60 +25,15 @@ public class TestArc {
 			ArcVersionBlock version = parser.getVersionBlock();
 
 			if ( version != null ) {
-				System.out.println( "         url: " + version.recUrl + " - " + version.url );
-				if ( version.url != null ) {
-					System.out.println( "              " + version.url.getScheme() );
-					System.out.println( "              " + version.url.getSchemeSpecificPart() );
-				}
-				System.out.println( "      ipaddr: " + version.recIpAddress + " - " + version.inetAddress );
-				System.out.println( "        date: " + version.recArchiveDate + " - " + version.archiveDate );
-				System.out.println( "content-type: " + version.recContentType );
-				System.out.println( " result-code: " + version.recResultCode );
-				System.out.println( "    checksum: " + version.recChecksum );
-				System.out.println( "    location: " + version.recLocation );
-				System.out.println( "      offset: " + version.recOffset );
-				System.out.println( "    filename: " + version.recFilename );
-				System.out.println( "      length: " + version.recLength );
-				System.out.println( "       major: " + version.versionNumber );
-				System.out.println( "       minor: " + version.reserved );
-				System.out.println( "      origin: " + version.originCode );
-				System.out.println( version.xml );
-				System.out.println( "compl.fields: " + version.hasCompliantFields );
-				System.out.println( "       magic: " + version.isMagicArcFile );
-				System.out.println( "validVersion: " + version.isVersionValid );
-				System.out.println( "ValidFldDesc: " + version.isValidFieldDesc );
-				System.out.println( "      errors: " + version.hasErrors() );
-				System.out.println( "    warnings: " + version.hasWarnings() );
+			    printVersionBlock( version );
 
 				boolean b = true;
 				while ( b ) {
 					ArcRecord arcRecord = parser.getNextArcRecord();
 					if ( arcRecord != null ) {
-						System.out.println( "------------" );
-						System.out.println( "         url: " + arcRecord.recUrl + " - " + arcRecord.url );
-						if ( arcRecord.url != null ) {
-							System.out.println( "              " + arcRecord.url.getScheme() );
-							System.out.println( "              " + arcRecord.url.getSchemeSpecificPart() );
-						}
-						System.out.println( "      ipaddr: " + arcRecord.recIpAddress + " - " + arcRecord.inetAddress );
-						System.out.println( "        date: " + arcRecord.recArchiveDate + " - " + arcRecord.archiveDate );
-						System.out.println( "content-type: " + arcRecord.recContentType );
-						System.out.println( " result-code: " + arcRecord.recResultCode );
-						System.out.println( "    checksum: " + arcRecord.recChecksum );
-						System.out.println( "    location: " + arcRecord.recLocation );
-						System.out.println( "      offset: " + arcRecord.recOffset );
-						System.out.println( "    filename: " + arcRecord.recFilename );
-						System.out.println( "      length: " + arcRecord.recLength );
-						if (arcRecord.httpResponse != null ) {
-							System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
-							System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
-							System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
-							System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
-							save( arcRecord.recUrl, arcRecord.httpResponse );
-						}
-						System.out.println( "      errors: " + arcRecord.hasErrors() );
-						System.out.println( "    warnings: " + arcRecord.hasWarnings() );
-						++records;
+					    printRecord( arcRecord );
+
+					    ++records;
 					}
 					else {
 						b = false;
@@ -87,6 +42,7 @@ public class TestArc {
 				System.out.println( "------------" );
 				System.out.println( "     Records: " + records );
 			}
+
 			parser.close();
 			in.close();
 		}
@@ -98,6 +54,60 @@ public class TestArc {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public static void printVersionBlock(ArcVersionBlock version) {
+        System.out.println( "         url: " + version.recUrl + " - " + version.url );
+        if ( version.url != null ) {
+            System.out.println( "              " + version.url.getScheme() );
+            System.out.println( "              " + version.url.getSchemeSpecificPart() );
+        }
+        System.out.println( "      ipaddr: " + version.recIpAddress + " - " + version.inetAddress );
+        System.out.println( "        date: " + version.recArchiveDate + " - " + version.archiveDate );
+        System.out.println( "content-type: " + version.recContentType );
+        System.out.println( " result-code: " + version.recResultCode );
+        System.out.println( "    checksum: " + version.recChecksum );
+        System.out.println( "    location: " + version.recLocation );
+        System.out.println( "      offset: " + version.recOffset );
+        System.out.println( "    filename: " + version.recFilename );
+        System.out.println( "      length: " + version.recLength );
+        System.out.println( "       major: " + version.versionNumber );
+        System.out.println( "       minor: " + version.reserved );
+        System.out.println( "      origin: " + version.originCode );
+        System.out.println( version.xml );
+        System.out.println( "compl.fields: " + version.hasCompliantFields );
+        System.out.println( "       magic: " + version.isMagicArcFile );
+        System.out.println( "validVersion: " + version.isVersionValid );
+        System.out.println( "ValidFldDesc: " + version.isValidFieldDesc );
+        System.out.println( "      errors: " + version.hasErrors() );
+        System.out.println( "    warnings: " + version.hasWarnings() );
+	}
+
+	public static void printRecord(ArcRecord arcRecord) {
+        System.out.println( "------------" );
+        System.out.println( "         url: " + arcRecord.recUrl + " - " + arcRecord.url );
+        if ( arcRecord.url != null ) {
+            System.out.println( "              " + arcRecord.url.getScheme() );
+            System.out.println( "              " + arcRecord.url.getSchemeSpecificPart() );
+        }
+        System.out.println( "      ipaddr: " + arcRecord.recIpAddress + " - " + arcRecord.inetAddress );
+        System.out.println( "        date: " + arcRecord.recArchiveDate + " - " + arcRecord.archiveDate );
+        System.out.println( "content-type: " + arcRecord.recContentType );
+        System.out.println( " result-code: " + arcRecord.recResultCode );
+        System.out.println( "    checksum: " + arcRecord.recChecksum );
+        System.out.println( "    location: " + arcRecord.recLocation );
+        System.out.println( "      offset: " + arcRecord.recOffset );
+        System.out.println( "    filename: " + arcRecord.recFilename );
+        System.out.println( "      length: " + arcRecord.recLength );
+        if (arcRecord.httpResponse != null ) {
+            System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
+            System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
+            System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
+            System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
+            save( arcRecord.recUrl, arcRecord.httpResponse );
+        }
+        System.out.println( "      errors: " + arcRecord.hasErrors() );
+        System.out.println( "    warnings: " + arcRecord.hasWarnings() );
 	}
 
 	public static void save(String url, HttpResponse httpResponse) {

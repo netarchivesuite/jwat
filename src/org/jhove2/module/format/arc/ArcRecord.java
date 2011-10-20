@@ -81,16 +81,14 @@ public class ArcRecord extends ArcRecordBase {
             }
             if (recordLine != null) {
                 ar.parseRecord(recordLine);
-            }
-            else {
+            } else {
                 // EOF
                 ar = null;
             }
             if (ar != null) {
                 ar.processPayload(in);
             }
-        }
-        catch (IOException e) { /* Ignore */ }
+        } catch (IOException e) { /* Ignore */ }
         return ar;
     }
 
@@ -98,7 +96,8 @@ public class ArcRecord extends ArcRecordBase {
      * @see org.jhove2.module.format.arc.ArcRecordBase#parseNetworkDoc()
      */
     @Override
-    protected void processPayload(ByteCountingInputStream in) throws IOException {
+    protected void processPayload(ByteCountingInputStream in)
+                                                        throws IOException {
         payload = null;
         if (recLength != null && recLength > 0L) {
             payload = new ArcPayload(in, recLength.longValue());
@@ -107,8 +106,7 @@ public class ArcRecord extends ArcRecordBase {
                 httpResponse = HttpResponse.processPayload(payload.in,
                                                         recLength.longValue());
             }
-        }
-        else if (HttpResponse.isSupported(protocol)
+        } else if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
             // TODO warning payload expected
         }

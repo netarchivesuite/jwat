@@ -123,7 +123,8 @@ public class ArcVersionBlock extends ArcRecordBase {
             if (recordLine != null) {
                 vb.checkFileDesc(recordLine);
                 // Extract the path
-                //this.path = desc.url.substring(ArcConstants.ARC_SCHEME.length());
+                //this.path = 
+                // desc.url.substring(ArcConstants.ARC_SCHEME.length());
             }
             // Check for version and parse if present.
             if (versionLine != null && versionLine.length() > 0) {
@@ -150,43 +151,38 @@ public class ArcVersionBlock extends ArcRecordBase {
                 if (ArcConstants.VERSION_1_BLOCK_DEF.equals(fieldLine)) {
                     vb.isValidFieldDesc = true;
                     vb.descValidator = version1DescValidator;
-                }
-                else if (ArcConstants.VERSION_2_BLOCK_DEF.equals(fieldLine)) {
+                } else if (ArcConstants.VERSION_2_BLOCK_DEF.equals(fieldLine)) {
                     vb.isValidFieldDesc = true;
                     vb.descValidator = version2DescValidator;
-                }
-                else {
+                } else {
                     //Using version-1-block fields in this case
                     vb.descValidator = version1DescValidator;
                     vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
-                            "Unsupported version block definition -> " +
-                            "Using version-1-block definition");
+                            "Unsupported version block definition -> "
+                            + "Using version-1-block definition");
                 }
             }
             // Parse record.
             if (recordLine != null) {
                 vb.parseRecord(recordLine);
-            }
-            else {
+            } else {
                 // EOF
                 vb = null;
             }
             if (vb != null) {
-                // Check for missing length.
                 if (vb.recLength == null) {
+                    // Missing length.
                     vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
                             "VersionBlock length missing!");
-                }
-                // Check for mismatch in consumed and declare length.
-                else if (in.counter > vb.recLength) {
+                } else if (in.counter > vb.recLength) {
+                    // Mismatch in consumed and declare length.
                     vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
                             "VersionBlock length to small!");
                 }
                 // Process payload = xml config
                 vb.processPayload(in);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
         return vb;
     }
@@ -197,7 +193,8 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
     @Override
     public boolean isValid() {
-        return (isMagicArcFile && isVersionValid && isValidFieldDesc && super.isValid());
+        return (isMagicArcFile && isVersionValid && isValidFieldDesc
+                && super.isValid());
     }
 
     /**
@@ -228,8 +225,7 @@ public class ArcVersionBlock extends ArcRecordBase {
             try {
                 version = ArcVersion.fromValues(versionNumber.intValue(),
                                        reserved.intValue());
-            }
-            catch (Exception e) { /* ignore */ }
+            } catch (Exception e) { /* ignore */ }
         }
         isVersionValid = (version != null);
         if (!isVersionValid) {
@@ -255,8 +251,7 @@ public class ArcVersionBlock extends ArcRecordBase {
             addValidationError(ArcErrorType.MISSING,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
             ct = null;
-        }
-        else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(ct)) {
+        } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(ct)) {
             addValidationError(ArcErrorType.INVALID,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
             ct = ct.toLowerCase();

@@ -55,7 +55,7 @@ public class ArcParser  {
     protected ArcVersionBlock versionBlock = null;
 
     /** Current ARC record object. */
-    protected ArcRecord current_record = null;
+    protected ArcRecord currentRecord = null;
 
     /**
      * Creates a new ARC parser from an <code>InputStream</code>.
@@ -73,18 +73,16 @@ public class ArcParser  {
      * Close current record resources and parser inputstream. 
      */
     public void close() {
-        if (current_record != null) {
+        if (currentRecord != null) {
             try {
-                current_record.close();
-            }
-            catch (IOException e) { /* ignore */ }
-            current_record = null;
+                currentRecord.close();
+            } catch (IOException e) { /* ignore */ }
+            currentRecord = null;
         }
         if (in != null) {
             try {
                 in.close();
-            }
-            catch (IOException e) { /* ignore */ }
+            } catch (IOException e) { /* ignore */ }
             in = null;
         }
     }
@@ -113,11 +111,11 @@ public class ArcParser  {
      * @throws IOException io exception in reading process
      */
     public ArcRecord getNextArcRecord() throws IOException {
-        if (current_record != null) {
-            current_record.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
-        current_record = ArcRecord.parseArcRecord(in, versionBlock);
-        return current_record;
+        currentRecord = ArcRecord.parseArcRecord(in, versionBlock);
+        return currentRecord;
     }
 
     /**
@@ -129,16 +127,20 @@ public class ArcParser  {
      */
     public ArcRecord getNextArcRecord(InputStream inExt, long offset)
                                                         throws IOException {
-        if (current_record != null) {
-            current_record.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
         ByteCountingInputStream bcin = new ByteCountingInputStream(inExt);
-        current_record = ArcRecord.parseArcRecord(bcin, versionBlock);
-        current_record.startOffset = offset;
+        currentRecord = ArcRecord.parseArcRecord(bcin, versionBlock);
+        currentRecord.startOffset = offset;
         bcin.close();
-        return current_record;
+        return currentRecord;
     }
 
+    /**
+     * <code>Iterator</code> over the <code>ARC</code> records.
+     * @return <code>Iterator</code> over the <code>ARC</code> records
+     */
     public Iterator<ArcRecord> iterator() {
         return new Iterator<ArcRecord>() {
 
@@ -151,8 +153,7 @@ public class ArcParser  {
                 if (next == null) {
                     try {
                         next = getNextArcRecord();
-                    }
-                    catch (IOException e) { /* ignore for now */ }
+                    } catch (IOException e) { /* ignore for now */ }
                 }
                 return (next != null);
             }
@@ -162,8 +163,7 @@ public class ArcParser  {
                 if (next == null) {
                     try {
                         next = getNextArcRecord();
-                    }
-                    catch (IOException e) { /* ignore for now */}
+                    } catch (IOException e) { /* ignore for now */}
                 }
                 if (next == null) {
                     throw new NoSuchElementException();

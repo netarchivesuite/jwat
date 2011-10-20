@@ -42,7 +42,8 @@ import java.io.InputStream;
 /**
  * Network doc filter.
  * <code>InputStream</code> with a maximum bound of bytes available to read.
- * When the stream is closed the remaining bytes that have not been read are skipped.
+ * When the stream is closed the remaining bytes that have not been read are 
+ * skipped.
  *
  * @author lbihanic, selghissassi
  */
@@ -76,7 +77,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
     @Override
     public int available() throws IOException {
         return (remaining > Integer.MAX_VALUE)
-                                ? Integer.MAX_VALUE : (int)(remaining);
+                                ? Integer.MAX_VALUE : (int) (remaining);
     }
 
     @Override
@@ -97,7 +98,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
     public int read(byte[] b, int off, int len) throws IOException {
         int l = -1;
         if (this.remaining > 0L) {
-            l = super.read(b, off, (int)Math.min(len, remaining));
+            l = super.read(b, off, (int) Math.min(len, remaining));
             if(l > 0){
                 remaining -= l;
             }

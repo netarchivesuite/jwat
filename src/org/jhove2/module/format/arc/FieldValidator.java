@@ -65,7 +65,7 @@ public class FieldValidator {
     public static FieldValidator prepare(String[] fieldNames) {
         FieldValidator fd = new FieldValidator();
         fd.fieldNames = fieldNames;
-        for (int i=0; i<fieldNames.length; ++i) {
+        for (int i = 0; i < fieldNames.length; ++i) {
             fd.fieldIdxMap.put(fieldNames[i], i);
         }
         return fd;
@@ -79,8 +79,8 @@ public class FieldValidator {
      * @return value index in array or null
      */
     public static String getArrayValue(String[] array, int idx) {
-        return ((array.length > idx) && (array[idx] != null) &&
-                (array[idx].length() != 0))? array[idx] : null;
+        return ((array.length > idx) && (array[idx] != null)
+                && (array[idx].length() != 0))? array[idx] : null;
     }
 
     /*

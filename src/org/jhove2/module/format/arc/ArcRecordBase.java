@@ -68,7 +68,7 @@ public abstract class ArcRecordBase {
     /** ARC record starting offset relative to the source arc file input stream. */
     protected long startOffset = -1L;
 
-    /** Validation errors */
+    /** Validation errors. */
     protected List<ArcValidationError> errors = null;
 
     /** Do the record fields comply in number with the one dictated by its version. */
@@ -178,8 +178,8 @@ public abstract class ArcRecordBase {
                     ArcConstants.LENGTH_FIELD);
             // Check read and computed offset value only if we're reading
             // a plain ARC file, not a GZipped ARC.
-            if ((recOffset != null) && (startOffset > 0L) &&
-                (recOffset.longValue() != startOffset)) {
+            if ((recOffset != null) && (startOffset > 0L)
+                                && (recOffset.longValue() != startOffset)) {
                 addValidationError(ArcErrorType.INVALID,
                         ArcConstants.OFFSET_FIELD, recOffset.toString());
             }
@@ -251,6 +251,7 @@ public abstract class ArcRecordBase {
     /**
      * Close resources associated with the ARC record. 
      * Mainly payload stream if any.
+     * @throws IOException io exception close the payload resources
      */
     public void close() throws IOException {
         if (payload != null) {
@@ -303,7 +304,7 @@ public abstract class ArcRecordBase {
      * Specifies whether the ARC record has a payload or not.
      * @return true/false whether the ARC record has a payload 
      */
-    public boolean hasPayload(){
+    public boolean hasPayload() {
         return (payload != null);
     }
     /**
@@ -319,8 +320,8 @@ public abstract class ArcRecordBase {
      * @return Payload content <code>InputStream</code>
      */
     public InputStream getPayloadContent() {
-        return (payload != null) ?
-                new FilterInputStream(payload.in) {
+        return (payload != null)
+                ? new FilterInputStream(payload.in) {
                     /*
                     @Override
                     public void close() throws IOException {
@@ -339,13 +340,13 @@ public abstract class ArcRecordBase {
      * @throws IOException io exception in parsing
      */
     public boolean isValid(InputStream in) throws IOException{
-        if(in == null){
+        if (in == null) {
             throw new IllegalArgumentException("in");
         }
         boolean isValid = true;
         int b;
-        while ((b = in.read()) != -1){
-            if (b != '\n' && b != '\r'){
+        while ((b = in.read()) != -1) {
+            if (b != '\n' && b != '\r') {
                 isValid = false;
                 break;
             }
@@ -364,8 +365,7 @@ public abstract class ArcRecordBase {
          if (intStr != null && intStr.length() > 0) {
             try {
                 iVal = Integer.valueOf(intStr);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid long value.
                 this.addValidationError(ArcErrorType.INVALID, field, intStr);
             }
@@ -400,13 +400,11 @@ public abstract class ArcRecordBase {
          if (longStr != null && longStr.length() > 0) {
             try {
                 lVal = Long.valueOf(longStr);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid long value.
                 this.addValidationError(ArcErrorType.INVALID, field, longStr);
             }
-         }
-         else {
+         } else {
              // Missing mandatory value.
              this.addValidationError(ArcErrorType.MISSING, field, longStr);
          }
@@ -449,13 +447,11 @@ public abstract class ArcRecordBase {
             try {
                 uri = new URI(value);
                 protocol = uri.getScheme();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid URI.
                 addValidationError(ArcErrorType.INVALID, ArcConstants.URL_FIELD, value);
             }
-        }
-        else {
+        } else {
             // Missing mandatory value.
             addValidationError(ArcErrorType.MISSING, ArcConstants.URL_FIELD, value);
         }
@@ -475,8 +471,7 @@ public abstract class ArcRecordBase {
                 // Invalid date.
                 addValidationError(ArcErrorType.INVALID, ArcConstants.IP_ADDRESS_FIELD, ipAddress);
             }
-        }
-        else {
+        } else {
             // Missing mandatory value.
             addValidationError(ArcErrorType.MISSING, ArcConstants.IP_ADDRESS_FIELD, ipAddress);
         }
@@ -496,8 +491,7 @@ public abstract class ArcRecordBase {
                     // Invalid date.
                     addValidationError(ArcErrorType.INVALID, ArcConstants.DATE_FIELD, dateStr);
                 }
-        }
-        else {
+        } else {
             // Missing mandatory value.
             addValidationError(ArcErrorType.MISSING, ArcConstants.DATE_FIELD, dateStr);
         }

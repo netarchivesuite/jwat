@@ -148,12 +148,12 @@ public class StringCountingReader extends StringReader {
      * Reads a line defined as characters read until encountering a
      * <code>LF</code> or EOF.
      * @return Line read from buffered <code>StringReader</code>
-     * @throws IOException
+     * @throws IOException io exception while reading line
      */
     public String readLine() throws IOException {
         StringBuilder buf = new StringBuilder();
-        for (int c=read(); (c != -1) && (c != NL); c=read()) {
-            buf.append((char)c);
+        for (int c = read(); (c != -1) && (c != NL); c = read()) {
+            buf.append((char) c);
         }
         return buf.toString();
     }
