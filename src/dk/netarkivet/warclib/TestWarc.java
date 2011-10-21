@@ -10,8 +10,8 @@ import java.util.Iterator;
 
 public class TestWarc {
 
-	//static String warcFile = "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc";
-	static String warcFile = "/home/nicl/Downloads/MYWARC.warc";
+	static String warcFile = "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc";
+	//static String warcFile = "/home/nicl/Downloads/MYWARC.warc";
 	
 	public static void main(String[] args) {
 		File file = new File( warcFile );

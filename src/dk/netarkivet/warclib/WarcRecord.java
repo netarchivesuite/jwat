@@ -12,8 +12,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jhove2.module.format.arc.ArcErrorType;
-import org.jhove2.module.format.arc.ByteCountingInputStream;
 import org.jhove2.module.format.arc.IPAddressParser;
 
 public class WarcRecord {
@@ -97,7 +95,7 @@ public class WarcRecord {
 	String warcSegmentTotalLengthStr;
 	Long warcSegmentTotalLength;
 
-	public static WarcRecord parseRecord(ByteCountingInputStream in) {
+	public static WarcRecord parseRecord(WarcInputStream in) {
 		WarcRecord wr = new WarcRecord();
 		try {
 			if (wr.checkMagicVersion(in)) {
@@ -111,7 +109,14 @@ public class WarcRecord {
 					// TODO payload processing
 				}
 				if (wr.contentLength != null) {
-					in.skip(wr.contentLength);
+					long skipped = in.skip(wr.contentLength);
+					if (skipped != wr.contentLength) {
+	                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", wr.contentLength.toString());
+					}
+				}
+				int newlines = wr.countTrailingNewlines(in);
+				if (newlines != 2) {
+                    wr.addValidationError(WarcErrorType.WANTED, "Traling newlines", Integer.toString(newlines));
 				}
 			}
 			else {
@@ -132,7 +137,43 @@ public class WarcRecord {
 	public void close() throws IOException {
 	}
 
-	protected boolean checkMagicVersion(ByteCountingInputStream in) throws IOException {
+	protected int countTrailingNewlines(WarcInputStream in) throws IOException {
+		int newlines = 0;
+		byte[] buffer = new byte[2];
+		boolean b = true;
+		while (b) {
+			int read = in.read(buffer);
+			switch (read) {
+			case 1:
+				if (buffer[0] == '\n') {
+					++newlines;
+				}
+				else {
+					in.unread(buffer[0]);
+					b = false;
+				}
+				break;
+			case 2:
+				if (buffer[0] == '\r' && buffer[1] == '\n') {
+					++newlines;
+				} else if (buffer[0] == '\n') {
+					++newlines;
+					in.unread(buffer[1]);
+				}
+				else {
+					in.unread(buffer);
+					b = false;
+				}
+				break;
+			default:
+				b = false;
+				break;
+			}
+		}
+		return newlines;
+	}
+
+	protected boolean checkMagicVersion(WarcInputStream in) throws IOException {
 		bMagicIdentified = false;
 		bVersionParsed = false;
 		String tmpStr;
@@ -169,6 +210,7 @@ public class WarcRecord {
 				}
 				else {
 					// Empty line.
+                    addValidationError(WarcErrorType.INVALID, "Empty lines", null);
 				}
 			}
 			else {
@@ -179,7 +221,7 @@ public class WarcRecord {
 		return bMagicIdentified;
 	}
 
-	protected void parseFields(ByteCountingInputStream in) throws IOException {
+	protected void parseFields(WarcInputStream in) throws IOException {
 		String tmpStr;
 		boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 		boolean bFields = true;
@@ -555,7 +597,7 @@ public class WarcRecord {
 
     /**
      * Add validation error.
-     * @param errorType the error type {@link ArcErrorType}.
+     * @param errorType the error type {@link WarcErrorType}.
      * @param field the field name
      * @param value the error value
      */

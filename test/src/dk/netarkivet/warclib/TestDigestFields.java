@@ -24,7 +24,7 @@ public class TestDigestFields {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{4, new int[]{0, 2, 2, 2}, "test-digest-fields.warc"}
+				{4, new int[]{0, 2, 2, 2}, "test/resources/test-digest-fields.warc"}
 		});
 	}
 

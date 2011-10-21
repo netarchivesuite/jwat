@@ -33,7 +33,6 @@ content-length: 56
 20080430204825
 www.archive.org.	589	in	a	207.241.229.39
 
-
 WARC/1.0
 WARC-TYPE: RESPONSE
 WARC-TARGET-URI: DNS:WWW.ARCHIVE.ORG
@@ -45,7 +44,6 @@ CONTENT-LENGTH: 56
 
 20080430204825
 www.archive.org.	589	IN	A	207.241.229.39
-
 
 warc/1.0
 warc-type: RESPONSE
@@ -59,7 +57,6 @@ content-length: 56
 20080430204825
 www.archive.org.	589	IN	A	207.241.229.39
 
-
 WARC/1.0
 WARC-TYPE: response
 WARC-TARGET-URI: dns:www.archive.org
@@ -71,5 +68,4 @@ CONTENT-LENGTH: 56
 
 20080430204825
 WWW.ARCHIVE.ORG.	589	IN	A	207.241.229.39
-
 

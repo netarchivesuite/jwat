@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.jhove2.module.format.arc.ByteCountingInputStream;
-
 /**
  * WARC file parser and validator.
  *
@@ -15,7 +13,7 @@ import org.jhove2.module.format.arc.ByteCountingInputStream;
 public class WarcParser {
 
     /** WARC file <code>InputStream</code>. */
-	protected ByteCountingInputStream in;
+	protected WarcInputStream in;
 
     /** Current WARC record object. */
 	protected WarcRecord warcRecord;
@@ -25,7 +23,7 @@ public class WarcParser {
      * @param in WARC file <code>InputStream</code>
      */
 	public WarcParser(InputStream in) {
-		this.in = new ByteCountingInputStream( in );
+		this.in = new WarcInputStream( in, 16 );
 	}
 
     /**
@@ -63,7 +61,7 @@ public class WarcParser {
      * @throws IOException io exception in reading process
      */
 	public WarcRecord nextRecord(InputStream in) {
-		return WarcRecord.parseRecord( new ByteCountingInputStream( in ) );
+		return WarcRecord.parseRecord( new WarcInputStream( in, 16 ) );
 	}
 
 	public Iterator<WarcRecord> iterator() {

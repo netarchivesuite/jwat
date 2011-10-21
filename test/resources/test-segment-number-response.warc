@@ -7,7 +7,7 @@ WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 WARC-Segment-Number: 1
 Content-Type: application/http; msgtype=response
-Content-Length: 697
+Content-Length: 693
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -43,7 +43,7 @@ WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
 WARC-Segment-Number: 2
 Content-Type: application/http; msgtype=response
-Content-Length: 697
+Content-Length: 693
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT

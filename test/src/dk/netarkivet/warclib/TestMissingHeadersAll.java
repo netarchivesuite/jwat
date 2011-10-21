@@ -5,8 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,24 +19,27 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestSegmentNumber {
+public class TestMissingHeadersAll {
 
 	private int expected_records;
-	private int[] expected_errors;
 	private String warcFile;
+	private Set<String> fieldNamesSet;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{2, new int[]{1, 0}, "test-segment-number-continuation.warc"},
-				{2, new int[]{0, 1}, "test-segment-number-response.warc"}
+				{2, "test/resources/test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
+				{4, "test/resources/test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
+				{1, "test/resources/test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
+				{1, "test/resources/test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
+				{1, "test/resources/test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
 		});
 	}
 
-	public TestSegmentNumber(int records, int[] errors, String warcFile) {
+	public TestMissingHeadersAll(int records, String warcFile, String fieldNames) {
 		this.expected_records = records;
-		this.expected_errors = errors;
 		this.warcFile = warcFile;
+		this.fieldNamesSet = new HashSet<String>(Arrays.asList((fieldNames.split(",", -1))));
 	}
 
 	@Test
@@ -53,14 +60,18 @@ public class TestSegmentNumber {
 				TestWarc.printRecord(record);
 				TestWarc.printRecordErrors(record);
 
-				errors = 0;
-				if (record.hasErrors()) {
-					errors = record.getValidationErrors().size();
-				}
-
-				Assert.assertEquals(expected_errors[records], errors);
-
 				++records;
+
+				if (record.hasErrors()) {
+					errors += record.getValidationErrors().size();
+
+					Assert.assertTrue(fieldNamesSet.containsAll(
+							filter(record.getValidationErrors())
+							));
+				}
+				else {
+					Assert.fail("There must be errors.");
+				}
 			}
 
 			System.out.println("--------------");
@@ -77,6 +88,15 @@ public class TestSegmentNumber {
 		}
 
 		Assert.assertEquals(expected_records, records);
+		//Assert.assertEquals(0, errors);
+	}
+
+	public List<String> filter(Collection<WarcValidationError> errors) {
+		List<String> fields = new ArrayList<String>();
+		for (WarcValidationError error : errors) {
+			fields.add(error.field);
+		}
+		return fields;
 	}
 
 }

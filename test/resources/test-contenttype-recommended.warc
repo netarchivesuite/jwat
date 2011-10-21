@@ -48,7 +48,6 @@ Content-Length: 56
 20080430204825
 www.archive.org.	589	IN	A	207.241.229.39
 
-
 WARC/0.17
 WARC-Type: metadata
 WARC-Target-URI: http://www.archive.org/robots.txt
@@ -70,7 +69,7 @@ WARC-Date: 2008-04-30T20:48:26Z
 WARC-Payload-Digest: sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV
 WARC-IP-Address: 207.241.229.39
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
-Content-Length: 697
+Content-Length: 693
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -103,7 +102,7 @@ WARC-Target-URI: http://www.archive.org/
 WARC-Date: 2008-04-30T20:48:26Z
 WARC-Payload-Digest: sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV
 WARC-Record-ID: <urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>
-Content-Length: 697
+Content-Length: 693
 
 HTTP/1.1 200 OK
 Date: Wed, 30 Apr 2008 20:48:25 GMT
@@ -141,5 +140,4 @@ Content-Length: 56
 
 20080430204825
 www.archive.org.	589	IN	A	207.241.229.39
-
 
