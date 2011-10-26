@@ -117,7 +117,7 @@ public class WarcRecord {
 				}
 				int newlines = wr.parseNewLines(in);
 				if (newlines != 2) {
-                    wr.addValidationError(WarcErrorType.WANTED, "Traling newlines", Integer.toString(newlines));
+                    wr.addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
 				}
 			}
 			else {
@@ -794,7 +794,19 @@ public class WarcRecord {
     private static final int S_LINE = 1;
     private static final int S_NAME = 2;
     private static final int S_VALUE = 3;
-    private static final int S_NEWLINE = 4;
+    private static final int S_LWS = 4;
+    private static final int S_QUOTED_TEXT = 5;
+    private static final int S_QUOTED_PAIR = 6;
+    private static final int S_QUOTED_LWS = 7;
+
+    protected static boolean[] separator = new boolean[256];
+
+    static {
+        String separators = "()<>@,;:\\\"/[]?={} \t";
+        for (int i=0; i<separators.length(); ++i) {
+        	separator[separators.charAt(i)] = true;
+        }
+    }
 
     protected WarcHeader readHeaderLine(PushbackInputStream in) throws IOException {
     	WarcHeader warcHeader = null;
@@ -837,8 +849,7 @@ public class WarcRecord {
     				if (!Character.isWhitespace(c)) {
     					in.unread(c);
     					state = S_NAME;
-    				}
-    				else {
+    				} else {
     					bos.write(c);
     					state = S_LINE;
     				}
@@ -896,10 +907,15 @@ public class WarcRecord {
     					// Misplaced CR.
         				bCr = false;
     				}
-    				if (c < 33 && c>127) {
-    					// Not US-ASCII...
+    				if (c < 32 && c>126) {
+    					// Controls.
+    				} else {
+    					if (!separator[c]) {
+        	   				bos.write(c);
+    					} else {
+    						// Separator.
+    					}
     				}
-    				bos.write(c);
     				break;
     			}
     			break;
@@ -913,7 +929,7 @@ public class WarcRecord {
     					// Missing CR.
         				bCr = false;
     				}
-    				state = S_NEWLINE;
+    				state = S_LWS;
     				break;
    				default:
     				if (bCr) {
@@ -921,8 +937,21 @@ public class WarcRecord {
         				bCr = false;
     				}
     				if ((c & 0x80) == 0x00) {
-    					// US-ASCII: 0000 0000-0000 007F | 0xxxxxxx
-        				sb.append((char)c);
+    					// US-ASCII/UTF-8: 0000 0000-0000 007F | 0xxxxxxx
+        				if (c < 32 && c>126) {
+        					// Controls.
+        				} else {
+        					switch (c) {
+        					case '\"':
+        						state = S_QUOTED_TEXT;
+        						break;
+        					case '=':
+        						break;
+        					default:
+                				sb.append((char)c);
+                				break;
+        					}
+        				}
     				} else {
     					// UTF-8
     					utf8_read = 1;
@@ -961,8 +990,7 @@ public class WarcRecord {
                 					// Invalid UTF-8 octet.
         							bOctets = false;
         						}
-    						}
-    						else {
+    						} else {
     							bOctets = false;
     						}
     					}
@@ -1000,16 +1028,49 @@ public class WarcRecord {
    					break;
     			}
     			break;
-    		case S_NEWLINE:
+    		case S_LWS:
     			if (c == ' ' || c == '\t') {
     				sb.append(" ");
     				state = S_VALUE;
-    			}
-    			else {
+    			} else {
     				in.unread(c);
     				warcHeader.value = sb.toString().trim();
     				bLoop = false;
     			}
+    			break;
+    		case S_QUOTED_TEXT:
+    			switch (c) {
+    			case '\"':
+    				if (bCr) {
+    					// Misplaced CR.
+        				bCr = false;
+    				}
+    				state = S_VALUE;
+    				break;
+    			case '\\':
+    				if (bCr) {
+    					// Misplaced CR.
+        				bCr = false;
+    				}
+    				state = S_QUOTED_PAIR;
+    				break;
+    			case '\r':
+    				bCr = true;
+    				break;
+    			case '\n':
+    				if (!bCr) {
+    					// Missing CR.
+        				bCr = false;
+    				}
+    				state = S_LWS;
+    				break;
+    			default:
+    				break;
+    			}
+    			break;
+    		case S_QUOTED_PAIR:
+    			break;
+    		case S_QUOTED_LWS:
     			break;
     		}
     	}

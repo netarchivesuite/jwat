@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -57,6 +59,10 @@ public class TestUtf8 {
 					errors = record.getValidationErrors().size();
 				}
 
+				if (record.warcFilename != null) {
+					saveUtf8(record.warcFilename);
+				}
+
 				++records;
 			}
 
@@ -75,6 +81,31 @@ public class TestUtf8 {
 
 		Assert.assertEquals(expected_records, records);
 		Assert.assertEquals(expected_errors, errors);
+	}
+
+	public static void saveUtf8(String str) {
+		RandomAccessFile ram = null;
+		try {
+			ram = new RandomAccessFile("test/utf8.txt", "rw");
+			ram.write(str.getBytes("UTF-8"));
+			ram.close();
+			ram = null;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally {
+			if (ram != null) {
+				try {
+					ram.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }
