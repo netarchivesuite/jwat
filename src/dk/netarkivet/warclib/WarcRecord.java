@@ -1071,6 +1071,15 @@ public class WarcRecord {
     		case S_QUOTED_PAIR:
     			break;
     		case S_QUOTED_LWS:
+    			if (c == ' ' || c == '\t') {
+    				sb.append(" ");
+    				state = S_QUOTED_TEXT;
+    			} else {
+    				// Non LWS force end of quoted text parsing and header line.
+    				in.unread(c);
+    				warcHeader.value = sb.toString().trim();
+    				bLoop = false;
+    			}
     			break;
     		}
     	}
