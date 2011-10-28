@@ -110,9 +110,14 @@ public class WarcRecord {
 					// TODO payload processing
 				}
 				if (wr.contentLength != null) {
-					long skipped = in.skip(wr.contentLength);
-					if (skipped != wr.contentLength) {
-	                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", wr.contentLength.toString());
+					long skipRemaining = wr.contentLength;
+					long skippedLast = 0;
+					while (skipRemaining > 0 && skippedLast != -1) {
+						skipRemaining -= skippedLast;
+						skippedLast = in.skip(skipRemaining);
+					}
+					if (skipRemaining > 0) {
+	                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", Long.toString(skipRemaining));
 					}
 				}
 				int newlines = wr.parseNewLines(in);
@@ -182,7 +187,8 @@ public class WarcRecord {
 		while (bSeekMagic) {
 			tmpStr = readLine(in);
 			if (tmpStr != null) {
-				System.out.println(tmpStr);
+				// debug
+				//System.out.println(tmpStr);
 				if (tmpStr.length() > 0) {
 					if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
 						bMagicIdentified = true;
@@ -231,8 +237,9 @@ public class WarcRecord {
 			if (warcHeader != null) {
 				if (warcHeader.line == null) {
 					if (warcHeader.name != null && warcHeader.name.length() > 0) {
-						System.out.println(warcHeader.name);
-						System.out.println(warcHeader.value);
+						// debug
+						//System.out.println(warcHeader.name);
+						//System.out.println(warcHeader.value);
 
 						parseField(warcHeader.name, warcHeader.value, seen);
 					}
@@ -1071,6 +1078,15 @@ public class WarcRecord {
     		case S_QUOTED_PAIR:
     			break;
     		case S_QUOTED_LWS:
+    			if (c == ' ' || c == '\t') {
+    				sb.append(" ");
+    				state = S_QUOTED_TEXT;
+    			} else {
+    				// Non LWS force end of quoted text parsing and header line.
+    				in.unread(c);
+    				warcHeader.value = sb.toString().trim();
+    				bLoop = false;
+    			}
     			break;
     		}
     	}
