@@ -23,7 +23,7 @@ public class TestUpperLowerCase {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{5, "test/resources/test-upper-lower-case.warc"}
+				{5, "src/test/resources/test-upper-lower-case.warc"}
 		});
 	}
 

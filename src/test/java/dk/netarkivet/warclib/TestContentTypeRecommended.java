@@ -24,9 +24,9 @@ public class TestContentTypeRecommended {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 1, "test/resources/test-contenttype-warcinfo-recommended.warc"},
-				{7, 1, "test/resources/test-contenttype-recommended.warc"},
-				{1, 0, "test/resources/test-contenttype-continuation.warc"}
+				{1, 1, "src/test/resources/test-contenttype-warcinfo-recommended.warc"},
+				{7, 1, "src/test/resources/test-contenttype-recommended.warc"},
+				{1, 0, "src/test/resources/test-contenttype-continuation.warc"}
 		});
 	}
 

@@ -24,9 +24,9 @@ public class TestFields {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 0, "test/resources/test-fields-warcinfo.warc"},
-				{1, 0, "test/resources/test-fields-metainfo.warc"},
-				{1, 0, "test/resources/test-fields-continuation.warc"}
+				{1, 0, "src/test/resources/test-fields-warcinfo.warc"},
+				{1, 0, "src/test/resources/test-fields-metainfo.warc"},
+				{1, 0, "src/test/resources/test-fields-continuation.warc"}
 		});
 	}
 

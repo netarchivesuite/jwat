@@ -24,8 +24,8 @@ public class TestSegmentNumber {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{2, new int[]{1, 0}, "test/resources/test-segment-number-continuation.warc"},
-				{2, new int[]{0, 1}, "test/resources/test-segment-number-response.warc"}
+				{2, new int[]{1, 0}, "src/test/resources/test-segment-number-continuation.warc"},
+				{2, new int[]{0, 1}, "src/test/resources/test-segment-number-response.warc"}
 		});
 	}
 

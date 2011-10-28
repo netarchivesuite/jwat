@@ -23,12 +23,12 @@ public class TestWarcNextRecord {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{822, "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/archive/tools/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/distribute/arcrepository/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{68, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00000.warc"},
-				{63, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00001.warc"},
-				{4, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105140044-00002.warc"}
+				{822, "src//home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc"},
+				{120, "src//home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/archive/tools/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
+				{120, "src//home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/distribute/arcrepository/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
+				{68, "src//home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00000.warc"},
+				{63, "src//home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00001.warc"},
+				{4, "src//home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105140044-00002.warc"}
 		});
 	}
 

@@ -28,11 +28,11 @@ public class TestMissingHeadersAll {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{2, "test/resources/test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
-				{4, "test/resources/test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
-				{1, "test/resources/test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
-				{1, "test/resources/test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
-				{1, "test/resources/test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
+				{2, "src/test/resources/test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
+				{4, "src/test/resources/test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
+				{1, "src/test/resources/test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
+				{1, "src/test/resources/test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
+				{1, "src/test/resources/test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
 		});
 	}
 

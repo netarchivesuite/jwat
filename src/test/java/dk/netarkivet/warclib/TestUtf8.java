@@ -26,7 +26,7 @@ public class TestUtf8 {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 0, "test/resources/test-utf8.warc"}
+				{1, 0, "src/test/resources/test-utf8.warc"}
 		});
 	}
 
@@ -86,7 +86,7 @@ public class TestUtf8 {
 	public static void saveUtf8(String str) {
 		RandomAccessFile ram = null;
 		try {
-			ram = new RandomAccessFile("test/utf8.txt", "rw");
+			ram = new RandomAccessFile("utf8.txt", "rw");
 			ram.write(str.getBytes("UTF-8"));
 			ram.close();
 			ram = null;

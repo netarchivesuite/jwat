@@ -25,8 +25,8 @@ public class TestDuplicateFields {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 6, 0, "test/resources/test-duplicate-fields.warc"},
-				{1, 0, 3, "test/resources/test-duplicate-concurrentto.warc"}
+				{1, 6, 0, "src/test/resources/test-duplicate-fields.warc"},
+				{1, 0, 3, "src/test/resources/test-duplicate-concurrentto.warc"}
 		});
 	}
 
