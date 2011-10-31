@@ -33,75 +33,70 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.jhove2.module.format.arc;
+package dk.netarkivet.arc;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
- * Supported ARC file versions.
+ * Date parser.
  *
- * @author lbihanic,selghissassi
+ * @author lbihanic, selghissassi
  */
-public enum ArcVersion {
+public final class ArcDateParser {
 
-    /** Version 1.0 enum. */
-    VERSION_1(1, 0, "version-1-block", "URL-record-v1"),
-    /** Version 1.1 enum. */
-    VERSION_1_1(1, 1, "version-1-block", "URL-record-v1"),
-    /** Version 2.0 enum. */
-    VERSION_2(2, 0, "version-2-block", "URL-record-v2");
+    /** Allowed format string. */
+    private static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
 
-    /** Major version number. */
-    public final int major;
+    /** Allowed <code>DateFormat</code>. */
+    private final DateFormat dateFormat;
 
-    /** Minor version number. */
-    public final int minor;
-
-    /** Version block field type. */
-    public final String versionBlockType;
-
-    /** Arc record field type. */
-    public final String arcRecordType;
+    /** Basic <code>DateFormat</code> is not thread safe. */
+    private static final ThreadLocal<ArcDateParser> DateParserTL =
+        new ThreadLocal<ArcDateParser>() {
+        public ArcDateParser initialValue() {
+            return new ArcDateParser();
+        }
+    };
 
     /**
-     * Enum constructor based on version specific parameters.
-     * @param major major version number
-     * @param minor minor version number
-     * @param vBType version block field type
-     * @param aRType arc record field type
+     * Creates a new <code>DateParser</code>.
      */
-    ArcVersion(int major, int minor, String vBType, String aRType){
-        if (major < 1) {
-            throw new IllegalArgumentException("major");
-        }
-        if (minor < 0) {
-            throw new IllegalArgumentException("minor");
-        }
-        this.major = major;
-        this.minor = minor;
-        this.versionBlockType = vBType;
-        this.arcRecordType = aRType;
+    private ArcDateParser() {
+        dateFormat = new SimpleDateFormat(ARC_DATE_FORMAT);
+        dateFormat.setLenient(false);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     /**
-     * Given a version number return the corresponding <code>ArcVersion</code>
-     * object or null.
-     * @param major major version number
-     * @param minor minor version number
-     * @return <code>ArcVersion</code> object or null.
+     * Parses a date.
+     * @param dateStr date to parse
+     * @return the formatted date
      */
-    public static ArcVersion fromValues(int major, int minor) {
-        ArcVersion version = null;
-        for (ArcVersion v : ArcVersion.values()) {
-            if ((v.major == major) && (v.minor == minor)) {
-                version = v;
-                break;
+    private Date parseDate(String dateStr) {
+        Date date = null;
+        try {
+            if ((dateStr != null)
+                            && dateStr.length() == ARC_DATE_FORMAT.length()) {
+                date = dateFormat.parse(dateStr);
             }
-        }
-        return version;
+        } catch (Exception e) { /* Ignore */ }
+        return date;
     }
 
-    @Override
-    public String toString() {
-        return "v" + this.major + '.' + this.minor;
+    /**
+     * Parses the date using the format yyyyMMddHHmmss.
+     * @param dateStr the date to parse
+     * @return the formatted date or <code>null</code> based on whether the date
+     * to parse is compliant with the format yyyyMMddHHmmss or not
+     */
+    public static Date getDate(String dateStr) {
+        Date date = DateParserTL.get().parseDate(dateStr);
+        boolean isValid = (date == null) ? false
+                                         : (date.getTime() > 0);
+        return isValid ? date : null;
     }
 
 }

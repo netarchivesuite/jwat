@@ -34,7 +34,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.jhove2.module.format.arc;
+package dk.netarkivet.arc;
 
 import java.io.IOException;
 import java.io.InputStream;

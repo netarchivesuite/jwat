@@ -1,4 +1,4 @@
-package org.jhove2.module.format.arc;
+package dk.netarkivet.arc;
 
 import java.io.File;
 import java.io.FileInputStream;

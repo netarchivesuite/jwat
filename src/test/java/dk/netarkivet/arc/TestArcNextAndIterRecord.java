@@ -1,4 +1,4 @@
-package org.jhove2.module.format.arc;
+package dk.netarkivet.arc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +14,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import dk.netarkivet.arc.ArcParser;
+import dk.netarkivet.arc.ArcRecord;
+import dk.netarkivet.arc.ArcVersionBlock;
+import dk.netarkivet.arc.TestArc;
+
 @RunWith(Parameterized.class)
 public class TestArcNextAndIterRecord {
 
@@ -23,10 +28,10 @@ public class TestArcNextAndIterRecord {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {101, "/home/test/QUICKSTART/oldjobs/1_1316696892071/arcs/1-1-20110922131213-00000-svc-VirtualBox.arc"},
-                {5, "/home/nicl/BnF/jhove2-bnf/src/test/resources/examples/arc/small_BNF.arc"},
-                {238, "/home/test/QUICKSTART/oldjobs/4_1317731601951/arcs/4-3-20111004123336-00000-svc-VirtualBox.arc"},
-                {299, "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.arc"}
+                {101, "src/test/resources/1-1-20110922131213-00000-svc-VirtualBox.arc"},
+                {5, "src/test/resources/small_BNF.arc"},
+                {238, "src/test/resources/4-3-20111004123336-00000-svc-VirtualBox.arc"},
+                {299, "src/test/resources/IAH-20080430204825-00000-blackbook.arc"}
         });
     }
 
@@ -61,13 +66,13 @@ public class TestArcNextAndIterRecord {
             version = parser.getVersionBlock();
 
             if ( version != null ) {
-                TestArc.printVersionBlock( version );
+                //TestArc.printVersionBlock( version );
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = parser.getNextArcRecord();
                     if ( arcRecord != null ) {
-                        TestArc.printRecord( arcRecord );
+                        //TestArc.printRecord( arcRecord );
 
                         ++n_records;
 
@@ -96,13 +101,13 @@ public class TestArcNextAndIterRecord {
             version = parser.getVersionBlock();
 
             if ( version != null ) {
-                TestArc.printVersionBlock( version );
+                //TestArc.printVersionBlock( version );
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = parser.getNextArcRecord();
                     if ( arcRecord != null ) {
-                        TestArc.printRecord( arcRecord );
+                        //TestArc.printRecord( arcRecord );
 
                         ++i_records;
 

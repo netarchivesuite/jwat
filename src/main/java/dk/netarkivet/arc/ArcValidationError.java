@@ -33,70 +33,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.jhove2.module.format.arc;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
+package dk.netarkivet.arc;
 
 /**
- * Date parser.
+ * Defines validation error.
  *
  * @author lbihanic, selghissassi
  */
-public final class ArcDateParser {
+public class ArcValidationError {
 
-    /** Allowed format string. */
-    private static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
+    /** Supported error types {@link ArcErrorType}. */
+    public final ArcErrorType error;
 
-    /** Allowed <code>DateFormat</code>. */
-    private final DateFormat dateFormat;
+    /** Field name. */
+    public final String field;
 
-    /** Basic <code>DateFormat</code> is not thread safe. */
-    private static final ThreadLocal<ArcDateParser> DateParserTL =
-        new ThreadLocal<ArcDateParser>() {
-        public ArcDateParser initialValue() {
-            return new ArcDateParser();
+    /** Field value. */
+    public final String value;
+
+    /**
+     * Creates new <code>ValidationError</code>.
+     * @param error error type {@link ArcErrorType}.
+     * @param field field name.
+     * @param value field value.
+     */
+    public ArcValidationError(ArcErrorType error, String field, String value) {
+        if (error == null) {
+            throw new IllegalArgumentException("error");
         }
-    };
-
-    /**
-     * Creates a new <code>DateParser</code>.
-     */
-    private ArcDateParser() {
-        dateFormat = new SimpleDateFormat(ARC_DATE_FORMAT);
-        dateFormat.setLenient(false);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if ((field == null) || (field.length() == 0)) {
+            throw new IllegalArgumentException("field");
+        }
+        this.error = error;
+        this.field = field;
+        this.value = value;
     }
 
-    /**
-     * Parses a date.
-     * @param dateStr date to parse
-     * @return the formatted date
-     */
-    private Date parseDate(String dateStr) {
-        Date date = null;
-        try {
-            if ((dateStr != null)
-                            && dateStr.length() == ARC_DATE_FORMAT.length()) {
-                date = dateFormat.parse(dateStr);
-            }
-        } catch (Exception e) { /* Ignore */ }
-        return date;
-    }
-
-    /**
-     * Parses the date using the format yyyyMMddHHmmss.
-     * @param dateStr the date to parse
-     * @return the formatted date or <code>null</code> based on whether the date
-     * to parse is compliant with the format yyyyMMddHHmmss or not
-     */
-    public static Date getDate(String dateStr) {
-        Date date = DateParserTL.get().parseDate(dateStr);
-        boolean isValid = (date == null) ? false
-                                         : (date.getTime() > 0);
-        return isValid ? date : null;
+    @Override
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+        builder.append('[');
+        builder.append("error: ");
+        builder.append(error);
+        builder.append(", field: ");
+        builder.append(field);
+        if(value != null && value.length() != 0){
+            builder.append(", value: ");
+            builder.append(value);
+        }
+         builder.append(']');
+        return builder.toString();
     }
 
 }

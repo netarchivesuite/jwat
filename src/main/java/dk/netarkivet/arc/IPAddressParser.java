@@ -33,56 +33,53 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.jhove2.module.format.arc;
+package dk.netarkivet.arc;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
 /**
- * Defines validation error.
+ * IP address parser.
  *
  * @author lbihanic, selghissassi
  */
-public class ArcValidationError {
+public final class IPAddressParser {
 
-    /** Supported error types {@link ArcErrorType}. */
-    public final ArcErrorType error;
+    /** Regular expression for Ipv4 or Ipv6 address. */
+    private static final String IP_ADDRESS_REG_EXP =
+        "([0-9a-fA-F]{0,4}:){0,6}("                 // Optional IPv6 start
+        + "([0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4})|"    // True IPv6 address or
+        + "(([0-9]{1,3}\\.){3}[0-9]{1,3}))"; // Standalone or mixed IPv4 address
 
-    /** Field name. */
-    public final String field;
-
-    /** Field value. */
-    public final String value;
+    /** IpAddress compiled regex pattern. */
+    private static final Pattern IP_ADDRESS_PATTERN
+                                        = Pattern.compile(IP_ADDRESS_REG_EXP);
 
     /**
-     * Creates new <code>ValidationError</code>.
-     * @param error error type {@link ArcErrorType}.
-     * @param field field name.
-     * @param value field value.
+     * Checks the validity of an IP address.
+     * Supports both IP v4 and IP v6 formats.
+     * @param ipAddress the IP address
+     * @return true/false based on whether IP address is valid or not
      */
-    public ArcValidationError(ArcErrorType error, String field, String value) {
-        if (error == null) {
-            throw new IllegalArgumentException("error");
+    public static InetAddress getAddress(String ipAddress){
+        boolean isValid = (ipAddress == null) ? false
+                            : IP_ADDRESS_PATTERN.matcher(ipAddress).matches();
+        InetAddress inetAddress = null;
+        if(isValid){
+            try {
+                inetAddress = InetAddress.getByName(ipAddress);
+            } catch (UnknownHostException e) {
+                isValid = false;
+            }
         }
-        if ((field == null) || (field.length() == 0)) {
-            throw new IllegalArgumentException("field");
-        }
-        this.error = error;
-        this.field = field;
-        this.value = value;
+        return (isValid) ? inetAddress : null;
     }
 
-    @Override
-    public String toString(){
-        StringBuilder builder = new StringBuilder();
-        builder.append('[');
-        builder.append("error: ");
-        builder.append(error);
-        builder.append(", field: ");
-        builder.append(field);
-        if(value != null && value.length() != 0){
-            builder.append(", value: ");
-            builder.append(value);
-        }
-         builder.append(']');
-        return builder.toString();
+    /**
+     * No constructor for this utility class, static access only.
+     */
+    private IPAddressParser() {
     }
 
 }

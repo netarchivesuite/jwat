@@ -33,53 +33,75 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.jhove2.module.format.arc;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.regex.Pattern;
+package dk.netarkivet.arc;
 
 /**
- * IP address parser.
+ * Supported ARC file versions.
  *
- * @author lbihanic, selghissassi
+ * @author lbihanic,selghissassi
  */
-public final class IPAddressParser {
+public enum ArcVersion {
 
-    /** Regular expression for Ipv4 or Ipv6 address. */
-    private static final String IP_ADDRESS_REG_EXP =
-        "([0-9a-fA-F]{0,4}:){0,6}("                 // Optional IPv6 start
-        + "([0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4})|"    // True IPv6 address or
-        + "(([0-9]{1,3}\\.){3}[0-9]{1,3}))"; // Standalone or mixed IPv4 address
+    /** Version 1.0 enum. */
+    VERSION_1(1, 0, "version-1-block", "URL-record-v1"),
+    /** Version 1.1 enum. */
+    VERSION_1_1(1, 1, "version-1-block", "URL-record-v1"),
+    /** Version 2.0 enum. */
+    VERSION_2(2, 0, "version-2-block", "URL-record-v2");
 
-    /** IpAddress compiled regex pattern. */
-    private static final Pattern IP_ADDRESS_PATTERN
-                                        = Pattern.compile(IP_ADDRESS_REG_EXP);
+    /** Major version number. */
+    public final int major;
+
+    /** Minor version number. */
+    public final int minor;
+
+    /** Version block field type. */
+    public final String versionBlockType;
+
+    /** Arc record field type. */
+    public final String arcRecordType;
 
     /**
-     * Checks the validity of an IP address.
-     * Supports both IP v4 and IP v6 formats.
-     * @param ipAddress the IP address
-     * @return true/false based on whether IP address is valid or not
+     * Enum constructor based on version specific parameters.
+     * @param major major version number
+     * @param minor minor version number
+     * @param vBType version block field type
+     * @param aRType arc record field type
      */
-    public static InetAddress getAddress(String ipAddress){
-        boolean isValid = (ipAddress == null) ? false
-                            : IP_ADDRESS_PATTERN.matcher(ipAddress).matches();
-        InetAddress inetAddress = null;
-        if(isValid){
-            try {
-                inetAddress = InetAddress.getByName(ipAddress);
-            } catch (UnknownHostException e) {
-                isValid = false;
-            }
+    ArcVersion(int major, int minor, String vBType, String aRType){
+        if (major < 1) {
+            throw new IllegalArgumentException("major");
         }
-        return (isValid) ? inetAddress : null;
+        if (minor < 0) {
+            throw new IllegalArgumentException("minor");
+        }
+        this.major = major;
+        this.minor = minor;
+        this.versionBlockType = vBType;
+        this.arcRecordType = aRType;
     }
 
     /**
-     * No constructor for this utility class, static access only.
+     * Given a version number return the corresponding <code>ArcVersion</code>
+     * object or null.
+     * @param major major version number
+     * @param minor minor version number
+     * @return <code>ArcVersion</code> object or null.
      */
-    private IPAddressParser() {
+    public static ArcVersion fromValues(int major, int minor) {
+        ArcVersion version = null;
+        for (ArcVersion v : ArcVersion.values()) {
+            if ((v.major == major) && (v.minor == minor)) {
+                version = v;
+                break;
+            }
+        }
+        return version;
+    }
+
+    @Override
+    public String toString() {
+        return "v" + this.major + '.' + this.minor;
     }
 
 }
