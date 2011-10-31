@@ -34,19 +34,19 @@ public class TestUpperLowerCase {
 
 	@Test
 	public void test() {
-		File file = new File( warcFile );
+		File file = new File(warcFile);
 		InputStream in;
 
 		int records = 0;
 		int errors = 0;
 
 		try {
-			in = new FileInputStream( file );
+			in = new FileInputStream(file);
 
-			WarcParser parser = new WarcParser( in );
+			WarcParser parser = new WarcParser(in);
 			WarcRecord record;
 
-			while ( (record = parser.nextRecord()) != null ) {
+			while ((record = parser.nextRecord()) != null) {
 				TestWarc.printRecord(record);
 				TestWarc.printRecordErrors(record);
 

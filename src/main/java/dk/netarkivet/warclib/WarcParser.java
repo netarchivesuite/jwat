@@ -18,12 +18,15 @@ public class WarcParser {
     /** Current WARC record object. */
 	protected WarcRecord warcRecord;
 
-    /**
+	public WarcParser() {
+	}
+
+	/**
      * Creates a new WARC parser from an <code>InputStream</code>.
      * @param in WARC file <code>InputStream</code>
      */
 	public WarcParser(InputStream in) {
-		this.in = new WarcInputStream( in, 16 );
+		this.in = new WarcInputStream(in, 16);
 	}
 
     /**
@@ -52,7 +55,10 @@ public class WarcParser {
      * @throws IOException io exception in reading process
      */
 	public WarcRecord nextRecord() {
-		return WarcRecord.parseRecord( in );
+		if (in == null) {
+			throw new IllegalStateException();
+		}
+		return WarcRecord.parseRecord(in);
 	}
 
     /**
@@ -61,7 +67,7 @@ public class WarcParser {
      * @throws IOException io exception in reading process
      */
 	public WarcRecord nextRecord(InputStream in) {
-		return WarcRecord.parseRecord( new WarcInputStream( in, 16 ) );
+		return WarcRecord.parseRecord(new WarcInputStream(in, 16));
 	}
 
 	public Iterator<WarcRecord> iterator() {

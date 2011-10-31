@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jhove2.module.format.arc.IPAddressParser;
+import dk.netarkivet.arc.IPAddressParser;
 
 public class WarcRecord {
 
