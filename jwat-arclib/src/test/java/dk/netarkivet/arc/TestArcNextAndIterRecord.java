@@ -28,10 +28,10 @@ public class TestArcNextAndIterRecord {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {101, "src/test/resources/1-1-20110922131213-00000-svc-VirtualBox.arc"},
-                {5, "src/test/resources/small_BNF.arc"},
-                {238, "src/test/resources/4-3-20111004123336-00000-svc-VirtualBox.arc"},
-                {299, "src/test/resources/IAH-20080430204825-00000-blackbook.arc"}
+                {101, "1-1-20110922131213-00000-svc-VirtualBox.arc"},
+                {5, "small_BNF.arc"},
+                {238, "4-3-20111004123336-00000-svc-VirtualBox.arc"},
+                {299, "IAH-20080430204825-00000-blackbook.arc"}
         });
     }
 
@@ -42,7 +42,6 @@ public class TestArcNextAndIterRecord {
 
     @Test
     public void test() {
-        File file = new File( arcFile );
         InputStream in;
 
         ArcParser parser;
@@ -60,7 +59,7 @@ public class TestArcNextAndIterRecord {
              * getNextArcRecord.
              */
 
-            in = new FileInputStream( file );
+        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             parser = new ArcParser( in );
             version = parser.getVersionBlock();
@@ -95,7 +94,7 @@ public class TestArcNextAndIterRecord {
              * Iterator.
              */
 
-            in = new FileInputStream( file );
+        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             parser = new ArcParser( in );
             version = parser.getVersionBlock();
