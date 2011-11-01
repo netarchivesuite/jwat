@@ -3,16 +3,22 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>dk.netarkivet</groupId>
-  <artifactId>warclib</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+
+  <parent>
+    <groupId>dk.netarkivet.jwat</groupId>
+    <artifactId>jwat</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>dk.netarkivet.jwat</groupId>
+  <artifactId>jwat-warclib</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
-      <groupId>dk.netarkivet</groupId>
-      <artifactId>arclib</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <groupId>dk.netarkivet.jwat</groupId>
+      <artifactId>jwat-arclib</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
 
