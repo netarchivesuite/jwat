@@ -65,12 +65,14 @@ public final class FixedLengthInputStream extends FilterInputStream {
 
     @Override
     public void close() throws IOException {
-        if (remaining > 0L) {
-            long skip = remaining;
-            skip -= skip(remaining);
-            if (skip > 0) {
-                throw new IOException("Illegal internal state.");
-            }
+        long skippedLast = 0;
+        while (remaining > 0 && skippedLast != -1) {
+            remaining -= skippedLast;
+            skippedLast = in.skip(remaining);
+        }
+        // TODO check higher up for unexpected eof!
+        if (remaining > 0) {
+            throw new IOException("Illegal internal state.");
         }
     }
 
