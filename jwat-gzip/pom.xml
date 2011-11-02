@@ -11,17 +11,10 @@
   </parent>
 
   <groupId>dk.netarkivet.jwat</groupId>
-  <artifactId>jwat-warclib</artifactId>
+  <artifactId>jwat-gzip</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <dependencies>
-    <dependency>
-      <groupId>dk.netarkivet.jwat</groupId>
-      <artifactId>jwat-arclib</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>compile</scope>
-    </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
