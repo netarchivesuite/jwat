@@ -1,7 +1,5 @@
 package dk.netarkivet.warclib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +21,7 @@ public class TestUpperLowerCase {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{5, "src/test/resources/test-upper-lower-case.warc"}
+				{5, "test-upper-lower-case.warc"}
 		});
 	}
 
@@ -34,14 +32,13 @@ public class TestUpperLowerCase {
 
 	@Test
 	public void test() {
-		File file = new File(warcFile);
 		InputStream in;
 
 		int records = 0;
 		int errors = 0;
 
 		try {
-			in = new FileInputStream(file);
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
 			WarcParser parser = new WarcParser(in);
 			WarcRecord record;

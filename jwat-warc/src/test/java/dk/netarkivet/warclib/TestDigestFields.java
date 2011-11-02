@@ -1,7 +1,5 @@
 package dk.netarkivet.warclib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +22,7 @@ public class TestDigestFields {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{4, new int[]{0, 2, 2, 2}, "src/test/resources/test-digest-fields.warc"}
+				{4, new int[]{0, 2, 2, 2}, "test-digest-fields.warc"}
 		});
 	}
 
@@ -36,14 +34,13 @@ public class TestDigestFields {
 
 	@Test
 	public void test() {
-		File file = new File(warcFile);
 		InputStream in;
 
 		int records = 0;
 		int errors = 0;
 
 		try {
-			in = new FileInputStream(file);
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
 			WarcParser parser = new WarcParser(in);
 			WarcRecord record;

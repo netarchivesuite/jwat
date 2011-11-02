@@ -1,7 +1,5 @@
 package dk.netarkivet.warclib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +23,8 @@ public class TestDuplicateFields {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 6, 0, "src/test/resources/test-duplicate-fields.warc"},
-				{1, 0, 3, "src/test/resources/test-duplicate-concurrentto.warc"}
+				{1, 6, 0, "test-duplicate-fields.warc"},
+				{1, 0, 3, "test-duplicate-concurrentto.warc"}
 		});
 	}
 
@@ -39,7 +37,6 @@ public class TestDuplicateFields {
 
 	@Test
 	public void test() {
-		File file = new File(warcFile);
 		InputStream in;
 
 		int records = 0;
@@ -47,7 +44,7 @@ public class TestDuplicateFields {
 		int duplicates = 0;
 
 		try {
-			in = new FileInputStream(file);
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
 			WarcParser parser = new WarcParser(in);
 			WarcRecord record;

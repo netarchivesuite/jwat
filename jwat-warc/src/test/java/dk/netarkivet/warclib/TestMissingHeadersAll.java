@@ -1,7 +1,5 @@
 package dk.netarkivet.warclib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,11 +26,11 @@ public class TestMissingHeadersAll {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{2, "src/test/resources/test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
-				{4, "src/test/resources/test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
-				{1, "src/test/resources/test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
-				{1, "src/test/resources/test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
-				{1, "src/test/resources/test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
+				{2, "test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
+				{4, "test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
+				{1, "test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
+				{1, "test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
+				{1, "test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
 		});
 	}
 
@@ -44,14 +42,13 @@ public class TestMissingHeadersAll {
 
 	@Test
 	public void test() {
-		File file = new File(warcFile);
 		InputStream in;
 
 		int records = 0;
 		int errors = 0;
 
 		try {
-			in = new FileInputStream(file);
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
 			WarcParser parser = new WarcParser(in);
 			WarcRecord record;
