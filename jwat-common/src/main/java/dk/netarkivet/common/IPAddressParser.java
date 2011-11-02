@@ -33,7 +33,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package dk.netarkivet.arc;
+package dk.netarkivet.common;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

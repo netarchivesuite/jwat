@@ -37,6 +37,8 @@ package dk.netarkivet.arc;
 
 import java.io.IOException;
 
+import dk.netarkivet.common.ByteCountingInputStream;
+
 /**
  * Version block parser.
  *
@@ -78,19 +80,19 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
 
     /** <code>FieldValidator</code> used to validate record fields. */
-    public FieldValidator descValidator = null;
+    public ArcFieldValidator descValidator = null;
 
     /** <code>FieldValidator</code> for version fields. */
-    protected static FieldValidator versionValidator =
-            FieldValidator.prepare(ArcConstants.VERSION_DESC_FIELDS);
+    protected static ArcFieldValidator versionValidator =
+            ArcFieldValidator.prepare(ArcConstants.VERSION_DESC_FIELDS);
 
     /** <code>FieldValidator</code> for version 1 description fields. */
-    protected static FieldValidator version1DescValidator =
-            FieldValidator.prepare(ArcConstants.VERSION_1_BLOCK_FIELDS);
+    protected static ArcFieldValidator version1DescValidator =
+            ArcFieldValidator.prepare(ArcConstants.VERSION_1_BLOCK_FIELDS);
 
     /** <code>FieldValidator</code> for version 2 description fields. */
-    protected static FieldValidator version2DescValidator =
-            FieldValidator.prepare(ArcConstants.VERSION_2_BLOCK_FIELDS);
+    protected static ArcFieldValidator version2DescValidator =
+            ArcFieldValidator.prepare(ArcConstants.VERSION_2_BLOCK_FIELDS);
 
     /**
      * Protected constructor to force instantiation of version block 
@@ -135,13 +137,13 @@ public class ArcVersionBlock extends ArcRecordBase {
                 }
                 // Get version and origin
                 vb.versionNumber = vb.parseInteger(
-                            FieldValidator.getArrayValue(versionArr, 0),
+                            ArcFieldValidator.getArrayValue(versionArr, 0),
                             ArcConstants.VERSION_FIELD, false);
                 vb.reserved = vb.parseInteger(
-                            FieldValidator.getArrayValue(versionArr, 1),
+                            ArcFieldValidator.getArrayValue(versionArr, 1),
                             ArcConstants.RESERVED_FIELD, false);
                 vb.originCode = vb.parseString(
-                            FieldValidator.getArrayValue(versionArr, 2),
+                            ArcFieldValidator.getArrayValue(versionArr, 2),
                             ArcConstants.ORIGIN_FIELD, false);
                 vb.checkVersion();
                 // TODO default version
@@ -174,7 +176,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                     // Missing length.
                     vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
                             "VersionBlock length missing!");
-                } else if (in.counter > vb.recLength) {
+                } else if (in.getCounter() > vb.recLength) {
                     // Mismatch in consumed and declare length.
                     vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
                             "VersionBlock length to small!");

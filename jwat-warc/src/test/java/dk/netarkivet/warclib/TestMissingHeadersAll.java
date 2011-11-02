@@ -42,6 +42,8 @@ public class TestMissingHeadersAll {
 
 	@Test
 	public void test() {
+		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+
 		InputStream in;
 
 		int records = 0;
@@ -54,8 +56,10 @@ public class TestMissingHeadersAll {
 			WarcRecord record;
 
 			while ((record = parser.nextRecord()) != null) {
-				TestWarc.printRecord(record);
-				TestWarc.printRecordErrors(record);
+				if (bDebugOutput) {
+					PrintRecord.printRecord(record);
+					PrintRecord.printRecordErrors(record);
+				}
 
 				++records;
 
@@ -71,11 +75,12 @@ public class TestMissingHeadersAll {
 				}
 			}
 
-			System.out.println("--------------");
-			System.out.println("       Records: " + records);
-			System.out.println("        Errors: " + errors);
 			parser.close();
 			in.close();
+
+			if (bDebugOutput) {
+				PrintRecord.printStatus(records, errors);
+			}
 		}
 		catch (FileNotFoundException e) {
 			Assert.fail("Input file missing");

@@ -17,6 +17,13 @@
   <dependencies>
     <dependency>
       <groupId>dk.netarkivet.jwat</groupId>
+      <artifactId>jwat-common</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.netarkivet.jwat</groupId>
       <artifactId>jwat-gzip</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <scope>compile</scope>

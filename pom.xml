@@ -11,6 +11,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>jwat-common</module>
     <module>jwat-gzip</module>
     <module>jwat-arc</module>
     <module>jwat-warc</module>

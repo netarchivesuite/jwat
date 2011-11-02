@@ -39,6 +39,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import dk.netarkivet.common.FixedLengthInputStream;
+
 /**
  * Arc record payload.
  *

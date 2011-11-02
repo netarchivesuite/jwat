@@ -41,6 +41,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import dk.netarkivet.common.ByteCountingInputStream;
+
 /**
  * ARC file parser.
  *

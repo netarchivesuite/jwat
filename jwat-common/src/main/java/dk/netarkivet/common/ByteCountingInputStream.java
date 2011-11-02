@@ -33,40 +33,63 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package dk.netarkivet.arc;
+package dk.netarkivet.common;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 
 /**
- * <code>StringReader</code> that keeps tracks of the amount of chars
+ * <code>InputStream</code> that keeps tracks of the amount of bytes
  * read at any point in time.
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class StringCountingReader extends StringReader {
+public class ByteCountingInputStream extends FilterInputStream {
 
     /** New line delimiter. */
-    protected static final int NL = '\n';
-
-    /** Version block header length. */
-    protected final long consumedLength;
+    public static final int NL = '\n';
 
     /** Offset relative to beginning of stream. */
-    protected long offset = 0;
+    protected long consumed = 0;
 
     /** Relative byte counter. */
     protected long counter = 0;
 
     /**
-     * Creates a new <code>StringReader</code> that keeps track of
-     * consumed characters.
-     * @param string Arbitrary string.
-     * @param consumedLength version block header length.
+     * Constructs an <code>InputStream</code> that counts the bytes
+     * its reads.
+     * @param parent InputStream to wrap
      */
-    public StringCountingReader(String string, long consumedLength) {
-        super(string);
-        this.consumedLength = consumedLength;
+    public ByteCountingInputStream(InputStream parent) {
+        super(parent);
+    }
+
+    /**
+     * Retrieve the number of consumed bytes by this stream.
+     * @return current byte offset in this stream
+     */
+    public long getConsumed() {
+        return consumed;
+    }
+
+    /**
+     * Change the bytes read value.
+     * Useful for reading zero indexed relative data.
+     * @param bytes new value
+     * @return
+     */
+    public void setCounter(long bytes) {
+        counter = bytes;
+    }
+
+    /**
+     * Retrieve the current relative counter value.
+     * @return current relative counter value
+     */
+    public long getCounter() {
+        return counter;
     }
 
     @Override
@@ -83,55 +106,21 @@ public class StringCountingReader extends StringReader {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Consumed length getter.
-     * @return the consumed length
-     */
-    public long getConsumedDataLength() {
-        return this.consumedLength;
-    }
-
-    /**
-     * Retrieve the current byte offset value.
-     * @return current byte offset in stream
-     */
-    public long getOffset() {
-        return offset;
-    }
-
-    /**
-     * Change the bytes read value.
-     * Useful for reading zero indexed relative data.
-     * @param bytes new value
-     * @return
-     */
-    public void setCounter(long bytes) {
-        counter = bytes;
-    }
-
-    /**
-     * Get the current number of read characters.
-     * @return number of read characters
-     */
-    public long getCounter() {
-        return counter;
-    }
-
     @Override
     public int read() throws IOException {
-        int c = super.read();
-        if (c != -1) {
-            ++offset;
+        int b = super.read();
+        if (b != -1) {
+            ++consumed;
             ++counter;
         }
-        return c;
+        return b;
     }
 
     @Override
-    public int read(char[] cbuf, int off, int len) throws IOException {
-        int n = super.read(cbuf, off, len);
+    public int read(byte[] b, int off, int len) throws IOException {
+        int n = super.read(b, off, len);
         if (n > 0) {
-            offset += n;
+            consumed += n;
             counter += n;
         }
         return n;
@@ -140,22 +129,52 @@ public class StringCountingReader extends StringReader {
     @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        this.offset += n;
+        this.consumed += n;
         return n;
     }
 
     /**
-     * Reads a line defined as characters read until encountering a
-     * <code>LF</code> or EOF.
-     * @return Line read from buffered <code>StringReader</code>
+     * Read a single line into a string.
+     * @return single string line
      * @throws IOException io exception while reading line
      */
     public String readLine() throws IOException {
-        StringBuilder buf = new StringBuilder();
-        for (int c = read(); (c != -1) && (c != NL); c = read()) {
-            buf.append((char) c);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        int b;
+        while (true) {
+            b = this.read();
+            if (b == -1) {
+                return null;    //Unexpected EOF
+            }
+            if (b == NL){
+                break;
+            }
+            bos.write(b);
         }
-        return buf.toString();
+        return bos.toString("US-ASCII");
+    }
+
+    /**
+     * Read several lines into one string.
+     * @param lines number of lines to read
+     * @return String counting the requested amount of lines.
+     * @throws IOException io exception while reading line
+     */
+    public String readLines(int lines) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        int i = lines;
+        while (i > 0) {
+            int b = this.read();
+            if (b == -1) {
+                bos = null;
+                break;             // Unexpected EOF!
+            }
+            bos.write(b);
+            if (b == NL) {
+                --i;
+            }
+        }
+        return (bos!=null) ? bos.toString("US-ASCII") : null;
     }
 
 }

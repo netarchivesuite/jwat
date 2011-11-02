@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import dk.netarkivet.common.HttpResponse;
+
 public class TestArc {
 
 	//static String arcFile = "/home/test/QUICKSTART/oldjobs/1_1316696892071/arcs/1-1-20110922131213-00000-svc-VirtualBox.arc";
@@ -143,7 +145,7 @@ public class TestArc {
 					RandomAccessFile ram = new RandomAccessFile( file, "rw" );
 					ram.setLength( 0 );
 					ram.seek( 0 );
-					while ( (read = httpResponse.in.read( bytes )) != -1 ) {
+					while ( (read = httpResponse.getPayloadInputStream().read( bytes )) != -1 ) {
 						ram.write( bytes, 0,  read );
 					}
 					ram.close();

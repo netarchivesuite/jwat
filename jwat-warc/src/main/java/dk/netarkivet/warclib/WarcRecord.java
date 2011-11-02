@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import dk.netarkivet.arc.IPAddressParser;
+import dk.netarkivet.common.IPAddressParser;
 
 public class WarcRecord {
 

@@ -46,6 +46,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import dk.netarkivet.common.ByteCountingInputStream;
+import dk.netarkivet.common.IPAddressParser;
+
 /**
  * An abstract ARC record parser.
  *
@@ -146,10 +149,10 @@ public abstract class ArcRecordBase {
                         "URL record definition and record definition are not compliant");
             }
             // Parse
-            recUrl = FieldValidator.getArrayValue(records, 0);
-            recIpAddress = FieldValidator.getArrayValue(records, 1);
-            recArchiveDate = FieldValidator.getArrayValue(records, 2);
-            recContentType = FieldValidator.getArrayValue(records, 3);
+            recUrl = ArcFieldValidator.getArrayValue(records, 0);
+            recIpAddress = ArcFieldValidator.getArrayValue(records, 1);
+            recArchiveDate = ArcFieldValidator.getArrayValue(records, 2);
+            recContentType = ArcFieldValidator.getArrayValue(records, 3);
             // Validate
             url = this.parseUri(recUrl);
             inetAddress = parseIpAddress(recIpAddress);
@@ -158,23 +161,23 @@ public abstract class ArcRecordBase {
             // Version 2
             if ( version.equals(ArcVersion.VERSION_2) ) {
                 recResultCode = parseInteger(
-                        FieldValidator.getArrayValue(records, 4),
+                        ArcFieldValidator.getArrayValue(records, 4),
                         ArcConstants.RESULT_CODE_FIELD, false);
                 recChecksum = parseString(
-                        FieldValidator.getArrayValue(records, 5),
+                        ArcFieldValidator.getArrayValue(records, 5),
                         ArcConstants.CHECKSUM_FIELD);
                 recLocation = parseString(
-                        FieldValidator.getArrayValue(records, 6),
+                        ArcFieldValidator.getArrayValue(records, 6),
                         ArcConstants.LOCATION_FIELD, true);
                 recOffset = this.parseLong(
-                        FieldValidator.getArrayValue(records, 7),
+                        ArcFieldValidator.getArrayValue(records, 7),
                         ArcConstants.OFFSET_FIELD);
                 recFilename = parseString(
-                        FieldValidator.getArrayValue(records, 8),
+                        ArcFieldValidator.getArrayValue(records, 8),
                         ArcConstants.FILENAME_FIELD);
             }
             recLength = parseLong(
-                    FieldValidator.getArrayValue(records, records.length - 1),
+                    ArcFieldValidator.getArrayValue(records, records.length - 1),
                     ArcConstants.LENGTH_FIELD);
             // Check read and computed offset value only if we're reading
             // a plain ARC file, not a GZipped ARC.

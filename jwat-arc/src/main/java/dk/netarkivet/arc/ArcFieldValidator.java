@@ -43,7 +43,7 @@ import java.util.Map;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class FieldValidator {
+public class ArcFieldValidator {
 
     /** Array of field names. */
     protected String[] fieldNames;
@@ -54,7 +54,7 @@ public class FieldValidator {
     /**
      * Protected constructor to ensure correct instantiation.
      */
-    protected FieldValidator() {
+    protected ArcFieldValidator() {
     }
 
     /**
@@ -62,8 +62,8 @@ public class FieldValidator {
      * @param fieldNames array of field names.
      * @return validator used to look field by field name->index.
      */
-    public static FieldValidator prepare(String[] fieldNames) {
-        FieldValidator fd = new FieldValidator();
+    public static ArcFieldValidator prepare(String[] fieldNames) {
+        ArcFieldValidator fd = new ArcFieldValidator();
         fd.fieldNames = fieldNames;
         for (int i = 0; i < fieldNames.length; ++i) {
             fd.fieldIdxMap.put(fieldNames[i], i);
@@ -82,27 +82,5 @@ public class FieldValidator {
         return ((array.length > idx) && (array[idx] != null)
                 && (array[idx].length() != 0))? array[idx] : null;
     }
-
-    /*
-    private final Map<String,String> fields = new TreeMap<String,String>();
-
-    public String getField(String name) {
-        String v = this.fields.get(name);
-        if ((v != null) && ((v.length() == 0) || ("-".equals(v)))) {
-            v = null;
-        }
-        return v;
-    }
-
-    private String[] parse(String data, String[] fields,
-                                        Map<String,String> target) {
-        String[] elts = data.split(" ", -1);
-        for (int i=0, max=Math.min(fields.length, elts.length);
-                                                            i<max; i++) {
-            target.put(fields[i], elts[i]);
-        }
-        return elts;
-    }
-    */
 
 }

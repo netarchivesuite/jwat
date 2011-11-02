@@ -38,6 +38,9 @@ package dk.netarkivet.arc;
 import java.io.IOException;
 import java.util.Collection;
 
+import dk.netarkivet.common.ByteCountingInputStream;
+import dk.netarkivet.common.HttpResponse;
+
 /**
  * ARC record parser.
  *
