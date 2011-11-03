@@ -53,10 +53,10 @@ public class TestWarcRecordIerator {
 			in = new FileInputStream(file);
 			in = new BufferedInputStream(in, 65536);
 
-			WarcParser parser = new WarcParser(in);
+			WarcReader reader = WarcReaderFactory.getReader(in);
 			WarcRecord record;
 
-			Iterator<WarcRecord> iter = parser.iterator();
+			Iterator<WarcRecord> iter = reader.iterator();
 			while (iter.hasNext()) {
 				record = iter.next();
 
@@ -72,7 +72,7 @@ public class TestWarcRecordIerator {
 				}
 			}
 
-			parser.close();
+			reader.close();
 			in.close();
 
 			if (bDebugOutput) {

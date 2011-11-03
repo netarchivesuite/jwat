@@ -48,10 +48,10 @@ public class TestDuplicateFields {
 		try {
 			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-			WarcParser parser = new WarcParser(in);
+			WarcReader reader = WarcReaderFactory.getReader(in);
 			WarcRecord record;
 
-			while ((record = parser.nextRecord()) != null) {
+			while ((record = reader.nextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);
@@ -79,7 +79,7 @@ public class TestDuplicateFields {
 				}
 			}
 
-			parser.close();
+			reader.close();
 			in.close();
 
 			if (bDebugOutput) {
