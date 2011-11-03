@@ -49,8 +49,8 @@ public class TestDigestFields {
 
 			while ((record = parser.nextRecord()) != null) {
 				if (bDebugOutput) {
-					PrintRecord.printRecord(record);
-					PrintRecord.printRecordErrors(record);
+					RecordDebugBase.printRecord(record);
+					RecordDebugBase.printRecordErrors(record);
 				}
 
 				errors = 0;
@@ -67,7 +67,7 @@ public class TestDigestFields {
 			in.close();
 
 			if (bDebugOutput) {
-				PrintRecord.printStatus(records, errors);
+				RecordDebugBase.printStatus(records, errors);
 			}
 		}
 		catch (FileNotFoundException e) {

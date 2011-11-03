@@ -2,8 +2,11 @@ package dk.netarkivet.warclib;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import dk.netarkivet.gzip.GzipConstants;
 
 /**
  * WARC file parser and validator.
@@ -18,6 +21,10 @@ public class WarcParser {
     /** Current WARC record object. */
 	protected WarcRecord warcRecord;
 
+	/**
+	 * Creates a new WARC parser without an associated <code>InputStream</code>
+	 * for
+	 */
 	public WarcParser() {
 	}
 
@@ -27,9 +34,36 @@ public class WarcParser {
      */
 	public WarcParser(InputStream in) {
 		this.in = new WarcInputStream(in, 16);
+
+		byte[] magic = new byte[2];
+		if (read(this.in, magic) == 2) {
+			if ((((magic[1] & 255) << 8) | (magic[0] & 255)) == GzipConstants.GZIP_MAGIC) {
+				// TODO refactor for gzip support tomorrow.
+			}
+		}
 	}
 
-    /**
+	public int read(PushbackInputStream pbis, byte[] buffer) {
+		int readOffset = 0;
+		int readRemaining = buffer.length;
+		int readLast = 0;
+		try {
+			while (readRemaining > 0 && readLast != -1) {
+				readRemaining -= readLast;
+				readOffset += readLast;
+				readLast = pbis.read(buffer, readOffset, readRemaining);
+			}
+		} catch (IOException e) { /* ignore */ }
+		if (readRemaining > 0) {
+			try {
+				pbis.unread(buffer, 0, readOffset);
+				readOffset = 0;
+			} catch (IOException e) { /* ignore */ }
+		}
+		return readOffset;
+	}
+
+	/**
      * Close current record resources and parser inputstream. 
      */
 	public void close() {

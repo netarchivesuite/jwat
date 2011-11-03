@@ -1,7 +1,5 @@
 package dk.netarkivet.arc;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,11 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import dk.netarkivet.arc.ArcParser;
-import dk.netarkivet.arc.ArcRecord;
-import dk.netarkivet.arc.ArcVersionBlock;
-import dk.netarkivet.arc.TestArc;
 
 @RunWith(Parameterized.class)
 public class TestArcNextAndIterRecord {
@@ -42,7 +35,9 @@ public class TestArcNextAndIterRecord {
 
     @Test
     public void test() {
-        InputStream in;
+		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+
+		InputStream in;
 
         ArcParser parser;
         ArcVersionBlock version;
@@ -61,21 +56,25 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcParser( in );
+            parser = new ArcParser(in);
             version = parser.getVersionBlock();
 
-            if ( version != null ) {
-                //TestArc.printVersionBlock( version );
+            if (version != null) {
+            	if (bDebugOutput) {
+                	RecordDebugBase.printVersionBlock(version);
+            	}
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = parser.getNextArcRecord();
-                    if ( arcRecord != null ) {
-                        //TestArc.printRecord( arcRecord );
+                    if (arcRecord != null) {
+                    	if (bDebugOutput) {
+                        	RecordDebugBase.printRecord(arcRecord);
+                    	}
 
                         ++n_records;
 
-                        if ( arcRecord.hasErrors() ) {
+                        if (arcRecord.hasErrors()) {
                             n_errors += arcRecord.getWarnings().size();
                         }
                     }
@@ -83,8 +82,10 @@ public class TestArcNextAndIterRecord {
                         b = false;
                     }
                 }
-                System.out.println( "------------" );
-                System.out.println( "     Records: " + n_records );
+
+            	if (bDebugOutput) {
+                    RecordDebugBase.printStatus(i_records, i_errors);
+            	}
             }
 
             parser.close();
@@ -96,21 +97,25 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcParser( in );
+            parser = new ArcParser(in);
             version = parser.getVersionBlock();
 
-            if ( version != null ) {
-                //TestArc.printVersionBlock( version );
+            if (version != null) {
+            	if (bDebugOutput) {
+                	RecordDebugBase.printVersionBlock(version);
+            	}
 
                 boolean b = true;
-                while ( b ) {
+                while (b) {
                     arcRecord = parser.getNextArcRecord();
-                    if ( arcRecord != null ) {
-                        //TestArc.printRecord( arcRecord );
+                    if (arcRecord != null) {
+                    	if (bDebugOutput) {
+                        	RecordDebugBase.printRecord(arcRecord);
+                    	}
 
                         ++i_records;
 
-                        if ( arcRecord.hasErrors() ) {
+                        if (arcRecord.hasErrors()) {
                             i_errors += arcRecord.getWarnings().size();
                         }
                     }
@@ -118,8 +123,10 @@ public class TestArcNextAndIterRecord {
                         b = false;
                     }
                 }
-                System.out.println( "------------" );
-                System.out.println( "     Records: " + i_records );
+
+            	if (bDebugOutput) {
+                    RecordDebugBase.printStatus(i_records, i_errors);
+            	}
             }
 
             parser.close();

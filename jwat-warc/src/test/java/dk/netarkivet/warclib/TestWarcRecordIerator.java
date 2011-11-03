@@ -61,8 +61,8 @@ public class TestWarcRecordIerator {
 				record = iter.next();
 
 				if (bDebugOutput) {
-					PrintRecord.printRecord(record);
-					PrintRecord.printRecordErrors(record);
+					RecordDebugBase.printRecord(record);
+					RecordDebugBase.printRecordErrors(record);
 				}
 
 				++records;
@@ -76,7 +76,7 @@ public class TestWarcRecordIerator {
 			in.close();
 
 			if (bDebugOutput) {
-				PrintRecord.printStatus(records, errors);
+				RecordDebugBase.printStatus(records, errors);
 			}
 		}
 		catch (FileNotFoundException e) {

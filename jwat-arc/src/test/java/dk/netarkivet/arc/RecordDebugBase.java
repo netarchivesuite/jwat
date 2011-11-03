@@ -1,61 +1,15 @@
 package dk.netarkivet.arc;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 import dk.netarkivet.common.HttpResponse;
 
-public class TestArc {
+public class RecordDebugBase {
 
-	//static String arcFile = "/home/test/QUICKSTART/oldjobs/1_1316696892071/arcs/1-1-20110922131213-00000-svc-VirtualBox.arc";
-	//static String arcFile = "/home/nicl/BnF/jhove2-bnf/src/test/resources/examples/arc/small_BNF.arc";
-	//static String arcFile = "/home/test/QUICKSTART/oldjobs/4_1317731601951/arcs/4-3-20111004123336-00000-svc-VirtualBox.arc";
-	static String arcFile = "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.arc";
-	
-	public static void main(String[] args) {
-		File file = new File( arcFile );
-		try {
-			InputStream in = new FileInputStream( file );
-
-			int records = 0;
-
-			ArcParser parser = new ArcParser( in );
-			ArcVersionBlock version = parser.getVersionBlock();
-
-			if ( version != null ) {
-			    printVersionBlock( version );
-
-				boolean b = true;
-				while ( b ) {
-					ArcRecord arcRecord = parser.getNextArcRecord();
-					if ( arcRecord != null ) {
-					    printRecord( arcRecord );
-
-					    ++records;
-					}
-					else {
-						b = false;
-					}
-				}
-				System.out.println( "------------" );
-				System.out.println( "     Records: " + records );
-			}
-
-			parser.close();
-			in.close();
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private RecordDebugBase() {
 	}
 
 	public static void printVersionBlock(ArcVersionBlock version) {
@@ -106,10 +60,17 @@ public class TestArc {
             System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
             System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
             System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
-            save( arcRecord.recUrl, arcRecord.httpResponse );
+            // TODO move save away from package and refine payload processing
+            //save( arcRecord.recUrl, arcRecord.httpResponse );
         }
         System.out.println( "      errors: " + arcRecord.hasErrors() );
         System.out.println( "    warnings: " + arcRecord.hasWarnings() );
+	}
+
+	public static void printStatus(int records, int errors) {
+        System.out.println("------------");
+        System.out.println("     Records: " + records);
+		System.out.println("      Errors: " + errors);
 	}
 
 	public static void save(String url, HttpResponse httpResponse) {

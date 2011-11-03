@@ -3,7 +3,10 @@ package dk.netarkivet.warclib;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class PrintRecord {
+public class RecordDebugBase {
+
+	private RecordDebugBase() {
+	}
 
 	public static void printRecord(WarcRecord record) {
 		System.out.println("--------------");
