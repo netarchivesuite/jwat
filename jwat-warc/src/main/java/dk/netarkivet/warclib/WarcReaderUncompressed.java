@@ -12,6 +12,11 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * WARC file parser and validator.
+ *
+ * @author nicl
+ */
 public class WarcReaderUncompressed extends WarcReader {
 
     /** WARC file <code>InputStream</code>. */
