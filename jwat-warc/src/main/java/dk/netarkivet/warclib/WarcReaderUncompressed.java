@@ -7,8 +7,10 @@
 
 package dk.netarkivet.warclib;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -25,13 +27,22 @@ public class WarcReaderUncompressed extends WarcReader {
     /** Current WARC record object. */
 	protected WarcRecord warcRecord;
 
+	/**
+	 * Construct object not associated with any input stream.
+	 * The reader must be supplied an input stream for each record read.
+	 * @param in <code>WarcInputStream</code>
+	 */
+	WarcReaderUncompressed() {
+	}
+
+	/**
+	 * Construct object using supplied <code>WarcInputStream</code>.
+	 * @param in <code>WarcInputStream</code>
+	 */
 	WarcReaderUncompressed(WarcInputStream in) {
 		this.in = in;
 	}
 
-	/**
-     * Close current record resources and parser inputstream. 
-     */
 	@Override
 	public void close() {
         if (warcRecord != null) {
@@ -50,63 +61,28 @@ public class WarcReaderUncompressed extends WarcReader {
 		}
 	}
 
-    /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
 	@Override
-	public WarcRecord nextRecord() {
+	public WarcRecord nextRecord() throws IOException {
 		if (in == null) {
 			throw new IllegalStateException();
 		}
 		return WarcRecord.parseRecord(in);
 	}
 
-    /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
 	@Override
-	public WarcRecord nextRecord(InputStream in) {
+	public WarcRecord nextRecordFrom(InputStream in) throws IOException {
+		if (in == null) {
+			throw new InvalidParameterException();
+		}
 		return WarcRecord.parseRecord(new WarcInputStream(in, 16));
 	}
 
 	@Override
-	public Iterator<WarcRecord> iterator() {
-		return new Iterator<WarcRecord>() {
-
-			private WarcRecord next;
-
-			private WarcRecord current;
-
-			@Override
-			public boolean hasNext() {
-				if (next == null) {
-					next = nextRecord();
-				}
-				return (next != null);
-			}
-
-			@Override
-			public WarcRecord next() {
-				if (next == null) {
-					next = nextRecord();
-				}
-				if (next == null) {
-					throw new NoSuchElementException();
-				}
-				current = next;
-				next = null;
-				return current;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+	public WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException {
+		if (in == null || buffer_size <= 0) {
+			throw new InvalidParameterException();
+		}
+		return WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in, buffer_size), 16));
 	}
 
 }

@@ -9,28 +9,88 @@ package dk.netarkivet.warclib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
+/**
+ * Base class for WARC reader instances.
+ * 
+ * @author nicl
+ */
 public abstract class WarcReader {
 
+	/** Exception thrown while using the iterator. */
+	public Exception exceptionThrown;
+
 	/**
-     * Close current record resources and inputstream. 
+     * Close current record resource(s) and input stream(s). 
      */
 	public abstract void close();
 
     /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
+     * Parses and gets the next record.
+     * @return the next record
+     * @throws IOException io exception in parsing process
      */
-	public abstract WarcRecord nextRecord();
+	public abstract WarcRecord nextRecord() throws IOException;
 
     /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
+     * Parses and gets the next record.
+     * @return the next record
+     * @throws IOException io exception in parsing process
      */
-	public abstract WarcRecord nextRecord(InputStream in);
+	public abstract WarcRecord nextRecordFrom(InputStream in) throws IOException;
 
-	public abstract Iterator<WarcRecord> iterator();
+	public abstract WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException;
+
+	/**
+	 * Returns an <code>Iterator</code> over the records as they are being
+	 * parsed. Any exception thrown during parsing is accessible in the
+	 * <code>exceptionThrown</code> attribute.
+	 * @return <code>Iterator</code> over the records
+	 */
+	public Iterator<WarcRecord> iterator() {
+		return new Iterator<WarcRecord>() {
+
+			/** Internal next record updated by either hasNext() or next(). */
+			private WarcRecord next;
+
+			/** Entry returned by next(). */
+			private WarcRecord current;
+
+			@Override
+			public boolean hasNext() {
+				if (next == null) {
+					try {
+						next = nextRecord();
+					} catch (IOException e) {
+						exceptionThrown = e;
+					}
+				}
+				return (next != null);
+			}
+
+			@Override
+			public WarcRecord next() {
+				if (next == null) {
+					try {
+						next = nextRecord();
+					} catch (IOException e) {
+						exceptionThrown = e;
+					}
+				}
+				if (next == null) {
+					throw new NoSuchElementException();
+				}
+				current = next;
+				next = null;
+				return current;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
 
 }

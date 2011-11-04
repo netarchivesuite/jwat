@@ -111,4 +111,27 @@ public class WarcInputStream extends PushbackInputStream {
         return bos.toString("US-ASCII");
     }
 
+	/**
+	 * 
+	 * @param pbis
+	 * @param buffer
+	 * @return
+	 * @throws IOException
+	 */
+	protected int readFully(byte[] buffer) throws IOException {
+		int readOffset = 0;
+		int readRemaining = buffer.length;
+		int readLast = 0;
+		while (readRemaining > 0 && readLast != -1) {
+			readRemaining -= readLast;
+			readOffset += readLast;
+			readLast = read(buffer, readOffset, readRemaining);
+		}
+		if (readRemaining > 0) {
+			unread(buffer, 0, readOffset);
+			readOffset = 0;
+		}
+		return readOffset;
+	}
+
 }
