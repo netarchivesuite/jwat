@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,9 +23,9 @@ public class TestArcNextAndIterRecord {
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
                 {101, "1-1-20110922131213-00000-svc-VirtualBox.arc"},
-                {5, "small_BNF.arc"},
                 {238, "4-3-20111004123336-00000-svc-VirtualBox.arc"},
-                {299, "IAH-20080430204825-00000-blackbook.arc"}
+                {299, "IAH-20080430204825-00000-blackbook.arc"},
+                {5, "small_BNF.arc"}
         });
     }
 
@@ -41,6 +42,7 @@ public class TestArcNextAndIterRecord {
 
         ArcParser parser;
         ArcVersionBlock version;
+        Iterator<ArcRecord> recordIterator;
         ArcRecord arcRecord;
 
         int n_records = 0;
@@ -84,7 +86,7 @@ public class TestArcNextAndIterRecord {
                 }
 
             	if (bDebugOutput) {
-                    RecordDebugBase.printStatus(i_records, i_errors);
+                    RecordDebugBase.printStatus(n_records, n_errors);
             	}
             }
 
@@ -105,22 +107,18 @@ public class TestArcNextAndIterRecord {
                 	RecordDebugBase.printVersionBlock(version);
             	}
 
-                boolean b = true;
-                while (b) {
-                    arcRecord = parser.getNextArcRecord();
-                    if (arcRecord != null) {
-                    	if (bDebugOutput) {
-                        	RecordDebugBase.printRecord(arcRecord);
-                    	}
+            	recordIterator = parser.iterator();
 
-                        ++i_records;
+                while (recordIterator.hasNext()) {
+                    arcRecord = recordIterator.next();
+                	if (bDebugOutput) {
+                    	RecordDebugBase.printRecord(arcRecord);
+                	}
 
-                        if (arcRecord.hasErrors()) {
-                            i_errors += arcRecord.getWarnings().size();
-                        }
-                    }
-                    else {
-                        b = false;
+                    ++i_records;
+
+                    if (arcRecord.hasErrors()) {
+                        i_errors += arcRecord.getWarnings().size();
                     }
                 }
 

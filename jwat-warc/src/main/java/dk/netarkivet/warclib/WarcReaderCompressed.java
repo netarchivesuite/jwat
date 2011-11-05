@@ -11,7 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
-import java.util.Iterator;
 
 import dk.netarkivet.gzip.GzipEntry;
 import dk.netarkivet.gzip.GzipInputStream;
@@ -109,12 +108,6 @@ public class WarcReaderCompressed extends WarcReader {
 			record = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
 		}
 		return record;
-	}
-
-	@Override
-	public Iterator<WarcRecord> iterator() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

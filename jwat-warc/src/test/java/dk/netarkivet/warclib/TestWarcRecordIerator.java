@@ -1,8 +1,5 @@
 package dk.netarkivet.warclib;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +22,8 @@ public class TestWarcRecordIerator {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{822, "/home/nicl/Downloads/IAH-20080430204825-00000-blackbook.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/archive/tools/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{120, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/distribute/arcrepository/data/originals/NAS-20100909163324-00000-mette.kb.dk.warc"},
-				{68, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00000.warc"},
-				{63, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105135926-00001.warc"},
-				{4, "/home/nicl/workspace/netarchivesuite/bin/dk/netarkivet/common/utils/cdx/data/input/warcs/netarkivet-20081105140044-00002.warc"}
+				{822, "IAH-20080430204825-00000-blackbook.warc"},
+				{822, "IAH-20080430204825-00000-blackbook.warc.gz"}
 		});
 	}
 
@@ -43,32 +36,37 @@ public class TestWarcRecordIerator {
 	public void test() {
 		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		File file = new File(warcFile);
 		InputStream in;
 
-		int records = 0;
-		int errors = 0;
+		WarcReader reader;
+		Iterator<WarcRecord> recordIterator;
+		WarcRecord record;
+
+		int n_records = 0;
+        int n_errors = 0;
+
+        int i_records = 0;
+        int i_errors = 0;
 
 		try {
-			in = new FileInputStream(file);
-			in = new BufferedInputStream(in, 65536);
+            /*
+             * getNextArcRecord.
+             */
 
-			WarcReader reader = WarcReaderFactory.getReader(in);
-			WarcRecord record;
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-			Iterator<WarcRecord> iter = reader.iterator();
-			while (iter.hasNext()) {
-				record = iter.next();
+			reader = WarcReaderFactory.getReader(in, 8192);
 
+			while ((record = reader.nextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);
 				}
 
-				++records;
+				++n_records;
 
 				if (record.hasErrors()) {
-					errors += record.getValidationErrors().size();
+					n_errors += record.getValidationErrors().size();
 				}
 			}
 
@@ -76,7 +74,38 @@ public class TestWarcRecordIerator {
 			in.close();
 
 			if (bDebugOutput) {
-				RecordDebugBase.printStatus(records, errors);
+				RecordDebugBase.printStatus(n_records, n_errors);
+			}
+
+			/*
+             * Iterator.
+             */
+
+			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+
+			reader = WarcReaderFactory.getReader(in, 8192);
+
+			recordIterator = reader.iterator();
+			while (recordIterator.hasNext()) {
+				record = recordIterator.next();
+
+				if (bDebugOutput) {
+					RecordDebugBase.printRecord(record);
+					RecordDebugBase.printRecordErrors(record);
+				}
+
+				++i_records;
+
+				if (record.hasErrors()) {
+					i_errors += record.getValidationErrors().size();
+				}
+			}
+
+			reader.close();
+			in.close();
+
+			if (bDebugOutput) {
+				RecordDebugBase.printStatus(i_records, i_errors);
 			}
 		}
 		catch (FileNotFoundException e) {
@@ -86,8 +115,14 @@ public class TestWarcRecordIerator {
 			Assert.fail("Unexpected io exception");
 		}
 
-		Assert.assertEquals(expected_records, records);
-		Assert.assertEquals(0, errors);
+        Assert.assertEquals(n_records, i_records);
+        Assert.assertEquals(n_errors, i_errors);
+
+        Assert.assertEquals(expected_records, n_records);
+        Assert.assertEquals(expected_records, i_records);
+
+        Assert.assertEquals(0, n_errors);
+        Assert.assertEquals(0, i_errors);
 	}
 
 }

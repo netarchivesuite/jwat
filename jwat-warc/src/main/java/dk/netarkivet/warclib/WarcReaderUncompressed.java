@@ -11,8 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * WARC file parser and validator.
