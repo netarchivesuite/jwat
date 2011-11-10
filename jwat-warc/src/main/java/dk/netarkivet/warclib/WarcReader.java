@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Base class for WARC reader instances.
+ * Base class for WARC reader implementations.
  * 
  * @author nicl
  */
@@ -28,18 +28,34 @@ public abstract class WarcReader {
 
     /**
      * Parses and gets the next record.
+	 * This method is for linear access to records.
      * @return the next record
      * @throws IOException io exception in parsing process
      */
 	public abstract WarcRecord nextRecord() throws IOException;
 
     /**
-     * Parses and gets the next record.
+     * Parses and gets the next record from an <code>Inputstream</code>.
+     * This method is mainly for random access use since there are serious
+     * side-effects involved in using multiple <code>PushBackInputStream</code>
+     * instances.
+	 * @param in <code>InputStream</code> used to read next record
      * @return the next record
      * @throws IOException io exception in parsing process
      */
 	public abstract WarcRecord nextRecordFrom(InputStream in) throws IOException;
 
+	/**
+     * Parses and gets the next record from an <code>Inputstream</code> wrapped
+     * by a <code>BufferedInputStream</code>.
+     * This method is mainly for random access use since there are serious
+     * side-effects involved in using multiple <code>PushBackInputStream</code>
+     * instances.
+	 * @param in <code>InputStream</code> used to read next record
+	 * @param buffer_size buffer size to use
+     * @return the next record
+     * @throws IOException io exception in parsing process
+	 */
 	public abstract WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException;
 
 	/**

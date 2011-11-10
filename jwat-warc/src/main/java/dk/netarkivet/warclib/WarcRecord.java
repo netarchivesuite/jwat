@@ -29,6 +29,8 @@ public class WarcRecord {
 	int major = -1;
 	int minor = -1;
 
+	long position;
+
 	/*
 	 * Warc-Field related fields.
 	 */
@@ -185,6 +187,7 @@ public class WarcRecord {
 		String tmpStr;
 		boolean bSeekMagic = true;
 		while (bSeekMagic) {
+			position = in.getConsumed();
 			tmpStr = readLine(in);
 			if (tmpStr != null) {
 				// debug
@@ -212,11 +215,13 @@ public class WarcRecord {
 					}
 					else {
 						// Gibberish.
+						// TODO Only report once
 	                    addValidationError(WarcErrorType.INVALID, "Data", null);
 					}
 				}
 				else {
 					// Empty line.
+					// TODO Only report once
                     addValidationError(WarcErrorType.INVALID, "Empty lines", null);
 				}
 			}

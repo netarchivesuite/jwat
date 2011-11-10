@@ -28,6 +28,7 @@ public class WarcReaderUncompressed extends WarcReader {
 	/**
 	 * Construct object not associated with any input stream.
 	 * The reader must be supplied an input stream for each record read.
+	 * This method is for use with random access to records.
 	 * @param in <code>WarcInputStream</code>
 	 */
 	WarcReaderUncompressed() {
@@ -35,6 +36,7 @@ public class WarcReaderUncompressed extends WarcReader {
 
 	/**
 	 * Construct object using supplied <code>WarcInputStream</code>.
+	 * This method is primarily for linear access to records.
 	 * @param in <code>WarcInputStream</code>
 	 */
 	WarcReaderUncompressed(WarcInputStream in) {

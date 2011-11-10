@@ -1,8 +1,8 @@
 package dk.netarkivet.warclib;
 
 /**
- * Parsed Warc Header split into (name, value) pair. Unless the header is not 
- * formattet correctly in which case the line is present instead.  
+ * Parsed Warc Header entry split into (name, value) pair. Unless the header 
+ * entry is not formattet correctly in which case the line is present instead.  
  *
  * @author nicl
  */

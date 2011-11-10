@@ -6,8 +6,9 @@
 
   <parent>
     <groupId>dk.netarkivet.jwat</groupId>
-    <artifactId>jwat</artifactId>
+    <artifactId>jwat-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../jwat-parent/pom.xml</relativePath>
   </parent>
 
   <groupId>dk.netarkivet.jwat</groupId>
@@ -29,11 +30,13 @@
       <scope>compile</scope>
     </dependency>
 
+<!--
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.10</version>
       <scope>test</scope>
     </dependency>
+-->
   </dependencies>
 </project>

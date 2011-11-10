@@ -4,12 +4,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.lang.annotation.Inherited;
 
+/**
+ * Basic <code>PushBackInputStream</code> that also keeps track of the number
+ * of consumed bytes at any given time.
+ *
+ * @author nicl
+ */
 public class WarcInputStream extends PushbackInputStream {
 
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
 
+    /**
+     * Given an <code>InputStream</code> and a push back buffer size returns
+     * a wrapped input stream with push back capabilities. 
+     * @param in <code>InputStream</code> to wrap
+     * @param size push back buffer size
+     */
     public WarcInputStream(InputStream in, int size) {
 		super(in, size);
 	}
@@ -45,13 +58,14 @@ public class WarcInputStream extends PushbackInputStream {
         return b;
     }
 
+    /*
+	 * The super method did this anyway causing a double amount of
+	 * consumed bytes.
+     * @see java.io.FilterInputStream#read(byte[])
+     */
     @Override
 	public int read(byte[] b) throws IOException {
-        int n = super.read(b);
-        if (n > 0) {
-            consumed += n;
-        }
-        return n;
+        return read(b, 0, b.length);
 	}
 
     @Override
@@ -76,10 +90,14 @@ public class WarcInputStream extends PushbackInputStream {
 		--consumed;
 	}
 
+	/*
+	 * The super method did this anyway causing a double amount of
+	 * un-consumed bytes.
+	 * @see java.io.PushbackInputStream#unread(byte[])
+	 */
 	@Override
 	public void unread(byte[] b) throws IOException {
-		super.unread(b);
-		consumed -= b.length;
+		unread(b, 0, b.length);
 	}
 
 	@Override
