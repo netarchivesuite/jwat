@@ -18,8 +18,36 @@ import java.util.NoSuchElementException;
  */
 public abstract class WarcReader {
 
+	/** Digesting enabled/disabled. */
+	protected boolean bDigest = true;
+
+    /** Current WARC record object. */
+	protected WarcRecord warcRecord;
+
 	/** Exception thrown while using the iterator. */
 	public Exception exceptionThrown;
+
+	/**
+	 * Is this reader assuming compressed input.
+	 * @return boolean indicating the assumption of compressed input
+	 */
+	public abstract boolean isCompressed();
+
+	/**
+	 * Is this reader set to digest payload.
+	 * @return boolean indicating the assumption of payload digesting
+	 */
+	public boolean digest() {
+		return bDigest;
+	}
+
+	/**
+	 * Set the readers payload digest mode
+	 * @param enabled boolean indicating digest on/off
+	 */
+	public void setDigest(boolean enabled) {
+		bDigest = enabled;
+	}
 
 	/**
      * Close current record resource(s) and input stream(s). 

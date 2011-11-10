@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.ByteCountingInputStream;
 import dk.netarkivet.common.IPAddressParser;
 
@@ -130,8 +131,12 @@ public abstract class ArcRecordBase {
     /** Specifies whether the network has been already validated or not. */
     //private boolean isNetworkDocValidated = false;
 
+    /*
+     * Payload
+     */
+
     /** Payload object if any exists. */
-    protected ArcPayload payload;
+    protected Payload payload;
 
     /**
      * Creates an ARC record from the specified record description.
@@ -314,7 +319,7 @@ public abstract class ArcRecordBase {
      * Payload getter.
      * @return the payload
      */
-    public ArcPayload getPayload() {
+    public Payload getPayload() {
         return payload;
     }
 
@@ -323,8 +328,9 @@ public abstract class ArcRecordBase {
      * @return Payload content <code>InputStream</code>
      */
     public InputStream getPayloadContent() {
+    	// TODO un-filter and/or move to payload.
         return (payload != null)
-                ? new FilterInputStream(payload.in) {
+                ? new FilterInputStream(payload.getInputStream()) {
                     /*
                     @Override
                     public void close() throws IOException {

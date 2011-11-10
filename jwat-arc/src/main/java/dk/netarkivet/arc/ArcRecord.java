@@ -38,11 +38,15 @@ package dk.netarkivet.arc;
 import java.io.IOException;
 import java.util.Collection;
 
+import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.ByteCountingInputStream;
 import dk.netarkivet.common.HttpResponse;
 
 /**
- * ARC record parser.
+ * This class represents a parsed ARC record header including possible 
+ * validation and format warnings/errors encountered in the process.
+ * The payload of the ARC record is accessible through a wrapped payload
+ * object.
  *
  * @author lbihanic, selghissassi, nicl
  */
@@ -69,45 +73,41 @@ public class ArcRecord extends ArcRecordBase {
      * @return an <code>ArcRecord</code> or null if none was found.
      */
     public static ArcRecord parseArcRecord(ByteCountingInputStream in,
-                                        ArcVersionBlock versionBlock) {
+    					ArcVersionBlock versionBlock) throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
         ar.version = versionBlock.version;
-        try {
-            // Read record line.
-            // Looping past empty lines.
+
+        // Read record line.
+        // Looping past empty lines.
+        ar.startOffset = in.getConsumed();
+        String recordLine = in.readLine();
+        while ((recordLine != null) && (recordLine.length() == 0)) {
             ar.startOffset = in.getConsumed();
-            String recordLine = in.readLine();
-            while ((recordLine != null) && (recordLine.length() == 0)) {
-                ar.startOffset = in.getConsumed();
-                recordLine = in.readLine();
-            }
-            if (recordLine != null) {
-                ar.parseRecord(recordLine);
-            } else {
-                // EOF
-                ar = null;
-            }
-            if (ar != null) {
-                ar.processPayload(in);
-            }
-        } catch (IOException e) { /* Ignore */ }
+            recordLine = in.readLine();
+        }
+        if (recordLine != null) {
+            ar.parseRecord(recordLine);
+        } else {
+            // EOF
+            ar = null;
+        }
+        if (ar != null) {
+            ar.processPayload(in);
+        }
         return ar;
     }
 
-    /* (non-Javadoc)
-     * @see org.jhove2.module.format.arc.ArcRecordBase#parseNetworkDoc()
-     */
     @Override
     protected void processPayload(ByteCountingInputStream in)
                                                         throws IOException {
         payload = null;
         if (recLength != null && recLength > 0L) {
-            payload = new ArcPayload(in, recLength.longValue());
+            payload = new Payload(in, recLength.longValue());
             if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
-                httpResponse = HttpResponse.processPayload(payload.in,
-                                                        recLength.longValue());
+                httpResponse = HttpResponse.processPayload(
+                			payload.getInputStream(), recLength.longValue());
             }
         } else if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
@@ -117,7 +117,7 @@ public class ArcRecord extends ArcRecordBase {
     }
 
     /**
-     * Checks if the ARC record has warnings.
+     * Checks if the ARC record payload has warnings.
      * @return true/false based on whether the ARC record has warnings or not
      */
     @Override
@@ -126,7 +126,7 @@ public class ArcRecord extends ArcRecordBase {
     }
 
     /**
-     * Gets Network doc warnings.
+     * Returns the ARC record payload warnings.
      * @return validation errors list/
      */
     @Override

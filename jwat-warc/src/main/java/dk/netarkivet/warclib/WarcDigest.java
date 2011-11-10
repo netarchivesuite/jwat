@@ -1,21 +1,34 @@
 package dk.netarkivet.warclib;
 
 /**
- * Yo!
+ * This class represents the parsed and format validate information provided
+ * from a WARC digest header value.
  *
  * @author nicl
  */
 public class WarcDigest {
 
+	/** Digest algorithm. */
 	public String algorithm;
 
+	/** Digest value, in Base<x> format. (Where x is 16, 32 or 64) */
 	public String digestValue;
 
+	/**
+	 * Construct an object with the supplied parameters.
+	 * @param algorithm digest algorithm
+	 * @param digestValue digest value in Base<x> format.
+	 */
 	private WarcDigest(String algorithm, String digestValue) {
 		this.algorithm = algorithm;
 		this.digestValue = digestValue;
 	}
 
+	/**
+	 * Parse and validate the format of a WARC digest header value.
+	 * @param labelledDigest WARC digest header value
+	 * @return <code>WarcDigest</code> object or <code>null</code>
+	 */
 	public static WarcDigest parseDigest(String labelledDigest) {
 		if (labelledDigest == null || labelledDigest.length() == 0) {
 			return null;
@@ -33,6 +46,11 @@ public class WarcDigest {
 		return null;
 	}
 
+	/**
+	 * Returns a printer friendly representation of the class state.
+	 * @return printer friendly representation of the class state 
+	 */
+	@Override
 	public String toString() {
 		return new String("[algorithm=" + algorithm + ",digest value=" + digestValue + "]");
 	}

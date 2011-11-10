@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.security.InvalidParameterException;
 
 /**
- * WARC file parser and validator.
+ * WARC Reader used on uncompressed files.
  *
  * @author nicl
  */
@@ -21,9 +21,6 @@ public class WarcReaderUncompressed extends WarcReader {
 
     /** WARC file <code>InputStream</code>. */
 	protected WarcInputStream in;
-
-    /** Current WARC record object. */
-	protected WarcRecord warcRecord;
 
 	/**
 	 * Construct object not associated with any input stream.
@@ -41,6 +38,11 @@ public class WarcReaderUncompressed extends WarcReader {
 	 */
 	WarcReaderUncompressed(WarcInputStream in) {
 		this.in = in;
+	}
+
+	@Override
+	public boolean isCompressed() {
+		return false;
 	}
 
 	@Override
@@ -63,26 +65,38 @@ public class WarcReaderUncompressed extends WarcReader {
 
 	@Override
 	public WarcRecord nextRecord() throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null) {
 			throw new IllegalStateException();
 		}
-		return WarcRecord.parseRecord(in);
+		warcRecord = WarcRecord.parseRecord(in);
+		return warcRecord;
 	}
 
 	@Override
 	public WarcRecord nextRecordFrom(InputStream in) throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null) {
 			throw new InvalidParameterException();
 		}
-		return WarcRecord.parseRecord(new WarcInputStream(in, 16));
+		warcRecord = WarcRecord.parseRecord(new WarcInputStream(in, 16));
+		return warcRecord;
 	}
 
 	@Override
 	public WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null || buffer_size <= 0) {
 			throw new InvalidParameterException();
 		}
-		return WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in, buffer_size), 16));
+		warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in, buffer_size), 16));
+		return warcRecord;
 	}
 
 }

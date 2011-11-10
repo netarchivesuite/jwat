@@ -37,6 +37,7 @@ package dk.netarkivet.arc;
 
 import java.io.IOException;
 
+import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.ByteCountingInputStream;
 
 /**
@@ -108,83 +109,81 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @return an <code>ArcVersionBlock</code> or null if none was found.
      */
     public static ArcVersionBlock parseVersionBlock(
-                                            ByteCountingInputStream in) {
+    						ByteCountingInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
-        try {
-            vb.isMagicArcFile = false;
-            vb.isVersionValid = false;
-            vb.isValidFieldDesc = false;
-            // Read 3 line header.
-            vb.startOffset = in.getConsumed();
-            String recordLine = in.readLine();
-            in.setCounter(0);
-            String versionLine = in.readLine();
-            String fieldLine = in.readLine();
-            // Check for magic number
-            if (recordLine != null) {
-                vb.checkFileDesc(recordLine);
-                // Extract the path
-                //this.path = 
-                // desc.url.substring(ArcConstants.ARC_SCHEME.length());
+
+        vb.isMagicArcFile = false;
+        vb.isVersionValid = false;
+        vb.isValidFieldDesc = false;
+        // Read 3 line header.
+        vb.startOffset = in.getConsumed();
+        String recordLine = in.readLine();
+        in.setCounter(0);
+        String versionLine = in.readLine();
+        String fieldLine = in.readLine();
+        // Check for magic number
+        if (recordLine != null) {
+            vb.checkFileDesc(recordLine);
+            // Extract the path
+            //this.path = 
+            // desc.url.substring(ArcConstants.ARC_SCHEME.length());
+        }
+        // Check for version and parse if present.
+        if (versionLine != null && versionLine.length() > 0) {
+            String[] versionArr = versionLine.split(" ", -1);
+            if (versionArr.length != ArcConstants.VERSION_DESC_FIELDS.length) {
+                vb.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+                                        "Invalid version description");
             }
-            // Check for version and parse if present.
-            if (versionLine != null && versionLine.length() > 0) {
-                String[] versionArr = versionLine.split(" ", -1);
-                if (versionArr.length != ArcConstants.VERSION_DESC_FIELDS.length) {
-                    vb.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                                            "Invalid version description");
-                }
-                // Get version and origin
-                vb.versionNumber = vb.parseInteger(
-                            ArcFieldValidator.getArrayValue(versionArr, 0),
-                            ArcConstants.VERSION_FIELD, false);
-                vb.reserved = vb.parseInteger(
-                            ArcFieldValidator.getArrayValue(versionArr, 1),
-                            ArcConstants.RESERVED_FIELD, false);
-                vb.originCode = vb.parseString(
-                            ArcFieldValidator.getArrayValue(versionArr, 2),
-                            ArcConstants.ORIGIN_FIELD, false);
-                vb.checkVersion();
-                // TODO default version
-            }
-            // Extract format description.
-            if (fieldLine != null) {
-                if (ArcConstants.VERSION_1_BLOCK_DEF.equals(fieldLine)) {
-                    vb.isValidFieldDesc = true;
-                    vb.descValidator = version1DescValidator;
-                } else if (ArcConstants.VERSION_2_BLOCK_DEF.equals(fieldLine)) {
-                    vb.isValidFieldDesc = true;
-                    vb.descValidator = version2DescValidator;
-                } else {
-                    //Using version-1-block fields in this case
-                    vb.descValidator = version1DescValidator;
-                    vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
-                            "Unsupported version block definition -> "
-                            + "Using version-1-block definition");
-                }
-            }
-            // Parse record.
-            if (recordLine != null) {
-                vb.parseRecord(recordLine);
+            // Get version and origin
+            vb.versionNumber = vb.parseInteger(
+                        ArcFieldValidator.getArrayValue(versionArr, 0),
+                        ArcConstants.VERSION_FIELD, false);
+            vb.reserved = vb.parseInteger(
+                        ArcFieldValidator.getArrayValue(versionArr, 1),
+                        ArcConstants.RESERVED_FIELD, false);
+            vb.originCode = vb.parseString(
+                        ArcFieldValidator.getArrayValue(versionArr, 2),
+                        ArcConstants.ORIGIN_FIELD, false);
+            vb.checkVersion();
+            // TODO default version
+        }
+        // Extract format description.
+        if (fieldLine != null) {
+            if (ArcConstants.VERSION_1_BLOCK_DEF.equals(fieldLine)) {
+                vb.isValidFieldDesc = true;
+                vb.descValidator = version1DescValidator;
+            } else if (ArcConstants.VERSION_2_BLOCK_DEF.equals(fieldLine)) {
+                vb.isValidFieldDesc = true;
+                vb.descValidator = version2DescValidator;
             } else {
-                // EOF
-                vb = null;
+                //Using version-1-block fields in this case
+                vb.descValidator = version1DescValidator;
+                vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
+                        "Unsupported version block definition -> "
+                        + "Using version-1-block definition");
             }
-            if (vb != null) {
-                if (vb.recLength == null) {
-                    // Missing length.
-                    vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
-                            "VersionBlock length missing!");
-                } else if (in.getCounter() > vb.recLength) {
-                    // Mismatch in consumed and declare length.
-                    vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
-                            "VersionBlock length to small!");
-                }
-                // Process payload = xml config
-                vb.processPayload(in);
+        }
+        // Parse record.
+        if (recordLine != null) {
+            vb.parseRecord(recordLine);
+        } else {
+            // EOF
+            vb = null;
+        }
+        if (vb != null) {
+            if (vb.recLength == null) {
+                // Missing length.
+                vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
+                        "VersionBlock length missing!");
+            } else if (in.getCounter() > vb.recLength) {
+                // Mismatch in consumed and declare length.
+                vb.addValidationError(ArcErrorType.INVALID, ARC_FILE,
+                        "VersionBlock length to small!");
             }
-        } catch (IOException e) {
+            // Process payload = xml config
+            vb.processPayload(in);
         }
         return vb;
     }
@@ -266,13 +265,14 @@ public class ArcVersionBlock extends ArcRecordBase {
                                                         throws IOException {
         payload = null;
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
-            payload = new ArcPayload(in, recLength.longValue()
+            payload = new Payload(in, recLength.longValue()
                                             - in.getCounter());
             // Look for trailing xml config.
             //if (vb.version.equals(ArcVersion.VERSION_1_1)) {
             //}
-            byte[] bytes = new byte[payload.in.available()];
-            payload.in.read(bytes);
+            byte[] bytes = new byte[payload.getInputStream().available()];
+            // TODO Cosmicly bad, not to loop this!
+            payload.getInputStream().read(bytes);
             xml = new String(bytes);
             payload.close();
         }

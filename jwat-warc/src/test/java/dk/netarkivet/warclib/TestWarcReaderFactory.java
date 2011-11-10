@@ -12,6 +12,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+/**
+ * Test to check if GZip auto detection is working correctly.
+ * Also checks if buffered and unbuffered input streaming work as expected.
+ *
+ * @author nicl
+ */
 @RunWith(Parameterized.class)
 public class TestWarcReaderFactory {
 

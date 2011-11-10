@@ -16,16 +16,14 @@ import dk.netarkivet.gzip.GzipEntry;
 import dk.netarkivet.gzip.GzipInputStream;
 
 /**
- * 
+ * WARC Reader used on GZip compressed files.
+ *
  * @author nicl
  */
 public class WarcReaderCompressed extends WarcReader {
 
     /** WARC file <code>InputStream</code>. */
 	protected GzipInputStream in;
-
-    /** Current WARC record object. */
-	protected WarcRecord warcRecord;
 
 	/** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
 	protected int bufferSize;
@@ -44,6 +42,11 @@ public class WarcReaderCompressed extends WarcReader {
 	WarcReaderCompressed(GzipInputStream in, int buffer_size) {
 		this.in = in;
 		this.bufferSize = buffer_size;
+	}
+
+	@Override
+	public boolean isCompressed() {
+		return true;
 	}
 
 	@Override
@@ -66,48 +69,57 @@ public class WarcReaderCompressed extends WarcReader {
 
 	@Override
 	public WarcRecord nextRecord() throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null) {
 			throw new IllegalStateException();
 		}
-		WarcRecord record = null;
+		warcRecord = null;
 		GzipEntry entry = in.getNextEntry();
 		if (entry != null) {
 			if (bufferSize > 0) {
-				record = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in.getEntryInputStream(), bufferSize), 16));
+				warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in.getEntryInputStream(), bufferSize), 16));
 			}
 			else {
-				record = WarcRecord.parseRecord(new WarcInputStream(in.getEntryInputStream(), 16));
+				warcRecord = WarcRecord.parseRecord(new WarcInputStream(in.getEntryInputStream(), 16));
 			}
 		}
-		return record;
+		return warcRecord;
 	}
 
 	@Override
 	public WarcRecord nextRecordFrom(InputStream in) throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null) {
 			throw new InvalidParameterException();
 		}
-		WarcRecord record = null;
+		warcRecord = null;
 		GzipInputStream gzin = new GzipInputStream(in);
 		GzipEntry entry = gzin.getNextEntry();
 		if (entry != null) {
-			record = WarcRecord.parseRecord(new WarcInputStream(gzin.getEntryInputStream(), 16));
+			warcRecord = WarcRecord.parseRecord(new WarcInputStream(gzin.getEntryInputStream(), 16));
 		}
-		return record;
+		return warcRecord;
 	}
 
 	@Override
 	public WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException {
+        if (warcRecord != null) {
+            warcRecord.close();
+        }
 		if (in == null || buffer_size <= 0) {
 			throw new InvalidParameterException();
 		}
-		WarcRecord record = null;
+		warcRecord = null;
 		GzipInputStream gzin = new GzipInputStream(in);
 		GzipEntry entry = gzin.getNextEntry();
 		if (entry != null) {
-			record = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
+			warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
 		}
-		return record;
+		return warcRecord;
 	}
 
 }

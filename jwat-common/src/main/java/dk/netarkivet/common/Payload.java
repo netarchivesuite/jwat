@@ -33,20 +33,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package dk.netarkivet.arc;
+package dk.netarkivet.common;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import dk.netarkivet.common.FixedLengthInputStream;
 
 /**
  * Arc record payload.
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class ArcPayload {
+public class Payload {
 
     /** Payload content. */
     private static final int BUFFER_SIZE = 4096;
@@ -63,7 +62,7 @@ public class ArcPayload {
      * @param length payload length.
      * @throws IOException io exception in reading process
      */
-    public ArcPayload(InputStream in, long length) throws IOException {
+    public Payload(InputStream in, long length) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException("in");
         }

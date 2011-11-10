@@ -9,11 +9,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import dk.netarkivet.common.IPAddressParser;
+import dk.netarkivet.common.Payload;
 
+/**
+ * This class represents a parsed WARC record header block including
+ * possible validation and format warnings/errors encountered in the process. 
+ * The payload of the WARC record is accessible through a wrapped payload
+ * object.
+ * 
+ * @author nicl
+ */
 public class WarcRecord {
 
     /** Validation errors */
@@ -31,11 +42,11 @@ public class WarcRecord {
 
 	long position;
 
-	/*
-	 * Warc-Field related fields.
-	 */
-
 	boolean bMandatoryMissing;
+
+	/*
+	 * Warc-Fields.
+	 */
 
 	String warcTypeStr;
 	Integer warcTypeIdx;
@@ -97,52 +108,76 @@ public class WarcRecord {
 	String warcSegmentTotalLengthStr;
 	Long warcSegmentTotalLength;
 
-	public static WarcRecord parseRecord(WarcInputStream in) {
+	/*
+	 * Header-Fields.
+	 */
+
+	/** List of parsed header fields. */
+	private List<WarcHeader> headerList;
+
+	/** Map of parsed header fields. */
+	private Map<String, WarcHeader> headerMap;
+
+    /*
+     * Payload
+     */
+
+	/** Payload object if any exists. */
+    protected Payload payload;
+
+	/**
+	 * Given an <code>InputStream</code> tries to read and validate a WARC
+	 * header block.
+	 * @param in <code>InputStream</code> containing WARC record data
+	 * @return <code>WarcRecord</code> or <code>null</code>
+	 * @throws IOException io exception in the process of reading record
+	 */
+	public static WarcRecord parseRecord(WarcInputStream in) throws IOException {
 		WarcRecord wr = new WarcRecord();
-		try {
-			if (wr.parseVersion(in)) {
-				//System.out.println(wr.bMagicIdentified);
-				//System.out.println(wr.bVersionParsed);
-				//System.out.println(wr.major + "." + wr.minor);
+		if (wr.parseVersion(in)) {
+			// debug
+			//System.out.println(wr.bMagicIdentified);
+			//System.out.println(wr.bVersionParsed);
+			//System.out.println(wr.major + "." + wr.minor);
 
-				wr.parseFields(in);
-				wr.checkFields();
+			wr.parseFields(in);
+			wr.checkFields();
 
-				if (wr.warcTypeIdx != null) {
-					// TODO payload processing
+			if (wr.warcTypeIdx != null) {
+				// TODO payload processing
+			}
+			if (wr.contentLength != null && wr.contentLength > 0) {
+	            //wr.payload = new Payload(in, wr.contentLength);
+				long skipRemaining = wr.contentLength;
+				long skippedLast = 0;
+				while (skipRemaining > 0 && skippedLast != -1) {
+					skipRemaining -= skippedLast;
+					skippedLast = in.skip(skipRemaining);
 				}
-				if (wr.contentLength != null) {
-					long skipRemaining = wr.contentLength;
-					long skippedLast = 0;
-					while (skipRemaining > 0 && skippedLast != -1) {
-						skipRemaining -= skippedLast;
-						skippedLast = in.skip(skipRemaining);
-					}
-					if (skipRemaining > 0) {
-	                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", Long.toString(skipRemaining));
-					}
-				}
-				int newlines = wr.parseNewLines(in);
-				if (newlines != 2) {
-                    wr.addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
+				if (skipRemaining > 0) {
+                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", Long.toString(skipRemaining));
 				}
 			}
-			else {
-				wr = null;
+			int newlines = wr.parseNewLines(in);
+			if (newlines != 2) {
+                wr.addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
 			}
 		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		else {
+			wr = null;
 		}
 		return wr;
 	}
 
-    /**
+	/**
      * Close resources associated with the WARC record. 
      * Mainly payload stream if any.
-     */
+	 * @throws IOException
+	 */
 	public void close() throws IOException {
+        if (payload != null) {
+            payload.close();
+        }
 	}
 
 	protected int parseNewLines(WarcInputStream in) throws IOException {
@@ -246,7 +281,7 @@ public class WarcRecord {
 						//System.out.println(warcHeader.name);
 						//System.out.println(warcHeader.value);
 
-						parseField(warcHeader.name, warcHeader.value, seen);
+						parseField(warcHeader, seen);
 					}
 					else {
 						// Empty field name.
@@ -269,7 +304,9 @@ public class WarcRecord {
 		}
 	}
 
-	protected void parseField(String field, String value, boolean[] seen) {
+	protected void parseField(WarcHeader warcHeader, boolean[] seen) {
+		String field = warcHeader.name;
+		String value = warcHeader.value;
 		Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
 		if (fn_idx != null) {
 			if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
@@ -405,7 +442,15 @@ public class WarcRecord {
 			}
 		}
 		else {
-			// Unrecognized field name.
+			// Not a recognized WARC field name.
+			if (headerList == null) {
+				headerList = new ArrayList<WarcHeader>();
+			}
+			if (headerMap == null) {
+				headerMap = new HashMap<String, WarcHeader>();
+			}
+			headerList.add(warcHeader);
+			headerMap.put(field.toLowerCase(), warcHeader);
 		}
 	}
 
@@ -1097,4 +1142,23 @@ public class WarcRecord {
     	}
     	return warcHeader;
     }
+
+	public List<WarcHeader> getHeaderList() {
+		if (headerList != null) {
+			return Collections.unmodifiableList(headerList);
+		}
+		else {
+			return null;
+		}
+	}
+
+	public WarcHeader getHeader(String field) {
+		if (headerMap != null) {
+			return headerMap.get(field);
+		}
+		else {
+			return null;
+		}
+	}
+
 }

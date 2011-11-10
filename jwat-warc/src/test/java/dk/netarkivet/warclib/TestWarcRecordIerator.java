@@ -13,6 +13,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+/**
+ * Test to check that the nextRecord() and iterator() approach to reading all the 
+ * records in a file have the same number of records and no errors.
+ * Also checks that GZip support is working correctly. 
+ * 
+ * @author nicl
+ */
 @RunWith(Parameterized.class)
 public class TestWarcRecordIerator {
 

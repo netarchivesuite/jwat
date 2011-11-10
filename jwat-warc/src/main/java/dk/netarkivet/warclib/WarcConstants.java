@@ -12,10 +12,13 @@ import java.util.Map;
  */
 public class WarcConstants {
 
-	/** Warc header start with this string including trailing version information. */
+	/**
+	 * A WARC header block starts with this string including trailing version
+	 * information.
+	 * */
 	public static final String WARC_MAGIC_HEADER = "WARC/";
 
-	/** Warc mime type. */
+	/** WARC mime type. */
 	public static final String WARC_MIME_TYPE = "application/warc";
 
 	public static final int FN_MAX_NUMBER = 19+1;

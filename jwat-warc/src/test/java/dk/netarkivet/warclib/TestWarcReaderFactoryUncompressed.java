@@ -20,6 +20,16 @@ import org.junit.runners.Parameterized.Parameters;
 
 import dk.netarkivet.common.RandomAccessFileInputStream;
 
+/**
+ * Test to check wether the getReaderUncompressed() and nextRecordFrom(in)
+ * combination of methods work for random access to WARC records.
+ * The WARC test file is first indexed and then all records are pseudo randomly
+ * checked in sequential order and the record-id is compared to check if the
+ * location points to a record and if it's the correct one according to the
+ * index.
+ *
+ * @author nicl
+ */
 @RunWith(Parameterized.class)
 public class TestWarcReaderFactoryUncompressed {
 

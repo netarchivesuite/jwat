@@ -130,11 +130,11 @@ public class WarcInputStream extends PushbackInputStream {
     }
 
 	/**
-	 * 
-	 * @param pbis
-	 * @param buffer
-	 * @return
-	 * @throws IOException
+	 * Guaranteed to read the exact number of bytes that are in the array, if
+	 * not, the bytes are pushed back into the stream before returning.
+	 * @param buffer byte buffer to read bytes into
+	 * @return the number of bytes read into array
+	 * @throws IOException io exception while reading array
 	 */
 	protected int readFully(byte[] buffer) throws IOException {
 		int readOffset = 0;
