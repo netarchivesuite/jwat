@@ -92,6 +92,8 @@ public class TestWarcReaderFactoryUncompressed {
 						RecordDebugBase.printRecordErrors(record);
 					}
 
+					record.close();
+
 					++records;
 
 					if (record.hasErrors()) {
@@ -143,6 +145,8 @@ public class TestWarcReaderFactoryUncompressed {
 						RecordDebugBase.printRecordErrors(record);
 					}
 
+					record.close();
+
 					++records;
 
 					if (record.hasErrors()) {
@@ -192,6 +196,8 @@ public class TestWarcReaderFactoryUncompressed {
 						RecordDebugBase.printRecord(record);
 						RecordDebugBase.printRecordErrors(record);
 					}
+
+					record.close();
 
 					++records;
 
@@ -246,7 +252,7 @@ public class TestWarcReaderFactoryUncompressed {
     			record = recordIterator.next();
     			++records;
 
-    			if (record.warcRecordIdUri == null) {
+				if (record.warcRecordIdUri == null) {
     				Assert.fail("Invalid warc-record-id");
     			}
 
@@ -254,6 +260,8 @@ public class TestWarcReaderFactoryUncompressed {
     			warcEntry.recordId = record.warcRecordIdUri;
     			warcEntry.position = record.position;
     			warcEntries.add(warcEntry);
+
+				record.close();
 
     			if (record.hasErrors()) {
     				errors += record.getValidationErrors().size();

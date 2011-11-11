@@ -39,7 +39,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 /**
  * Arc record payload.
  *
@@ -55,6 +54,9 @@ public class Payload {
 
     /** Payload length. */
     protected long length;
+
+    /** Handler called when this payloads stream has been fully consumed. */
+    protected PayloadOnClosedHandler onClosedHandler;
 
     /**
      * Creates new <code>ArcPayload</code> instance.
@@ -88,12 +90,26 @@ public class Payload {
     }
 
     /**
+     * Set optional handler to be called when payload is closed.
+     * @param onClosedHandler on closed handler implementation
+     */
+    public void setOnClosedHandler(PayloadOnClosedHandler onClosedHandler) {
+    	this.onClosedHandler = onClosedHandler;
+    }
+
+    /**
      * Closes the this payload stream, skipping unread bytes in the process.
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
-        in.close();
-        in = null;
+    	if (in != null) {
+            in.close();
+            in = null;
+    	}
+        if (onClosedHandler != null) {
+        	onClosedHandler.payloadClosed();
+        	onClosedHandler = null;
+        }
     }
 
 }

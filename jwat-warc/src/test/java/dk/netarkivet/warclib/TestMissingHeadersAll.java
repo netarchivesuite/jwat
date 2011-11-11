@@ -61,6 +61,8 @@ public class TestMissingHeadersAll {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++records;
 
 				if (record.hasErrors()) {

@@ -55,6 +55,8 @@ public class TestFields {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				errors = 0;
 				if (record.hasErrors()) {
 					errors = record.getValidationErrors().size();

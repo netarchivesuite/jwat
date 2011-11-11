@@ -55,6 +55,8 @@ public class TestContentTypeRecommended {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++records;
 
 				errors = 0;

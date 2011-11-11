@@ -67,6 +67,8 @@ public class TestWarcReaderFactory {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++records;
 
 				if (record.hasErrors()) {
@@ -100,6 +102,8 @@ public class TestWarcReaderFactory {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);
 				}
+
+				record.close();
 
 				++records;
 

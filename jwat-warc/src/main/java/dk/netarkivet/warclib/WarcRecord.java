@@ -2,6 +2,7 @@ package dk.netarkivet.warclib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.net.InetAddress;
 import java.net.URI;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
+import dk.netarkivet.common.PayloadOnClosedHandler;
 
 /**
  * This class represents a parsed WARC record header block including
@@ -25,7 +27,7 @@ import dk.netarkivet.common.Payload;
  * 
  * @author nicl
  */
-public class WarcRecord {
+public class WarcRecord implements PayloadOnClosedHandler {
 
     /** Validation errors */
     protected List<WarcValidationError> errors = null;
@@ -122,6 +124,15 @@ public class WarcRecord {
      * Payload
      */
 
+	/** Input stream used to read this record. */
+	protected WarcInputStream in;
+
+	/** Has payload been closed before. */
+	protected boolean bPayloadClosed;
+
+	/** Has record been closed before. */
+	protected boolean bClosed;
+
 	/** Payload object if any exists. */
     protected Payload payload;
 
@@ -134,6 +145,7 @@ public class WarcRecord {
 	 */
 	public static WarcRecord parseRecord(WarcInputStream in) throws IOException {
 		WarcRecord wr = new WarcRecord();
+		wr.in = in;
 		if (wr.parseVersion(in)) {
 			// debug
 			//System.out.println(wr.bMagicIdentified);
@@ -147,7 +159,9 @@ public class WarcRecord {
 				// TODO payload processing
 			}
 			if (wr.contentLength != null && wr.contentLength > 0) {
-	            //wr.payload = new Payload(in, wr.contentLength);
+	            wr.payload = new Payload(in, wr.contentLength);
+	            wr.payload.setOnClosedHandler(wr);
+				/*
 				long skipRemaining = wr.contentLength;
 				long skippedLast = 0;
 				while (skipRemaining > 0 && skippedLast != -1) {
@@ -157,10 +171,7 @@ public class WarcRecord {
 				if (skipRemaining > 0) {
                     wr.addValidationError(WarcErrorType.INVALID, "Payload Length", Long.toString(skipRemaining));
 				}
-			}
-			int newlines = wr.parseNewLines(in);
-			if (newlines != 2) {
-                wr.addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
+				*/
 			}
 		}
 		else {
@@ -169,15 +180,31 @@ public class WarcRecord {
 		return wr;
 	}
 
+	public void payloadClosed() throws IOException {
+		if (!bPayloadClosed) {
+	        // Check for trailing newlines.
+			int newlines = parseNewLines(in);
+			if (newlines != 2) {
+	            addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
+			}
+			bPayloadClosed = true;
+		}
+	}
+
 	/**
      * Close resources associated with the WARC record. 
      * Mainly payload stream if any.
 	 * @throws IOException
 	 */
 	public void close() throws IOException {
-        if (payload != null) {
-            payload.close();
-        }
+		if (!bClosed) {
+			// Ensure input stream is at the end of the record payload.
+	        if (payload != null) {
+	            payload.close();
+	        }
+	        payloadClosed();
+	        bClosed = true;
+		}
 	}
 
 	protected int parseNewLines(WarcInputStream in) throws IOException {
@@ -1160,5 +1187,29 @@ public class WarcRecord {
 			return null;
 		}
 	}
+
+    /**
+     * Specifies whether this record has a payload or not.
+     * @return true/false whether the ARC record has a payload 
+     */
+    public boolean hasPayload() {
+        return (payload != null);
+    }
+
+    /**
+     * Return Payload object.
+     * @return payload or <code>null</code>
+     */
+    public Payload getPayload() {
+        return payload;
+    }
+
+    /**
+     * Payload content <code>InputStream</code> getter.
+     * @return Payload content <code>InputStream</code>
+     */
+    public InputStream getPayloadContent() {
+        return (payload != null) ? payload.getInputStream() : null;
+    }
 
 }

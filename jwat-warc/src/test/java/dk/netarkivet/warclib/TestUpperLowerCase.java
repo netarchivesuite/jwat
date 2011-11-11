@@ -51,6 +51,8 @@ public class TestUpperLowerCase {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++records;
 
 				if (record.hasErrors()) {

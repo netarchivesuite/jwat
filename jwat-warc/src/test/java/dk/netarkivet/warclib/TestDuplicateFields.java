@@ -57,6 +57,8 @@ public class TestDuplicateFields {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++records;
 
 				if (record.hasErrors()) {

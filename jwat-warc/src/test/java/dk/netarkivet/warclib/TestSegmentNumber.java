@@ -54,6 +54,8 @@ public class TestSegmentNumber {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				errors = 0;
 				if (record.hasErrors()) {
 					errors = record.getValidationErrors().size();

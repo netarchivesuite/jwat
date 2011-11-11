@@ -35,7 +35,6 @@
  */
 package dk.netarkivet.arc;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -46,9 +45,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.ByteCountingInputStream;
 import dk.netarkivet.common.IPAddressParser;
+import dk.netarkivet.common.Payload;
 
 /**
  * An abstract ARC record parser.
@@ -309,15 +308,16 @@ public abstract class ArcRecordBase {
     */
 
     /**
-     * Specifies whether the ARC record has a payload or not.
+     * Specifies whether this record has a payload or not.
      * @return true/false whether the ARC record has a payload 
      */
     public boolean hasPayload() {
         return (payload != null);
     }
+
     /**
-     * Payload getter.
-     * @return the payload
+     * Return Payload object.
+     * @return payload or <code>null</code>
      */
     public Payload getPayload() {
         return payload;
@@ -328,16 +328,7 @@ public abstract class ArcRecordBase {
      * @return Payload content <code>InputStream</code>
      */
     public InputStream getPayloadContent() {
-    	// TODO un-filter and/or move to payload.
-        return (payload != null)
-                ? new FilterInputStream(payload.getInputStream()) {
-                    /*
-                    @Override
-                    public void close() throws IOException {
-                        // NOP
-                    }
-                    */
-                } : null;
+        return (payload != null) ? payload.getInputStream() : null;
     }
 
     /**

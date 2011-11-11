@@ -70,6 +70,8 @@ public class TestWarcRecordIerator {
 					RecordDebugBase.printRecordErrors(record);
 				}
 
+				record.close();
+
 				++n_records;
 
 				if (record.hasErrors()) {
@@ -100,6 +102,8 @@ public class TestWarcRecordIerator {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);
 				}
+
+				record.close();
 
 				++i_records;
 
