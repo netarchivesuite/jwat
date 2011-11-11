@@ -68,6 +68,9 @@ public class Payload {
         if (in == null) {
             throw new IllegalArgumentException("in");
         }
+        if (length < 0) {
+            throw new IllegalArgumentException("length");
+        }
         this.length = length;
         this.in = new BufferedInputStream(
                         new FixedLengthInputStream(in, length), BUFFER_SIZE);

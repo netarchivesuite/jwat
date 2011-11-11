@@ -1180,8 +1180,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	}
 
 	public WarcHeader getHeader(String field) {
-		if (headerMap != null) {
-			return headerMap.get(field);
+		if (headerMap != null && field != null) {
+			return headerMap.get(field.toLowerCase());
 		}
 		else {
 			return null;
