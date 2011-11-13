@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
 
+import dk.netarkivet.common.WarcInputStream;
 import dk.netarkivet.gzip.GzipEntry;
 import dk.netarkivet.gzip.GzipInputStream;
 

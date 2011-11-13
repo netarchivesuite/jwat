@@ -1,10 +1,9 @@
-package dk.netarkivet.warclib;
+package dk.netarkivet.common;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.lang.annotation.Inherited;
 
 /**
  * Basic <code>PushBackInputStream</code> that also keeps track of the number
@@ -136,7 +135,7 @@ public class WarcInputStream extends PushbackInputStream {
 	 * @return the number of bytes read into array
 	 * @throws IOException io exception while reading array
 	 */
-	protected int readFully(byte[] buffer) throws IOException {
+	public int readFully(byte[] buffer) throws IOException {
 		int readOffset = 0;
 		int readRemaining = buffer.length;
 		int readLast = 0;

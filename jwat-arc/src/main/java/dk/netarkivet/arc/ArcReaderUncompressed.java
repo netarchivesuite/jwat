@@ -38,8 +38,6 @@ package dk.netarkivet.arc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import dk.netarkivet.common.ByteCountingInputStream;
 
@@ -48,7 +46,7 @@ import dk.netarkivet.common.ByteCountingInputStream;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class ArcParser  {
+public class ArcReaderUncompressed extends ArcReader {
 
     /** ARC file <code>InputStream</code>. */
     protected ByteCountingInputStream in;
@@ -56,14 +54,11 @@ public class ArcParser  {
     /** ARC version block object. */
     protected ArcVersionBlock versionBlock = null;
 
-    /** Current ARC record object. */
-    protected ArcRecord currentRecord = null;
-
     /**
      * Creates a new ARC parser from an <code>InputStream</code>.
      * @param in ARC file <code>InputStream</code>
      */
-    public ArcParser(InputStream in) {
+    public ArcReaderUncompressed(InputStream in) {
         super();
         if (in == null) {
             throw new IllegalArgumentException("in");
@@ -71,9 +66,15 @@ public class ArcParser  {
         this.in = new ByteCountingInputStream(in);
     }
 
+	@Override
+	public boolean isCompressed() {
+		return false;
+	}
+
     /**
-     * Close current record resources and parser inputstream. 
+     * Close current record resource(s) and input stream(s). 
      */
+    @Override
     public void close() {
         if (currentRecord != null) {
             try {
@@ -93,6 +94,7 @@ public class ArcParser  {
      * Get the currect offset in the ARC <code>InputStream</code>.
      * @return offset in ARC <code>InputStream</code>
      */
+    @Override
     public long getOffset() {
         return in.getConsumed();
     }
@@ -102,6 +104,7 @@ public class ArcParser  {
      * @return the version block of the ARC file
      * @throws IOException io exception in reading process
      */
+    @Override
     public ArcVersionBlock getVersionBlock() throws IOException {
         versionBlock = ArcVersionBlock.parseVersionBlock(in);
         return versionBlock;
@@ -112,6 +115,7 @@ public class ArcParser  {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
+    @Override
     public ArcRecord getNextArcRecord() throws IOException {
         if (currentRecord != null) {
             currentRecord.close();
@@ -127,6 +131,7 @@ public class ArcParser  {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
+    @Override
     public ArcRecord getNextArcRecord(InputStream inExt, long offset)
                                                         throws IOException {
         if (currentRecord != null) {
@@ -137,49 +142,6 @@ public class ArcParser  {
         currentRecord.startOffset = offset;
         bcin.close();
         return currentRecord;
-    }
-
-    /**
-     * <code>Iterator</code> over the <code>ARC</code> records.
-     * @return <code>Iterator</code> over the <code>ARC</code> records
-     */
-    public Iterator<ArcRecord> iterator() {
-        return new Iterator<ArcRecord>() {
-
-            private ArcRecord next;
-
-            private ArcRecord current;
-
-            @Override
-            public boolean hasNext() {
-                if (next == null) {
-                    try {
-                        next = getNextArcRecord();
-                    } catch (IOException e) { /* ignore for now */ }
-                }
-                return (next != null);
-            }
-
-            @Override
-            public ArcRecord next() {
-                if (next == null) {
-                    try {
-                        next = getNextArcRecord();
-                    } catch (IOException e) { /* ignore for now */}
-                }
-                if (next == null) {
-                    throw new NoSuchElementException();
-                }
-                current = next;
-                next = null;
-                return current;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
     }
 
 }

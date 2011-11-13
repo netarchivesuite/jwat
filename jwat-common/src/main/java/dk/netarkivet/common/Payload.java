@@ -40,7 +40,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Arc record payload.
+ * This class makes the archived payload of an ARC/WARC record accessible
+ * through a stream. The stream is fixed length so only the payload is
+ * available.
  *
  * @author lbihanic, selghissassi, nicl
  */

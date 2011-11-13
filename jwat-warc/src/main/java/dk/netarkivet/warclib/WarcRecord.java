@@ -18,6 +18,7 @@ import java.util.Map;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
+import dk.netarkivet.common.WarcInputStream;
 
 /**
  * This class represents a parsed WARC record header block including
@@ -1170,6 +1171,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
     	return warcHeader;
     }
 
+    /**
+     * Get a <code>List</code> of all the non WARC headers found during
+     * parsing.
+     * @return <code>List</code> of <code>WarcHeader</code>
+     */
 	public List<WarcHeader> getHeaderList() {
 		if (headerList != null) {
 			return Collections.unmodifiableList(headerList);

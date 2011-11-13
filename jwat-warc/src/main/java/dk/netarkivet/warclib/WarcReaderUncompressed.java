@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
 
+import dk.netarkivet.common.WarcInputStream;
+
 /**
  * WARC Reader used on uncompressed files.
  *

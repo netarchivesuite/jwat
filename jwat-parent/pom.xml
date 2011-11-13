@@ -81,6 +81,37 @@
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
+        <!--
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/extra-resources</outputDirectory>
+              <resources>          
+                <resource>
+                  <directory>src/non-packaged-resources</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>              
+            </configuration>            
+          </execution>
+        </executions>
+        -->
+      </plugin>
+
+      <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-compiler-plugin</artifactId>
 	<version>2.3.2</version>
@@ -90,18 +121,21 @@
 	</configuration>
       </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.3</version>
-      </plugin>
-
       <!-- duplicate not allowed -->
       <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.2.1</version>
       </plugin-->
+
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>2.7.1</version>
+	<configuration>
+	  <forkMode>never</forkMode>
+	</configuration>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -115,15 +149,6 @@
             </property>
           </javaApiLinks>
         </configuration-->
-      </plugin>
-
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-surefire-plugin</artifactId>
-	<version>2.7.1</version>
-	<configuration>
-	  <forkMode>never</forkMode>
-	</configuration>
       </plugin>
 
       <plugin>

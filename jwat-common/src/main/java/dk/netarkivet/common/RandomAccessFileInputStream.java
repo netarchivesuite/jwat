@@ -4,12 +4,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+/**
+ * 
+ * @author nicl
+ */
 public class RandomAccessFileInputStream extends InputStream {
 
+	/** Encapsulated <code>RandomAccessFile</code> used for stream data. */
 	protected RandomAccessFile ram;
 
+	/** Current mark position in file. */
 	protected long mark_position = -1;
 
+	/**
+	 * Create a new ramdom access <code>InputStream</code> with repositioning
+	 * capabilities.
+	 * @param ram <code>RandomAccessFile</code> used for stream data
+	 */
 	public RandomAccessFileInputStream(RandomAccessFile ram) {
 		this.ram = ram;
 	}

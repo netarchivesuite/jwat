@@ -40,7 +40,7 @@ public class TestArcNextAndIterRecord {
 
 		InputStream in;
 
-        ArcParser parser;
+        ArcReaderUncompressed parser;
         ArcVersionBlock version;
         Iterator<ArcRecord> recordIterator;
         ArcRecord arcRecord;
@@ -58,7 +58,7 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcParser(in);
+            parser = new ArcReaderUncompressed(in);
             version = parser.getVersionBlock();
 
             if (version != null) {
@@ -99,7 +99,7 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcParser(in);
+            parser = new ArcReaderUncompressed(in);
             version = parser.getVersionBlock();
 
             if (version != null) {
