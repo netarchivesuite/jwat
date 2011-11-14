@@ -38,9 +38,9 @@ package dk.netarkivet.arc;
 import java.io.IOException;
 import java.util.Collection;
 
-import dk.netarkivet.common.Payload;
-import dk.netarkivet.common.ByteCountingInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.HttpResponse;
+import dk.netarkivet.common.Payload;
 
 /**
  * This class represents a parsed ARC record header including possible 
@@ -72,7 +72,7 @@ public class ArcRecord extends ArcRecordBase {
      * @param versionBlock ARC file <code>VersionBlock</code>
      * @return an <code>ArcRecord</code> or null if none was found.
      */
-    public static ArcRecord parseArcRecord(ByteCountingInputStream in,
+    public static ArcRecord parseArcRecord(ByteCountingPushBackInputStream in,
     					ArcVersionBlock versionBlock) throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
@@ -99,7 +99,7 @@ public class ArcRecord extends ArcRecordBase {
     }
 
     @Override
-    protected void processPayload(ByteCountingInputStream in)
+    protected void processPayload(ByteCountingPushBackInputStream in)
                                                         throws IOException {
         payload = null;
         if (recLength != null && recLength > 0L) {

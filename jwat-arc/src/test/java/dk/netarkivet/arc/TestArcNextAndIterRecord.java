@@ -40,7 +40,7 @@ public class TestArcNextAndIterRecord {
 
 		InputStream in;
 
-        ArcReaderUncompressed parser;
+        ArcReader reader;
         ArcVersionBlock version;
         Iterator<ArcRecord> recordIterator;
         ArcRecord arcRecord;
@@ -58,8 +58,8 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcReaderUncompressed(in);
-            version = parser.getVersionBlock();
+            reader = ArcReaderFactory.getReader(in);
+            version = reader.getVersionBlock();
 
             if (version != null) {
             	if (bDebugOutput) {
@@ -68,7 +68,7 @@ public class TestArcNextAndIterRecord {
 
                 boolean b = true;
                 while ( b ) {
-                    arcRecord = parser.getNextArcRecord();
+                    arcRecord = reader.getNextArcRecord();
                     if (arcRecord != null) {
                     	if (bDebugOutput) {
                         	RecordDebugBase.printRecord(arcRecord);
@@ -90,7 +90,7 @@ public class TestArcNextAndIterRecord {
             	}
             }
 
-            parser.close();
+            reader.close();
             in.close();
 
             /*
@@ -99,15 +99,15 @@ public class TestArcNextAndIterRecord {
 
         	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-            parser = new ArcReaderUncompressed(in);
-            version = parser.getVersionBlock();
+            reader = ArcReaderFactory.getReader(in);
+            version = reader.getVersionBlock();
 
             if (version != null) {
             	if (bDebugOutput) {
                 	RecordDebugBase.printVersionBlock(version);
             	}
 
-            	recordIterator = parser.iterator();
+            	recordIterator = reader.iterator();
 
                 while (recordIterator.hasNext()) {
                     arcRecord = recordIterator.next();
@@ -127,7 +127,7 @@ public class TestArcNextAndIterRecord {
             	}
             }
 
-            parser.close();
+            reader.close();
             in.close();
         }
         catch (FileNotFoundException e) {

@@ -11,10 +11,13 @@ import java.io.PushbackInputStream;
  *
  * @author nicl
  */
-public class WarcInputStream extends PushbackInputStream {
+public class ByteCountingPushBackInputStream extends PushbackInputStream {
 
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
+
+    /** Relative byte counter. */
+    protected long counter = 0;
 
     /**
      * Given an <code>InputStream</code> and a push back buffer size returns
@@ -22,7 +25,7 @@ public class WarcInputStream extends PushbackInputStream {
      * @param in <code>InputStream</code> to wrap
      * @param size push back buffer size
      */
-    public WarcInputStream(InputStream in, int size) {
+    public ByteCountingPushBackInputStream(InputStream in, int size) {
 		super(in, size);
 	}
 
@@ -32,6 +35,24 @@ public class WarcInputStream extends PushbackInputStream {
      */
     public long getConsumed() {
         return consumed;
+    }
+
+    /**
+     * Change the bytes read value.
+     * Useful for reading zero indexed relative data.
+     * @param bytes new value
+     * @return
+     */
+    public void setCounter(long bytes) {
+        counter = bytes;
+    }
+
+    /**
+     * Retrieve the current relative counter value.
+     * @return current relative counter value
+     */
+    public long getCounter() {
+        return counter;
     }
 
     @Override
@@ -53,6 +74,7 @@ public class WarcInputStream extends PushbackInputStream {
         int b = super.read();
         if (b != -1) {
             ++consumed;
+            ++counter;
         }
         return b;
     }
@@ -72,6 +94,7 @@ public class WarcInputStream extends PushbackInputStream {
         int n = super.read(b, off, len);
         if (n > 0) {
             consumed += n;
+            counter += n;
         }
         return n;
     }
@@ -79,7 +102,8 @@ public class WarcInputStream extends PushbackInputStream {
 	@Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        this.consumed += n;
+        consumed += n;
+        counter += n;
         return n;
     }
 
@@ -87,6 +111,7 @@ public class WarcInputStream extends PushbackInputStream {
 	public void unread(int b) throws IOException {
 		super.unread(b);
 		--consumed;
+		--counter;
 	}
 
 	/*
@@ -103,6 +128,7 @@ public class WarcInputStream extends PushbackInputStream {
 	public void unread(byte[] b, int off, int len) throws IOException {
 		super.unread(b, off, len);
 		consumed -= len;
+		counter -= len;
 	}
 
     /**

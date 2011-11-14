@@ -36,34 +36,42 @@
 
 package dk.netarkivet.arc;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
 
-import dk.netarkivet.common.ByteCountingInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
 /**
- * ARC file parser.
+ * ARC Reader used on uncompressed files.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public class ArcReaderUncompressed extends ArcReader {
 
     /** ARC file <code>InputStream</code>. */
-    protected ByteCountingInputStream in;
+    protected ByteCountingPushBackInputStream in;
 
-    /** ARC version block object. */
-    protected ArcVersionBlock versionBlock = null;
+	/**
+	 * Construct object not associated with any input stream.
+	 * The reader must be supplied an input stream for each record read.
+	 * This method is for use with random access to records.
+	 * @param in <code>WarcInputStream</code>
+	 */
+    public ArcReaderUncompressed() {
+    }
 
     /**
-     * Creates a new ARC parser from an <code>InputStream</code>.
-     * @param in ARC file <code>InputStream</code>
-     */
-    public ArcReaderUncompressed(InputStream in) {
-        super();
+	 * Construct object using supplied <code>WarcInputStream</code>.
+	 * This method is primarily for linear access to records.
+	 * @param in <code>WarcInputStream</code>
+	 */
+    public ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
             throw new IllegalArgumentException("in");
         }
-        this.in = new ByteCountingInputStream(in);
+        this.in = in;
     }
 
 	@Override
@@ -76,11 +84,11 @@ public class ArcReaderUncompressed extends ArcReader {
      */
     @Override
     public void close() {
-        if (currentRecord != null) {
+        if (arcRecord != null) {
             try {
-                currentRecord.close();
+                arcRecord.close();
             } catch (IOException e) { /* ignore */ }
-            currentRecord = null;
+            arcRecord = null;
         }
         if (in != null) {
             try {
@@ -117,11 +125,14 @@ public class ArcReaderUncompressed extends ArcReader {
      */
     @Override
     public ArcRecord getNextArcRecord() throws IOException {
-        if (currentRecord != null) {
-            currentRecord.close();
+        if (arcRecord != null) {
+            arcRecord.close();
         }
-        currentRecord = ArcRecord.parseArcRecord(in, versionBlock);
-        return currentRecord;
+        if (in == null) {
+        	throw new IllegalStateException("in");
+        }
+        arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
+        return arcRecord;
     }
 
     /**
@@ -132,16 +143,39 @@ public class ArcReaderUncompressed extends ArcReader {
      * @throws IOException io exception in reading process
      */
     @Override
-    public ArcRecord getNextArcRecord(InputStream inExt, long offset)
-                                                        throws IOException {
-        if (currentRecord != null) {
-            currentRecord.close();
+    public ArcRecord getNextArcRecord(InputStream in, long offset) throws IOException {
+        if (arcRecord != null) {
+            arcRecord.close();
         }
-        ByteCountingInputStream bcin = new ByteCountingInputStream(inExt);
-        currentRecord = ArcRecord.parseArcRecord(bcin, versionBlock);
-        currentRecord.startOffset = offset;
-        bcin.close();
-        return currentRecord;
+        if (in == null || offset < 0) {
+        	throw new InvalidParameterException();
+        }
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+        arcRecord.startOffset = offset;
+        return arcRecord;
+    }
+
+    /**
+     * Parses and gets the next ARC record.
+     * @param inExt ARC record <code>InputStream</code>
+     * @param offset offset dictated by external factors
+     * @return the next ARC record
+     * @throws IOException io exception in reading process
+     */
+    @Override
+    public ArcRecord getNextArcRecord(InputStream in, int buffer_size,
+    										long offset) throws IOException {
+        if (arcRecord != null) {
+            arcRecord.close();
+        }
+        if (in == null || buffer_size <= 0 || offset < 0) {
+        	throw new InvalidParameterException();
+        }
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
+        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+        arcRecord.startOffset = offset;
+        return arcRecord;
     }
 
 }

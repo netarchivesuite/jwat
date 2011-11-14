@@ -55,7 +55,7 @@ public class TestMissingHeadersAll {
 			WarcReader reader = WarcReaderFactory.getReader(in);
 			WarcRecord record;
 
-			while ((record = reader.nextRecord()) != null) {
+			while ((record = reader.getNextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);

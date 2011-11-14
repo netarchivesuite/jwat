@@ -86,7 +86,7 @@ public class TestWarcReaderFactoryUncompressed {
 
 				ram.seek(entry.position);
 
-				if ((record = reader.nextRecordFrom(in)) != null) {
+				if ((record = reader.getNextRecordFrom(in)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
 						RecordDebugBase.printRecordErrors(record);
@@ -139,7 +139,7 @@ public class TestWarcReaderFactoryUncompressed {
 
 				ram.seek(entry.position);
 
-				if ((record = reader.nextRecordFrom(in, 8192)) != null) {
+				if ((record = reader.getNextRecordFrom(in, 8192)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
 						RecordDebugBase.printRecordErrors(record);
@@ -191,7 +191,7 @@ public class TestWarcReaderFactoryUncompressed {
 
 				ram.seek(entry.position);
 
-				if ((record = reader.nextRecordFrom(in)) != null) {
+				if ((record = reader.getNextRecordFrom(in)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
 						RecordDebugBase.printRecordErrors(record);

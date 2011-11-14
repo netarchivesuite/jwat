@@ -7,8 +7,11 @@ import java.util.NoSuchElementException;
 
 public abstract class ArcReader {
 
+    /** ARC version block object. */
+    protected ArcVersionBlock versionBlock = null;
+
     /** Current ARC record object. */
-    protected ArcRecord currentRecord = null;
+    protected ArcRecord arcRecord = null;
 
 	/** Exception thrown while using the iterator. */
 	public Exception exceptionThrown;
@@ -44,6 +47,8 @@ public abstract class ArcReader {
      */
     public abstract ArcRecord getNextArcRecord() throws IOException;
 
+    public abstract ArcRecord getNextArcRecord(InputStream in, long offset) throws IOException;
+
     /**
      * Parses and gets the next ARC record.
      * @param inExt ARC record <code>InputStream</code>
@@ -51,7 +56,7 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextArcRecord(InputStream inExt, long offset) throws IOException;
+    public abstract ArcRecord getNextArcRecord(InputStream in, int buffer_size, long offset) throws IOException;
 
     /**
      * <code>Iterator</code> over the <code>ARC</code> records.

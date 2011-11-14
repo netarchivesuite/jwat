@@ -18,7 +18,7 @@ import java.util.Map;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
-import dk.netarkivet.common.WarcInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
 /**
  * This class represents a parsed WARC record header block including
@@ -126,7 +126,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
 
 	/** Input stream used to read this record. */
-	protected WarcInputStream in;
+	protected ByteCountingPushBackInputStream in;
 
 	/** Has payload been closed before. */
 	protected boolean bPayloadClosed;
@@ -144,7 +144,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 * @return <code>WarcRecord</code> or <code>null</code>
 	 * @throws IOException io exception in the process of reading record
 	 */
-	public static WarcRecord parseRecord(WarcInputStream in) throws IOException {
+	public static WarcRecord parseRecord(ByteCountingPushBackInputStream in) throws IOException {
 		WarcRecord wr = new WarcRecord();
 		wr.in = in;
 		if (wr.parseVersion(in)) {
@@ -208,7 +208,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
-	protected int parseNewLines(WarcInputStream in) throws IOException {
+	protected int parseNewLines(ByteCountingPushBackInputStream in) throws IOException {
 		int newlines = 0;
 		byte[] buffer = new byte[2];
 		boolean b = true;
@@ -244,7 +244,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		return newlines;
 	}
 
-	protected boolean parseVersion(WarcInputStream in) throws IOException {
+	protected boolean parseVersion(ByteCountingPushBackInputStream in) throws IOException {
 		bMagicIdentified = false;
 		bVersionParsed = false;
 		String tmpStr;
@@ -296,7 +296,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		return bMagicIdentified;
 	}
 
-	protected void parseFields(WarcInputStream in) throws IOException {
+	protected void parseFields(ByteCountingPushBackInputStream in) throws IOException {
 		WarcHeader warcHeader;
 		boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 		boolean bFields = true;

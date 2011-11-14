@@ -64,7 +64,7 @@ public class TestWarcRecordIerator {
 
 			reader = WarcReaderFactory.getReader(in, 8192);
 
-			while ((record = reader.nextRecord()) != null) {
+			while ((record = reader.getNextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);

@@ -88,7 +88,7 @@ public class CharCountingStringReader extends StringReader {
      * @return the consumed length
      */
     public long getConsumedDataLength() {
-        return this.consumedLength;
+        return consumedLength;
     }
 
     /**
@@ -140,7 +140,7 @@ public class CharCountingStringReader extends StringReader {
     @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        this.offset += n;
+        offset += n;
         return n;
     }
 

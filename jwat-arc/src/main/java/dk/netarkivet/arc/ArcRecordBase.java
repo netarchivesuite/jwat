@@ -45,7 +45,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import dk.netarkivet.common.ByteCountingInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 
@@ -271,7 +271,7 @@ public abstract class ArcRecordBase {
      * @param in ARC record <code>InputStream</code>
      * @throws IOException io exception in the parsing process
      */
-    protected abstract void processPayload(ByteCountingInputStream in) throws IOException;
+    protected abstract void processPayload(ByteCountingPushBackInputStream in) throws IOException;
 
     /**
      * isNetworkDocValidated getter.

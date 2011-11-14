@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
 
-import dk.netarkivet.common.WarcInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
 /**
  * WARC Reader used on uncompressed files.
@@ -22,7 +22,7 @@ import dk.netarkivet.common.WarcInputStream;
 public class WarcReaderUncompressed extends WarcReader {
 
     /** WARC file <code>InputStream</code>. */
-	protected WarcInputStream in;
+	protected ByteCountingPushBackInputStream in;
 
 	/**
 	 * Construct object not associated with any input stream.
@@ -38,7 +38,10 @@ public class WarcReaderUncompressed extends WarcReader {
 	 * This method is primarily for linear access to records.
 	 * @param in <code>WarcInputStream</code>
 	 */
-	WarcReaderUncompressed(WarcInputStream in) {
+	WarcReaderUncompressed(ByteCountingPushBackInputStream in) {
+        if (in == null) {
+            throw new IllegalArgumentException("in");
+        }
 		this.in = in;
 	}
 
@@ -66,7 +69,7 @@ public class WarcReaderUncompressed extends WarcReader {
 	}
 
 	@Override
-	public WarcRecord nextRecord() throws IOException {
+	public WarcRecord getNextRecord() throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -78,26 +81,26 @@ public class WarcReaderUncompressed extends WarcReader {
 	}
 
 	@Override
-	public WarcRecord nextRecordFrom(InputStream in) throws IOException {
+	public WarcRecord getNextRecordFrom(InputStream in) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
 		if (in == null) {
 			throw new InvalidParameterException();
 		}
-		warcRecord = WarcRecord.parseRecord(new WarcInputStream(in, 16));
+		warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(in, 16));
 		return warcRecord;
 	}
 
 	@Override
-	public WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException {
+	public WarcRecord getNextRecordFrom(InputStream in, int buffer_size) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
 		if (in == null || buffer_size <= 0) {
 			throw new InvalidParameterException();
 		}
-		warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in, buffer_size), 16));
+		warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16));
 		return warcRecord;
 	}
 

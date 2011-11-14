@@ -129,7 +129,7 @@ public class ByteCountingInputStream extends FilterInputStream {
     @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        this.consumed += n;
+        consumed += n;
         return n;
     }
 

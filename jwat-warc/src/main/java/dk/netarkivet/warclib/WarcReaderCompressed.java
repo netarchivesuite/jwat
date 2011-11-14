@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
 
-import dk.netarkivet.common.WarcInputStream;
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.gzip.GzipEntry;
 import dk.netarkivet.gzip.GzipInputStream;
 
@@ -69,7 +69,7 @@ public class WarcReaderCompressed extends WarcReader {
 	}
 
 	@Override
-	public WarcRecord nextRecord() throws IOException {
+	public WarcRecord getNextRecord() throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -80,17 +80,17 @@ public class WarcReaderCompressed extends WarcReader {
 		GzipEntry entry = in.getNextEntry();
 		if (entry != null) {
 			if (bufferSize > 0) {
-				warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(in.getEntryInputStream(), bufferSize), 16));
+				warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(new BufferedInputStream(in.getEntryInputStream(), bufferSize), 16));
 			}
 			else {
-				warcRecord = WarcRecord.parseRecord(new WarcInputStream(in.getEntryInputStream(), 16));
+				warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(in.getEntryInputStream(), 16));
 			}
 		}
 		return warcRecord;
 	}
 
 	@Override
-	public WarcRecord nextRecordFrom(InputStream in) throws IOException {
+	public WarcRecord getNextRecordFrom(InputStream in) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -101,13 +101,13 @@ public class WarcReaderCompressed extends WarcReader {
 		GzipInputStream gzin = new GzipInputStream(in);
 		GzipEntry entry = gzin.getNextEntry();
 		if (entry != null) {
-			warcRecord = WarcRecord.parseRecord(new WarcInputStream(gzin.getEntryInputStream(), 16));
+			warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(gzin.getEntryInputStream(), 16));
 		}
 		return warcRecord;
 	}
 
 	@Override
-	public WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException {
+	public WarcRecord getNextRecordFrom(InputStream in, int buffer_size) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -118,7 +118,7 @@ public class WarcReaderCompressed extends WarcReader {
 		GzipInputStream gzin = new GzipInputStream(in);
 		GzipEntry entry = gzin.getNextEntry();
 		if (entry != null) {
-			warcRecord = WarcRecord.parseRecord(new WarcInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
+			warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
 		}
 		return warcRecord;
 	}

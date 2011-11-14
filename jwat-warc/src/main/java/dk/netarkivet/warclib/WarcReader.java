@@ -60,7 +60,7 @@ public abstract class WarcReader {
      * @return the next record
      * @throws IOException io exception in parsing process
      */
-	public abstract WarcRecord nextRecord() throws IOException;
+	public abstract WarcRecord getNextRecord() throws IOException;
 
     /**
      * Parses and gets the next record from an <code>Inputstream</code>.
@@ -71,7 +71,7 @@ public abstract class WarcReader {
      * @return the next record
      * @throws IOException io exception in parsing process
      */
-	public abstract WarcRecord nextRecordFrom(InputStream in) throws IOException;
+	public abstract WarcRecord getNextRecordFrom(InputStream in) throws IOException;
 
 	/**
      * Parses and gets the next record from an <code>Inputstream</code> wrapped
@@ -84,7 +84,7 @@ public abstract class WarcReader {
      * @return the next record
      * @throws IOException io exception in parsing process
 	 */
-	public abstract WarcRecord nextRecordFrom(InputStream in, int buffer_size) throws IOException;
+	public abstract WarcRecord getNextRecordFrom(InputStream in, int buffer_size) throws IOException;
 
 	/**
 	 * Returns an <code>Iterator</code> over the records as they are being
@@ -105,7 +105,7 @@ public abstract class WarcReader {
 			public boolean hasNext() {
 				if (next == null) {
 					try {
-						next = nextRecord();
+						next = getNextRecord();
 					} catch (IOException e) {
 						exceptionThrown = e;
 					}
@@ -117,7 +117,7 @@ public abstract class WarcReader {
 			public WarcRecord next() {
 				if (next == null) {
 					try {
-						next = nextRecord();
+						next = getNextRecord();
 					} catch (IOException e) {
 						exceptionThrown = e;
 					}

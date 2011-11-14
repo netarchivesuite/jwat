@@ -37,8 +37,8 @@ package dk.netarkivet.arc;
 
 import java.io.IOException;
 
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.Payload;
-import dk.netarkivet.common.ByteCountingInputStream;
 
 /**
  * Version block parser.
@@ -109,7 +109,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @return an <code>ArcVersionBlock</code> or null if none was found.
      */
     public static ArcVersionBlock parseVersionBlock(
-    						ByteCountingInputStream in) throws IOException {
+    				ByteCountingPushBackInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
 
@@ -261,7 +261,7 @@ public class ArcVersionBlock extends ArcRecordBase {
     }
 
     @Override
-    protected void processPayload(ByteCountingInputStream in)
+    protected void processPayload(ByteCountingPushBackInputStream in)
                                                         throws IOException {
         payload = null;
         if (recLength != null && (recLength - in.getCounter()) > 0L) {

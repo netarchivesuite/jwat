@@ -49,6 +49,8 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipException;
 
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
+
 /**
  * An input stream for reading compressed data in the GZIP file format.
  * <p>
@@ -83,6 +85,25 @@ public class GzipInputStream extends InflaterInputStream
     private final InputStream entryInputStream;
     /** Whether the end of the current entry input stream has been reached. */
     private boolean entryEof = true;                    // No active entry.
+
+	/**
+	 * Check head of <code>PushBackInputStream</code> for a GZip magic number.
+	 * @param pbin <code>PushBackInputStream</code> with records
+	 * @return boolean indicating presence of GZip magic number
+	 * @throws IOException io exception while examing head of stream
+	 */
+	public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
+		byte[] magicBytes = new byte[2];
+		int magicNumber = 0xdeadbeef;
+		int read = pbin.readFully(magicBytes); 
+		if (read == 2) {
+			magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);
+		}
+		if (read > 0) {
+			pbin.unread(magicBytes, 0, read);
+		}
+		return (magicNumber == GzipConstants.GZIP_MAGIC);
+	}
 
     /**
      * Creates a new input stream with a default buffer size.
