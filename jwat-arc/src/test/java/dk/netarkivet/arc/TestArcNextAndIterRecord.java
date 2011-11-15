@@ -68,7 +68,7 @@ public class TestArcNextAndIterRecord {
 
                 boolean b = true;
                 while ( b ) {
-                    arcRecord = reader.getNextArcRecord();
+                    arcRecord = reader.getNextRecord();
                     if (arcRecord != null) {
                     	if (bDebugOutput) {
                         	RecordDebugBase.printRecord(arcRecord);

@@ -20,18 +20,8 @@ import org.junit.runners.Parameterized.Parameters;
 
 import dk.netarkivet.common.RandomAccessFileInputStream;
 
-/**
- * Test to check wether the getReaderUncompressed() and nextRecordFrom(in)
- * combination of methods work for random access to WARC records.
- * The WARC test file is first indexed and then all records are pseudo randomly
- * checked in sequential order and the record-id is compared to check if the
- * location points to a record and if it's the correct one according to the
- * index.
- *
- * @author nicl
- */
 @RunWith(Parameterized.class)
-public class TestWarcReaderFactoryUncompressed {
+public class TestWarcReaderFactoryCompressed {
 
 	private int expected_records;
 	private String warcFile;
@@ -39,11 +29,11 @@ public class TestWarcReaderFactoryUncompressed {
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{822, "IAH-20080430204825-00000-blackbook.warc"}
+				{822, "IAH-20080430204825-00000-blackbook.warc.gz"}
 		});
 	}
 
-	public TestWarcReaderFactoryUncompressed(int records, String warcFile) {
+	public TestWarcReaderFactoryCompressed(int records, String warcFile) {
 		this.expected_records = records;
 		this.warcFile = warcFile;
 	}
@@ -79,7 +69,7 @@ public class TestWarcReaderFactoryUncompressed {
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed();
+			reader = WarcReaderFactory.getReaderCompressed();
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);
@@ -132,7 +122,7 @@ public class TestWarcReaderFactoryUncompressed {
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in);
+			reader = WarcReaderFactory.getReaderCompressed(in);
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);
@@ -184,7 +174,7 @@ public class TestWarcReaderFactoryUncompressed {
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
+			reader = WarcReaderFactory.getReaderCompressed(in, 8192);
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);

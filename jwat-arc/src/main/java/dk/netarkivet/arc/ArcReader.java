@@ -7,13 +7,16 @@ import java.util.NoSuchElementException;
 
 public abstract class ArcReader {
 
-    /** ARC version block object. */
+    /** Current ARC version block object. */
     protected ArcVersionBlock versionBlock = null;
 
     /** Current ARC record object. */
     protected ArcRecord arcRecord = null;
 
-	/** Exception thrown while using the iterator. */
+    /** Previous record of either kind. */
+    protected ArcRecordBase previousRecord = null;
+
+    /** Exception thrown while using the iterator. */
 	public Exception exceptionThrown;
 
 	/**
@@ -40,14 +43,16 @@ public abstract class ArcReader {
      */
     public abstract ArcVersionBlock getVersionBlock() throws IOException;
 
+    public abstract ArcVersionBlock getVersionBlock(InputStream in) throws IOException;
+
     /**
      * Parses and gets the next ARC record.
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextArcRecord() throws IOException;
+    public abstract ArcRecord getNextRecord() throws IOException;
 
-    public abstract ArcRecord getNextArcRecord(InputStream in, long offset) throws IOException;
+    public abstract ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -56,7 +61,7 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextArcRecord(InputStream in, int buffer_size, long offset) throws IOException;
+    public abstract ArcRecord getNextRecordFrom(InputStream in, int buffer_size, long offset) throws IOException;
 
     /**
      * <code>Iterator</code> over the <code>ARC</code> records.
@@ -73,7 +78,7 @@ public abstract class ArcReader {
             public boolean hasNext() {
                 if (next == null) {
                     try {
-                        next = getNextArcRecord();
+                        next = getNextRecord();
                     } catch (IOException e) {
 						exceptionThrown = e;
                     }
@@ -85,7 +90,7 @@ public abstract class ArcReader {
             public ArcRecord next() {
                 if (next == null) {
                     try {
-                        next = getNextArcRecord();
+                        next = getNextRecord();
                     } catch (IOException e) {
 						exceptionThrown = e;
                     }

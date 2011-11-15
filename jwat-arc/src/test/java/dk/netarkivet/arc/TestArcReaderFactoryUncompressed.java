@@ -1,4 +1,4 @@
-package dk.netarkivet.warclib;
+package dk.netarkivet.arc;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,33 +20,23 @@ import org.junit.runners.Parameterized.Parameters;
 
 import dk.netarkivet.common.RandomAccessFileInputStream;
 
-/**
- * Test to check wether the getReaderUncompressed() and nextRecordFrom(in)
- * combination of methods work for random access to WARC records.
- * The WARC test file is first indexed and then all records are pseudo randomly
- * checked in sequential order and the record-id is compared to check if the
- * location points to a record and if it's the correct one according to the
- * index.
- *
- * @author nicl
- */
 @RunWith(Parameterized.class)
-public class TestWarcReaderFactoryUncompressed {
+public class TestArcReaderFactoryUncompressed {
 
-	private int expected_records;
-	private String warcFile;
+    private int expected_records;
+    private String arcFile;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{822, "IAH-20080430204825-00000-blackbook.warc"}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {299, "IAH-20080430204825-00000-blackbook.arc"}
+        });
+    }
 
-	public TestWarcReaderFactoryUncompressed(int records, String warcFile) {
-		this.expected_records = records;
-		this.warcFile = warcFile;
-	}
+    public TestArcReaderFactoryUncompressed(int records, String arcFile) {
+        this.expected_records = records;
+        this.arcFile = arcFile;
+    }
 
 	@Test
 	public void test() {
@@ -57,15 +47,16 @@ public class TestWarcReaderFactoryUncompressed {
         RandomAccessFile ram;
 		InputStream in;
 
-		WarcReader reader;
-		WarcRecord record;
+		ArcReader reader;
+        ArcVersionBlock version;
+		ArcRecord record;
 
         int records = 0;
         int errors = 0;
 
 		try {
-			List<WarcEntry> entries = indexWarcFile();
-			WarcEntry entry;
+			List<ArcEntry> entries = indexArcFile();
+			ArcEntry entry;
 
 			/*
 			 * getReaderUncompressed() / nextRecordFrom(in).
@@ -74,22 +65,23 @@ public class TestWarcReaderFactoryUncompressed {
 	        records = 0;
 	        errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
+	        url = this.getClass().getClassLoader().getResource(arcFile);
 	        file = new File(url.getFile());
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed();
+			reader = ArcReaderFactory.getReaderUncompressed();
+            version = reader.getVersionBlock(in);
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);
 
 				ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in)) != null) {
+				if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
+						//RecordDebugBase.printRecordErrors(record);
 					}
 
 					record.close();
@@ -100,7 +92,7 @@ public class TestWarcReaderFactoryUncompressed {
 						errors += record.getValidationErrors().size();
 					}
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+					if (record.url.compareTo(entry.recordId) != 0) {
 						Assert.fail("Wrong record");
 					}
 				}
@@ -127,22 +119,23 @@ public class TestWarcReaderFactoryUncompressed {
 	        records = 0;
 	        errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
+	        url = this.getClass().getClassLoader().getResource(arcFile);
 	        file = new File(url.getFile());
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in);
+			reader = ArcReaderFactory.getReaderUncompressed(in);
+            version = reader.getVersionBlock();
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);
 
 				ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in, 8192)) != null) {
+				if ((record = reader.getNextRecordFrom(in, 8192, entry.offset)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
+						//RecordDebugBase.printRecordErrors(record);
 					}
 
 					record.close();
@@ -153,7 +146,7 @@ public class TestWarcReaderFactoryUncompressed {
 						errors += record.getValidationErrors().size();
 					}
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+					if (record.url.compareTo(entry.recordId) != 0) {
 						Assert.fail("Wrong record");
 					}
 				}
@@ -179,22 +172,23 @@ public class TestWarcReaderFactoryUncompressed {
 	        records = 0;
 	        errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
+	        url = this.getClass().getClassLoader().getResource(arcFile);
 	        file = new File(url.getFile());
 	        ram = new RandomAccessFile(file, "r");
 	        in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
+			reader = ArcReaderFactory.getReaderUncompressed(in, 8192);
+            version = reader.getVersionBlock();
 
 			for (int i=0; i<entries.size(); ++i) {
 				entry = entries.get(i);
 
 				ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in)) != null) {
+				if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
 					if (bDebugOutput) {
 						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
+						//RecordDebugBase.printRecordErrors(record);
 					}
 
 					record.close();
@@ -205,7 +199,7 @@ public class TestWarcReaderFactoryUncompressed {
 						errors += record.getValidationErrors().size();
 					}
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+					if (record.url.compareTo(entry.recordId) != 0) {
 						Assert.fail("Wrong record");
 					}
 				}
@@ -229,47 +223,49 @@ public class TestWarcReaderFactoryUncompressed {
 		}
 	}
 
-	class WarcEntry {
+	class ArcEntry {
 		URI recordId;
 		long offset;
 	}
 
-	public List<WarcEntry> indexWarcFile() {
+	public List<ArcEntry> indexArcFile() {
 		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		List<WarcEntry> warcEntries = new ArrayList<WarcEntry>();
-		WarcEntry warcEntry;
+		List<ArcEntry> arcEntries = new ArrayList<ArcEntry>();
+		ArcEntry arcEntry;
 
 		int records = 0;
         int errors = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
-    		WarcReader reader = WarcReaderFactory.getReader(in);
-    		Iterator<WarcRecord> recordIterator = reader.iterator();
-    		WarcRecord record;
+    		ArcReader reader = ArcReaderFactory.getReader(in);
+            ArcVersionBlock version = reader.getVersionBlock();
+    		ArcRecord record;
+
+            Iterator<ArcRecord> recordIterator = reader.iterator();
 
     		while (recordIterator.hasNext()) {
     			record = recordIterator.next();
     			++records;
 
-				if (record.warcRecordIdUri == null) {
-    				Assert.fail("Invalid warc-record-id");
+				if (record.url == null) {
+    				Assert.fail("Invalid arc uri");
     			}
 
-    			warcEntry = new WarcEntry();
-    			warcEntry.recordId = record.warcRecordIdUri;
-    			warcEntry.offset = record.offset;
-    			warcEntries.add(warcEntry);
+    			arcEntry = new ArcEntry();
+    			arcEntry.recordId = record.url;
+    			arcEntry.offset = record.getStartOffset();
+    			arcEntries.add(arcEntry);
 
-				record.close();
+    			if (bDebugOutput) {
+        			System.out.println("0x" + Long.toString(arcEntry.offset, 16) + "(" + arcEntry.offset + ") - " + arcEntry.recordId);
+    			}
 
-				if (bDebugOutput) {
-	    			System.out.println("0x" + Long.toString(warcEntry.offset, 16) + "(" + warcEntry.offset + ") - " + warcEntry.recordId);
-				}
+    			record.close();
 
-				if (record.hasErrors()) {
+    			if (record.hasErrors()) {
     				errors += record.getValidationErrors().size();
     			}
     		}
@@ -284,7 +280,7 @@ public class TestWarcReaderFactoryUncompressed {
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
 
-        return warcEntries;
+        return arcEntries;
 	}
 
 }

@@ -43,7 +43,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	int major = -1;
 	int minor = -1;
 
-	long position;
+	long offset = -1L;
 
 	boolean bMandatoryMissing;
 
@@ -192,6 +192,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+    public boolean isClosed() {
+    	return bClosed;
+    }
+
 	/**
      * Close resources associated with the WARC record. 
      * Mainly payload stream if any.
@@ -202,6 +206,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 			// Ensure input stream is at the end of the record payload.
 	        if (payload != null) {
 	            payload.close();
+	            payload = null;
 	        }
 	        payloadClosed();
 	        bClosed = true;
@@ -250,7 +255,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		String tmpStr;
 		boolean bSeekMagic = true;
 		while (bSeekMagic) {
-			position = in.getConsumed();
+			offset = in.getConsumed();
 			tmpStr = readLine(in);
 			if (tmpStr != null) {
 				// debug

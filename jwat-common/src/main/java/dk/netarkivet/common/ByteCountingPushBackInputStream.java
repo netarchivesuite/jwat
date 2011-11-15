@@ -136,6 +136,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * @return single string line
      * @throws IOException io exception while reading line
      */
+	/*
     public String readLine() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
         int b;
@@ -153,6 +154,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
         }
         return bos.toString("US-ASCII");
     }
+    */
 
 	/**
 	 * Guaranteed to read the exact number of bytes that are in the array, if

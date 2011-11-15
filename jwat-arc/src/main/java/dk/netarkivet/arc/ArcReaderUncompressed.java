@@ -59,7 +59,7 @@ public class ArcReaderUncompressed extends ArcReader {
 	 * This method is for use with random access to records.
 	 * @param in <code>WarcInputStream</code>
 	 */
-    public ArcReaderUncompressed() {
+    ArcReaderUncompressed() {
     }
 
     /**
@@ -67,7 +67,7 @@ public class ArcReaderUncompressed extends ArcReader {
 	 * This method is primarily for linear access to records.
 	 * @param in <code>WarcInputStream</code>
 	 */
-    public ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
+    ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
             throw new IllegalArgumentException("in");
         }
@@ -114,7 +114,28 @@ public class ArcReaderUncompressed extends ArcReader {
      */
     @Override
     public ArcVersionBlock getVersionBlock() throws IOException {
+        if (previousRecord != null) {
+        	previousRecord.close();
+        }
+        if (in == null) {
+        	throw new IllegalStateException("in");
+        }
         versionBlock = ArcVersionBlock.parseVersionBlock(in);
+		previousRecord = versionBlock;
+        return versionBlock;
+    }
+
+    @Override
+    public ArcVersionBlock getVersionBlock(InputStream in) throws IOException {
+        if (previousRecord != null) {
+        	previousRecord.close();
+        }
+        if (in == null) {
+        	throw new IllegalStateException("in");
+        }
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+        versionBlock = ArcVersionBlock.parseVersionBlock(pbin);
+		previousRecord = versionBlock;
         return versionBlock;
     }
 
@@ -124,14 +145,15 @@ public class ArcReaderUncompressed extends ArcReader {
      * @throws IOException io exception in reading process
      */
     @Override
-    public ArcRecord getNextArcRecord() throws IOException {
-        if (arcRecord != null) {
-            arcRecord.close();
+    public ArcRecord getNextRecord() throws IOException {
+        if (previousRecord != null) {
+        	previousRecord.close();
         }
         if (in == null) {
         	throw new IllegalStateException("in");
         }
         arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
+		previousRecord = arcRecord;
         return arcRecord;
     }
 
@@ -143,16 +165,22 @@ public class ArcReaderUncompressed extends ArcReader {
      * @throws IOException io exception in reading process
      */
     @Override
-    public ArcRecord getNextArcRecord(InputStream in, long offset) throws IOException {
-        if (arcRecord != null) {
-            arcRecord.close();
+    public ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException {
+        if (previousRecord != null) {
+        	previousRecord.close();
         }
-        if (in == null || offset < 0) {
-        	throw new InvalidParameterException();
+        if (in == null) {
+        	throw new InvalidParameterException("in");
+        }
+        if (offset < 0) {
+        	throw new InvalidParameterException("offset");
         }
         ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
-        arcRecord.startOffset = offset;
+        if (arcRecord != null) {
+            arcRecord.startOffset = offset;
+        }
+		previousRecord = arcRecord;
         return arcRecord;
     }
 
@@ -164,17 +192,26 @@ public class ArcReaderUncompressed extends ArcReader {
      * @throws IOException io exception in reading process
      */
     @Override
-    public ArcRecord getNextArcRecord(InputStream in, int buffer_size,
+    public ArcRecord getNextRecordFrom(InputStream in, int buffer_size,
     										long offset) throws IOException {
-        if (arcRecord != null) {
-            arcRecord.close();
+        if (previousRecord != null) {
+        	previousRecord.close();
         }
-        if (in == null || buffer_size <= 0 || offset < 0) {
-        	throw new InvalidParameterException();
+        if (in == null) {
+        	throw new InvalidParameterException("in");
+        }
+        if (buffer_size <= 0) {
+        	throw new InvalidParameterException("buffer_size");
+        }
+        if (offset < 0) {
+        	throw new InvalidParameterException("offset");
         }
         ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
-        arcRecord.startOffset = offset;
+        if (arcRecord != null) {
+            arcRecord.startOffset = offset;
+        }
+		previousRecord = arcRecord;
         return arcRecord;
     }
 

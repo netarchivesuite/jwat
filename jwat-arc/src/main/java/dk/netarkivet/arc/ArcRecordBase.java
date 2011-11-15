@@ -75,7 +75,7 @@ public abstract class ArcRecordBase {
     protected List<ArcValidationError> errors = null;
 
     /** Do the record fields comply in number with the one dictated by its version. */
-    public boolean hasCompliantFields = false;
+    protected boolean hasCompliantFields = false;
 
     /*
      * Raw fields.
@@ -133,6 +133,9 @@ public abstract class ArcRecordBase {
     /*
      * Payload
      */
+
+    /** Has record been closed flag. */
+    protected boolean bClosed;
 
     /** Payload object if any exists. */
     protected Payload payload;
@@ -255,15 +258,23 @@ public abstract class ArcRecordBase {
         return null;
     }
 
+    public boolean isClosed() {
+    	return bClosed;
+    }
+
     /**
      * Close resources associated with the ARC record. 
      * Mainly payload stream if any.
      * @throws IOException io exception close the payload resources
      */
     public void close() throws IOException {
-        if (payload != null) {
-            payload.close();
-        }
+    	if (!bClosed) {
+            if (payload != null) {
+                payload.close();
+                payload = null;
+            }
+            bClosed = true;
+    	}
     }
 
     /**

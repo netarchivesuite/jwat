@@ -46,12 +46,12 @@ import java.util.Date;
 public class GzipEntry
 {
     /* Error flags */
-    public final static int INVALID_EXTRA_FLAGS = 1;
-    public final static int INVALID_OPERATING_SYSTEM = 2;
-    public final static int INVALID_RESERVED_FLAGS = 4;
-    public final static int INVALID_ISIZE = 8;
-    public final static int INVALID_CRC16 = 16;
-    public final static int INVALID_CRC32 = 32;
+    public static final int INVALID_EXTRA_FLAGS = 1;
+    public static final int INVALID_OPERATING_SYSTEM = 2;
+    public static final int INVALID_RESERVED_FLAGS = 4;
+    public static final int INVALID_ISIZE = 8;
+    public static final int INVALID_CRC16 = 16;
+    public static final int INVALID_CRC32 = 32;
 
     protected int index;
     protected long offset;

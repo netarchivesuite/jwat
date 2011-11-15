@@ -41,11 +41,11 @@ public class WarcReaderFactory {
 		if (in == null || buffer_size <= 0) {
 			throw new InvalidParameterException();
 		}
-		ByteCountingPushBackInputStream bpin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
-		if (GzipInputStream.isGziped(bpin)) {
-			return new WarcReaderCompressed(new GzipInputStream(bpin), buffer_size);
+		ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
+		if (GzipInputStream.isGziped(pbin)) {
+			return new WarcReaderCompressed(new GzipInputStream(pbin), buffer_size);
 		}
-		return new WarcReaderUncompressed(bpin);
+		return new WarcReaderUncompressed(pbin);
 	}
 
 	/**
@@ -86,12 +86,12 @@ public class WarcReaderFactory {
 	 * @return <code>WarcReader</code> for uncompressed records
 	 * <code>InputStream</code>
 	 */
-	public static WarcReader getReaderUncompressed(InputStream in) {
+	public static WarcReader getReaderUncompressed(InputStream in) throws IOException {
 		if (in == null) {
 			throw new InvalidParameterException();
 		}
-		ByteCountingPushBackInputStream bpin = new ByteCountingPushBackInputStream(in, 16);
-		return new WarcReaderUncompressed(bpin);
+		ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+		return new WarcReaderUncompressed(pbin);
 	} 
 
 	/**
@@ -103,12 +103,36 @@ public class WarcReaderFactory {
 	 * @return <code>WarcReader</code> for uncompressed records
 	 * <code>InputStream</code>
 	 */
-	public static WarcReader getReaderUncompressed(InputStream in, int buffer_size) {
-		if (in == null || buffer_size <= 0) {
-			throw new InvalidParameterException();
+	public static WarcReader getReaderUncompressed(InputStream in, int buffer_size) throws IOException {
+		if (in == null) {
+			throw new InvalidParameterException("in");
 		}
-		ByteCountingPushBackInputStream bpin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
-		return new WarcReaderUncompressed(bpin);
+		if (buffer_size <= 0) {
+			throw new InvalidParameterException("buffer_size");
+		}
+		ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
+		return new WarcReaderUncompressed(pbin);
+	} 
+
+	public static WarcReader getReaderCompressed() {
+		return new WarcReaderCompressed();
+	} 
+
+	public static WarcReader getReaderCompressed(InputStream in) throws IOException {
+		if (in == null) {
+			throw new InvalidParameterException("in");
+		}
+		return new WarcReaderCompressed(new GzipInputStream(in));
+	} 
+
+	public static WarcReader getReaderCompressed(InputStream in, int buffer_size) throws IOException {
+		if (in == null) {
+			throw new InvalidParameterException("in");
+		}
+		if (buffer_size <= 0) {
+			throw new InvalidParameterException("buffer_size");
+		}
+		return new WarcReaderCompressed(new GzipInputStream(new BufferedInputStream(in, buffer_size)));
 	} 
 
 }

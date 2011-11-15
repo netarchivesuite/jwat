@@ -1,5 +1,7 @@
 package dk.netarkivet.warclib;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import dk.netarkivet.common.Payload;
 
 @RunWith(Parameterized.class)
 public class TestUtf8 {
@@ -44,6 +48,28 @@ public class TestUtf8 {
 		int errors = 0;
 
 		try {
+			if (bDebugOutput) {
+				in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+
+				byte[] bytes = new byte[1024];
+				int read;
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				while ((read = in.read(bytes)) != -1) {
+					out.write(bytes, 0, read);
+				}
+				out.close();
+				in.close();
+
+				bytes = out.toByteArray();
+				System.out.println(bytes.length);
+
+				RandomAccessFile ram = new RandomAccessFile("r-u-kidding-me.txt", "rw");
+				ram.seek(0);
+				ram.setLength(0);
+				ram.write(bytes);
+				ram.close();
+			}
+
 			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
 			WarcReader reader = WarcReaderFactory.getReader(in);
@@ -51,19 +77,29 @@ public class TestUtf8 {
 
 			while ((record = reader.getNextRecord()) != null) {
 				if (bDebugOutput) {
-					RecordDebugBase.printRecord(record);
-					RecordDebugBase.printRecordErrors(record);
+					if (record.warcFilename != null) {
+						saveUtf8(record.warcFilename);
+					}
+
+					Payload payload = record.getPayload();
+					if (payload != null) {
+						InputStream pis = payload.getInputStream();
+						long l = payload.getLength();
+						System.out.println("Payload length: " + l);
+						savePayload(pis);
+					}
 				}
 
 				record.close();
 
+				if (bDebugOutput) {
+					RecordDebugBase.printRecord(record);
+					RecordDebugBase.printRecordErrors(record);
+				}
+
 				errors = 0;
 				if (record.hasErrors()) {
 					errors = record.getValidationErrors().size();
-				}
-
-				if (record.warcFilename != null) {
-					saveUtf8(record.warcFilename);
 				}
 
 				++records;
@@ -109,6 +145,31 @@ public class TestUtf8 {
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+
+	public static void savePayload(InputStream is) {
+		String filename = "temp-payload.txt";
+		try {
+			byte[] bytes = new byte[ 1024 ];
+			int read;
+			File file = new File( filename );
+			System.out.println( "            > " + file.getPath() );
+			RandomAccessFile ram = new RandomAccessFile( file, "rw" );
+			ram.setLength( 0 );
+			ram.seek( 0 );
+			while ( (read = is.read( bytes )) != -1 ) {
+				ram.write( bytes, 0,  read );
+			}
+			ram.close();
+		}
+		catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

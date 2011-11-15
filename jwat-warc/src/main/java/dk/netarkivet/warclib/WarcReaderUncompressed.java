@@ -97,8 +97,11 @@ public class WarcReaderUncompressed extends WarcReader {
         if (warcRecord != null) {
             warcRecord.close();
         }
-		if (in == null || buffer_size <= 0) {
-			throw new InvalidParameterException();
+		if (in == null) {
+			throw new InvalidParameterException("in");
+		}
+		if (buffer_size <= 0) {
+			throw new InvalidParameterException("buffer_size");
 		}
 		warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16));
 		return warcRecord;

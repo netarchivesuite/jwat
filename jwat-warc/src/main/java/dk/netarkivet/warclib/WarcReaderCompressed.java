@@ -29,6 +29,9 @@ public class WarcReaderCompressed extends WarcReader {
 	/** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
 	protected int bufferSize;
 
+	WarcReaderCompressed() {
+	}
+
 	/**
 	 * Construct object using supplied <code>GzipInputStream</code>.
 	 * @param in <code>GzipInputStream</code>
@@ -74,9 +77,10 @@ public class WarcReaderCompressed extends WarcReader {
             warcRecord.close();
         }
 		if (in == null) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("in");
 		}
 		warcRecord = null;
+		long offset = in.getOffset();
 		GzipEntry entry = in.getNextEntry();
 		if (entry != null) {
 			if (bufferSize > 0) {
@@ -85,6 +89,9 @@ public class WarcReaderCompressed extends WarcReader {
 			else {
 				warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(in.getEntryInputStream(), 16));
 			}
+		}
+		if (warcRecord != null) {
+			warcRecord.offset = offset;
 		}
 		return warcRecord;
 	}
@@ -103,6 +110,9 @@ public class WarcReaderCompressed extends WarcReader {
 		if (entry != null) {
 			warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(gzin.getEntryInputStream(), 16));
 		}
+		if (warcRecord != null) {
+			warcRecord.offset = -1L;
+		}
 		return warcRecord;
 	}
 
@@ -111,14 +121,20 @@ public class WarcReaderCompressed extends WarcReader {
         if (warcRecord != null) {
             warcRecord.close();
         }
-		if (in == null || buffer_size <= 0) {
-			throw new InvalidParameterException();
+		if (in == null) {
+			throw new InvalidParameterException("in");
+		}
+		if (buffer_size <= 0) {
+			throw new InvalidParameterException("buffer_size");
 		}
 		warcRecord = null;
 		GzipInputStream gzin = new GzipInputStream(in);
 		GzipEntry entry = gzin.getNextEntry();
 		if (entry != null) {
 			warcRecord = WarcRecord.parseRecord(new ByteCountingPushBackInputStream(new BufferedInputStream(gzin.getEntryInputStream(), buffer_size), 16));
+		}
+		if (warcRecord != null) {
+			warcRecord.offset = -1L;
 		}
 		return warcRecord;
 	}
