@@ -51,7 +51,7 @@ public class TestUtf8 {
 			if (bDebugOutput) {
 				in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-				byte[] bytes = new byte[1024];
+				byte[] bytes = new byte[8192];
 				int read;
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				while ((read = in.read(bytes)) != -1) {
@@ -61,7 +61,7 @@ public class TestUtf8 {
 				in.close();
 
 				bytes = out.toByteArray();
-				System.out.println(bytes.length);
+				System.out.println("InputStream length: " + bytes.length);
 
 				RandomAccessFile ram = new RandomAccessFile("r-u-kidding-me.txt", "rw");
 				ram.seek(0);
@@ -151,7 +151,7 @@ public class TestUtf8 {
 	public static void savePayload(InputStream is) {
 		String filename = "temp-payload.txt";
 		try {
-			byte[] bytes = new byte[ 1024 ];
+			byte[] bytes = new byte[ 8192 ];
 			int read;
 			File file = new File( filename );
 			System.out.println( "            > " + file.getPath() );
