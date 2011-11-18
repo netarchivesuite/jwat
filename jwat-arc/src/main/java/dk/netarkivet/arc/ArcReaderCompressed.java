@@ -16,18 +16,24 @@ import dk.netarkivet.gzip.GzipInputStream;
  */
 public class ArcReaderCompressed extends ArcReader {
 
-    /** WARC file <code>InputStream</code>. */
+    /** WARC file <code>GzipInputStream</code>. */
 	protected GzipInputStream in;
 
 	/** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
 	protected int bufferSize;
 
+	/**
+	 * Construct object not associated with any input stream.
+	 * The reader must be supplied an input stream for each record read.
+	 * This method is for use with random access to records.
+	 */
 	ArcReaderCompressed() {
 	}
 
 	/**
-	 * Construct object using supplied <code>GzipInputStream</code>.
-	 * @param in <code>GzipInputStream</code>
+	 * Construct object using the supplied input stream.
+	 * This method is primarily for linear access to records.
+	 * @param in  ARC file GZip input stream
 	 */
 	ArcReaderCompressed(GzipInputStream in) {
 		this.in = in;
@@ -69,17 +75,13 @@ public class ArcReaderCompressed extends ArcReader {
      * @return offset in ARC <code>InputStream</code>
      */
     @Override
+    @Deprecated
     public long getOffset() {
-    	// Important: This is not precise!
+    	// TODO Somehow this is not working properly with the GZip package.
     	// Use GzipEntry.getOffset() for record offset.
     	return in.getOffset();
     }
 
-    /**
-     * Parses and gets the version block of the ARC file.
-     * @return the version block of the ARC file
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcVersionBlock getVersionBlock() throws IOException {
         if (previousRecord != null) {
@@ -131,11 +133,6 @@ public class ArcReaderCompressed extends ArcReader {
         return versionBlock;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecord() throws IOException {
         if (previousRecord != null) {
@@ -161,13 +158,6 @@ public class ArcReaderCompressed extends ArcReader {
         return arcRecord;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @param inExt ARC record <code>InputStream</code>
-     * @param offset offset dictated by external factors
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException {
         if (previousRecord != null) {
@@ -193,13 +183,6 @@ public class ArcReaderCompressed extends ArcReader {
         return arcRecord;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @param inExt ARC record <code>InputStream</code>
-     * @param offset offset dictated by external factors
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecordFrom(InputStream in, int buffer_size,
     										long offset) throws IOException {

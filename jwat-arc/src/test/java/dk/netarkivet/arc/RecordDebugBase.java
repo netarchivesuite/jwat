@@ -60,8 +60,7 @@ public class RecordDebugBase {
             System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
             System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
             System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
-            // TODO move save away from package and refine payload processing
-            //save( arcRecord.recUrl, arcRecord.httpResponse );
+            //saveHttpResponse( arcRecord.recUrl, arcRecord.httpResponse );
         }
         System.out.println( "      errors: " + arcRecord.hasErrors() );
         System.out.println( "    warnings: " + arcRecord.hasWarnings() );
@@ -73,7 +72,7 @@ public class RecordDebugBase {
 		System.out.println("      Errors: " + errors);
 	}
 
-	public static void save(String url, HttpResponse httpResponse) {
+	public static void saveHttpResponse(String url, HttpResponse httpResponse) {
 		if ( "200".equals(httpResponse.resultCode) && url != null && url.length() > 0 && httpResponse.objectSize > 0L ) {
 			if ( url.startsWith("http://") ) {
 				int fidx = "http://".length();
@@ -112,11 +111,9 @@ public class RecordDebugBase {
 					ram.close();
 				}
 				catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

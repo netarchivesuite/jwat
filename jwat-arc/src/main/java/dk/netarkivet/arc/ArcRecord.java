@@ -104,6 +104,7 @@ public class ArcRecord extends ArcRecordBase {
         payload = null;
         if (recLength != null && recLength > 0L) {
             payload = new Payload(in, recLength.longValue());
+            payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
                 httpResponse = HttpResponse.processPayload(
@@ -111,7 +112,8 @@ public class ArcRecord extends ArcRecordBase {
             }
         } else if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
-            // TODO warning payload expected
+            addValidationError(ArcErrorType.INVALID, ARC_FILE,
+                    "Expected payload not found in the record block");
         }
         return;
     }

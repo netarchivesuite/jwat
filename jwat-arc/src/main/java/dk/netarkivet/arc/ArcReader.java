@@ -5,6 +5,11 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * ARC Reader base class.
+ *
+ * @author nicl
+ */
 public abstract class ArcReader {
 
     /** Current ARC version block object. */
@@ -33,7 +38,9 @@ public abstract class ArcReader {
     /**
      * Get the currect offset in the ARC <code>InputStream</code>.
      * @return offset in ARC <code>InputStream</code>
+     * @see ArcRecordBase#getOffset()
      */
+    @Deprecated
     public abstract long getOffset();
 
     /**
@@ -43,6 +50,12 @@ public abstract class ArcReader {
      */
     public abstract ArcVersionBlock getVersionBlock() throws IOException;
 
+    /**
+     * Parses and gets the version block of an ARC file from the supplied
+     * <code>InputStream</code>.
+     * @return the version block of the ARC file
+     * @throws IOException io exception in reading process
+     */
     public abstract ArcVersionBlock getVersionBlock(InputStream in) throws IOException;
 
     /**
@@ -52,12 +65,20 @@ public abstract class ArcReader {
      */
     public abstract ArcRecord getNextRecord() throws IOException;
 
+    /**
+     * Parses and gets the next ARC record.
+     * @param in ARC record <code>InputStream</code>
+     * @param offset offset provided by caller
+     * @return the next ARC record
+     * @throws IOException io exception in reading process
+     */
     public abstract ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException;
 
     /**
      * Parses and gets the next ARC record.
-     * @param inExt ARC record <code>InputStream</code>
-     * @param offset offset dictated by external factors
+     * @param in ARC record <code>InputStream</code>
+     * @param buffer_size size of buffer used to wrap <code>InputStream</code>
+     * @param offset offset provided by caller
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */

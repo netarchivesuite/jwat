@@ -35,6 +35,7 @@
  */
 package dk.netarkivet.arc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
@@ -52,13 +53,13 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
 
     /** Did we find the magic ARC number. */
-    public boolean isMagicArcFile = false;
+    protected boolean isMagicArcFile = false;
 
     /** Did we find a valid version number. */
-    public boolean isVersionValid = false;
+    protected boolean isVersionValid = false;
 
     /** Did we recognize the field description line. */
-    public boolean isValidFieldDesc = false;
+    protected boolean isValidFieldDesc = false;
 
     /*
      * Fields.
@@ -81,7 +82,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
 
     /** <code>FieldValidator</code> used to validate record fields. */
-    public ArcFieldValidator descValidator = null;
+    protected ArcFieldValidator descValidator = null;
 
     /** <code>FieldValidator</code> for version fields. */
     protected static ArcFieldValidator versionValidator =
@@ -223,10 +224,8 @@ public class ArcVersionBlock extends ArcRecordBase {
         version = null;
         if (versionNumber != null && reserved != null) {
             // Check ARC version number
-            try {
-                version = ArcVersion.fromValues(versionNumber.intValue(),
-                                       reserved.intValue());
-            } catch (Exception e) { /* ignore */ }
+            version = ArcVersion.fromValues(versionNumber.intValue(),
+                    reserved.intValue());
         }
         isVersionValid = (version != null);
         if (!isVersionValid) {
@@ -244,15 +243,14 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
     @Override
     public String parseContentType(String contentType) {
-        //version block content type is required
-        //the version block content type must be equal to text/plain
-        // TODO check
         String ct = super.parseContentType(contentType);
         if (ct == null || ct.length() == 0) {
+            // Version block content-type is required.
             addValidationError(ArcErrorType.MISSING,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
             ct = null;
         } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(ct)) {
+            // Version block content-type should be equal to "text/plain"
             addValidationError(ArcErrorType.INVALID,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
             ct = ct.toLowerCase();
@@ -260,6 +258,11 @@ public class ArcVersionBlock extends ArcRecordBase {
         return ct;
     }
 
+    /**
+     * An ARC v1.1 version block should have a payload consisting of XML formatted
+     * metadata related to the harvesters configuration.
+     * @param in input stream containing the payload
+     */
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in)
                                                         throws IOException {
@@ -267,13 +270,20 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
             payload = new Payload(in, recLength.longValue()
                                             - in.getCounter());
-            // Look for trailing xml config.
-            //if (vb.version.equals(ArcVersion.VERSION_1_1)) {
-            //}
-            byte[] bytes = new byte[payload.getInputStream().available()];
-            // TODO Cosmicly bad, not to loop this!
-            payload.getInputStream().read(bytes);
-            xml = new String(bytes);
+            payload.setOnClosedHandler(this);
+            // Look for trailing XML formatted metadata.
+            byte[] buffer = new byte[1024];
+            int read = 0;
+            ByteArrayOutputStream payloadData = new ByteArrayOutputStream((int)payload.getLength());
+            while (payload.getInputStream().available() > 0 && read != -1) {
+                read = payload.getInputStream().read(buffer, 0, buffer.length);
+                if (read != -1) {
+                	payloadData.write(buffer, 0, read);
+                }
+            }
+            byte[] xmlBytes = payloadData.toByteArray();
+            payloadData.close();
+            xml = new String(xmlBytes);
             payload.close();
         }
         if ((payload == null) && ArcVersion.VERSION_1_1.equals(version)) {

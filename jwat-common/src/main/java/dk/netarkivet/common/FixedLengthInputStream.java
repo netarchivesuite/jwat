@@ -70,10 +70,6 @@ public final class FixedLengthInputStream extends FilterInputStream {
             remaining -= skippedLast;
             skippedLast = in.skip(remaining);
         }
-        // TODO check higher up for unexpected eof!
-        if (remaining > 0) {
-            throw new IOException("Illegal internal state.");
-        }
     }
 
     @Override
@@ -97,6 +93,11 @@ public final class FixedLengthInputStream extends FilterInputStream {
     }
 
     @Override
+	public int read(byte[] b) throws IOException {
+		return read(b, 0, b.length);
+	}
+
+	@Override
     public int read(byte[] b, int off, int len) throws IOException {
         int l = -1;
         if (this.remaining > 0L) {

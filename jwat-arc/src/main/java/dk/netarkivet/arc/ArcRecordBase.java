@@ -48,13 +48,14 @@ import java.util.List;
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
+import dk.netarkivet.common.PayloadOnClosedHandler;
 
 /**
  * An abstract ARC record parser.
  *
  * @author lbihanic, selghissassi, nicl
  */
-public abstract class ArcRecordBase {
+public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /** Invalid ARC file property. */
     protected static final String ARC_FILE = "ARC file";
@@ -133,6 +134,9 @@ public abstract class ArcRecordBase {
     /*
      * Payload
      */
+
+	/** Has payload been closed before. */
+	protected boolean bPayloadClosed;
 
     /** Has record been closed flag. */
     protected boolean bClosed;
@@ -258,6 +262,17 @@ public abstract class ArcRecordBase {
         return null;
     }
 
+	public void payloadClosed() throws IOException {
+		if (!bPayloadClosed) {
+			// Check for truncated payload.
+            if (payload != null && payload.getUnavailable() > 0) {
+                addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+                        "Payload length mismatch");
+            }
+			bPayloadClosed = true;
+		}
+	}
+
     public boolean isClosed() {
     	return bClosed;
     }
@@ -269,10 +284,12 @@ public abstract class ArcRecordBase {
      */
     public void close() throws IOException {
     	if (!bClosed) {
+			// Ensure input stream is at the end of the record payload.
             if (payload != null) {
                 payload.close();
-                payload = null;
             }
+	        payloadClosed();
+            payload = null;
             bClosed = true;
     	}
     }
@@ -514,7 +531,8 @@ public abstract class ArcRecordBase {
      * @param contentType ARC record content type
      * @return ARC record content type
      */
-    protected String parseContentType(String contentType){
+    protected String parseContentType(String contentType) {
+        // TODO check for valid content-type string
         return parseString(contentType, ArcConstants.CONTENT_TYPE_FIELD);
     }
 
@@ -675,4 +693,5 @@ public abstract class ArcRecordBase {
         }
         return builder.toString();
     }
+
 }

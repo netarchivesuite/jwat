@@ -15,10 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
-import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
 /**
  * This class represents a parsed WARC record header block including
@@ -183,6 +183,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
 	public void payloadClosed() throws IOException {
 		if (!bPayloadClosed) {
+			// Check for truncated payload.
+            if (payload != null && payload.getUnavailable() > 0) {
+                addValidationError(WarcErrorType.INVALID, "Payload truncated",
+                        "Payload length mismatch");
+            }
 	        // Check for trailing newlines.
 			int newlines = parseNewLines(in);
 			if (newlines != 2) {
@@ -199,16 +204,16 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	/**
      * Close resources associated with the WARC record. 
      * Mainly payload stream if any.
-	 * @throws IOException
+     * @throws IOException io exception close the payload resources
 	 */
 	public void close() throws IOException {
 		if (!bClosed) {
 			// Ensure input stream is at the end of the record payload.
 	        if (payload != null) {
 	            payload.close();
-	            payload = null;
 	        }
 	        payloadClosed();
+            payload = null;
 	        bClosed = true;
 		}
 	}
@@ -392,13 +397,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 					}
 					break;
 				case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
-					// TODO
 					warcBlockDigestStr = value;
 					warcBlockDigest = parseDigest(value,
 							WarcConstants.FN_WARC_BLOCK_DIGEST);
 					break;
 				case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
-					// TODO
 					warcPayloadDigestStr = value;
 					warcPayloadDigest = parseDigest(value,
 							WarcConstants.FN_WARC_PAYLOAD_DIGEST);
@@ -856,7 +859,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
         }
         else {
-            // Missing date.
+            // Missing digest.
             addValidationError(WarcErrorType.EMPTY, field, labelledDigest);
         }
         return digest;

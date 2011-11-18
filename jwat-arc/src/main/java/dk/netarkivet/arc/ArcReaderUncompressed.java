@@ -50,22 +50,21 @@ import dk.netarkivet.common.ByteCountingPushBackInputStream;
  */
 public class ArcReaderUncompressed extends ArcReader {
 
-    /** ARC file <code>InputStream</code>. */
+    /** ARC file <code>ByteCountingPushBackInputStream</code>. */
     protected ByteCountingPushBackInputStream in;
 
 	/**
 	 * Construct object not associated with any input stream.
 	 * The reader must be supplied an input stream for each record read.
 	 * This method is for use with random access to records.
-	 * @param in <code>WarcInputStream</code>
 	 */
     ArcReaderUncompressed() {
     }
 
     /**
-	 * Construct object using supplied <code>WarcInputStream</code>.
+	 * Construct object using the supplied input stream.
 	 * This method is primarily for linear access to records.
-	 * @param in <code>WarcInputStream</code>
+	 * @param in ARC file input stream
 	 */
     ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
@@ -79,9 +78,6 @@ public class ArcReaderUncompressed extends ArcReader {
 		return false;
 	}
 
-    /**
-     * Close current record resource(s) and input stream(s). 
-     */
     @Override
     public void close() {
         if (arcRecord != null) {
@@ -98,20 +94,12 @@ public class ArcReaderUncompressed extends ArcReader {
         }
     }
 
-    /**
-     * Get the currect offset in the ARC <code>InputStream</code>.
-     * @return offset in ARC <code>InputStream</code>
-     */
     @Override
+    @Deprecated
     public long getOffset() {
         return in.getConsumed();
     }
 
-    /**
-     * Parses and gets the version block of the ARC file.
-     * @return the version block of the ARC file
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcVersionBlock getVersionBlock() throws IOException {
         if (previousRecord != null) {
@@ -139,11 +127,6 @@ public class ArcReaderUncompressed extends ArcReader {
         return versionBlock;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecord() throws IOException {
         if (previousRecord != null) {
@@ -157,13 +140,6 @@ public class ArcReaderUncompressed extends ArcReader {
         return arcRecord;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @param inExt ARC record <code>InputStream</code>
-     * @param offset offset dictated by external factors
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException {
         if (previousRecord != null) {
@@ -184,13 +160,6 @@ public class ArcReaderUncompressed extends ArcReader {
         return arcRecord;
     }
 
-    /**
-     * Parses and gets the next ARC record.
-     * @param inExt ARC record <code>InputStream</code>
-     * @param offset offset dictated by external factors
-     * @return the next ARC record
-     * @throws IOException io exception in reading process
-     */
     @Override
     public ArcRecord getNextRecordFrom(InputStream in, int buffer_size,
     										long offset) throws IOException {

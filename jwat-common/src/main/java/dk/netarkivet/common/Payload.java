@@ -51,6 +51,9 @@ public class Payload {
     /** Payload content. */
     private static final int BUFFER_SIZE = 4096;
 
+    /** Base stream used for detecting unexpected EOF before end of payload. */
+    protected FixedLengthInputStream flin;
+
     /** Payload content. */
     protected InputStream in;
 
@@ -74,8 +77,8 @@ public class Payload {
             throw new IllegalArgumentException("length");
         }
         this.length = length;
-        this.in = new BufferedInputStream(
-                        new FixedLengthInputStream(in, length), BUFFER_SIZE);
+        this.flin = new FixedLengthInputStream(in, length);
+        this.in = new BufferedInputStream(flin, BUFFER_SIZE);
     }
 
     /**
@@ -92,6 +95,15 @@ public class Payload {
      */
     public long getLength() {
         return length;
+    }
+
+    /**
+     * Get the number of unavailable bytes missing due to unexpected EOF.
+     * This method always returns <code>0</code> as long as the stream is open.
+     * @return number of unavailable bytes missing due to unexpected EOF
+     */
+    public long getUnavailable() throws IOException {
+    	return flin.available();
     }
 
     /**
