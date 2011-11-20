@@ -42,7 +42,13 @@ import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.Payload;
 
 /**
- * Version block parser.
+ * This class represents a parsed ARC version block including possible 
+ * validation and format warnings/errors encountered in the process.
+ * This class also contains the specific ARC version block parser which is 
+ * intended to be called by the <code>ARCReader</code>.
+ * If present any metadata in the ARC version block is accessible 
+ * through the payload object. Currently the payload is automatically loaded
+ * into a string which is accessible through the version block api.
  *
  * @author lbihanic, selghissassi, nicl
  */

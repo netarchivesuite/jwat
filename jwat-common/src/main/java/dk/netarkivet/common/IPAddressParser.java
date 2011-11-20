@@ -40,7 +40,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 /**
- * IP address parser.
+ * IP address parser and format validator for Ipv4 and Ipv6.
  *
  * @author lbihanic, selghissassi
  */

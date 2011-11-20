@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Date parser.
+ * ARC Date parser and format validator ("yyyyMMddHHmmss").
  *
  * @author lbihanic, selghissassi
  */

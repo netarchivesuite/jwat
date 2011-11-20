@@ -16,14 +16,14 @@ import dk.netarkivet.gzip.GzipInputStream;
  */
 public class ArcReaderCompressed extends ArcReader {
 
-    /** WARC file <code>GzipInputStream</code>. */
+    /** ARC file <code>GzipInputStream</code>. */
 	protected GzipInputStream in;
 
 	/** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
 	protected int bufferSize;
 
 	/**
-	 * Construct object not associated with any input stream.
+	 * Construct reader not associated with any input stream.
 	 * The reader must be supplied an input stream for each record read.
 	 * This method is for use with random access to records.
 	 */
@@ -31,9 +31,9 @@ public class ArcReaderCompressed extends ArcReader {
 	}
 
 	/**
-	 * Construct object using the supplied input stream.
+	 * Construct reader using the supplied input stream.
 	 * This method is primarily for linear access to records.
-	 * @param in  ARC file GZip input stream
+	 * @param in ARC file GZip input stream
 	 */
 	ArcReaderCompressed(GzipInputStream in) {
 		this.in = in;

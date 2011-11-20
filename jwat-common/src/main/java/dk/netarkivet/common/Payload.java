@@ -101,6 +101,7 @@ public class Payload {
      * Get the number of unavailable bytes missing due to unexpected EOF.
      * This method always returns <code>0</code> as long as the stream is open.
      * @return number of unavailable bytes missing due to unexpected EOF
+     * @throws IOException io exception calling available method on stream
      */
     public long getUnavailable() throws IOException {
     	return flin.available();

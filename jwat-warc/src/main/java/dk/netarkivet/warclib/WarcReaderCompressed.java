@@ -22,12 +22,18 @@ public class WarcReaderCompressed extends WarcReader {
 	/** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
 	protected int bufferSize;
 
+	/**
+	 * Construct reader not associated with any input stream.
+	 * The reader must be supplied an input stream for each record read.
+	 * This method is for use with random access to records.
+	 */
 	WarcReaderCompressed() {
 	}
 
 	/**
-	 * Construct object using supplied <code>GzipInputStream</code>.
-	 * @param in <code>GzipInputStream</code>
+	 * Construct reader using the supplied input stream.
+	 * This method is primarily for linear access to records.
+	 * @param in WARC file GZip input stream
 	 */
 	WarcReaderCompressed(GzipInputStream in) {
 		this.in = in;

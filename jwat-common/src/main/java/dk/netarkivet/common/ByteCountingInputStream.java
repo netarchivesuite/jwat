@@ -41,15 +41,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * <code>InputStream</code> that keeps tracks of the amount of bytes
- * read at any point in time.
+ * <code>InputStream</code> that keeps tracks of the number of consumed bytes
+ * at any given time.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public class ByteCountingInputStream extends FilterInputStream {
-
-    /** New line delimiter. */
-    public static final int NL = '\n';
 
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
@@ -59,7 +56,7 @@ public class ByteCountingInputStream extends FilterInputStream {
 
     /**
      * Constructs an <code>InputStream</code> that counts the bytes
-     * its reads.
+     * as it reads them.
      * @param parent InputStream to wrap
      */
     public ByteCountingInputStream(InputStream parent) {
@@ -67,7 +64,7 @@ public class ByteCountingInputStream extends FilterInputStream {
     }
 
     /**
-     * Retrieve the number of consumed bytes by this stream.
+     * Retrieve the number of bytes consumed by this stream.
      * @return current byte offset in this stream
      */
     public long getConsumed() {
@@ -146,7 +143,7 @@ public class ByteCountingInputStream extends FilterInputStream {
             if (b == -1) {
                 return null;    //Unexpected EOF
             }
-            if (b == NL){
+            if (b == '\n'){
                 break;
             }
             bos.write(b);
@@ -170,7 +167,7 @@ public class ByteCountingInputStream extends FilterInputStream {
                 break;             // Unexpected EOF!
             }
             bos.write(b);
-            if (b == NL) {
+            if (b == '\n') {
                 --i;
             }
         }

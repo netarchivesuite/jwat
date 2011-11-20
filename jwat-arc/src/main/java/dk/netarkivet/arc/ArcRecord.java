@@ -45,6 +45,8 @@ import dk.netarkivet.common.Payload;
 /**
  * This class represents a parsed ARC record header including possible 
  * validation and format warnings/errors encountered in the process.
+ * This class also contains the specific ARC record parser which is
+ * intended to be called by the <code>ARCReader</code>.
  * The payload of the ARC record is accessible through a wrapped payload
  * object.
  *

@@ -8,6 +8,16 @@ import java.security.InvalidParameterException;
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.gzip.GzipInputStream;
 
+/**
+ * Factory class used to create an <code>ARCReader</code> based on its required
+ * use. Some methods auto-detect which reader to use based on the data read
+ * from an <code>InputStream</code>. Others create a specific reader for
+ * compressed or uncompress ARC files. Readers are available for both
+ * sequential and random reading of records. Buffering is also supported and 
+ * encouraged in most cases.
+ *
+ * @author nicl
+ */
 public class ArcReaderFactory {
 
 	/**
@@ -19,10 +29,12 @@ public class ArcReaderFactory {
 	/**
 	 * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
 	 * wrapped by a <code>BufferedInputStream</code>.
+     * The <code>WarcReader</code> implementation returned is chosen based on 
+     * GZip auto detection. 
      * @param in ARC file <code>InputStream</code>
 	 * @param buffer_size buffer size to use
-	 * @return appropriate <code>ArcReader</code> chosen from 
-	 * <code>InputStream</code>
+	 * @return appropriate <code>ArcReader</code> based on 
+	 * <code>InputStream</code> data
 	 * @throws IOException if an exception occurs during initialization
 	 */
 	public static ArcReader getReader(InputStream in, int buffer_size) throws IOException {
@@ -41,8 +53,8 @@ public class ArcReaderFactory {
      * The <code>WarcReader</code> implementation returned is chosen based on 
      * GZip auto detection. 
      * @param in ARC file <code>InputStream</code>
-	 * @return appropriate <code>ArcReader</code> chosen from 
-	 * <code>InputStream</code>
+	 * @return appropriate <code>ArcReader</code> based on 
+	 * <code>InputStream</code> data
 	 * @throws IOException if an exception occurs during initialization
 	 */
 	public static ArcReader getReader(InputStream in) throws IOException {
@@ -59,7 +71,6 @@ public class ArcReaderFactory {
 	/**
 	 * Creates a new <code>ArcReader</code> without any associated
 	 * <code>InputStream</code> for random access to uncompressed records.
-	 * a <code>BufferedInputStream</code>.
 	 * @return <code>ArcReader</code> for uncompressed records
 	 * <code>InputStream</code>
 	 */
@@ -102,10 +113,23 @@ public class ArcReaderFactory {
 		return new ArcReaderUncompressed(pbin);
 	} 
 
+	/**
+	 * Creates a new <code>ArcReader</code> without any associated
+	 * <code>InputStream</code> for random access to GZip compressed records.
+	 * @return <code>ArcReader</code> for GZip compressed records
+	 * <code>InputStream</code>
+	 */
 	public static ArcReader getReaderCompressed() {
 		return new ArcReaderCompressed();
 	} 
 
+	/**
+	 * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
+	 * primarily for random access to GZip compressed records.
+     * @param in ARC file <code>InputStream</code>
+	 * @return <code>ArcReader</code> for GZip compressed records
+	 * <code>InputStream</code>
+	 */
 	public static ArcReader getReaderCompressed(InputStream in) throws IOException {
 		if (in == null) {
 			throw new InvalidParameterException("in");
@@ -113,6 +137,15 @@ public class ArcReaderFactory {
 		return new ArcReaderCompressed(new GzipInputStream(in));
 	} 
 
+	/**
+	 * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
+	 * wrapped by a <code>BufferedInputStream</code> primarily for random
+	 * access to GZip compressed records.
+     * @param in ARC file <code>InputStream</code>
+	 * @param buffer_size buffer size to use
+	 * @return <code>ArcReader</code> for GZip compressed records
+	 * <code>InputStream</code>
+	 */
 	public static ArcReader getReaderCompressed(InputStream in, int buffer_size) throws IOException {
 		if (in == null) {
 			throw new InvalidParameterException("in");

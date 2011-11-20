@@ -5,6 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * WARC Date parser and format validator ("yyyy-MM-dd'T'HH:mm:ss'Z'").
+ *
+ * @author lbihanic, selghissassi
+ */
 public class WarcDateParser {
 
     /** Allowed format string. */

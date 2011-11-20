@@ -40,27 +40,26 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Network doc filter.
- * <code>InputStream</code> with a maximum bound of bytes available to read.
+ * <code>InputStream</code> with a fixed amount of bytes available to read.
  * When the stream is closed the remaining bytes that have not been read are 
- * skipped.
+ * read or skipped.
  *
  * @author lbihanic, selghissassi
  */
 public final class FixedLengthInputStream extends FilterInputStream {
 
-    /** Remaining bytes. */
+    /** Remaining bytes available. */
     private long remaining;
 
     /**
-     * Creates new <code>NetworkDocInputStream</code>.
-     *
-     * @param in the input stream to parse.
-     * @param remaining remaining bytes.
+     * Create a new input stream with a fixed number of bytes available from
+     * the underlying stream.
+     * @param in the input stream to wrap
+     * @param length fixed number of bytes available through this stream
      */
-    public FixedLengthInputStream(InputStream in, long remaining) {
+    public FixedLengthInputStream(InputStream in, long length) {
         super(in);
-        this.remaining = remaining;
+        this.remaining = length;
     }
 
     @Override

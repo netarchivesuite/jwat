@@ -59,10 +59,10 @@ public class ArcValidationError {
      */
     public ArcValidationError(ArcErrorType error, String field, String value) {
         if (error == null) {
-            throw new IllegalArgumentException("error");
+            throw new IllegalArgumentException("Parameter 'error' is null");
         }
         if ((field == null) || (field.length() == 0)) {
-            throw new IllegalArgumentException("field");
+            throw new IllegalArgumentException("Parameter 'field' is either null or the empty string");
         }
         this.error = error;
         this.field = field;

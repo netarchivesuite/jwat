@@ -18,18 +18,17 @@ public class WarcReaderUncompressed extends WarcReader {
 	protected ByteCountingPushBackInputStream in;
 
 	/**
-	 * Construct object not associated with any input stream.
+	 * Construct reader not associated with any input stream.
 	 * The reader must be supplied an input stream for each record read.
 	 * This method is for use with random access to records.
-	 * @param in <code>WarcInputStream</code>
 	 */
 	WarcReaderUncompressed() {
 	}
 
 	/**
-	 * Construct object using supplied <code>WarcInputStream</code>.
+	 * Construct reader using the supplied input stream.
 	 * This method is primarily for linear access to records.
-	 * @param in <code>WarcInputStream</code>
+	 * @param in WARC file input stream
 	 */
 	WarcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {

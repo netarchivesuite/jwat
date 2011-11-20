@@ -51,7 +51,11 @@ import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
 
 /**
- * An abstract ARC record parser.
+ * This abstract class represents the common base ARC data which is present in
+ * both a record or version block. This including possible common
+ * validation and format warnings/errors encountered in the process.
+ * This class also contains the common parts of the ARC parser which are 
+ * intended to be called by extending classes.
  *
  * @author lbihanic, selghissassi, nicl
  */

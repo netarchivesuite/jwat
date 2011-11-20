@@ -1,7 +1,7 @@
 package dk.netarkivet.warclib;
 
 /**
- * This class represents the parsed and format validate information provided
+ * This class represents the parsed and format validated information provided
  * from a WARC digest header value.
  *
  * @author nicl

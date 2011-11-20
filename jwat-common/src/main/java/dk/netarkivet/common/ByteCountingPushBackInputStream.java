@@ -30,7 +30,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
 	}
 
     /**
-     * Retrieve the number of consumed bytes by this stream.
+     * Retrieve the number of bytes consumed by this stream.
      * @return current byte offset in this stream
      */
     public long getConsumed() {

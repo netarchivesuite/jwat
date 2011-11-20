@@ -39,15 +39,12 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * <code>StringReader</code> that keeps tracks of the amount of chars
- * read at any point in time.
+ * <code>StringReader</code> that keeps tracks of the number of consumed chars
+ * at any given time.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public class CharCountingStringReader extends StringReader {
-
-    /** New line delimiter. */
-    protected static final int NL = '\n';
 
     /** Version block header length. */
     protected final long consumedLength;
@@ -152,7 +149,7 @@ public class CharCountingStringReader extends StringReader {
      */
     public String readLine() throws IOException {
         StringBuilder buf = new StringBuilder();
-        for (int c = read(); (c != -1) && (c != NL); c = read()) {
+        for (int c = read(); (c != -1) && (c != '\n'); c = read()) {
             buf.append((char) c);
         }
         return buf.toString();

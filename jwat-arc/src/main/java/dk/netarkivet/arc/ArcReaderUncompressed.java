@@ -54,7 +54,7 @@ public class ArcReaderUncompressed extends ArcReader {
     protected ByteCountingPushBackInputStream in;
 
 	/**
-	 * Construct object not associated with any input stream.
+	 * Construct reader not associated with any input stream.
 	 * The reader must be supplied an input stream for each record read.
 	 * This method is for use with random access to records.
 	 */
@@ -62,7 +62,7 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     /**
-	 * Construct object using the supplied input stream.
+	 * Construct reader using the supplied input stream.
 	 * This method is primarily for linear access to records.
 	 * @param in ARC file input stream
 	 */

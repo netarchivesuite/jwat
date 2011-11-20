@@ -70,10 +70,10 @@ public enum ArcVersion {
      */
     ArcVersion(int major, int minor, String vBType, String aRType){
         if (major < 1) {
-            throw new IllegalArgumentException("major");
+            throw new IllegalArgumentException("Parameter 'major' < 1");
         }
         if (minor < 0) {
-            throw new IllegalArgumentException("minor");
+            throw new IllegalArgumentException("Parameter 'minor' < 0");
         }
         this.major = major;
         this.minor = minor;
