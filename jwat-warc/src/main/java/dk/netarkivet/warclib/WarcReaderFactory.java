@@ -14,9 +14,8 @@ import dk.netarkivet.gzip.GzipInputStream;
  * and return the appropriate <code>WarcReader</code> instances.
  * The other factory methods can be used to return specific
  * <code>WarcReader</code> instances for compressed or uncompressed records.
- * 
- * It is discouraged to used a non buffered stream as it slows down the reader
- * considerably.
+ * Readers are available for both sequential and random reading of records.
+ * Use of buffered methods and/or buffering speeds up the reader considerably.
  *
  * @author nicl
  */

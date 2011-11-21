@@ -9,12 +9,13 @@ import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.gzip.GzipInputStream;
 
 /**
- * Factory class used to create an <code>ARCReader</code> based on its required
- * use. Some methods auto-detect which reader to use based on the data read
- * from an <code>InputStream</code>. Others create a specific reader for
- * compressed or uncompress ARC files. Readers are available for both
- * sequential and random reading of records. Buffering is also supported and 
- * encouraged in most cases.
+ * Factory used for creating <code>ArcReader</code> instances.
+ * The general <code>getReader</code> methods will auto-detect Gzip'ed data
+ * and return the appropriate <code>ArcReader</code> instances.
+ * The other factory methods can be used to return specific
+ * <code>ArcReader</code> instances for compressed or uncompressed records.
+ * Readers are available for both sequential and random reading of records.
+ * Use of buffered methods and/or buffering speeds up the reader considerably.
  *
  * @author nicl
  */
