@@ -3,6 +3,7 @@ package dk.netarkivet.warclib;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,6 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import dk.netarkivet.common.HttpResponse;
+import dk.netarkivet.common.Payload;
 
 /**
  * Test to check that the nextRecord() and iterator() approach to reading all the 
@@ -102,6 +106,24 @@ public class TestWarcRecordIerator {
 					RecordDebugBase.printRecord(record);
 					RecordDebugBase.printRecordErrors(record);
 				}
+
+				/*
+				Payload payload = record.getPayload();
+				MessageDigest md;
+				if ( payload != null ) {
+					System.out.println( record.contentTypeStr );
+					if ( record.contentLength != null && record.contentLength == 8252) {
+						System.out.println( record.contentLength );
+					}
+					if ( record.contentTypeStr != null && "application/http; msgtype=response".compareToIgnoreCase(record.contentTypeStr) == 0 ) {
+						HttpResponse httpResp = HttpResponse.processPayload(payload.getInputStream(), payload.getLength());
+						md = payload.getMessageDigest();
+						if ( md != null ) {
+							md.reset();
+						}
+					}
+				}
+				*/
 
 				record.close();
 

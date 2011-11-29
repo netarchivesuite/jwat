@@ -85,6 +85,12 @@ public class HttpResponse {
 	protected List<String> warnings = null;
 
 	/**
+	 * Non public constructor.
+	 */
+	protected HttpResponse() {
+	}
+
+	/**
 	 * Boolean indicating whether a protocol is supported by this 
 	 * payload inspector.
 	 * @param protocol protocol name

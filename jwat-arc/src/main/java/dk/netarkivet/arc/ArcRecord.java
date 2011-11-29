@@ -105,7 +105,7 @@ public class ArcRecord extends ArcRecordBase {
                                                         throws IOException {
         payload = null;
         if (recLength != null && recLength > 0L) {
-            payload = new Payload(in, recLength.longValue());
+            payload = new Payload(in, recLength.longValue(), null);
             payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {

@@ -38,6 +38,9 @@ package dk.netarkivet.common;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * This class makes the archived payload of an ARC/WARC record accessible
@@ -51,8 +54,15 @@ public class Payload {
     /** Payload content. */
     private static final int BUFFER_SIZE = 4096;
 
-    /** Base stream used for detecting unexpected EOF before end of payload. */
+    /** Base stream used to limit payload access to only the payload and
+     * not any record data beyond that. Also detects unexpected EOF. */
     protected FixedLengthInputStream flin;
+
+    /** Actual message digest algorithm used. */
+    protected MessageDigest md;
+
+    /** Automatic digesting of payload input stream. */
+    protected DigestInputStream din;
 
     /** Payload content. */
     protected InputStream in;
@@ -69,7 +79,7 @@ public class Payload {
      * @param length payload length.
      * @throws IOException io exception in reading process
      */
-    public Payload(InputStream in, long length) throws IOException {
+    public Payload(InputStream in, long length, String digestAlgorithm) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException("in");
         }
@@ -78,7 +88,20 @@ public class Payload {
         }
         this.length = length;
         this.flin = new FixedLengthInputStream(in, length);
-        this.in = new BufferedInputStream(flin, BUFFER_SIZE);
+        if (digestAlgorithm != null) {
+    		try {
+    			md = MessageDigest.getInstance(digestAlgorithm);
+    		} catch (NoSuchAlgorithmException e) {
+    			e.printStackTrace();
+    		}
+        }
+        if (md != null) {
+            this.din = new DigestInputStream(flin, md);
+            this.in = new BufferedInputStream(din, BUFFER_SIZE);
+        }
+        else {
+            this.in = new BufferedInputStream(flin, BUFFER_SIZE);
+        }
     }
 
     /**
@@ -108,6 +131,14 @@ public class Payload {
     }
 
     /**
+     * Returns the <code>MessageDigest</code> used on payload stream.
+     * @return <code>MessageDigest</code> used on payload stream
+     */
+    public MessageDigest getMessageDigest() {
+    	return md;
+    }
+
+    /**
      * Set optional handler to be called when payload is closed.
      * @param onClosedHandler on closed handler implementation
      */
@@ -120,6 +151,19 @@ public class Payload {
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
+    	if (md != null) {
+    		/*
+    		long s;
+    		while ((s = din.skip(length)) != -1) {
+    			System.out.println( s );
+    		}
+    		*/
+    		byte[] buffer = new byte[1024];
+    		int r = 0;
+    		while (r != -1) {
+    			r = din.read(buffer);
+    		}
+    	}
     	if (in != null) {
             in.close();
             in = null;

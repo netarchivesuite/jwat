@@ -275,7 +275,7 @@ public class ArcVersionBlock extends ArcRecordBase {
         payload = null;
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
             payload = new Payload(in, recLength.longValue()
-                                            - in.getCounter());
+                                            - in.getCounter(), null);
             payload.setOnClosedHandler(this);
             // Look for trailing XML formatted metadata.
             byte[] buffer = new byte[1024];

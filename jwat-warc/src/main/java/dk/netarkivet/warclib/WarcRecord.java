@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import dk.netarkivet.common.Base16;
+import dk.netarkivet.common.Base32;
+import dk.netarkivet.common.Base64;
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
@@ -51,65 +55,65 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 * Warc-Fields.
 	 */
 
-	String warcTypeStr;
+	public String warcTypeStr;
 	Integer warcTypeIdx;
 
 	// Warcinfo record only
-	String warcFilename;
+	public String warcFilename;
 
-	String warcRecordIdStr;
-	URI warcRecordIdUri;
+	public String warcRecordIdStr;
+	public URI warcRecordIdUri;
 
-	String warcDateStr;
-	Date warcDate;
+	public String warcDateStr;
+	public Date warcDate;
 
-	String contentLengthStr;
-	Long contentLength;
+	public String contentLengthStr;
+	public Long contentLength;
 
-	String contentTypeStr;
-	String contentType;
+	public String contentTypeStr;
+	public String contentType;
 
-	String warcTruncatedStr;
-	Integer warcTruncatedIdx;
+	public String warcTruncatedStr;
+	public Integer warcTruncatedIdx;
 
-	String warcIpAddress;
-	InetAddress warcInetAddress;
+	public String warcIpAddress;
+	public InetAddress warcInetAddress;
 
-	List<String> warcConcurrentToStrList;
-	List<URI> warcConcurrentToUriList;
+	public List<String> warcConcurrentToStrList;
+	public List<URI> warcConcurrentToUriList;
 
-	String warcRefersToStr;
-	URI warcRefersToUri;
+	public String warcRefersToStr;
+	public URI warcRefersToUri;
 
-	String warcTargetUriStr;
-	URI warcTargetUriUri;
+	public String warcTargetUriStr;
+	public URI warcTargetUriUri;
 
-	String warcWarcinfoIdStr;
-	URI warcWarcInfoIdUri;
+	public String warcWarcinfoIdStr;
+	public URI warcWarcInfoIdUri;
 
-	String warcBlockDigestStr;
-	WarcDigest warcBlockDigest;
+	public String warcBlockDigestStr;
+	public WarcDigest warcBlockDigest;
 
-	String warcPayloadDigestStr;
-	WarcDigest warcPayloadDigest;
+	public String warcPayloadDigestStr;
+	public WarcDigest warcPayloadDigest;
 
-	String warcIdentifiedPayloadTypeStr;
-	String warcIdentifiedPayloadType;
+	public String warcIdentifiedPayloadTypeStr;
+	public String warcIdentifiedPayloadType;
 
 	// revisit record only
-	String warcProfileStr;
-	Integer warcProfileIdx;
+	public String warcProfileStr;
+	public Integer warcProfileIdx;
 
-	String warcSegmentNumberStr;
-	Integer warcSegmentNumber;
+	public String warcSegmentNumberStr;
+	public Integer warcSegmentNumber;
 
 	// continuation record only
-	String warcSegmentOriginIdStr;
-	URI warcSegmentOriginIdUrl;
+	public String warcSegmentOriginIdStr;
+	public URI warcSegmentOriginIdUrl;
 
 	//continuation record only
-	String warcSegmentTotalLengthStr;
-	Long warcSegmentTotalLength;
+	public String warcSegmentTotalLengthStr;
+	public Long warcSegmentTotalLength;
 
 	/*
 	 * Header-Fields.
@@ -160,7 +164,19 @@ public class WarcRecord implements PayloadOnClosedHandler {
 				// TODO payload processing
 			}
 			if (wr.contentLength != null && wr.contentLength > 0) {
-	            wr.payload = new Payload(in, wr.contentLength);
+				String algorithm = null;
+				if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
+					algorithm = wr.warcBlockDigest.algorithm;
+				}
+				if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null ) {
+					if (algorithm == null) {
+						algorithm = wr.warcPayloadDigest.algorithm;
+					}
+					else if (algorithm.compareToIgnoreCase(wr.warcPayloadDigest.algorithm) != 0) {
+						// TODO different algorithms
+					}
+				}
+	            wr.payload = new Payload(in, wr.contentLength, algorithm);
 	            wr.payload.setOnClosedHandler(wr);
 				/*
 				long skipRemaining = wr.contentLength;
@@ -183,12 +199,40 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
 	public void payloadClosed() throws IOException {
 		if (!bPayloadClosed) {
-			// Check for truncated payload.
-            if (payload != null && payload.getUnavailable() > 0) {
-                addValidationError(WarcErrorType.INVALID, "Payload truncated",
-                        "Payload length mismatch");
+            if (payload != null) {
+    			// Check for truncated payload.
+                if (payload.getUnavailable() > 0) {
+                    addValidationError(WarcErrorType.INVALID, "Payload truncated",
+                            "Payload length mismatch");
+                }
+                // Check digest(s).
+                MessageDigest md = payload.getMessageDigest();
+            	if (md != null) {
+            		byte[] digest = md.digest();
+            		if (digest != null) {
+            			/*
+            			for (int i=0; i<digest.length; ++i) {
+            				System.out.println(digest[i]);
+            			}
+            			*/
+            			//String digestStr = Base32.encodeFromArray(digest);
+            			// debug
+            			/*
+            			System.out.println("--------------");
+            			System.out.println("ComputedDigest: " + Base16.encodeFromArray(digest));
+            			System.out.println("ComputedDigest: " + Base32.encodeFromArray(digest));
+            			System.out.println("ComputedDigest: " + Base64.encodeFromArray(digest));
+            			if (warcBlockDigest != null) {
+                			System.out.println("  BlockDigest: " + warcBlockDigest.digestValue);
+            			}
+            			if (warcPayloadDigest != null) {
+                			System.out.println(" PayloadDigest: " + warcPayloadDigest.digestValue);
+            			}
+            			*/
+            		}
+            	}
             }
-	        // Check for trailing newlines.
+            // Check for trailing newlines.
 			int newlines = parseNewLines(in);
 			if (newlines != 2) {
 	            addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
@@ -1039,6 +1083,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         						state = S_QUOTED_TEXT;
         						break;
         					case '=':
+                				sb.append((char)c);
         						break;
         					default:
                 				sb.append((char)c);

@@ -99,7 +99,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
 	@Override
     public int read(byte[] b, int off, int len) throws IOException {
         int l = -1;
-        if (this.remaining > 0L) {
+        if (remaining > 0L) {
             l = super.read(b, off, (int) Math.min(len, remaining));
             if(l > 0){
                 remaining -= l;
@@ -120,9 +120,9 @@ public final class FixedLengthInputStream extends FilterInputStream {
 
     @Override
     public long skip(long n) throws IOException {
-        long l = Math.min(n, remaining);
-        if(l > 0L){
-            l = super.skip(l);
+        long l = -1;
+        if (remaining > 0L){
+            l = super.skip(Math.min(n, remaining));
             if (l > 0L) {
                 remaining -= l;
             }
