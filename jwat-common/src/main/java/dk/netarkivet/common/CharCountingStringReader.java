@@ -52,17 +52,17 @@ public class CharCountingStringReader extends StringReader {
     /** Offset relative to beginning of stream. */
     protected long offset = 0;
 
-    /** Relative byte counter. */
+    /** Byte counter which can also be changed. */
     protected long counter = 0;
 
     /**
      * Creates a new <code>StringReader</code> that keeps track of
      * consumed characters.
-     * @param string Arbitrary string.
+     * @param str Arbitrary string.
      * @param consumedLength version block header length.
      */
-    public CharCountingStringReader(String string, long consumedLength) {
-        super(string);
+    public CharCountingStringReader(String str, long consumedLength) {
+        super(str);
         this.consumedLength = consumedLength;
     }
 
@@ -97,18 +97,17 @@ public class CharCountingStringReader extends StringReader {
     }
 
     /**
-     * Change the bytes read value.
+     * Change the counter value.
      * Useful for reading zero indexed relative data.
-     * @param bytes new value
-     * @return
+     * @param bytes new counter value
      */
     public void setCounter(long bytes) {
         counter = bytes;
     }
 
     /**
-     * Get the current number of read characters.
-     * @return number of read characters
+     * Retrieve the current counter value.
+     * @return current counter value
      */
     public long getCounter() {
         return counter;

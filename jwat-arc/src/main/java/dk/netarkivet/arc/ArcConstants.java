@@ -73,6 +73,25 @@ public final class ArcConstants {
     /** Length fieldname. */
     public static final String LENGTH_FIELD             = "Archive-length";
 
+    /** URL record field index. */
+    public static final int AFIDX_URL = 0;
+    /** Ip address record field index. */
+    public static final int AFIDX_IPADDRESS = 1;
+    /** Archive date record field index. */
+    public static final int AFIDX_ARCHIVEDATE = 2;
+    /** Content-type record field index. */
+    public static final int AFIDX_CONTENETTYPE = 3;
+    /** Result code record field index.  */
+    public static final int AFIDX_RESULTCODE = 4;
+    /** Checksum record field index. */
+    public static final int AFIDX_CHECKSUM = 5;
+    /** Location record field index. */
+    public static final int AFIDX_LOCATION = 6;
+    /** Offset record field index. */
+    public static final int AFIDX_OFFSET = 7;
+    /** Filename record field index. */
+    public static final int AFIDX_FILENAME = 8;
+
     /**
      * Version block fields.
      */

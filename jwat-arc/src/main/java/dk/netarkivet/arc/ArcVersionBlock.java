@@ -42,17 +42,23 @@ import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.Payload;
 
 /**
- * This class represents a parsed ARC version block including possible 
+ * This class represents a parsed ARC version block including possible
  * validation and format warnings/errors encountered in the process.
- * This class also contains the specific ARC version block parser which is 
+ * This class also contains the specific ARC version block parser which is
  * intended to be called by the <code>ARCReader</code>.
- * If present any metadata in the ARC version block is accessible 
+ * If present any metadata in the ARC version block is accessible
  * through the payload object. Currently the payload is automatically loaded
  * into a string which is accessible through the version block api.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public class ArcVersionBlock extends ArcRecordBase {
+
+    /** Buffer size used in payload processing. */
+    public static final int PROCESSPAYLOAD_BUFFER_SIZE = 1024;
+
+    /** Buffer size used in toString(). */
+    public static final int TOSTRING_BUFFER_SIZE = 256;
 
     /*
      * Validity.
@@ -103,7 +109,7 @@ public class ArcVersionBlock extends ArcRecordBase {
             ArcFieldValidator.prepare(ArcConstants.VERSION_2_BLOCK_FIELDS);
 
     /**
-     * Protected constructor to force instantiation of version block 
+     * Protected constructor to force instantiation of version block
      * from stream.
      */
     protected ArcVersionBlock() {
@@ -114,9 +120,10 @@ public class ArcVersionBlock extends ArcRecordBase {
      * stream.
      * @param in <code>InputStream</code> used to read version block
      * @return an <code>ArcVersionBlock</code> or null if none was found.
+     * @throws IOException io exception in the process of reading version block
      */
     public static ArcVersionBlock parseVersionBlock(
-    				ByteCountingPushBackInputStream in) throws IOException {
+                    ByteCountingPushBackInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
 
@@ -133,7 +140,7 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (recordLine != null) {
             vb.checkFileDesc(recordLine);
             // Extract the path
-            //this.path = 
+            //this.path =
             // desc.url.substring(ArcConstants.ARC_SCHEME.length());
         }
         // Check for version and parse if present.
@@ -255,7 +262,8 @@ public class ArcVersionBlock extends ArcRecordBase {
             addValidationError(ArcErrorType.MISSING,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
             ct = null;
-        } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(ct)) {
+        } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(
+                ct)) {
             // Version block content-type should be equal to "text/plain"
             addValidationError(ArcErrorType.INVALID,
                                     ArcConstants.CONTENT_TYPE_FIELD, ct);
@@ -265,9 +273,11 @@ public class ArcVersionBlock extends ArcRecordBase {
     }
 
     /**
-     * An ARC v1.1 version block should have a payload consisting of XML formatted
+     * An ARC v1.1 version block should have a payload consisting of XML
+     * formatted
      * metadata related to the harvesters configuration.
      * @param in input stream containing the payload
+     * @throws IOException io exception in the process of reading payload
      */
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in)
@@ -278,13 +288,14 @@ public class ArcVersionBlock extends ArcRecordBase {
                                             - in.getCounter(), null);
             payload.setOnClosedHandler(this);
             // Look for trailing XML formatted metadata.
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[PROCESSPAYLOAD_BUFFER_SIZE];
             int read = 0;
-            ByteArrayOutputStream payloadData = new ByteArrayOutputStream((int)payload.getLength());
+            ByteArrayOutputStream payloadData =
+                    new ByteArrayOutputStream((int) payload.getLength());
             while (payload.getInputStream().available() > 0 && read != -1) {
                 read = payload.getInputStream().read(buffer, 0, buffer.length);
                 if (read != -1) {
-                	payloadData.write(buffer, 0, read);
+                    payloadData.write(buffer, 0, read);
                 }
             }
             byte[] xmlBytes = payloadData.toByteArray();
@@ -299,8 +310,8 @@ public class ArcVersionBlock extends ArcRecordBase {
     }
 
     @Override
-    public String toString(){
-        StringBuilder builder = new StringBuilder(256);
+    public String toString() {
+        StringBuilder builder = new StringBuilder(TOSTRING_BUFFER_SIZE);
         builder.append("\nVersionBlock : [\n");
         builder.append(super.toString());
         builder.append("versionNumber:");

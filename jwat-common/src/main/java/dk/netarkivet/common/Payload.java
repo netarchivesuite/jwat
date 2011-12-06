@@ -77,29 +77,33 @@ public class Payload {
      * Creates new <code>ArcPayload</code> instance.
      * @param in the input stream to parse.
      * @param length payload length.
-     * @throws IOException io exception in reading process
+     * @param digestAlgorithm digest algorithm to use on payload or null
+     * @throws IOException io exception while initializing
      */
-    public Payload(InputStream in, long length, String digestAlgorithm) throws IOException {
+    public Payload(InputStream in, long length, String digestAlgorithm)
+                                                        throws IOException {
         if (in == null) {
-            throw new IllegalArgumentException("in");
+            throw new IllegalArgumentException(
+                    "The inputstream 'in' is null");
         }
         if (length < 0) {
-            throw new IllegalArgumentException("length");
+            throw new IllegalArgumentException(
+                    "The 'length' is less than zero: " + length);
         }
         this.length = length;
         this.flin = new FixedLengthInputStream(in, length);
+        // TODO finish digest support or move this to reader
         if (digestAlgorithm != null) {
-    		try {
-    			md = MessageDigest.getInstance(digestAlgorithm);
-    		} catch (NoSuchAlgorithmException e) {
-    			e.printStackTrace();
-    		}
+            try {
+                md = MessageDigest.getInstance(digestAlgorithm);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
         }
         if (md != null) {
             this.din = new DigestInputStream(flin, md);
             this.in = new BufferedInputStream(din, BUFFER_SIZE);
-        }
-        else {
+        } else {
             this.in = new BufferedInputStream(flin, BUFFER_SIZE);
         }
     }
@@ -127,7 +131,7 @@ public class Payload {
      * @throws IOException io exception calling available method on stream
      */
     public long getUnavailable() throws IOException {
-    	return flin.available();
+        return flin.available();
     }
 
     /**
@@ -135,7 +139,7 @@ public class Payload {
      * @return <code>MessageDigest</code> used on payload stream
      */
     public MessageDigest getMessageDigest() {
-    	return md;
+        return md;
     }
 
     /**
@@ -143,7 +147,7 @@ public class Payload {
      * @param onClosedHandler on closed handler implementation
      */
     public void setOnClosedHandler(PayloadOnClosedHandler onClosedHandler) {
-    	this.onClosedHandler = onClosedHandler;
+        this.onClosedHandler = onClosedHandler;
     }
 
     /**
@@ -151,26 +155,27 @@ public class Payload {
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
-    	if (md != null) {
-    		/*
-    		long s;
-    		while ((s = din.skip(length)) != -1) {
-    			System.out.println( s );
-    		}
-    		*/
-    		byte[] buffer = new byte[1024];
-    		int r = 0;
-    		while (r != -1) {
-    			r = din.read(buffer);
-    		}
-    	}
-    	if (in != null) {
+        if (md != null) {
+            // TODO cleanup when working
+            /*
+            long s;
+            while ((s = din.skip(length)) != -1) {
+                System.out.println( s );
+            }
+            */
+            byte[] buffer = new byte[1024];
+            int r = 0;
+            while (r != -1) {
+                r = din.read(buffer);
+            }
+        }
+        if (in != null) {
             in.close();
             in = null;
-    	}
+        }
         if (onClosedHandler != null) {
-        	onClosedHandler.payloadClosed();
-        	onClosedHandler = null;
+            onClosedHandler.payloadClosed();
+            onClosedHandler = null;
         }
     }
 

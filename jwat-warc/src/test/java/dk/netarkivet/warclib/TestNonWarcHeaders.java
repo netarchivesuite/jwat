@@ -56,8 +56,8 @@ public class TestNonWarcHeaders {
 
 				record.close();
 
-				WarcHeader header1 = record.getHeader("header1");
-				WarcHeader header2 = record.getHeader("HEADER2");
+				WarcHeaderLine header1 = record.getHeader("header1");
+				WarcHeaderLine header2 = record.getHeader("HEADER2");
 
 				Assert.assertNotNull(header1);
 				Assert.assertNotNull(header2);
@@ -65,7 +65,7 @@ public class TestNonWarcHeaders {
 				Assert.assertEquals("domination", header1.value);
 				Assert.assertEquals("world", header2.value);
 
-				List<WarcHeader> headers = record.getHeaderList();
+				List<WarcHeaderLine> headers = record.getHeaderList();
 
 				String[][] headerRef = {
 						{"Header1", "hello"},

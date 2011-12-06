@@ -13,21 +13,24 @@ import java.io.PushbackInputStream;
  */
 public class ByteCountingPushBackInputStream extends PushbackInputStream {
 
+    /** Read line initial size. */
+    public static final int READLINE_INITIAL_SIZE = 128;
+
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
 
-    /** Relative byte counter. */
+    /** Byte counter which can also be changed. */
     protected long counter = 0;
 
     /**
      * Given an <code>InputStream</code> and a push back buffer size returns
-     * a wrapped input stream with push back capabilities. 
+     * a wrapped input stream with push back capabilities.
      * @param in <code>InputStream</code> to wrap
      * @param size push back buffer size
      */
     public ByteCountingPushBackInputStream(InputStream in, int size) {
-		super(in, size);
-	}
+        super(in, size);
+    }
 
     /**
      * Retrieve the number of bytes consumed by this stream.
@@ -38,18 +41,17 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     }
 
     /**
-     * Change the bytes read value.
+     * Change the counter value.
      * Useful for reading zero indexed relative data.
-     * @param bytes new value
-     * @return
+     * @param bytes new counter value
      */
     public void setCounter(long bytes) {
         counter = bytes;
     }
 
     /**
-     * Retrieve the current relative counter value.
-     * @return current relative counter value
+     * Retrieve the current counter value.
+     * @return current counter value
      */
     public long getCounter() {
         return counter;
@@ -80,14 +82,14 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     }
 
     /*
-	 * The super method did this anyway causing a double amount of
-	 * consumed bytes.
+     * The super method did this anyway causing a double amount of
+     * consumed bytes.
      * @see java.io.FilterInputStream#read(byte[])
      */
     @Override
-	public int read(byte[] b) throws IOException {
+    public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
-	}
+    }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
@@ -99,7 +101,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
         return n;
     }
 
-	@Override
+    @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
         consumed += n;
@@ -107,29 +109,29 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
         return n;
     }
 
-	@Override
-	public void unread(int b) throws IOException {
-		super.unread(b);
-		--consumed;
-		--counter;
-	}
+    @Override
+    public void unread(int b) throws IOException {
+        super.unread(b);
+        --consumed;
+        --counter;
+    }
 
-	/*
-	 * The super method did this anyway causing a double amount of
-	 * un-consumed bytes.
-	 * @see java.io.PushbackInputStream#unread(byte[])
-	 */
-	@Override
-	public void unread(byte[] b) throws IOException {
-		unread(b, 0, b.length);
-	}
+    /*
+     * The super method did this anyway causing a double amount of
+     * un-consumed bytes.
+     * @see java.io.PushbackInputStream#unread(byte[])
+     */
+    @Override
+    public void unread(byte[] b) throws IOException {
+        unread(b, 0, b.length);
+    }
 
-	@Override
-	public void unread(byte[] b, int off, int len) throws IOException {
-		super.unread(b, off, len);
-		consumed -= len;
-		counter -= len;
-	}
+    @Override
+    public void unread(byte[] b, int off, int len) throws IOException {
+        super.unread(b, off, len);
+        consumed -= len;
+        counter -= len;
+    }
 
     /**
      * Read a single line into a string.
@@ -137,7 +139,8 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * @throws IOException io exception while reading line
      */
     public String readLine() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        ByteArrayOutputStream bos =
+                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int b;
         while (true) {
             b = this.read();
@@ -154,27 +157,27 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
         return bos.toString("US-ASCII");
     }
 
-	/**
-	 * Guaranteed to read the exact number of bytes that are in the array, if
-	 * not, the bytes are pushed back into the stream before returning.
-	 * @param buffer byte buffer to read bytes into
-	 * @return the number of bytes read into array
-	 * @throws IOException io exception while reading array
-	 */
-	public int readFully(byte[] buffer) throws IOException {
-		int readOffset = 0;
-		int readRemaining = buffer.length;
-		int readLast = 0;
-		while (readRemaining > 0 && readLast != -1) {
-			readRemaining -= readLast;
-			readOffset += readLast;
-			readLast = read(buffer, readOffset, readRemaining);
-		}
-		if (readRemaining > 0) {
-			unread(buffer, 0, readOffset);
-			readOffset = 0;
-		}
-		return readOffset;
-	}
+    /**
+     * Guaranteed to read the exact number of bytes that are in the array,
+     * if not, the bytes are pushed back into the stream before returning.
+     * @param buffer byte buffer to read bytes into
+     * @return the number of bytes read into array
+     * @throws IOException io exception while reading array
+     */
+    public int readFully(byte[] buffer) throws IOException {
+        int readOffset = 0;
+        int readRemaining = buffer.length;
+        int readLast = 0;
+        while (readRemaining > 0 && readLast != -1) {
+            readRemaining -= readLast;
+            readOffset += readLast;
+            readLast = read(buffer, readOffset, readRemaining);
+        }
+        if (readRemaining > 0) {
+            unread(buffer, 0, readOffset);
+            readOffset = 0;
+        }
+        return readOffset;
+    }
 
 }

@@ -62,7 +62,8 @@ public class ArcValidationError {
             throw new IllegalArgumentException("Parameter 'error' is null");
         }
         if ((field == null) || (field.length() == 0)) {
-            throw new IllegalArgumentException("Parameter 'field' is either null or the empty string");
+            throw new IllegalArgumentException(
+                    "Parameter 'field' is either null or the empty string");
         }
         this.error = error;
         this.field = field;

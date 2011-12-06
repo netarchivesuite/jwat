@@ -54,12 +54,15 @@ import dk.netarkivet.common.PayloadOnClosedHandler;
  * This abstract class represents the common base ARC data which is present in
  * both a record or version block. This including possible common
  * validation and format warnings/errors encountered in the process.
- * This class also contains the common parts of the ARC parser which are 
+ * This class also contains the common parts of the ARC parser which are
  * intended to be called by extending classes.
  *
  * @author lbihanic, selghissassi, nicl
  */
 public abstract class ArcRecordBase implements PayloadOnClosedHandler {
+
+    /** Buffer size used in toString(). */
+    public static final int TOSTRING_BUFFER_SIZE = 256;
 
     /** Invalid ARC file property. */
     protected static final String ARC_FILE = "ARC file";
@@ -73,13 +76,15 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** ARC record version block. */
     protected ArcVersionBlock versionBlock;
 
-    /** ARC record starting offset relative to the source arc file input stream. */
+    /** ARC record starting offset relative to the source arc file input
+     *  stream. */
     protected long startOffset = -1L;
 
     /** Validation errors. */
     protected List<ArcValidationError> errors = null;
 
-    /** Do the record fields comply in number with the one dictated by its version. */
+    /** Do the record fields comply in number with the one dictated by its
+     *  version. */
     protected boolean hasCompliantFields = false;
 
     /*
@@ -139,8 +144,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * Payload
      */
 
-	/** Has payload been closed before. */
-	protected boolean bPayloadClosed;
+    /** Has payload been closed before. */
+    protected boolean bPayloadClosed;
 
     /** Has record been closed flag. */
     protected boolean bClosed;
@@ -158,42 +163,53 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             String[] records = recordLine.split(" ", -1);
             // Compare to expected numbers of fields.
             // Extract mandatory version-independent header data.
-            hasCompliantFields = (records.length == versionBlock.descValidator.fieldNames.length);
+            hasCompliantFields = (records.length
+                              == versionBlock.descValidator.fieldNames.length);
             if(!hasCompliantFields) {
                 this.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                        "URL record definition and record definition are not compliant");
+                        "URL record definition and record definition are not "
+                        + "compliant");
             }
             // Parse
-            recUrl = ArcFieldValidator.getArrayValue(records, 0);
-            recIpAddress = ArcFieldValidator.getArrayValue(records, 1);
-            recArchiveDate = ArcFieldValidator.getArrayValue(records, 2);
-            recContentType = ArcFieldValidator.getArrayValue(records, 3);
+            recUrl = ArcFieldValidator.getArrayValue(records,
+                    ArcConstants.AFIDX_URL);
+            recIpAddress = ArcFieldValidator.getArrayValue(records,
+                    ArcConstants.AFIDX_IPADDRESS);
+            recArchiveDate = ArcFieldValidator.getArrayValue(records,
+                    ArcConstants.AFIDX_ARCHIVEDATE);
+            recContentType = ArcFieldValidator.getArrayValue(records,
+                    ArcConstants.AFIDX_CONTENETTYPE);
             // Validate
             url = this.parseUri(recUrl);
             inetAddress = parseIpAddress(recIpAddress);
             archiveDate = parseDate(recArchiveDate);
             recContentType = parseContentType(recContentType);
             // Version 2
-            if ( version.equals(ArcVersion.VERSION_2) ) {
+            if (version.equals(ArcVersion.VERSION_2)) {
                 recResultCode = parseInteger(
-                        ArcFieldValidator.getArrayValue(records, 4),
+                        ArcFieldValidator.getArrayValue(records,
+                                ArcConstants.AFIDX_RESULTCODE),
                         ArcConstants.RESULT_CODE_FIELD, false);
                 recChecksum = parseString(
-                        ArcFieldValidator.getArrayValue(records, 5),
+                        ArcFieldValidator.getArrayValue(records,
+                                ArcConstants.AFIDX_CHECKSUM),
                         ArcConstants.CHECKSUM_FIELD);
                 recLocation = parseString(
-                        ArcFieldValidator.getArrayValue(records, 6),
+                        ArcFieldValidator.getArrayValue(records,
+                                ArcConstants.AFIDX_LOCATION),
                         ArcConstants.LOCATION_FIELD, true);
                 recOffset = this.parseLong(
-                        ArcFieldValidator.getArrayValue(records, 7),
+                        ArcFieldValidator.getArrayValue(records,
+                                ArcConstants.AFIDX_OFFSET),
                         ArcConstants.OFFSET_FIELD);
                 recFilename = parseString(
-                        ArcFieldValidator.getArrayValue(records, 8),
+                        ArcFieldValidator.getArrayValue(records,
+                                ArcConstants.AFIDX_FILENAME),
                         ArcConstants.FILENAME_FIELD);
             }
             recLength = parseLong(
-                    ArcFieldValidator.getArrayValue(records, records.length - 1),
-                    ArcConstants.LENGTH_FIELD);
+                    ArcFieldValidator.getArrayValue(records,
+                            records.length - 1), ArcConstants.LENGTH_FIELD);
             // Check read and computed offset value only if we're reading
             // a plain ARC file, not a GZipped ARC.
             if ((recOffset != null) && (startOffset > 0L)
@@ -266,36 +282,46 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         return null;
     }
 
-	public void payloadClosed() throws IOException {
-		if (!bPayloadClosed) {
-			// Check for truncated payload.
+    /**
+     * Called when the payload object is closed and final steps in the
+     * validation process can be performed.
+     * @throws IOException io exception in final validation processing
+     */
+    @Override
+    public void payloadClosed() throws IOException {
+        if (!bPayloadClosed) {
+            // Check for truncated payload.
             if (payload != null && payload.getUnavailable() > 0) {
                 addValidationError(ArcErrorType.INVALID, ARC_RECORD,
                         "Payload length mismatch");
             }
-			bPayloadClosed = true;
-		}
-	}
-
-    public boolean isClosed() {
-    	return bClosed;
+            bPayloadClosed = true;
+        }
     }
 
     /**
-     * Close resources associated with the ARC record. 
+     * Check to see if the record has been closed.
+     * @return boolean indicating whether this record was close or not
+     */
+    public boolean isClosed() {
+        return bClosed;
+    }
+
+    /**
+     * Close resources associated with the ARC record.
      * Mainly payload stream if any.
      * @throws IOException io exception close the payload resources
      */
     public void close() throws IOException {
-    	if (!bClosed) {
-			// Ensure input stream is at the end of the record payload.
+        if (!bClosed) {
+            // Ensure input stream is at the end of the record payload.
             if (payload != null) {
                 payload.close();
             }
-	        payloadClosed();
+            payloadClosed();
             payload = null;
             bClosed = true;
-    	}
+        }
     }
 
     /**
@@ -303,7 +329,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param in ARC record <code>InputStream</code>
      * @throws IOException io exception in the parsing process
      */
-    protected abstract void processPayload(ByteCountingPushBackInputStream in) throws IOException;
+    protected abstract void processPayload(ByteCountingPushBackInputStream in)
+            throws IOException;
 
     /**
      * isNetworkDocValidated getter.
@@ -322,7 +349,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     //public abstract void validateNetworkDoc();
 
     /**
-     * Validates the network doc. This method is called when processing compressed ARC.
+     * Validates the network doc. This method is called when processing
+     * compressed ARC.
      * @throws IOException io exception in parsing
      */
     /*
@@ -341,7 +369,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /**
      * Specifies whether this record has a payload or not.
-     * @return true/false whether the ARC record has a payload 
+     * @return true/false whether the ARC record has a payload
      */
     public boolean hasPayload() {
         return (payload != null);
@@ -412,7 +440,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param optional specifies if the value is optional or not
      * @return an integer object holding the value of the specified string
      */
-    protected Integer parseInteger(String intStr, String field, boolean optional) {
+    protected Integer parseInteger(String intStr, String field,
+                                   boolean optional) {
         Integer result = this.parseInteger(intStr, field);
         if((result == null) && (!optional)){
             // Missing mandatory value.
@@ -481,11 +510,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 protocol = uri.getScheme();
             } catch (Exception e) {
                 // Invalid URI.
-                addValidationError(ArcErrorType.INVALID, ArcConstants.URL_FIELD, value);
+                addValidationError(ArcErrorType.INVALID,
+                                   ArcConstants.URL_FIELD, value);
             }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING, ArcConstants.URL_FIELD, value);
+            addValidationError(ArcErrorType.MISSING,
+                               ArcConstants.URL_FIELD, value);
         }
         return uri;
     }
@@ -501,11 +532,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid date.
-                addValidationError(ArcErrorType.INVALID, ArcConstants.IP_ADDRESS_FIELD, ipAddress);
+                addValidationError(ArcErrorType.INVALID,
+                                   ArcConstants.IP_ADDRESS_FIELD, ipAddress);
             }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING, ArcConstants.IP_ADDRESS_FIELD, ipAddress);
+            addValidationError(ArcErrorType.MISSING,
+                               ArcConstants.IP_ADDRESS_FIELD, ipAddress);
         }
         return inetAddr;
     }
@@ -521,11 +554,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 date = ArcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addValidationError(ArcErrorType.INVALID, ArcConstants.DATE_FIELD, dateStr);
+                    addValidationError(ArcErrorType.INVALID,
+                                       ArcConstants.DATE_FIELD, dateStr);
                 }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING, ArcConstants.DATE_FIELD, dateStr);
+            addValidationError(ArcErrorType.MISSING,
+                               ArcConstants.DATE_FIELD, dateStr);
         }
         return date;
     }
@@ -663,7 +698,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(256);
+        StringBuilder builder = new StringBuilder(TOSTRING_BUFFER_SIZE);
         if (recUrl != null) {
             builder.append("url:").append(recUrl);
         }

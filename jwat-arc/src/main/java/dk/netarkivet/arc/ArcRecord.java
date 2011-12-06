@@ -43,7 +43,7 @@ import dk.netarkivet.common.HttpResponse;
 import dk.netarkivet.common.Payload;
 
 /**
- * This class represents a parsed ARC record header including possible 
+ * This class represents a parsed ARC record header including possible
  * validation and format warnings/errors encountered in the process.
  * This class also contains the specific ARC record parser which is
  * intended to be called by the <code>ARCReader</code>.
@@ -53,6 +53,9 @@ import dk.netarkivet.common.Payload;
  * @author lbihanic, selghissassi, nicl
  */
 public class ArcRecord extends ArcRecordBase {
+
+    /** Buffer size used in toString(). */
+    public static final int TOSTRING_BUFFER_SIZE = 256;
 
     /** Special content-type for none. */
     public static final String CONTENT_TYPE_NO_TYPE = "no-type";
@@ -73,9 +76,10 @@ public class ArcRecord extends ArcRecordBase {
      * @param in <code>InputStream</code> used to read record header
      * @param versionBlock ARC file <code>VersionBlock</code>
      * @return an <code>ArcRecord</code> or null if none was found.
+     * @throws IOException io exception while parsing arc record
      */
     public static ArcRecord parseArcRecord(ByteCountingPushBackInputStream in,
-    					ArcVersionBlock versionBlock) throws IOException {
+                        ArcVersionBlock versionBlock) throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
         ar.version = versionBlock.version;
@@ -110,7 +114,7 @@ public class ArcRecord extends ArcRecordBase {
             if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
                 httpResponse = HttpResponse.processPayload(
-                			payload.getInputStream(), recLength.longValue());
+                            payload.getInputStream(), recLength.longValue());
             }
         } else if (HttpResponse.isSupported(protocol)
                             && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
@@ -140,7 +144,7 @@ public class ArcRecord extends ArcRecordBase {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(256);
+        StringBuilder builder = new StringBuilder(TOSTRING_BUFFER_SIZE);
         builder.append("\nArcRecord [");
         builder.append(super.toString());
         builder.append(']');

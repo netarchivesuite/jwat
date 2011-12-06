@@ -120,10 +120,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 */
 
 	/** List of parsed header fields. */
-	private List<WarcHeader> headerList;
+	private List<WarcHeaderLine> headerList;
 
 	/** Map of parsed header fields. */
-	private Map<String, WarcHeader> headerMap;
+	private Map<String, WarcHeaderLine> headerMap;
 
     /*
      * Payload
@@ -197,6 +197,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		return wr;
 	}
 
+    /**
+     * Called when the payload object is closed and final steps in the
+     * validation process can be performed.
+     * @throws IOException io exception in final validation processing
+     */
+    @Override
 	public void payloadClosed() throws IOException {
 		if (!bPayloadClosed) {
             if (payload != null) {
@@ -241,6 +247,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+    /**
+     * Check to see if the record has been closed.
+     * @return boolean indicating whether this record was close or not
+     */
     public boolean isClosed() {
     	return bClosed;
     }
@@ -351,7 +361,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	}
 
 	protected void parseFields(ByteCountingPushBackInputStream in) throws IOException {
-		WarcHeader warcHeader;
+		WarcHeaderLine warcHeader;
 		boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 		boolean bFields = true;
 		while (bFields) {
@@ -386,7 +396,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
-	protected void parseField(WarcHeader warcHeader, boolean[] seen) {
+	protected void parseField(WarcHeaderLine warcHeader, boolean[] seen) {
 		String field = warcHeader.name;
 		String value = warcHeader.value;
 		Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
@@ -524,10 +534,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		else {
 			// Not a recognized WARC field name.
 			if (headerList == null) {
-				headerList = new ArrayList<WarcHeader>();
+				headerList = new ArrayList<WarcHeaderLine>();
 			}
 			if (headerMap == null) {
-				headerMap = new HashMap<String, WarcHeader>();
+				headerMap = new HashMap<String, WarcHeaderLine>();
 			}
 			headerList.add(warcHeader);
 			headerMap.put(field.toLowerCase(), warcHeader);
@@ -945,8 +955,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
         }
     }
 
-    protected WarcHeader readHeaderLine(PushbackInputStream in) throws IOException {
-    	WarcHeader warcHeader = null;
+    protected WarcHeaderLine readHeaderLine(PushbackInputStream in) throws IOException {
+    	WarcHeaderLine warcHeader = null;
     	ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
     	StringBuilder sb = new StringBuilder(128);
     	int state = S_START;
@@ -970,7 +980,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     				bCr = true;
     				break;
     			case '\n':
-    				warcHeader = new WarcHeader();
+    				warcHeader = new WarcHeaderLine();
     				warcHeader.line = bos.toString();
     				if (!bCr) {
     					// Missing CR.
@@ -999,7 +1009,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     				bCr = true;
     				break;
     			case '\n':
-    				warcHeader = new WarcHeader();
+    				warcHeader = new WarcHeaderLine();
     				warcHeader.line = bos.toString();
     				if (!bCr) {
     					// Missing CR.
@@ -1022,7 +1032,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     				bCr = true;
     				break;
     			case '\n':
-    				warcHeader = new WarcHeader();
+    				warcHeader = new WarcHeaderLine();
     				warcHeader.line = bos.toString();
     				if (!bCr) {
     					// Missing CR.
@@ -1031,7 +1041,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     				bLoop = false;
     				break;
     			case ':':
-    				warcHeader = new WarcHeader();
+    				warcHeader = new WarcHeaderLine();
     				warcHeader.name = bos.toString("US-ASCII");
     				if (bCr) {
     					// Misplaced CR.
@@ -1229,7 +1239,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * parsing.
      * @return <code>List</code> of <code>WarcHeader</code>
      */
-	public List<WarcHeader> getHeaderList() {
+	public List<WarcHeaderLine> getHeaderList() {
 		if (headerList != null) {
 			return Collections.unmodifiableList(headerList);
 		}
@@ -1238,7 +1248,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
-	public WarcHeader getHeader(String field) {
+	public WarcHeaderLine getHeader(String field) {
 		if (headerMap != null && field != null) {
 			return headerMap.get(field.toLowerCase());
 		}

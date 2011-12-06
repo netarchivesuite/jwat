@@ -63,12 +63,12 @@ public class ArcFieldValidator {
      * @return validator used to look field by field name->index.
      */
     public static ArcFieldValidator prepare(String[] fieldNames) {
-        ArcFieldValidator fd = new ArcFieldValidator();
-        fd.fieldNames = fieldNames;
+        ArcFieldValidator fv = new ArcFieldValidator();
+        fv.fieldNames = fieldNames;
         for (int i = 0; i < fieldNames.length; ++i) {
-            fd.fieldIdxMap.put(fieldNames[i], i);
+            fv.fieldIdxMap.put(fieldNames[i], i);
         }
-        return fd;
+        return fv;
     }
 
     /**

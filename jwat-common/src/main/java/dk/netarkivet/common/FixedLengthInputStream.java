@@ -41,7 +41,7 @@ import java.io.InputStream;
 
 /**
  * <code>InputStream</code> with a fixed amount of bytes available to read.
- * When the stream is closed the remaining bytes that have not been read are 
+ * When the stream is closed the remaining bytes that have not been read are
  * read or skipped.
  *
  * @author lbihanic, selghissassi
@@ -92,11 +92,11 @@ public final class FixedLengthInputStream extends FilterInputStream {
     }
 
     @Override
-	public int read(byte[] b) throws IOException {
-		return read(b, 0, b.length);
-	}
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
 
-	@Override
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int l = -1;
         if (remaining > 0L) {

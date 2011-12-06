@@ -48,10 +48,13 @@ import java.io.InputStream;
  */
 public class ByteCountingInputStream extends FilterInputStream {
 
+    /** Read line initial size. */
+    public static final int READLINE_INITIAL_SIZE = 128;
+
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
 
-    /** Relative byte counter. */
+    /** Byte counter which can also be changed. */
     protected long counter = 0;
 
     /**
@@ -72,18 +75,17 @@ public class ByteCountingInputStream extends FilterInputStream {
     }
 
     /**
-     * Change the bytes read value.
+     * Change the counter value.
      * Useful for reading zero indexed relative data.
-     * @param bytes new value
-     * @return
+     * @param bytes new counter value
      */
     public void setCounter(long bytes) {
         counter = bytes;
     }
 
     /**
-     * Retrieve the current relative counter value.
-     * @return current relative counter value
+     * Retrieve the current counter value.
+     * @return current counter value
      */
     public long getCounter() {
         return counter;
@@ -136,7 +138,8 @@ public class ByteCountingInputStream extends FilterInputStream {
      * @throws IOException io exception while reading line
      */
     public String readLine() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        ByteArrayOutputStream bos =
+                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int b;
         while (true) {
             b = this.read();
@@ -158,7 +161,8 @@ public class ByteCountingInputStream extends FilterInputStream {
      * @throws IOException io exception while reading line
      */
     public String readLines(int lines) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
+        ByteArrayOutputStream bos =
+                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int i = lines;
         while (i > 0) {
             int b = this.read();

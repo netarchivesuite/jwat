@@ -22,16 +22,16 @@ public abstract class ArcReader {
     protected ArcRecordBase previousRecord = null;
 
     /** Exception thrown while using the iterator. */
-	public Exception exceptionThrown;
-
-	/**
-	 * Is this reader assuming compressed input.
-	 * @return boolean indicating the assumption of compressed input
-	 */
-	public abstract boolean isCompressed();
+    public Exception exceptionThrown;
 
     /**
-     * Close current record resource(s) and input stream(s). 
+     * Is this reader assuming compressed input.
+     * @return boolean indicating the assumption of compressed input
+     */
+    public abstract boolean isCompressed();
+
+    /**
+     * Close current record resource(s) and input stream(s).
      */
     public abstract void close();
 
@@ -53,10 +53,12 @@ public abstract class ArcReader {
     /**
      * Parses and gets the version block of an ARC file from the supplied
      * <code>InputStream</code>.
+     * @param in input stream from which to read version block
      * @return the version block of the ARC file
      * @throws IOException io exception in reading process
      */
-    public abstract ArcVersionBlock getVersionBlock(InputStream in) throws IOException;
+    public abstract ArcVersionBlock getVersionBlock(InputStream in)
+            throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -72,7 +74,8 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException;
+    public abstract ArcRecord getNextRecordFrom(InputStream in, long offset)
+            throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -82,7 +85,8 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextRecordFrom(InputStream in, int buffer_size, long offset) throws IOException;
+    public abstract ArcRecord getNextRecordFrom(InputStream in,
+            int buffer_size, long offset) throws IOException;
 
     /**
      * <code>Iterator</code> over the <code>ARC</code> records.
@@ -101,7 +105,7 @@ public abstract class ArcReader {
                     try {
                         next = getNextRecord();
                     } catch (IOException e) {
-						exceptionThrown = e;
+                        exceptionThrown = e;
                     }
                 }
                 return (next != null);
@@ -113,7 +117,7 @@ public abstract class ArcReader {
                     try {
                         next = getNextRecord();
                     } catch (IOException e) {
-						exceptionThrown = e;
+                        exceptionThrown = e;
                     }
                 }
                 if (next == null) {

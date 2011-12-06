@@ -50,33 +50,36 @@ import dk.netarkivet.common.ByteCountingPushBackInputStream;
  */
 public class ArcReaderUncompressed extends ArcReader {
 
+    /** Buffer size used by <code>PushbackInputStream</code>. */
+    public static final int PUSHBACK_BUFFER_SIZE = 16;
+
     /** ARC file <code>ByteCountingPushBackInputStream</code>. */
     protected ByteCountingPushBackInputStream in;
 
-	/**
-	 * Construct reader not associated with any input stream.
-	 * The reader must be supplied an input stream for each record read.
-	 * This method is for use with random access to records.
-	 */
+    /**
+     * This constructor is used to get random access to records.
+     * The records are then accessed using the getNextRecordFrom methods
+     * using a supplied input stream for each record.
+     */
     ArcReaderUncompressed() {
     }
 
     /**
-	 * Construct reader using the supplied input stream.
-	 * This method is primarily for linear access to records.
-	 * @param in ARC file input stream
-	 */
+     * Construct reader using the supplied input stream.
+     * This method is primarily for sequential access to records.
+     * @param in ARC file input stream
+     */
     ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
-            throw new IllegalArgumentException("in");
+            throw new IllegalArgumentException("The inputstream 'in' is null");
         }
         this.in = in;
     }
 
-	@Override
-	public boolean isCompressed() {
-		return false;
-	}
+    @Override
+    public boolean isCompressed() {
+        return false;
+    }
 
     @Override
     public void close() {
@@ -103,84 +106,99 @@ public class ArcReaderUncompressed extends ArcReader {
     @Override
     public ArcVersionBlock getVersionBlock() throws IOException {
         if (previousRecord != null) {
-        	previousRecord.close();
+            previousRecord.close();
         }
         if (in == null) {
-        	throw new IllegalStateException("in");
+            throw new IllegalStateException("The inputstream 'in' is null");
         }
         versionBlock = ArcVersionBlock.parseVersionBlock(in);
-		previousRecord = versionBlock;
+        previousRecord = versionBlock;
         return versionBlock;
     }
 
     @Override
-    public ArcVersionBlock getVersionBlock(InputStream in) throws IOException {
+    public ArcVersionBlock getVersionBlock(InputStream vbin)
+            throws IOException {
         if (previousRecord != null) {
-        	previousRecord.close();
+            previousRecord.close();
         }
-        if (in == null) {
-        	throw new IllegalStateException("in");
+        if (vbin == null) {
+            throw new IllegalStateException("The inputstream 'vbin' is null");
         }
-        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+        ByteCountingPushBackInputStream pbin =
+                new ByteCountingPushBackInputStream(vbin,
+                        PUSHBACK_BUFFER_SIZE);
         versionBlock = ArcVersionBlock.parseVersionBlock(pbin);
-		previousRecord = versionBlock;
+        previousRecord = versionBlock;
         return versionBlock;
     }
 
     @Override
     public ArcRecord getNextRecord() throws IOException {
         if (previousRecord != null) {
-        	previousRecord.close();
+            previousRecord.close();
         }
         if (in == null) {
-        	throw new IllegalStateException("in");
+            throw new IllegalStateException("The inputstream 'in' is null");
         }
         arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
-		previousRecord = arcRecord;
+        previousRecord = arcRecord;
         return arcRecord;
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream in, long offset) throws IOException {
+    public ArcRecord getNextRecordFrom(InputStream rin, long offset)
+            throws IOException {
         if (previousRecord != null) {
-        	previousRecord.close();
+            previousRecord.close();
         }
-        if (in == null) {
-        	throw new InvalidParameterException("in");
+        if (rin == null) {
+            throw new InvalidParameterException(
+                    "The inputstream 'rin' is null");
         }
         if (offset < 0) {
-        	throw new InvalidParameterException("offset");
+            throw new InvalidParameterException(
+                    "The 'offset' is less than zero: " + offset);
         }
-        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+        ByteCountingPushBackInputStream pbin =
+                new ByteCountingPushBackInputStream(rin,
+                        PUSHBACK_BUFFER_SIZE);
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
         }
-		previousRecord = arcRecord;
+        previousRecord = arcRecord;
         return arcRecord;
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream in, int buffer_size,
-    										long offset) throws IOException {
+    public ArcRecord getNextRecordFrom(InputStream rin, int buffer_size,
+                                            long offset) throws IOException {
         if (previousRecord != null) {
-        	previousRecord.close();
+            previousRecord.close();
         }
-        if (in == null) {
-        	throw new InvalidParameterException("in");
+        if (rin == null) {
+            throw new InvalidParameterException(
+                    "The inputstream 'rin' is null");
         }
         if (buffer_size <= 0) {
-        	throw new InvalidParameterException("buffer_size");
+            throw new InvalidParameterException(
+                    "The 'buffer_size' is less than or equal to zero: "
+                    + buffer_size);
         }
         if (offset < 0) {
-        	throw new InvalidParameterException("offset");
+            throw new InvalidParameterException(
+                    "The 'offset' is less than zero: " + offset);
         }
-        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(new BufferedInputStream(in, buffer_size), 16);
+        ByteCountingPushBackInputStream pbin =
+                new ByteCountingPushBackInputStream(
+                        new BufferedInputStream(rin, buffer_size),
+                        PUSHBACK_BUFFER_SIZE);
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
         }
-		previousRecord = arcRecord;
+        previousRecord = arcRecord;
         return arcRecord;
     }
 
