@@ -39,7 +39,6 @@ package dk.netarkivet.arc;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidParameterException;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
@@ -123,7 +122,7 @@ public class ArcReaderUncompressed extends ArcReader {
             previousRecord.close();
         }
         if (vbin == null) {
-            throw new IllegalStateException("The inputstream 'vbin' is null");
+            throw new IllegalArgumentException("The inputstream 'vbin' is null");
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(vbin,
@@ -153,11 +152,11 @@ public class ArcReaderUncompressed extends ArcReader {
             previousRecord.close();
         }
         if (rin == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
         if (offset < 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'offset' is less than zero: " + offset);
         }
         ByteCountingPushBackInputStream pbin =
@@ -178,16 +177,16 @@ public class ArcReaderUncompressed extends ArcReader {
             previousRecord.close();
         }
         if (rin == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
         if (buffer_size <= 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
         if (offset < 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'offset' is less than zero: " + offset);
         }
         ByteCountingPushBackInputStream pbin =

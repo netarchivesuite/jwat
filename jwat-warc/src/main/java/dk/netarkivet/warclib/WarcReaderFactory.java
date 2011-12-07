@@ -3,7 +3,6 @@ package dk.netarkivet.warclib;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidParameterException;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.gzip.GzipInputStream;
@@ -44,11 +43,11 @@ public class WarcReaderFactory {
     public static WarcReader getReader(InputStream in, int buffer_size)
                                                         throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         if (buffer_size <= 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: " +
                     buffer_size);
         }
@@ -74,7 +73,7 @@ public class WarcReaderFactory {
      */
     public static WarcReader getReader(InputStream in) throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         ByteCountingPushBackInputStream pbin =
@@ -106,7 +105,7 @@ public class WarcReaderFactory {
     public static WarcReader getReaderUncompressed(InputStream in)
                                                         throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         ByteCountingPushBackInputStream pbin =
@@ -127,11 +126,11 @@ public class WarcReaderFactory {
     public static WarcReader getReaderUncompressed(InputStream in,
                                         int buffer_size) throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         if (buffer_size <= 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: " +
                     buffer_size);
         }
@@ -163,7 +162,7 @@ public class WarcReaderFactory {
     public static WarcReader getReaderCompressed(InputStream in)
                                                         throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         return new WarcReaderCompressed(new GzipInputStream(in));
@@ -182,11 +181,11 @@ public class WarcReaderFactory {
     public static WarcReader getReaderCompressed(InputStream in,
                                         int buffer_size) throws IOException {
         if (in == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
         if (buffer_size <= 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: " +
                     buffer_size);
         }

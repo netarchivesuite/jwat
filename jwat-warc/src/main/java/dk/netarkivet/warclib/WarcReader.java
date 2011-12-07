@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 public abstract class WarcReader {
 
     /** Digesting enabled/disabled. */
-    protected boolean bDigest = true;
+    protected boolean bDigest = false;
 
     /** Current WARC record object. */
     protected WarcRecord warcRecord;

@@ -7,8 +7,8 @@ import java.util.Map;
  * Class containing all relevant WARC constants and structures. 
  * Including but not limited to field names and mime-types.
  * Also includes not statically initialized structures from validation.  
- * @author nicl
  *
+ * @author nicl
  */
 public class WarcConstants {
 

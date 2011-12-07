@@ -3,7 +3,6 @@ package dk.netarkivet.warclib;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidParameterException;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 
@@ -81,7 +80,7 @@ public class WarcReaderUncompressed extends WarcReader {
             warcRecord.close();
         }
         if (rin == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
         warcRecord = WarcRecord.parseRecord(
@@ -96,11 +95,11 @@ public class WarcReaderUncompressed extends WarcReader {
             warcRecord.close();
         }
         if (rin == null) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
         if (buffer_size <= 0) {
-            throw new InvalidParameterException(
+            throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
