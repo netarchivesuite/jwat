@@ -46,6 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
+import dk.netarkivet.common.ContentType;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
@@ -137,6 +138,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** String to <code>Date</code> conversion from "YYYYMMDDhhmmss" format. */
     public Date archiveDate;
 
+    /** Content-Type wrapper object with optional parameters. */
+    public ContentType contentType;
+
     /** Specifies whether the network has been already validated or not. */
     //private boolean isNetworkDocValidated = false;
 
@@ -183,7 +187,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             url = this.parseUri(recUrl);
             inetAddress = parseIpAddress(recIpAddress);
             archiveDate = parseDate(recArchiveDate);
-            recContentType = parseContentType(recContentType);
+            contentType = parseContentType(recContentType);
             // Version 2
             if (version.equals(ArcVersion.VERSION_2)) {
                 recResultCode = parseInteger(
@@ -567,12 +571,26 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /**
      * Parses ARC record content type.
-     * @param contentType ARC record content type
+     * @param contentTypeStr ARC record content type
      * @return ARC record content type
      */
-    protected String parseContentType(String contentType) {
-        // TODO check for valid content-type string
-        return parseString(contentType, ArcConstants.CONTENT_TYPE_FIELD);
+    protected ContentType parseContentType(String contentTypeStr) {
+    	ContentType contentType = null;
+    	if (contentTypeStr != null && contentTypeStr.length() != 0) {
+    		contentType = ContentType.parseContentType(contentTypeStr);
+    		if (contentType == null) {
+                // Invalid content-type.
+                addValidationError(ArcErrorType.INVALID,
+                				   ArcConstants.CONTENT_TYPE_FIELD,
+                				   contentTypeStr);
+    		}
+    	} else {
+            // Missing content-type.
+            addValidationError(ArcErrorType.MISSING,
+            				   ArcConstants.CONTENT_TYPE_FIELD,
+            				   contentTypeStr);
+        }
+    	return contentType;
     }
 
     /**

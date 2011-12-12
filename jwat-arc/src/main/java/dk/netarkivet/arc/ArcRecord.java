@@ -57,9 +57,6 @@ public class ArcRecord extends ArcRecordBase {
     /** Buffer size used in toString(). */
     public static final int TOSTRING_BUFFER_SIZE = 256;
 
-    /** Special content-type for none. */
-    public static final String CONTENT_TYPE_NO_TYPE = "no-type";
-
     /** HttpResponse header content parse from payload. */
     public HttpResponse httpResponse = null;
 
@@ -112,12 +109,14 @@ public class ArcRecord extends ArcRecordBase {
             payload = new Payload(in, recLength.longValue(), null);
             payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
-                            && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
+                            && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
+                            		recContentType)) {
                 httpResponse = HttpResponse.processPayload(
                             payload.getInputStream(), recLength.longValue());
             }
         } else if (HttpResponse.isSupported(protocol)
-                            && !CONTENT_TYPE_NO_TYPE.equals(recContentType)) {
+                            && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
+                            		recContentType)) {
             addValidationError(ArcErrorType.INVALID, ARC_FILE,
                     "Expected payload not found in the record block");
         }

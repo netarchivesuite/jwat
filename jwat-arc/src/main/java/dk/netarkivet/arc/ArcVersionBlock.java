@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
+import dk.netarkivet.common.ContentType;
 import dk.netarkivet.common.Payload;
 
 /**
@@ -251,23 +252,25 @@ public class ArcVersionBlock extends ArcRecordBase {
 
     /**
      * Parses version block content type.
-     * @param contentType the content type to parse
+     * @param contentTypeStr the content type to parse
      * @return the version block content type
      */
     @Override
-    public String parseContentType(String contentType) {
-        String ct = super.parseContentType(contentType);
-        if (ct == null || ct.length() == 0) {
+    public ContentType parseContentType(String contentTypeStr) {
+        ContentType ct = super.parseContentType(contentTypeStr);
+        if (ct == null) {
             // Version block content-type is required.
             addValidationError(ArcErrorType.MISSING,
-                                    ArcConstants.CONTENT_TYPE_FIELD, ct);
+                               ArcConstants.CONTENT_TYPE_FIELD,
+                               contentTypeStr);
             ct = null;
-        } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equalsIgnoreCase(
-                ct)) {
+        } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equals(
+                ct.contentType) || 
+                !ArcConstants.VERSION_BLOCK_MEDIA_TYPE.equals(ct.mediaType)) {
             // Version block content-type should be equal to "text/plain"
             addValidationError(ArcErrorType.INVALID,
-                                    ArcConstants.CONTENT_TYPE_FIELD, ct);
-            ct = ct.toLowerCase();
+                               ArcConstants.CONTENT_TYPE_FIELD,
+                               contentTypeStr);
         }
         return ct;
     }

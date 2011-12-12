@@ -42,7 +42,7 @@ package dk.netarkivet.warclib;
  */
 public class WarcValidationError {
 
-    /** Supported error types {@link ArcErrorType}. */
+    /** Supported error types {@link WarcErrorType}. */
     public final WarcErrorType error;
 
     /** Field name. */
@@ -53,7 +53,7 @@ public class WarcValidationError {
 
     /**
      * Creates new <code>ValidationError</code>.
-     * @param error error type {@link ArcErrorType}.
+     * @param error error type {@link WarcErrorType}.
      * @param field field name.
      * @param value field value.
      */

@@ -6,13 +6,14 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * WARC Date parser and format validator ("yyyy-MM-dd'T'HH:mm:ss'Z'").
+ * WARC-Date parser and format validator. The format "yyyy-MM-dd'T'HH:mm:ss'Z'"
+ * is specified in the WARC ISO standard.
  *
- * @author lbihanic, selghissassi
+ * @author lbihanic, selghissassi, nicl
  */
 public class WarcDateParser {
 
-    /** Allowed format string. */
+    /** Allowed date format string according to the WARC ISO standard. */
     private static final String WARC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
     /** Allowed <code>DateFormat</code>. */
@@ -43,6 +44,8 @@ public class WarcDateParser {
     private Date parseDate(String dateStr) {
         Date date = null;
         try {
+        	// We subtract 4 from the format because of the ' characters.
+        	// These characters are to specify constants in the format string. 
             if ((dateStr != null)
                             && dateStr.length() == WARC_DATE_FORMAT.length() - 4) {
             	// Support upper/lower-case.

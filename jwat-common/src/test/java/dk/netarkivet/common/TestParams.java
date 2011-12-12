@@ -9,6 +9,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/**
+ * Test IPAddressParser class with various legal and illegal parameters.
+ *
+ * @author nicl
+ */
 @RunWith(JUnit4.class)
 public class TestParams {
 

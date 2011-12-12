@@ -36,7 +36,8 @@
 package dk.netarkivet.arc;
 
 /**
- * Supported error types.
+ * Class containing all relevant ARC constants and structures.
+ * Including but not limited to field names and mime-types.
  *
  * @author lbihanic, selghissassi, nicl
  */
@@ -45,8 +46,17 @@ public final class ArcConstants {
     /** Arc file magic number. */
     public static final String ARC_SCHEME = "filedesc://";
 
-    /** Version block content type. */
-    public static final String VERSION_BLOCK_CONTENT_TYPE = "text/plain";
+    /** Text plain content type. */
+    public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+
+    /** Special content-type for none. */
+    public static final String CONTENT_TYPE_NO_TYPE = "no-type";
+
+    /** Version block preferred content-type. */
+    public static final String VERSION_BLOCK_CONTENT_TYPE = "text";
+
+    /** Version block preferred media-type. */
+    public static final String VERSION_BLOCK_MEDIA_TYPE = "plain";
 
     /**
      * Record block fields.

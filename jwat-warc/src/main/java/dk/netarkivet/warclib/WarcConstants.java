@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class containing all relevant WARC constants and structures. 
+ * Class containing all relevant WARC constants and structures.
  * Including but not limited to field names and mime-types.
- * Also includes not statically initialized structures from validation.  
+ * Also includes non statically initialized structures for validation.
  *
  * @author nicl
  */
@@ -18,17 +18,41 @@ public class WarcConstants {
 	 * */
 	public static final String WARC_MAGIC_HEADER = "WARC/";
 
+	/*
+	 * WARC content-types (MIME).
+	 */
+
 	/** WARC mime type. */
 	public static final String WARC_MIME_TYPE = "application/warc";
 
-	/** Number of warc fields (zero-indexed). */
+	/** Suggested content-type/media-type for metadata records and others. */
+	public static final String CT_APP_WARC_FIELDS = "application/warc-fields";
+
+	/** Suggested content-type for metadata records and others. */
+	public static final String CONTENT_TYPE_METADATA = "application";
+
+	/** Suggested media-type for metadata records and others. */
+	public static final String MEDIA_TYPE_METADATA = "warc-fields";
+
+	//"text/dns"
+	//"application/http;msgtype=request"
+	//"application/http;msgtype=response"
+
+	/*
+	 * Voodoo magic constants.
+	 */
+
+	/** Trailing newlines after each record as per the WARC ISO standard. */
+	public static final int WARC_RECORD_TRAILING_NEWLINES = 2;
+
+	/** Number of WARC fields (zero-indexed). */
 	public static final int FN_MAX_NUMBER = 19+1;
 
-	/** Number of warc types (zero indexed). */
+	/** Number of WARC types (zero indexed). */
 	public static final int RT_MAX_NUMBER = 8+1;
 
 	/*
-	 * Warc field names.
+	 * WARC field names.
 	 */
 
 	/** Raw warc-type field name. */
@@ -70,7 +94,8 @@ public class WarcConstants {
 	/** Raw warc-segment-totalt-length field name. */
 	public static final String FN_WARC_SEGMENT_TOTAL_LENGTH = "WARC-Segment-Total-Length";
 
-	/** Warc field name id to field name mapping table. */
+	/** WARC field name id to field name mapping table.
+	 *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
 	public static final String[] FN_IDX_STRINGS = {
 		null,
 		FN_WARC_TYPE,
@@ -137,7 +162,7 @@ public class WarcConstants {
 	public static final Map<String, Integer> fieldNameIdxMap = new HashMap<String, Integer>();
 
 	/**
-	 * Populate map of known warc field names.
+	 * Populate map of known WARC field names.
 	 */
 	static {
 		fieldNameIdxMap.put(FN_WARC_TYPE.toLowerCase(), FN_IDX_WARC_TYPE);
@@ -162,7 +187,7 @@ public class WarcConstants {
 	}
 
 	/*
-	 * Warc fields that can have multiple occurrences in a Warc header.
+	 * WARC fields that can have multiple occurrences in a Warc header.
 	 */
 
 	/** Lookup table of Warc fields that can have multiple occurrences. */
@@ -176,7 +201,7 @@ public class WarcConstants {
 	}
 
 	/*
-	 * Warc record types.
+	 * WARC record types.
 	 */
 
 	/** Raw WARC-Type warcinfo id. */
@@ -307,13 +332,6 @@ public class WarcConstants {
 	}
 
 	/*
-	 * Warc content-types (MIME).
-	 */
-
-	/** Suggested Content-type for metadata records and others. */
-	public static final String CT_APP_WARC_FIELDS = "application/warc-fields";
-
-	/*
 	 * The different requirement levels as per RFC 2119.
 	 * (See http://www.ietf.org/rfc/rfc2119.txt)
 	 */
@@ -419,10 +437,6 @@ public class WarcConstants {
 		// Warc-Segment-Number
 		field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
 	}
-
-	//"text/dns"
-	//"application/http;msgtype=request"
-	//"application/http;msgtype=response"
 
 	/*
 	WARC-Type

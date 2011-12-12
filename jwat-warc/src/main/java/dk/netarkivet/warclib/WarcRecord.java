@@ -16,10 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import dk.netarkivet.common.Base16;
-import dk.netarkivet.common.Base32;
-import dk.netarkivet.common.Base64;
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
+import dk.netarkivet.common.ContentType;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
@@ -71,7 +69,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	public Long contentLength;
 
 	public String contentTypeStr;
-	public String contentType;
+	public ContentType contentType;
 
 	public String warcTruncatedStr;
 	public Integer warcTruncatedIdx;
@@ -98,7 +96,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	public WarcDigest warcPayloadDigest;
 
 	public String warcIdentifiedPayloadTypeStr;
-	public String warcIdentifiedPayloadType;
+	public ContentType warcIdentifiedPayloadType;
 
 	// revisit record only
 	public String warcProfileStr;
@@ -142,7 +140,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected Payload payload;
 
 	/**
-	 * Given an <code>InputStream</code> tries to read and validate a WARC
+	 * Given an <code>InputStream</code> it tries to read and validate a WARC
 	 * header block.
 	 * @param in <code>InputStream</code> containing WARC record data
 	 * @return <code>WarcRecord</code> or <code>null</code>
@@ -171,8 +169,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 				if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null ) {
 					if (algorithm == null) {
 						algorithm = wr.warcPayloadDigest.algorithm;
-					}
-					else if (algorithm.compareToIgnoreCase(wr.warcPayloadDigest.algorithm) != 0) {
+					} else if (algorithm.compareToIgnoreCase(wr.warcPayloadDigest.algorithm) != 0) {
 						// TODO different algorithms
 					}
 				}
@@ -190,8 +187,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 				}
 				*/
 			}
-		}
-		else {
+		} else {
 			wr = null;
 		}
 		return wr;
@@ -240,8 +236,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             // Check for trailing newlines.
 			int newlines = parseNewLines(in);
-			if (newlines != 2) {
-	            addValidationError(WarcErrorType.INVALID, "Traling newlines", Integer.toString(newlines));
+			if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
+	            addValidationError(WarcErrorType.INVALID, "Trailing newlines", Integer.toString(newlines));
 			}
 			bPayloadClosed = true;
 		}
@@ -258,7 +254,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	/**
      * Close resources associated with the WARC record. 
      * Mainly payload stream if any.
-     * @throws IOException io exception close the payload resources
+     * @throws IOException if unable to close resources
 	 */
 	public void close() throws IOException {
 		if (!bClosed) {
@@ -272,6 +268,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Looks forward in the inputstream and counts the number of newlines
+	 * found. Non newlines characters are pushed back onto the inputstream.
+	 * @param in data inputstream
+	 * @return newlines found in inputstream
+	 * @throws IOException if an error occurs while reading data
+	 */
 	protected int parseNewLines(ByteCountingPushBackInputStream in) throws IOException {
 		int newlines = 0;
 		byte[] buffer = new byte[2];
@@ -282,8 +285,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 			case 1:
 				if (buffer[0] == '\n') {
 					++newlines;
-				}
-				else {
+				} else {
 					in.unread(buffer[0]);
 					b = false;
 				}
@@ -294,8 +296,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 				} else if (buffer[0] == '\n') {
 					++newlines;
 					in.unread(buffer[1]);
-				}
-				else {
+				} else {
 					in.unread(buffer);
 					b = false;
 				}
@@ -308,6 +309,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		return newlines;
 	}
 
+	/**
+	 * Looks forward in the inputstream for a valid WARC version line.
+	 * @param in data inputstream
+	 * @return true, if magic WARC header found
+	 * @throws IOException if an error occurs while reading version data
+	 */
 	protected boolean parseVersion(ByteCountingPushBackInputStream in) throws IOException {
 		bMagicIdentified = false;
 		bVersionParsed = false;
@@ -330,8 +337,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 							for (int i=0; i<tmpArr.length; ++i) {
 								try {
 									versionArr[i] = Integer.parseInt(tmpArr[i]);
-								}
-								catch (NumberFormatException e) {
+								} catch (NumberFormatException e) {
 									versionArr[i] = -1;
 								}
 							}
@@ -339,20 +345,17 @@ public class WarcRecord implements PayloadOnClosedHandler {
 							minor = versionArr[1];
 						}
 						bSeekMagic = false;
-					}
-					else {
+					} else {
 						// Gibberish.
 						// TODO Only report once
 	                    addValidationError(WarcErrorType.INVALID, "Data", null);
 					}
-				}
-				else {
+				} else {
 					// Empty line.
 					// TODO Only report once
                     addValidationError(WarcErrorType.INVALID, "Empty lines", null);
 				}
-			}
-			else {
+			} else {
 				// EOF.
 				bSeekMagic = false;
 			}
@@ -374,22 +377,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
 						//System.out.println(warcHeader.value);
 
 						parseField(warcHeader, seen);
-					}
-					else {
+					} else {
 						// Empty field name.
 					}
-				}
-				else {
+				} else {
 					if (warcHeader.line.length() == 0) {
 						// Empty line.
 						bFields = false;
-					}
-					else {
+					} else {
 						// Unknown header line.
 					}
 				}
-			}
-			else {
+			} else {
 				// EOF.
 				bFields = false;
 			}
@@ -525,13 +524,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 							WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
 					break;
 				}
-			}
-			else {
+			} else {
 				// Duplicate field.
 	            addValidationError(WarcErrorType.DUPLICATE, field, value);
 			}
-		}
-		else {
+		} else {
 			// Not a recognized WARC field name.
 			if (headerList == null) {
 				headerList = new ArrayList<WarcHeaderLine>();
@@ -592,9 +589,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		 */
 
 		if (contentLength != null && contentLength.longValue() > 0L &&
-						(contentType == null || contentType.length() == 0)) {
+						(contentTypeStr == null || contentTypeStr.length() == 0)) {
 			if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
-	            addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, contentType);
+	            addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, contentTypeStr);
 			}
 		}
 
@@ -608,8 +605,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
 			 */
 
 			if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
-				if (contentType != null && !WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentType)) {
-		            addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, "application/warc-fields");
+				// !WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentTypeStr)) {
+				if (contentType != null &&
+						(!contentType.contentType.equals("application")
+						|| !contentType.mediaType.equals("warc-fields"))) {
+					addValidationError(WarcErrorType.RECOMMENDED,
+									   WarcConstants.FN_CONTENT_TYPE,
+									   WarcConstants.CT_APP_WARC_FIELDS);
 				}
 			}
 
@@ -626,11 +628,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 			}
 
 			/*
-			 * Check
+			 * Check the policies for each field.
 			 */
 
 			if (warcTypeIdx  > 0) {
-				checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentType);
+				checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentTypeStr);
 				checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
 				checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentToUriList, warcConcurrentToStrList);
 				checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
@@ -780,13 +782,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
          if (intStr != null && intStr.length() > 0) {
             try {
                 iVal = Integer.valueOf(intStr);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid integer value.
                 this.addValidationError(WarcErrorType.INVALID, field, intStr);
             }
-         }
-         else {
+         } else {
              // Missing integer value.
              addValidationError(WarcErrorType.EMPTY, field, intStr);
          }
@@ -804,13 +804,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
          if (longStr != null && longStr.length() > 0) {
             try {
                 lVal = Long.valueOf(longStr);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid long value.
                 this.addValidationError(WarcErrorType.INVALID, field, longStr);
             }
-         }
-         else {
+         } else {
              // Missing long value.
              addValidationError(WarcErrorType.EMPTY, field, longStr);
          }
@@ -832,7 +830,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Parses ARC record date.
+     * Parses WARC record date.
      * @param dateStr the date to parse.
      * @return the formatted date.
      */
@@ -844,8 +842,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     // Invalid date.
                     addValidationError(WarcErrorType.INVALID, field, dateStr);
                 }
-        }
-        else {
+        } else {
             // Missing date.
             addValidationError(WarcErrorType.EMPTY, field, dateStr);
         }
@@ -853,7 +850,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Parses ARC record IP address.
+     * Parses WARC record IP address.
      * @param ipAddress the IP address to parse
      * @return the IP address
      */
@@ -865,8 +862,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 // Invalid ip address.
                 addValidationError(WarcErrorType.INVALID, field, ipAddress);
             }
-        }
-        else {
+        } else {
             // Missing ip address.
             addValidationError(WarcErrorType.EMPTY, field, ipAddress);
         }
@@ -880,27 +876,36 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     protected URI parseUri(String uriStr, String field) {
         URI uri = null;
-        if ((uriStr != null) && (uriStr.length() != 0)) {
+        if (uriStr != null && uriStr.length() != 0) {
         	if (uriStr.startsWith("<") && uriStr.endsWith(">")) {
         		uriStr = uriStr.substring(1, uriStr.length() - 1);
         	}
             try {
                 uri = new URI(uriStr);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Invalid URI.
                 addValidationError(WarcErrorType.INVALID, field, uriStr);
             }
-        }
-        else {
+        } else {
             // Missing URI.
             addValidationError(WarcErrorType.EMPTY, field, uriStr);
         }
         return uri;
     }
 
-    protected String parseContentType(String contentType, String field) {
-    	return parseString(contentType, field);
+    protected ContentType parseContentType(String contentTypeStr, String field) {
+    	ContentType contentType = null;
+    	if (contentTypeStr != null && contentTypeStr.length() != 0) {
+    		contentType = ContentType.parseContentType(contentTypeStr);
+    		if (contentType == null) {
+                // Invalid content-type.
+                addValidationError(WarcErrorType.INVALID, field, contentTypeStr);
+    		}
+    	} else {
+            // Missing content-type.
+            addValidationError(WarcErrorType.EMPTY, field, contentTypeStr);
+        }
+    	return contentType;
     }
 
     protected WarcDigest parseDigest(String labelledDigest, String field) {
@@ -911,8 +916,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     // Invalid digest.
                     addValidationError(WarcErrorType.INVALID, field, labelledDigest);
                 }
-        }
-        else {
+        } else {
             // Missing digest.
             addValidationError(WarcErrorType.EMPTY, field, labelledDigest);
         }
@@ -946,12 +950,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
     private static final int S_QUOTED_PAIR = 6;
     private static final int S_QUOTED_LWS = 7;
 
-    protected static boolean[] separator = new boolean[256];
+    /** Table of separator characters. */
+    protected static final boolean[] separatorsWsTab = new boolean[256];
 
+    /** rfc2616 separator characters. */
+    protected static final String separatorsWs = "()<>@,;:\\\"/[]?={} \t";
+
+    /**
+     * Populate table of separators.
+     */
     static {
-        String separators = "()<>@,;:\\\"/[]?={} \t";
-        for (int i=0; i<separators.length(); ++i) {
-        	separator[separators.charAt(i)] = true;
+        for (int i=0; i<separatorsWs.length(); ++i) {
+        	separatorsWsTab[separatorsWs.charAt(i)] = true;
         }
     }
 
@@ -1057,7 +1067,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     				if (c < 32 && c>126) {
     					// Controls.
     				} else {
-    					if (!separator[c]) {
+    					if (!separatorsWsTab[c]) {
         	   				bos.write(c);
     					} else {
     						// Separator.
@@ -1248,6 +1258,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Get a non WARC header.
+	 * @param field header name
+	 * @return WARC header line structure
+	 */
 	public WarcHeaderLine getHeader(String field) {
 		if (headerMap != null && field != null) {
 			return headerMap.get(field.toLowerCase());

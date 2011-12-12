@@ -1,10 +1,30 @@
 package dk.netarkivet.common;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
+/**
+ * Base32 encoder/decoder implementation based on the specifications in
+ * rfc3548.
+ *
+ * @author nicl
+ */
 public class Base32 {
 
-	public static String convtab = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	/** Ascii table used to encode. */
+	public static String encodeTab = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+	/** Table used to decode. */
+	public static byte[] decodeTab = new byte[ 256 ];
+
+	/** Populate decode table. */
+	static {
+		Arrays.fill( decodeTab, (byte)0xff );
+		for ( int i=0; i<encodeTab.length(); ++i ) {
+			decodeTab[ Character.toUpperCase( encodeTab.charAt( i ) ) ] = (byte)i;
+			decodeTab[ Character.toLowerCase( encodeTab.charAt( i ) ) ] = (byte)i;
+		}
+	}
 
 	/**
 	 * Static class.
@@ -13,12 +33,12 @@ public class Base32 {
 	}
 
 	/**
-	 * Decodes a base32 encoded string.
-	 * @param inStr encoded string.
-	 * @return decodes base64 string.
+	 * Decodes an encoded string.
+	 * @param in encoded string.
+	 * @return decoded string or null
 	 */
-	public static String decodeToString(String inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String decodeToString(String in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
@@ -32,13 +52,13 @@ public class Base32 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length() ) {
-				cin = inStr.charAt( idx++ );
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
 				if ( cin == '=' ) {
 					b = false;
 				}
 				else {
-					cIdx = convtab.indexOf( Character.toUpperCase( cin ) );
+					cIdx = decodeTab[ cin ];
 					if ( cIdx != -1 ) {
 						switch ( mod ) {
 							case 0:
@@ -46,33 +66,33 @@ public class Base32 {
 								break;
 							case 1:
 								cout |= (cIdx >> 2);
-								outStr.append( (char)cout );
+								out.append( (char)cout );
 								cout = (cIdx << 6) & 255;
 								break;
 							case 2:
 								cout |= (cIdx << 1);
 								break;
 							case 3:
-								cout |= (cIdx >> 7);
-								outStr.append( (char)cout );
+								cout |= (cIdx >> 4);
+								out.append( (char)cout );
 								cout = (cIdx << 4) & 255;
 								break;
 							case 4:
 								cout |= (cIdx >> 1);
-								outStr.append( (char)cout );
+								out.append( (char)cout );
 								cout = (cIdx << 7) & 255;
 								break;
 							case 5:
-								cout = cIdx << 2;
+								cout |= cIdx << 2;
 								break;
 							case 6:
 								cout |= (cIdx >> 3);
-								outStr.append( (char)cout );
+								out.append( (char)cout );
 								cout = (cIdx << 5) & 255;
 								break;
 							case 7:
 								cout |= cIdx;
-								outStr.append( (char)cout );
+								out.append( (char)cout );
 								break;
 						}
 						mod = ( mod + 1 ) % 8;
@@ -92,7 +112,7 @@ public class Base32 {
 		 */
 
 		if ( mod != 1 && mod != 3 && mod != 6 ) {
-			return outStr.toString();
+			return out.toString();
 		}
 		else {
 			// In state 1 only 5 bits of the next 40 bit has been decoded.
@@ -103,12 +123,12 @@ public class Base32 {
 	}
 
 	/**
-	 * Decodes a base32 encoded string.
-	 * @param inStr encoded string.
-	 * @return decodes base64 string.
+	 * Decodes an encoded string.
+	 * @param in encoded string.
+	 * @return decoded byte array or null
 	 */
-	public static byte[] decodeToArray(String inStr) {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
+	public static byte[] decodeToArray(String in) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		boolean b = true;
 		int idx = 0;
@@ -122,13 +142,13 @@ public class Base32 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length() ) {
-				cin = inStr.charAt( idx++ );
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
 				if ( cin == '=' ) {
 					b = false;
 				}
 				else {
-					cIdx = convtab.indexOf( cin );
+					cIdx = decodeTab[ cin ];
 					if ( cIdx != -1 ) {
 						switch ( mod ) {
 							case 0:
@@ -136,33 +156,33 @@ public class Base32 {
 								break;
 							case 1:
 								cout |= (cIdx >> 2);
-								os.write( cout );
+								out.write( cout );
 								cout = (cIdx << 6) & 255;
 								break;
 							case 2:
 								cout |= (cIdx << 1);
 								break;
 							case 3:
-								cout |= (cIdx >> 7);
-								os.write( cout );
+								cout |= (cIdx >> 4);
+								out.write( cout );
 								cout = (cIdx << 4) & 255;
 								break;
 							case 4:
 								cout |= (cIdx >> 1);
-								os.write( cout );
+								out.write( cout );
 								cout = (cIdx << 7) & 255;
 								break;
 							case 5:
-								cout = cIdx << 2;
+								cout |= cIdx << 2;
 								break;
 							case 6:
 								cout |= (cIdx >> 3);
-								os.write( cout );
+								out.write( cout );
 								cout = (cIdx << 5) & 255;
 								break;
 							case 7:
 								cout |= cIdx;
-								os.write( cout );
+								out.write( cout );
 								break;
 						}
 						mod = ( mod + 1 ) % 8;
@@ -182,7 +202,7 @@ public class Base32 {
 		 */
 
 		if ( mod != 1 && mod != 3 && mod != 6 ) {
-			return os.toByteArray();
+			return out.toByteArray();
 		}
 		else {
 			// In state 1 only 5 bits of the next 40 bit has been decoded.
@@ -193,12 +213,12 @@ public class Base32 {
 	}
 
 	/**
-	 * Encodes a string with base32.
-	 * @param inStr unencoded text string.
-	 * @return encoded string.
+	 * Encodes a string.
+	 * @param in unencoded text string.
+	 * @return encoded string or null
 	 */
-	public static String encodeFromString(String inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String encodeString(String in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
@@ -211,41 +231,46 @@ public class Base32 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length() ) {
-				cin = inStr.charAt( idx++ );
-				switch ( mod ) {
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
+				if ( cin < 256 ) {
+					switch ( mod ) {
 					case 0:
 						cout = ( cin >> 3 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 2 ) & 31;
 						break;
 					case 1:
 						cout |= ( cin >> 6 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin >> 1 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 4 ) & 31;
 						break;
 					case 2:
-						cout |= ( cin >> 4) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						cout |= ( cin >> 4 ) & 31;
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 1 ) & 31;
 						break;
 					case 3:
 						cout |= ( cin >> 7 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
-						cout = ( cin >> 2) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin >> 2 ) & 31;
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 3 ) & 31;
 						break;
 					case 4:
 						cout |= ( cin >> 5 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = cin & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						break;
+					}
+					mod = ( mod + 1 ) % 5;
 				}
-				mod = ( mod + 1 ) % 5;
+				else {
+					return null;
+				}
 			}
 			else {
 				b = false;
@@ -260,33 +285,33 @@ public class Base32 {
 			case 0:
 				break;
 			case 1:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "======" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "======" );
 				break;
 			case 2:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "====" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "====" );
 				break;
 			case 3:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "===" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "===" );
 				break;
 			case 4:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "=" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "=" );
 				break;
 		}
 
-		return outStr.toString();
+		return out.toString();
 	}
 
 	/**
-	 * Encodes a string with base32.
-	 * @param inStr unencoded text string.
-	 * @return encoded string.
+	 * Encodes a byte array.
+	 * @param in byte array.
+	 * @return encoded string or null
 	 */
-	public static String encodeFromArray(byte[] inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String encodeArray(byte[] in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
@@ -299,38 +324,38 @@ public class Base32 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length ) {
-				cin = inStr[ idx++ ];
+			if ( idx < in.length ) {
+				cin = in[ idx++ ] & 255;
 				switch ( mod ) {
 					case 0:
 						cout = ( cin >> 3 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 2 ) & 31;
 						break;
 					case 1:
 						cout |= ( cin >> 6 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin >> 1 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 4 ) & 31;
 						break;
 					case 2:
-						cout |= ( cin >> 4) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						cout |= ( cin >> 4 ) & 31;
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 1 ) & 31;
 						break;
 					case 3:
 						cout |= ( cin >> 7 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
-						cout = ( cin >> 2) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin >> 2 ) & 31;
+						out.append( encodeTab.charAt( cout ) );
 						cout = ( cin << 3 ) & 31;
 						break;
 					case 4:
 						cout |= ( cin >> 5 ) & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						cout = cin & 31;
-						outStr.append( convtab.charAt( cout ) );
+						out.append( encodeTab.charAt( cout ) );
 						break;
 				}
 				mod = ( mod + 1 ) % 5;
@@ -348,24 +373,24 @@ public class Base32 {
 			case 0:
 				break;
 			case 1:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "======" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "======" );
 				break;
 			case 2:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "====" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "====" );
 				break;
 			case 3:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "===" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "===" );
 				break;
 			case 4:
-				outStr.append( convtab.charAt( cout ) );
-				outStr.append( "=" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "=" );
 				break;
 		}
 
-		return outStr.toString();
+		return out.toString();
 	}
 
 }

@@ -1,38 +1,29 @@
-/*
- * Base64 de/encoder implemention based on the specifications in rfc2045.
- * Copyright (C) 2002, 2003, 2004  Nicholas Clarke
- *
- */
-
-/*
- * History:
- *
- * 04-Jun-2002 : First implementation.
- * 05-Jun-2002 : Bug fix.
- * 21-Jun-2003 : Moved to antiaction.com package.
- * 21-Jun-2003 : Moved from http(d).core to core.
- * 25-Jul-2004 : Added encoder.
- * 26-Jul-2004 : Added encoder padding. Javadoc.
- * 27-Jul-2004 : Javadoc.
- * 04-Mar-2006 : Moved to common package.
- * 10-Oct-2009 : Moved test code to separate class.
- *
- */
-
 package dk.netarkivet.common;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 /**
- * Base64 de/encoder implementation based on the specifications in rfc2045.
+ * Base64 encoder/decoder implementation based on the specifications in
+ * rfc2045/rfc3548.
  *
- * @version 1.00
- * @author Nicholas Clarke <mayhem[at]antiaction[dot]com>
+ * @author nicl
  */
 public class Base64 {
 
-	/** Ascii table used to de/encode. */
-	private static String convtab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	/** Ascii table used to encode. */
+	private static String encodeTab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	/** Table used to decode. */
+	public static byte[] decodeTab = new byte[ 256 ];
+
+	/** Populate decode table. */
+	static {
+		Arrays.fill( decodeTab, (byte)0xff );
+		for ( int i=0; i<encodeTab.length(); ++i ) {
+			decodeTab[ encodeTab.charAt( i ) ] = (byte)i;
+		}
+	}
 
 	/**
 	 * Static class.
@@ -41,50 +32,50 @@ public class Base64 {
 	}
 
 	/**
-	 * Decodes a base64 encoded string.
-	 * @param inStr encoded string.
-	 * @return decodes base64 string.
+	 * Decodes an encoded string.
+	 * @param in encoded string.
+	 * @return decoded string or null
 	 */
-	public static String decodeToString(String inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String decodeToString(String in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
-		char read;
+		char cin;
 		int mod = 0;
 		int cIdx;
-		int c = 0;
+		int cout = 0;
 
 		/*
 		 * Loop.
 		 */
 
-		while( b ) {
-			if ( idx < inStr.length() ) {
-				read = inStr.charAt( idx++ );
-				if ( read == '=' ) {
+		while ( b ) {
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
+				if ( cin == '=' ) {
 					b = false;
 				}
 				else {
-					cIdx = convtab.indexOf( read );
+					cIdx = decodeTab[ cin ];
 					if ( cIdx != -1 ) {
 						switch ( mod ) {
 							case 0:
-								c = cIdx << 2;
+								cout = cIdx << 2;
 								break;
 							case 1:
-								c |= (cIdx >> 4);
-								outStr.append( (char)c );
-								c = (cIdx << 4) & 255;
+								cout |= (cIdx >> 4);
+								out.append( (char)cout );
+								cout = (cIdx << 4) & 255;
 								break;
 							case 2:
-								c |= (cIdx >> 2);
-								outStr.append( (char)c );
-								c = (cIdx << 6) & 255;
+								cout |= (cIdx >> 2);
+								out.append( (char)cout );
+								cout = (cIdx << 6) & 255;
 								break;
 							case 3:
-								c |= cIdx;
-								outStr.append( (char)c );
+								cout |= cIdx;
+								out.append( (char)cout );
 								break;
 						}
 						mod = ( mod + 1 ) % 4;
@@ -104,7 +95,7 @@ public class Base64 {
 		 */
 
 		if ( mod != 1 ) {
-			return outStr.toString();
+			return out.toString();
 		}
 		else {
 			// In state 1 only 6 bits of the next 24 bit has been decoded.
@@ -113,50 +104,50 @@ public class Base64 {
 	}
 
 	/**
-	 * Decodes a base64 encoded string.
-	 * @param inStr encoded string.
-	 * @return decodes base64 string.
+	 * Decodes an encoded string.
+	 * @param in encoded string.
+	 * @return decoded byte array or null
 	 */
-	public static byte[] decodeToArray(String inStr) {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
+	public static byte[] decodeToArray(String in) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		boolean b = true;
 		int idx = 0;
-		char read;
+		char cin;
 		int mod = 0;
 		int cIdx;
-		int c = 0;
+		int cout = 0;
 
 		/*
 		 * Loop.
 		 */
 
-		while( b ) {
-			if ( idx < inStr.length() ) {
-				read = inStr.charAt( idx++ );
-				if ( read == '=' ) {
+		while ( b ) {
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
+				if ( cin == '=' ) {
 					b = false;
 				}
 				else {
-					cIdx = convtab.indexOf( read );
+					cIdx = decodeTab[ cin ];
 					if ( cIdx != -1 ) {
 						switch ( mod ) {
 							case 0:
-								c = cIdx << 2;
+								cout = cIdx << 2;
 								break;
 							case 1:
-								c |= (cIdx >> 4);
-								os.write( c );
-								c = (cIdx << 4) & 255;
+								cout |= (cIdx >> 4);
+								out.write( cout );
+								cout = (cIdx << 4) & 255;
 								break;
 							case 2:
-								c |= (cIdx >> 2);
-								os.write( c );
-								c = (cIdx << 6) & 255;
+								cout |= (cIdx >> 2);
+								out.write( cout );
+								cout = (cIdx << 6) & 255;
 								break;
 							case 3:
-								c |= cIdx;
-								os.write( c );
+								cout |= cIdx;
+								out.write( cout );
 								break;
 						}
 						mod = ( mod + 1 ) % 4;
@@ -176,7 +167,7 @@ public class Base64 {
 		 */
 
 		if ( mod != 1 ) {
-			return os.toByteArray();
+			return out.toByteArray();
 		}
 		else {
 			// In state 1 only 6 bits of the next 24 bit has been decoded.
@@ -185,17 +176,17 @@ public class Base64 {
 	}
 
 	/**
-	 * Encodes a string with base64.
-	 * @param inStr unencoded text string.
-	 * @return encoded string.
+	 * Encodes a string.
+	 * @param in unencoded text string.
+	 * @return encoded string or null
 	 */
-	public static String encodeFromString(String inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String encodeString(String in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
-		char write;
-		int c = 0;
+		char cin;
+		int cout = 0;
 		int mod = 0;
 
 		/*
@@ -203,27 +194,32 @@ public class Base64 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length() ) {
-				write = inStr.charAt( idx++ );
-				switch ( mod ) {
+			if ( idx < in.length() ) {
+				cin = in.charAt( idx++ );
+				if ( cin < 256 ) {
+					switch ( mod ) {
 					case 0:
-						c = ( write >> 2 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = ( write << 4 ) & 63;
+						cout = ( cin >> 2 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin << 4 ) & 63;
 						break;
 					case 1:
-						c |= ( write >> 4 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = ( write << 2 ) & 63;
+						cout |= ( cin >> 4 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin << 2 ) & 63;
 						break;
 					case 2:
-						c |= ( write >> 6 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = write & 63;
-						outStr.append( convtab.charAt( c ) );
+						cout |= ( cin >> 6 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = cin & 63;
+						out.append( encodeTab.charAt( cout ) );
 						break;
+					}
+					mod = ( mod + 1 ) % 3;
 				}
-				mod = ( mod + 1 ) % 3;
+				else {
+					return null;
+				}
 			}
 			else {
 				b = false;
@@ -234,34 +230,34 @@ public class Base64 {
 		 * Padding.
 		 */
 
-		switch ( mod ) {
+		switch( mod ) {
 			case 0:
 				break;
 			case 1:
-				outStr.append( convtab.charAt( c ) );
-				outStr.append( "==" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "==" );
 				break;
 			case 2:
-				outStr.append( convtab.charAt( c ) );
-				outStr.append( "=" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "=" );
 				break;
 		}
 
-		return outStr.toString();
+		return out.toString();
 	}
 
 	/**
-	 * Encodes a string with base64.
-	 * @param inStr unencoded text string.
-	 * @return encoded string.
+	 * Encodes a byte array.
+	 * @param in byte array.
+	 * @return encoded string or null
 	 */
-	public static String encodeFromArray(byte[] inStr) {
-		StringBuffer outStr = new StringBuffer( 256 );
+	public static String encodeArray(byte[] in) {
+		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
 		int idx = 0;
-		int write;
-		int c = 0;
+		int cin;
+		int cout = 0;
 		int mod = 0;
 
 		/*
@@ -269,24 +265,24 @@ public class Base64 {
 		 */
 
 		while ( b ) {
-			if ( idx < inStr.length ) {
-				write = inStr[ idx++ ];
+			if ( idx < in.length ) {
+				cin = in[ idx++ ] & 255;
 				switch ( mod ) {
 					case 0:
-						c = ( write >> 2 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = ( write << 4 ) & 63;
+						cout = ( cin >> 2 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin << 4 ) & 63;
 						break;
 					case 1:
-						c |= ( write >> 4 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = ( write << 2 ) & 63;
+						cout |= ( cin >> 4 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = ( cin << 2 ) & 63;
 						break;
 					case 2:
-						c |= ( write >> 6 ) & 63;
-						outStr.append( convtab.charAt( c ) );
-						c = write & 63;
-						outStr.append( convtab.charAt( c ) );
+						cout |= ( cin >> 6 ) & 63;
+						out.append( encodeTab.charAt( cout ) );
+						cout = cin & 63;
+						out.append( encodeTab.charAt( cout ) );
 						break;
 				}
 				mod = ( mod + 1 ) % 3;
@@ -304,16 +300,16 @@ public class Base64 {
 			case 0:
 				break;
 			case 1:
-				outStr.append( convtab.charAt( c ) );
-				outStr.append( "==" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "==" );
 				break;
 			case 2:
-				outStr.append( convtab.charAt( c ) );
-				outStr.append( "=" );
+				out.append( encodeTab.charAt( cout ) );
+				out.append( "=" );
 				break;
 		}
 
-		return outStr.toString();
+		return out.toString();
 	}
 
 }

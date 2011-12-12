@@ -4,15 +4,31 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 /**
- * Base16 encoder/decoder implementation based on the specifications in
- * rfc3548.
+ * Base2 encoder/decoder implementation.
  *
  * @author nicl
  */
-public class Base16 {
+public class Base2 {
 
 	/** Ascii table used to encode. */
-	public static String encodeTab = "0123456789ABCDEF";
+	public static String[] encodeTab = {
+		"0000",
+		"0001",
+		"0010",
+		"0011",
+		"0100",
+		"0101",
+		"0110",
+		"0111",
+		"1000",
+		"1001",
+		"1010",
+		"1011",
+		"1100",
+		"1101",
+		"1110",
+		"1111"
+	};
 
 	/** Table used to decode. */
 	public static byte[] decodeTab = new byte[ 256 ];
@@ -20,16 +36,14 @@ public class Base16 {
 	/** Populate decode table. */
 	static {
 		Arrays.fill( decodeTab, (byte)0xff );
-		for ( int i=0; i<encodeTab.length(); ++i ) {
-			decodeTab[ Character.toUpperCase( encodeTab.charAt( i ) ) ] = (byte)i;
-			decodeTab[ Character.toLowerCase( encodeTab.charAt( i ) ) ] = (byte)i;
-		}
+		decodeTab[ '0' ] = 0;
+		decodeTab[ '1' ] = 1;
 	}
 
 	/**
 	 * Static class.
 	 */
-	private Base16() {
+	private Base2() {
 	}
 
 	/**
@@ -39,33 +53,23 @@ public class Base16 {
 	 */
 	public static String decodeToString(String in) {
 		StringBuffer out = new StringBuffer( 256 );
-
 		boolean b = true;
 		int idx = 0;
 		char cin;
 		int mod = 0;
 		int cIdx;
 		int cout = 0;
-
-		/*
-		 * Loop.
-		 */
-
 		while ( b ) {
 			if ( idx < in.length() ) {
 				cin = in.charAt( idx++ );
 				cIdx = decodeTab[ cin ];
 				if ( cIdx != -1 ) {
-					switch ( mod ) {
-						case 0:
-							cout = cIdx << 4;
-							break;
-						case 1:
-							cout |= cIdx;
-							out.append( (char)cout );
-							break;
+					cout = (cout << 1) | cIdx;
+					mod = ( mod + 1 ) % 8;
+					if ( mod == 0 ) {
+						out.append( (char)cout );
+						cout = 0;
 					}
-					mod = ( mod + 1 ) % 2;
 				}
 				else {
 					return null;
@@ -75,16 +79,10 @@ public class Base16 {
 				b = false;
 			}
 		}
-
-		/*
-		 * Padding.
-		 */
-
-		if ( mod != 1 ) {
+		if ( mod == 0 ) {
 			return out.toString();
 		}
 		else {
-			// In state 1 only if decoded a half byte.
 			return null;
 		}
 	}
@@ -96,33 +94,22 @@ public class Base16 {
 	 */
 	public static byte[] decodeToArray(String in) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-
 		boolean b = true;
 		int idx = 0;
 		char cin;
 		int mod = 0;
 		int cIdx;
 		int cout = 0;
-
-		/*
-		 * Loop.
-		 */
-
 		while ( b ) {
 			if ( idx < in.length() ) {
 				cin = in.charAt( idx++ );
 				cIdx = decodeTab[ cin ];
 				if ( cIdx != -1 ) {
-					switch ( mod ) {
-						case 0:
-							cout = cIdx << 4;
-							break;
-						case 1:
-							cout |= cIdx;
-							out.write( cout );
-							break;
+					cout = (cout << 1) | cIdx;
+					mod = ( mod + 1 ) % 8;
+					if ( mod == 0 ) {
+						out.write( cout );
 					}
-					mod = ( mod + 1 ) % 2;
 				}
 				else {
 					return null;
@@ -132,16 +119,10 @@ public class Base16 {
 				b = false;
 			}
 		}
-
-		/*
-		 * Padding.
-		 */
-
-		if ( mod != 1 ) {
+		if ( mod == 0 ) {
 			return out.toByteArray();
 		}
 		else {
-			// In state 1 only if decoded a half byte.
 			return null;
 		}
 	}
@@ -152,32 +133,18 @@ public class Base16 {
 	 * @return encoded string or null
 	 */
 	public static String encodeString(String in) {
-		StringBuffer out = new StringBuffer( 256 );
-
-		boolean b = true;
-		int idx = 0;
+		StringBuffer out = new StringBuffer( in.length() << 3 );
 		int cin;
-
-		/*
-		 * Loop.
-		 */
-
-		while ( b ) {
-			if ( idx < in.length() ) {
-				cin = in.charAt( idx++ );
-				if ( cin < 256 ) {
-					out.append( encodeTab.charAt( (cin >> 4) & 15 ) );
-					out.append( encodeTab.charAt( cin & 15 ) );
-				}
-				else {
-					return null;
-				}
+		for ( int i=0; i<in.length(); ++i ) {
+			cin = in.charAt( i );
+			if ( cin < 256 ) {
+				out.append( encodeTab[ (cin >> 4) & 15  ] );
+				out.append( encodeTab[ cin & 15 ] );
 			}
 			else {
-				b = false;
+				return null;
 			}
 		}
-
 		return out.toString();
 	}
 
@@ -187,28 +154,36 @@ public class Base16 {
 	 * @return encoded string or null
 	 */
 	public static String encodeArray(byte[] in) {
-		StringBuffer out = new StringBuffer( 256 );
-
-		boolean b = true;
-		int idx = 0;
-		int cin;
-
-		/*
-		 * Loop.
-		 */
-
-		while ( b ) {
-			if ( idx < in.length ) {
-				cin = in[ idx++ ] & 255;
-				out.append( encodeTab.charAt( (cin >> 4) & 15 ) );
-				out.append( encodeTab.charAt( cin & 15 ) );
-			}
-			else {
-				b = false;
-			}
+		StringBuffer out = new StringBuffer( in.length << 3 );
+		for ( int i=0; i<in.length; ++i ) {
+			out.append( encodeTab[ (in[ i ] >> 4) & 15  ] );
+			out.append( encodeTab[ in[ i ] & 15 ] );
 		}
-
 		return out.toString();
+	}
+
+	/**
+	 * Insert regular delimiters in a string.
+	 * @param inStr input string
+	 * @param width interval width
+	 * @param delimiter delimit character
+	 * @return
+	 */
+	public static String delimit(String inStr, int width, char delimiter) {
+		if ( width <= 0 ) {
+			return inStr;
+		}
+		StringBuffer outSb = new StringBuffer( inStr.length() + (inStr.length() + width - 1) / width );
+		int idx = 0;
+		int lIdx = width;
+		while ( idx < inStr.length() ) {
+			if ( idx == lIdx ) {
+				outSb.append( delimiter );
+				lIdx += width;
+			}
+			outSb.append( inStr.charAt( idx++ ) );
+		}
+		return outSb.toString();
 	}
 
 }
