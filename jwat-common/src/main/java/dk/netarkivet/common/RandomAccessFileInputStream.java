@@ -29,6 +29,9 @@ public class RandomAccessFileInputStream extends InputStream {
         this.raf = raf;
     }
 
+    /**
+     * Closing this stream has no effect.
+     */
     @Override
     public void close() throws IOException {
         raf.close();

@@ -13,10 +13,7 @@ import java.util.TimeZone;
  */
 public class WarcDateParser {
 
-    /** Allowed date format string according to the WARC ISO standard. */
-    private static final String WARC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-
-    /** Allowed <code>DateFormat</code>. */
+    /** WARC <code>DateFormat</code> as speficied in the WARC ISO standard. */
     private final DateFormat dateFormat;
 
     /** Basic <code>DateFormat</code> is not thread safe. */
@@ -31,9 +28,17 @@ public class WarcDateParser {
      * Creates a new <code>DateParser</code>.
      */
     private WarcDateParser() {
-        dateFormat = new SimpleDateFormat(WARC_DATE_FORMAT);
+        dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);
         dateFormat.setLenient(false);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
+    public static DateFormat getWarcDateFormat() {
+    	DateFormat dateFormat;
+        dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);
+        dateFormat.setLenient(false);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat;
     }
 
     /**
@@ -46,8 +51,8 @@ public class WarcDateParser {
         try {
         	// We subtract 4 from the format because of the ' characters.
         	// These characters are to specify constants in the format string. 
-            if ((dateStr != null)
-                            && dateStr.length() == WARC_DATE_FORMAT.length() - 4) {
+            if ((dateStr != null) && dateStr.length()
+                            == WarcConstants.WARC_DATE_FORMAT.length() - 4) {
             	// Support upper/lower-case.
                 date = dateFormat.parse(dateStr.toUpperCase());
             }

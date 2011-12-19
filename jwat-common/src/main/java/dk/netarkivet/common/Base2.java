@@ -52,6 +52,10 @@ public class Base2 {
 	 * @return decoded string or null
 	 */
 	public static String decodeToString(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
+
 		StringBuffer out = new StringBuffer( 256 );
 		boolean b = true;
 		int idx = 0;
@@ -93,6 +97,10 @@ public class Base2 {
 	 * @return decoded byte array or null
 	 */
 	public static byte[] decodeToArray(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
+
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		boolean b = true;
 		int idx = 0;
@@ -133,6 +141,9 @@ public class Base2 {
 	 * @return encoded string or null
 	 */
 	public static String encodeString(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
 		StringBuffer out = new StringBuffer( in.length() << 3 );
 		int cin;
 		for ( int i=0; i<in.length(); ++i ) {
@@ -154,6 +165,9 @@ public class Base2 {
 	 * @return encoded string or null
 	 */
 	public static String encodeArray(byte[] in) {
+		if (in == null || in.length == 0) {
+			return null;
+		}
 		StringBuffer out = new StringBuffer( in.length << 3 );
 		for ( int i=0; i<in.length; ++i ) {
 			out.append( encodeTab[ (in[ i ] >> 4) & 15  ] );
@@ -170,6 +184,9 @@ public class Base2 {
 	 * @return
 	 */
 	public static String delimit(String inStr, int width, char delimiter) {
+		if (inStr == null || inStr.length() == 0) {
+			return null;
+		}
 		if ( width <= 0 ) {
 			return inStr;
 		}

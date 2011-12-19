@@ -18,6 +18,9 @@ public class WarcConstants {
 	 * */
 	public static final String WARC_MAGIC_HEADER = "WARC/";
 
+    /** WARC date format string as specified by the WARC ISO standard. */
+    public static final String WARC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
 	/*
 	 * WARC content-types (MIME).
 	 */
@@ -55,43 +58,43 @@ public class WarcConstants {
 	 * WARC field names.
 	 */
 
-	/** Raw warc-type field name. */
+	/** Warc-type field name. */
 	public static final String FN_WARC_TYPE = "WARC-Type";
-	/** Raw warc-record-id field name. */
+	/** Warc-record-id field name. */
 	public static final String FN_WARC_RECORD_ID = "WARC-Record-ID";
-	/** Raw warc-date field name. */
+	/** Warc-date field name. */
 	public static final String FN_WARC_DATE = "WARC-Date";
-	/** Raw content-length field name. */
+	/** Content-length field name. */
 	public static final String FN_CONTENT_LENGTH = "Content-Length";
-	/** Raw content-type field name. */
+	/** Content-type field name. */
 	public static final String FN_CONTENT_TYPE = "Content-Type";
-	/** Raw warc-concurrent-to field name. */
+	/** Warc-concurrent-to field name. */
 	public static final String FN_WARC_CONCURRENT_TO = "WARC-Concurrent-To";
-	/** Raw warc-block-digest field name. */
+	/** Warc-block-digest field name. */
 	public static final String FN_WARC_BLOCK_DIGEST = "WARC-Block-Digest";
-	/** Raw warc-payload-digest field name. */
+	/** Warc-payload-digest field name. */
 	public static final String FN_WARC_PAYLOAD_DIGEST = "WARC-Payload-Digest";
-	/** Raw warc-ip-address field name. */
+	/** Warc-ip-address field name. */
 	public static final String FN_WARC_IP_ADDRESS = "WARC-IP-Address";
-	/** Raw warc-refers-to field name. */
+	/** Warc-refers-to field name. */
 	public static final String FN_WARC_REFERS_TO = "WARC-Refers-To";
-	/** Raw warc-target-uri field name. */
+	/** Warc-target-uri field name. */
 	public static final String FN_WARC_TARGET_URI = "WARC-Target-URI";
-	/** Raw warc-truncated field name. */
+	/** Warc-truncated field name. */
 	public static final String FN_WARC_TRUNCATED = "WARC-Truncated";
-	/** Raw warc-warcinfo-id field name. */
+	/** Warc-warcinfo-id field name. */
 	public static final String FN_WARC_WARCINFO_ID = "WARC-Warcinfo-ID";
-	/** Raw warc-filename field name. */
+	/** Warc-filename field name. */
 	public static final String FN_WARC_FILENAME = "WARC-Filename";
-	/** Raw warc-profile field name. */
+	/** Warc-profile field name. */
 	public static final String FN_WARC_PROFILE = "WARC-Profile";
-	/** Raw warc-identified-payload-type field name. */
+	/** Warc-identified-payload-type field name. */
 	public static final String FN_WARC_IDENTIFIED_PAYLOAD_TYPE = "WARC-Identified-Payload-Type";
-	/** Raw warc-segment-origin-id field name. */
+	/** Warc-segment-origin-id field name. */
 	public static final String FN_WARC_SEGMENT_ORIGIN_ID = "WARC-Segment-Origin-ID";
-	/** Raw warc-segment-number field name. */
+	/** Warc-segment-number field name. */
 	public static final String FN_WARC_SEGMENT_NUMBER = "WARC-Segment-Number";
-	/** Raw warc-segment-totalt-length field name. */
+	/** Warc-segment-totalt-length field name. */
 	public static final String FN_WARC_SEGMENT_TOTAL_LENGTH = "WARC-Segment-Total-Length";
 
 	/** WARC field name id to field name mapping table.
@@ -204,22 +207,36 @@ public class WarcConstants {
 	 * WARC record types.
 	 */
 
-	/** Raw WARC-Type warcinfo id. */
+	/** WARC-Type warcinfo id. */
 	public static final String RT_WARCINFO = "warcinfo";
-	/** Raw WARC-Type response id. */
+	/** WARC-Type response id. */
 	public static final String RT_RESPONSE = "response";
-	/** Raw WARC-Type resource id. */
+	/** WARC-Type resource id. */
 	public static final String RT_RESOURCE = "resource";
-	/** Raw WARC-Type request id. */
+	/** WARC-Type request id. */
 	public static final String RT_REQUEST = "request";
-	/** Raw WARC-Type metadata id. */
+	/** WARC-Type metadata id. */
 	public static final String RT_METADATA = "metadata";
-	/** Raw WARC-Type revisit id. */
+	/** WARC-Type revisit id. */
 	public static final String RT_REVISIT = "revisit";
-	/** Raw WARC-Type conversion id. */
+	/** WARC-Type conversion id. */
 	public static final String RT_CONVERSION = "conversion";
-	/** Raw WARC-Type continuation id. */
+	/** WARC-Type continuation id. */
 	public static final String RT_CONTINUATION = "continuation";
+
+	/** WARC type id to field name mapping table.
+	 *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+	public static final String[] RT_IDX_STRINGS = {
+		null,
+		RT_WARCINFO,
+		RT_RESPONSE,
+		RT_RESOURCE,
+		RT_REQUEST,
+		RT_METADATA,
+		RT_REVISIT,
+		RT_CONVERSION,
+		RT_CONTINUATION
+	};
 
 	/** Warc reader unknown warc record type id. */
 	public static final int RT_IDX_UNKNOWN = 0;
@@ -261,14 +278,24 @@ public class WarcConstants {
 	 * Truncation reason types.
 	 */
 
-	/** Raw WARC-Truncated length id. */
+	/** WARC-Truncated length id. */
 	public static final String TT_LENGTH = "length";
-	/** Raw WARC-Truncated time id*/
+	/** WARC-Truncated time id*/
 	public static final String TT_TIME = "time";
-	/** Raw WARC-Truncated disconnect id. */
+	/** WARC-Truncated disconnect id. */
 	public static final String TT_DISCONNECT = "disconnect";
-	/** Raw WARC-Truncated unspecified id. */
+	/** WARC-Truncated unspecified id. */
 	public static final String TT_UNSPECIFIED = "unspecified";
+
+	/** WARC truncation reason id to field name mapping table.
+	 *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+	public static final String[] TT_IDX_STRINGS = {
+		null,
+		TT_LENGTH,
+		TT_TIME,
+		TT_DISCONNECT,
+		TT_UNSPECIFIED
+	};
 
 	/** Warc reader future reason id. */
 	public static final int TT_IDX_FUTURE_REASON = 0;
@@ -298,13 +325,21 @@ public class WarcConstants {
 	 * Warc revisit profile ids used in the WARC-Profile header (See ISO).
 	 */
 
-	/** Raw Revisit WARC-Profile id for identical payload digest. */
+	/** Revisit WARC-Profile id for identical payload digest. */
 	public static final String PROFILE_IDENTICAL_PAYLOAD_DIGEST =
 			"http://netpreserve.org/warc/1.0/revisit/identical-payload-digest";
 
-	/** Raw Revisit WARC-Profile id for server not modified. */
+	/** Revisit WARC-Profile id for server not modified. */
 	public static final String PROFILE_SERVER_NOT_MODIFIED =
 			"http://netpreserve.org/warc/1.0/revisit/server-not-modified";
+
+	/** WARC profile id to field name mapping table.
+	 *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+	public static final String[] P_IDX_STRINGS = {
+		null,
+		PROFILE_IDENTICAL_PAYLOAD_DIGEST,
+		PROFILE_SERVER_NOT_MODIFIED
+	};
 
 	/*
 	 * Warc revisit profile ids returned by the warc reader.
@@ -336,7 +371,7 @@ public class WarcConstants {
 	 * (See http://www.ietf.org/rfc/rfc2119.txt)
 	 */
 
-	/** Warc header can be ignored for the current Warc-Type. */
+	/** Warc header can be ignored. */
 	public static final int POLICY_IGNORE = 0;
 	/** TODO rename */
 	public static final int POLICY_MANDATORY = 1;

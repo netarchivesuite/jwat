@@ -47,12 +47,18 @@ public class WarcDigest {
 	}
 
 	/**
-	 * Returns a printer friendly representation of the class state.
-	 * @return printer friendly representation of the class state 
+	 * Returns a header representation of the class state.
+	 * @return header representation of the class state 
 	 */
 	@Override
 	public String toString() {
+		return new String(algorithm + ":" + digestValue);
+	}
+
+	/*
+	public String toDebugString() {
 		return new String("[algorithm=" + algorithm + ",digest value=" + digestValue + "]");
 	}
+	*/
 
 }

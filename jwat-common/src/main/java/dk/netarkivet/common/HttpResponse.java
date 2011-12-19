@@ -1,50 +1,21 @@
-/**
- * JHOVE2 - Next-generation architecture for format-aware characterization
- *
- * Copyright (c) 2009 by The Regents of the University of California,
- * Ithaka Harbors, Inc., and The Board of Trustees of the Leland Stanford
- * Junior University.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * o Neither the name of the University of California/California Digital
- *   Library, Ithaka Harbors/Portico, or Stanford University, nor the names of
- *   its contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
 package dk.netarkivet.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Arc record payload.
+ * This class represents a recognized HttpResponse payload.
  *
  * @author lbihanic, selghissassi
  */
@@ -67,9 +38,28 @@ public class HttpResponse {
 	protected static final String CONTENT_TYPE = "Content-Type:".toUpperCase();
 
 	/** <code>InputStream</code> to read payload. */
-	protected InputStream in;
+	protected ByteCountingPushBackInputStream pbin;
 
-	/** Http result code. */
+    /** Payload length. */
+    protected long length;
+
+    /** Stream used to ensure we don't use more than the pushback buffer on
+     *  headers and at the same time store everything read in an array. */
+	protected FixedLengthRecordingInputStream flrin;
+
+	/** Actual message digest algorithm used. */
+    protected MessageDigest md;
+
+    /** Automatic digesting of payload input stream. */
+    protected DigestInputStream din;
+
+    /** Boolean indicating no such algorithm exception under initialization. */
+    protected boolean bNoSuchAlgorithmException;
+
+    /** Http payload stream. */
+    protected InputStream in;
+
+    /** Http result code. */
 	public String resultCode;
 
 	/** Http protocol version. */
@@ -103,21 +93,52 @@ public class HttpResponse {
 
 	/**
 	 * Reads the HTTP protocol response and return it as an object.
-	 * @param in payload input stream
+	 * @param pbin payload input stream
 	 * @param length payload length
+     * @param digestAlgorithm digest algorithm to use on payload or null
 	 * @return <code>HttpResponse</code> based on the http headers
-	 * @throws IOException io exception while identifying http header.
+	 * @throws IOException if an error occurs while processing http header.
 	 */
-	public static HttpResponse processPayload(InputStream in, long length) 
-	                                                     throws IOException {
+	public static HttpResponse processPayload(ByteCountingPushBackInputStream pbin,
+					long length, String digestAlgorithm) throws IOException {
+        if (pbin == null) {
+            throw new IllegalArgumentException(
+                    "The inputstream 'pbin' is null");
+        }
+        if (length < 0) {
+            throw new IllegalArgumentException(
+                    "The 'length' is less than zero: " + length);
+        }
 		HttpResponse hr = new HttpResponse();
-		hr.in = in;
-		hr.objectSize = hr.readProtocolResponse(in, length);
+		hr.pbin = pbin;
+        hr.length = length;
+		hr.flrin = new FixedLengthRecordingInputStream(hr.pbin, 8192);		// TODO payload pushback buffer size
+		hr.objectSize = hr.readProtocolResponse(hr.flrin, length);
+        /*
+         * Block Digest.
+         */
+        if (digestAlgorithm != null) {
+            try {
+                hr.md = MessageDigest.getInstance(digestAlgorithm);
+            } catch (NoSuchAlgorithmException e) {
+            	hr.bNoSuchAlgorithmException = true;
+            }
+        }
+        if (hr.md != null) {
+            hr.din = new DigestInputStreamNoSkip(hr.pbin, hr.md);
+            hr.in = hr.din;
+        } else {
+        	hr.in = hr.pbin;
+        }
+        /*
+         * Ensure close() is not called on the payload stream!
+         */
+        hr.in = new FilterInputStream(hr.in) {
+            @Override
+            public void close() throws IOException {
+            }
+        };
 		return hr;
-	}
-
-	public InputStream getPayloadInputStream() {
-		return in;
 	}
 
 	/**
@@ -337,6 +358,72 @@ public class HttpResponse {
 	 */
 	public long getObjectSize() {
 		return objectSize;
+	}
+
+	public byte[] getHeader() {
+		return flrin.getRecording();
+	}
+
+	/**
+     * Returns the <code>MessageDigest</code> used on payload stream.
+     * @return <code>MessageDigest</code> used on payload stream
+     */
+    public MessageDigest getMessageDigest() {
+        return md;
+    }
+
+    /**
+     * Get payload total length.
+     * @return payload total length
+     */
+    public long getLength() {
+        return length;
+    }
+
+    /**
+     * Get the number of unavailable bytes missing due to unexpected EOF.
+     * This method always returns <code>0</code> as long as the stream is open.
+     * @return number of unavailable bytes missing due to unexpected EOF
+     * @throws IOException if errors occurs calling available method on stream
+     */
+    public long getUnavailable() throws IOException {
+        return length - pbin.getConsumed();
+    }
+
+	public InputStream getInputStreamComplete() {
+		return new SequenceInputStream(new ByteArrayInputStream(flrin.getRecording()), in);
+	}
+
+	public InputStream getPayloadInputStream() {
+		return in;
+	}
+
+    /**
+     * Get payload remaining length.
+     * @return payload remaining length
+     * @throws IOException if errors occurs calling available method on stream
+     */
+    public long getRemaining() throws IOException {
+    	return length - pbin.getConsumed();
+    }
+
+    /**
+     * Closes the this payload stream, skipping unread bytes in the process.
+     * @throws IOException io exception in closing process
+     */
+	public void close() throws IOException {
+        if (md != null) {
+        	// Ensure payload has been completely digested.
+        	// Skipping because the custom digestinpustream has been altered to
+        	// read when skipping.
+            long s;
+            while ((s = din.skip(length)) != -1) {
+            }
+        }
+        if (pbin != null) {
+            pbin.close();
+            pbin = null;
+        }
 	}
 
 	@Override

@@ -1,38 +1,3 @@
-/**
- * JHOVE2 - Next-generation architecture for format-aware characterization
- *
- * Copyright (c) 2009 by The Regents of the University of California,
- * Ithaka Harbors, Inc., and The Board of Trustees of the Leland Stanford
- * Junior University.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * o Neither the name of the University of California/California Digital
- *   Library, Ithaka Harbors/Portico, or Stanford University, nor the names of
- *   its contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
 package dk.netarkivet.common;
 
 import java.io.BufferedInputStream;
@@ -54,6 +19,9 @@ public class Payload {
     /** Payload content. */
     private static final int BUFFER_SIZE = 4096;
 
+    /** Payload length. */
+    protected long length;
+
     /** Base stream used to limit payload access to only the payload and
      * not any record data beyond that. Also detects unexpected EOF. */
     protected FixedLengthInputStream flin;
@@ -64,24 +32,39 @@ public class Payload {
     /** Automatic digesting of payload input stream. */
     protected DigestInputStream din;
 
-    /** Payload content. */
-    protected InputStream in;
+    /** Boolean indicating no such algorithm exception under initialization. */
+    protected boolean bNoSuchAlgorithmException;
 
-    /** Payload length. */
-    protected long length;
+    /** Payload content. */
+    protected InputStream bin;
+
+    /** Pushback input stream usable by payload processors. */
+    protected ByteCountingPushBackInputStream pbin;
+
+    /** Pushback size. */
+    protected int pushback_size;
+
+    /** HttpResponse payload, if present. */
+    protected HttpResponse httpResponse;
 
     /** Handler called when this payloads stream has been fully consumed. */
     protected PayloadOnClosedHandler onClosedHandler;
+
+	/**
+	 * Non public constructor.
+	 */
+	protected Payload() {
+	}
 
     /**
      * Creates new <code>ArcPayload</code> instance.
      * @param in the input stream to parse.
      * @param length payload length.
      * @param digestAlgorithm digest algorithm to use on payload or null
-     * @throws IOException io exception while initializing
+     * @throws IOException if an error occurs while initializing
      */
-    public Payload(InputStream in, long length, String digestAlgorithm)
-                                                        throws IOException {
+    public static Payload processPayload(InputStream in, long length,
+    		int pushback_size, String digestAlgorithm) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
@@ -90,56 +73,33 @@ public class Payload {
             throw new IllegalArgumentException(
                     "The 'length' is less than zero: " + length);
         }
-        this.length = length;
-        this.flin = new FixedLengthInputStream(in, length);
-        // TODO finish digest support or move this to reader
+        if (pushback_size <= 0) {
+            throw new IllegalArgumentException(
+                    "The 'pushback_size' is less than or equal to zero: " +
+                    		pushback_size);
+        }
+        Payload pl = new Payload();
+        pl.length = length;
+        pl.pushback_size = pushback_size;
+        pl.flin = new FixedLengthInputStream(in, length);
+        /*
+         * Block Digest.
+         */
         if (digestAlgorithm != null) {
             try {
-                md = MessageDigest.getInstance(digestAlgorithm);
+                pl.md = MessageDigest.getInstance(digestAlgorithm);
             } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
+            	pl.bNoSuchAlgorithmException = true;
             }
         }
-        if (md != null) {
-            this.din = new DigestInputStream(flin, md);
-            this.in = new BufferedInputStream(din, BUFFER_SIZE);
+        if (pl.md != null) {
+            pl.din = new DigestInputStreamNoSkip(pl.flin, pl.md);
+            pl.bin = new BufferedInputStream(pl.din, BUFFER_SIZE);
         } else {
-            this.in = new BufferedInputStream(flin, BUFFER_SIZE);
+            pl.bin = new BufferedInputStream(pl.flin, BUFFER_SIZE);
         }
-    }
-
-    /**
-     * Get <code>InputStream</code> to read payload data.
-     * @return <code>InputStream</code> to read payload data.
-     */
-    public InputStream getInputStream() {
-        return in;
-    }
-
-    /**
-     * Get payload length.
-     * @return payload length
-     */
-    public long getLength() {
-        return length;
-    }
-
-    /**
-     * Get the number of unavailable bytes missing due to unexpected EOF.
-     * This method always returns <code>0</code> as long as the stream is open.
-     * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException io exception calling available method on stream
-     */
-    public long getUnavailable() throws IOException {
-        return flin.available();
-    }
-
-    /**
-     * Returns the <code>MessageDigest</code> used on payload stream.
-     * @return <code>MessageDigest</code> used on payload stream
-     */
-    public MessageDigest getMessageDigest() {
-        return md;
+        pl.pbin = new ByteCountingPushBackInputStream(pl.bin, pushback_size);
+        return pl;
     }
 
     /**
@@ -151,27 +111,108 @@ public class Payload {
     }
 
     /**
+     * Returns the <code>MessageDigest</code> used on payload stream.
+     * @return <code>MessageDigest</code> used on payload stream
+     */
+    public MessageDigest getMessageDigest() {
+        return md;
+    }
+
+    /**
+     * Get payload total length.
+     * @return payload total length
+     */
+    public long getLength() {
+        return length;
+    }
+
+    /**
+     * Get the number of unavailable bytes missing due to unexpected EOF.
+     * This method always returns <code>0</code> as long as the stream is open.
+     * @return number of unavailable bytes missing due to unexpected EOF
+     * @throws IOException if errors occurs calling available method on stream
+     */
+    public long getUnavailable() throws IOException {
+        return flin.available();
+    }
+
+    /**
+     * Get pushback buffer size.
+     * @return pushback buffer size
+     */
+    public int getPushbackSize() {
+    	return pushback_size;
+    }
+
+    /**
+     * Set http response object in case of recognized payload content.
+     * @param httpResponse http response payload object
+     */
+    public void setHttpResponse(HttpResponse httpResponse) {
+    	this.httpResponse = httpResponse;
+    }
+
+    /**
+     * Get the <code>HttpResponse</code> object associated with this payload.
+     * @return <code>HttpResponse</code> object or null
+     */
+    public HttpResponse getHttpResponse() {
+    	return httpResponse;
+    }
+
+    /**
+     * Get <code>InputStream</code> to read payload data.
+     * @return <code>InputStream</code> to read payload data.
+     */
+    public InputStream getInputStreamComplete() {
+    	if (httpResponse != null) {
+    		return httpResponse.getInputStreamComplete();
+    	} else {
+            return pbin;
+    	}
+    }
+
+    /**
+     * Get <code>InputStream</code> to read payload data.
+     * @return <code>InputStream</code> to read payload data.
+     */
+    public ByteCountingPushBackInputStream getInputStream() {
+    	// TODO close this externally and you DIE!
+    	return pbin;
+    }
+
+    /**
+     * Get payload remaining length.
+     * @return payload remaining length
+     * @throws IOException if errors occurs calling available method on stream
+     */
+    public long getRemaining() throws IOException {
+    	if (httpResponse != null) {
+    		return httpResponse.getPayloadInputStream().available();
+    	} else {
+        	return pbin.available();
+    	}
+    }
+
+    /**
      * Closes the this payload stream, skipping unread bytes in the process.
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
+    	if (httpResponse != null) {
+    		httpResponse.close();
+    	}
         if (md != null) {
-            // TODO cleanup when working
-            /*
+        	// Ensure payload has been completely digested.
+        	// Skipping because the custom digestinpustream has been altered to
+        	// read when skipping.
             long s;
             while ((s = din.skip(length)) != -1) {
-                System.out.println( s );
-            }
-            */
-            byte[] buffer = new byte[1024];
-            int r = 0;
-            while (r != -1) {
-                r = din.read(buffer);
             }
         }
-        if (in != null) {
-            in.close();
-            in = null;
+        if (pbin != null) {
+            pbin.close();
+            pbin = null;
         }
         if (onClosedHandler != null) {
             onClosedHandler.payloadClosed();

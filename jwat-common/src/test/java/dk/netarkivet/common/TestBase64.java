@@ -55,6 +55,26 @@ public class TestBase64 {
 		String base16da;
 		String base16ds;
 
+		base64a = Base64.encodeArray( null );
+		Assert.assertNull( base64a );
+		base64a = Base64.encodeArray( new byte[ 0 ] );
+		Assert.assertNull( base64a );
+
+		base64s = Base64.encodeString( null );
+		Assert.assertNull( base64s );
+		base64s = Base64.encodeString( "" );
+		Assert.assertNull( base64s );
+
+		dstArr = Base64.decodeToArray( null );
+		Assert.assertNull( dstArr );
+		dstArr = Base64.decodeToArray( "" );
+		Assert.assertNull( dstArr );
+
+		dstStr = Base64.decodeToString( null );
+		Assert.assertNull( dstStr );
+		dstStr = Base64.decodeToString( "" );
+		Assert.assertNull( dstStr );
+
 		for ( int r=0; r<runs; ++r) {
 			for ( int n=min; n<max; ++n ) {
 				srcArr = new byte[ n ];

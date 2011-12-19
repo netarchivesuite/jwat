@@ -1,38 +1,3 @@
-/**
- * JHOVE2 - Next-generation architecture for format-aware characterization
- *
- * Copyright (c) 2009 by The Regents of the University of California,
- * Ithaka Harbors, Inc., and The Board of Trustees of the Leland Stanford
- * Junior University.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * o Neither the name of the University of California/California Digital
- *   Library, Ithaka Harbors/Portico, or Stanford University, nor the names of
- *   its contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
 package dk.netarkivet.arc;
 
 /**
@@ -84,23 +49,23 @@ public final class ArcConstants {
     public static final String LENGTH_FIELD             = "Archive-length";
 
     /** URL record field index. */
-    public static final int AFIDX_URL = 0;
+    public static final int AF_IDX_URL = 0;
     /** Ip address record field index. */
-    public static final int AFIDX_IPADDRESS = 1;
+    public static final int AF_IDX_IPADDRESS = 1;
     /** Archive date record field index. */
-    public static final int AFIDX_ARCHIVEDATE = 2;
+    public static final int AF_IDX_ARCHIVEDATE = 2;
     /** Content-type record field index. */
-    public static final int AFIDX_CONTENETTYPE = 3;
+    public static final int AF_IDX_CONTENTTYPE = 3;
     /** Result code record field index.  */
-    public static final int AFIDX_RESULTCODE = 4;
+    public static final int AF_IDX_RESULTCODE = 4;
     /** Checksum record field index. */
-    public static final int AFIDX_CHECKSUM = 5;
+    public static final int AF_IDX_CHECKSUM = 5;
     /** Location record field index. */
-    public static final int AFIDX_LOCATION = 6;
+    public static final int AF_IDX_LOCATION = 6;
     /** Offset record field index. */
-    public static final int AFIDX_OFFSET = 7;
+    public static final int AF_IDX_OFFSET = 7;
     /** Filename record field index. */
-    public static final int AFIDX_FILENAME = 8;
+    public static final int AF_IDX_FILENAME = 8;
 
     /**
      * Version block fields.

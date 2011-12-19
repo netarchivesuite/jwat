@@ -1,38 +1,3 @@
-/**
- * JHOVE2 - Next-generation architecture for format-aware characterization
- *
- * Copyright (c) 2009 by The Regents of the University of California,
- * Ithaka Harbors, Inc., and The Board of Trustees of the Leland Stanford
- * Junior University.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *
- * o Neither the name of the University of California/California Digital
- *   Library, Ithaka Harbors/Portico, or Stanford University, nor the names of
- *   its contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
 package dk.netarkivet.arc;
 
 import java.io.IOException;
@@ -53,7 +18,7 @@ import dk.netarkivet.common.PayloadOnClosedHandler;
 
 /**
  * This abstract class represents the common base ARC data which is present in
- * both a record or version block. This including possible common
+ * both a record or version block. This includes possible common
  * validation and format warnings/errors encountered in the process.
  * This class also contains the common parts of the ARC parser which are
  * intended to be called by extending classes.
@@ -176,13 +141,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             // Parse
             recUrl = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AFIDX_URL);
+                    ArcConstants.AF_IDX_URL);
             recIpAddress = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AFIDX_IPADDRESS);
+                    ArcConstants.AF_IDX_IPADDRESS);
             recArchiveDate = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AFIDX_ARCHIVEDATE);
+                    ArcConstants.AF_IDX_ARCHIVEDATE);
             recContentType = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AFIDX_CONTENETTYPE);
+                    ArcConstants.AF_IDX_CONTENTTYPE);
             // Validate
             url = this.parseUri(recUrl);
             inetAddress = parseIpAddress(recIpAddress);
@@ -192,23 +157,23 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (version.equals(ArcVersion.VERSION_2)) {
                 recResultCode = parseInteger(
                         ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AFIDX_RESULTCODE),
+                                ArcConstants.AF_IDX_RESULTCODE),
                         ArcConstants.RESULT_CODE_FIELD, false);
                 recChecksum = parseString(
                         ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AFIDX_CHECKSUM),
+                                ArcConstants.AF_IDX_CHECKSUM),
                         ArcConstants.CHECKSUM_FIELD);
                 recLocation = parseString(
                         ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AFIDX_LOCATION),
+                                ArcConstants.AF_IDX_LOCATION),
                         ArcConstants.LOCATION_FIELD, true);
                 recOffset = this.parseLong(
                         ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AFIDX_OFFSET),
+                                ArcConstants.AF_IDX_OFFSET),
                         ArcConstants.OFFSET_FIELD);
                 recFilename = parseString(
                         ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AFIDX_FILENAME),
+                                ArcConstants.AF_IDX_FILENAME),
                         ArcConstants.FILENAME_FIELD);
             }
             recLength = parseLong(
@@ -305,7 +270,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /**
      * Check to see if the record has been closed.
-     * @return boolean indicating whether this record was close or not
+     * @return boolean indicating whether this record is closed or not
      */
     public boolean isClosed() {
         return bClosed;

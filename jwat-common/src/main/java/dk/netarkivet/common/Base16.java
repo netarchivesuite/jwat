@@ -38,6 +38,10 @@ public class Base16 {
 	 * @return decoded string or null
 	 */
 	public static String decodeToString(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
+
 		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
@@ -95,6 +99,10 @@ public class Base16 {
 	 * @return decoded byte array or null
 	 */
 	public static byte[] decodeToArray(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
+
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		boolean b = true;
@@ -152,6 +160,10 @@ public class Base16 {
 	 * @return encoded string or null
 	 */
 	public static String encodeString(String in) {
+		if (in == null || in.length() == 0) {
+			return null;
+		}
+
 		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;
@@ -187,6 +199,10 @@ public class Base16 {
 	 * @return encoded string or null
 	 */
 	public static String encodeArray(byte[] in) {
+		if (in == null || in.length == 0) {
+			return null;
+		}
+
 		StringBuffer out = new StringBuffer( 256 );
 
 		boolean b = true;

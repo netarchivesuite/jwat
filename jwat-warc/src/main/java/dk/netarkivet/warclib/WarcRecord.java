@@ -18,6 +18,7 @@ import java.util.Map;
 
 import dk.netarkivet.common.ByteCountingPushBackInputStream;
 import dk.netarkivet.common.ContentType;
+import dk.netarkivet.common.HttpResponse;
 import dk.netarkivet.common.IPAddressParser;
 import dk.netarkivet.common.Payload;
 import dk.netarkivet.common.PayloadOnClosedHandler;
@@ -31,6 +32,9 @@ import dk.netarkivet.common.PayloadOnClosedHandler;
  * @author nicl
  */
 public class WarcRecord implements PayloadOnClosedHandler {
+
+    /** Pushback size used in payload. */
+    public static final int PAYLOAD_PUSHBACK_SIZE = 8192;
 
     /** Validation errors */
     protected List<WarcValidationError> errors = null;
@@ -139,6 +143,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	/** Payload object if any exists. */
     protected Payload payload;
 
+    /** HttpResponse header content parse from payload. */
+    protected HttpResponse httpResponse = null;
+
 	/**
 	 * Given an <code>InputStream</code> it tries to read and validate a WARC
 	 * header block.
@@ -158,34 +165,41 @@ public class WarcRecord implements PayloadOnClosedHandler {
 			wr.parseFields(in);
 			wr.checkFields();
 
-			if (wr.warcTypeIdx != null) {
-				// TODO payload processing
-			}
+			/*
+			 * Payload processing.
+			 */
 			if (wr.contentLength != null && wr.contentLength > 0) {
+				/*
+				 * Payload.
+				 */
 				String algorithm = null;
 				if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
 					algorithm = wr.warcBlockDigest.algorithm;
 				}
+	            wr.payload = Payload.processPayload(in, wr.contentLength,
+	            						 PAYLOAD_PUSHBACK_SIZE, algorithm);
+	            wr.payload.setOnClosedHandler(wr);
+	            /*
+	             * HttpResponse.
+	             */
+				algorithm = null;
 				if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null ) {
-					if (algorithm == null) {
-						algorithm = wr.warcPayloadDigest.algorithm;
-					} else if (algorithm.compareToIgnoreCase(wr.warcPayloadDigest.algorithm) != 0) {
-						// TODO different algorithms
+					algorithm = wr.warcPayloadDigest.algorithm;
+				}
+				if (wr.contentType != null
+						&& wr.contentType.contentType.equals("application")
+						&& wr.contentType.mediaType.equals("http")) {
+					String value = wr.contentType.getParameter("msgtype");
+					// request
+					if ("response".equals(value)) {
+		            	wr.httpResponse = HttpResponse.processPayload(
+		                        wr.payload.getInputStream(), wr.contentLength,
+		                        algorithm);
+		            	if (wr.httpResponse != null) {
+		            		wr.payload.setHttpResponse(wr.httpResponse);
+		            	}
 					}
 				}
-	            wr.payload = new Payload(in, wr.contentLength, algorithm);
-	            wr.payload.setOnClosedHandler(wr);
-				/*
-				long skipRemaining = wr.contentLength;
-				long skippedLast = 0;
-				while (skipRemaining > 0 && skippedLast != -1) {
-					skipRemaining -= skippedLast;
-					skippedLast = in.skip(skipRemaining);
-				}
-				if (skipRemaining > 0) {
-                    wr.addValidationError(WarcErrorType.INVALID, "Payload Length", Long.toString(skipRemaining));
-				}
-				*/
 			}
 		} else {
 			wr = null;
@@ -207,7 +221,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     addValidationError(WarcErrorType.INVALID, "Payload truncated",
                             "Payload length mismatch");
                 }
-                // Check digest(s).
+                /*
+                 * Check block digest.
+                 */
                 MessageDigest md = payload.getMessageDigest();
             	if (md != null) {
             		byte[] digest = md.digest();
@@ -233,6 +249,17 @@ public class WarcRecord implements PayloadOnClosedHandler {
             			*/
             		}
             	}
+            	if (httpResponse != null) {
+            		/*
+            		 * Check payload digest.
+            		 */
+            		md = httpResponse.getMessageDigest();
+            		if (md != null) {
+                		byte[] digest = md.digest();
+                		if (digest != null) {
+                		}
+            		}
+            	}
             }
             // Check for trailing newlines.
 			int newlines = parseNewLines(in);
@@ -245,7 +272,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     /**
      * Check to see if the record has been closed.
-     * @return boolean indicating whether this record was close or not
+     * @return boolean indicating whether this record is closed or not
      */
     public boolean isClosed() {
     	return bClosed;
@@ -318,6 +345,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	protected boolean parseVersion(ByteCountingPushBackInputStream in) throws IOException {
 		bMagicIdentified = false;
 		bVersionParsed = false;
+		boolean bInvalidDataBeforeVersion = false;
+		boolean bEmptyLinesBeforeVersion = false;
 		String tmpStr;
 		boolean bSeekMagic = true;
 		while (bSeekMagic) {
@@ -346,23 +375,34 @@ public class WarcRecord implements PayloadOnClosedHandler {
 						}
 						bSeekMagic = false;
 					} else {
-						// Gibberish.
-						// TODO Only report once
-	                    addValidationError(WarcErrorType.INVALID, "Data", null);
+						// Invalid data aka Gibberish.
+						bInvalidDataBeforeVersion = true;
 					}
 				} else {
 					// Empty line.
-					// TODO Only report once
-                    addValidationError(WarcErrorType.INVALID, "Empty lines", null);
+					bEmptyLinesBeforeVersion = true;
+
 				}
 			} else {
 				// EOF.
 				bSeekMagic = false;
 			}
 		}
+		if (bInvalidDataBeforeVersion) {
+	        addValidationError(WarcErrorType.INVALID, "Data", null);
+		}
+		if (bEmptyLinesBeforeVersion) {
+	        addValidationError(WarcErrorType.INVALID, "Empty lines", null);
+		}
 		return bMagicIdentified;
 	}
 
+	/**
+	 * Reads WARC header lines one line at a time until an empty line is
+	 * encountered.
+	 * @param in header input stream
+	 * @throws IOException if an error occurs while reading the WARC header
+	 */
 	protected void parseFields(ByteCountingPushBackInputStream in) throws IOException {
 		WarcHeaderLine warcHeader;
 		boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
@@ -395,6 +435,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Identify a WARC header line and validate it accordingly.
+	 * @param warcHeader WARC header line
+	 * @param seen array of headers seen so far used for duplication check
+	 */
 	protected void parseField(WarcHeaderLine warcHeader, boolean[] seen) {
 		String field = warcHeader.name;
 		String value = warcHeader.value;
@@ -541,6 +586,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Validate the WARC header relative to the WARC-Type and according the
+	 * WARC ISO standard.
+	 */
 	protected void checkFields() {
 		bMandatoryMissing = false;
 
@@ -651,6 +700,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Given a WARC record type and a WARC field looks up the policy in a
+	 * matrix build from the WARC ISO standard.
+	 * @param rtype WARC record type id
+	 * @param ftype WARC field type id
+	 * @param fieldObj WARC field
+	 * @param valueStr WARC raw field value
+	 */
 	protected void checkFieldPolicy(int rtype, int ftype, Object fieldObj, String valueStr) {
 		int policy = WarcConstants.field_policy[rtype][ftype];
 		switch (policy) {
@@ -686,6 +743,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Given a WARC record type and a WARC field looks up the policy in a
+	 * matrix build from the WARC ISO standard.
+	 * @param rtype WARC record type id
+	 * @param ftype WARC field type id
+	 * @param fieldObj WARC field
+	 * @param valueStr WARC raw field values
+	 */
 	protected void checkFieldPolicy(int rtype, int ftype, List<?> fieldObj, List<String> valueList) {
 		String valueStr = null;
 		int policy = WarcConstants.field_policy[rtype][ftype];
@@ -726,6 +791,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 		}
 	}
 
+	/**
+	 * Concatenate a <code>List</code> of strings into one single delimited
+	 * string.
+	 * @param list <code>List</code> of strings to concatenate
+	 * @return concatenate string
+	 */
 	protected String listToStr(List<String> list) {
 		StringBuffer sb = new StringBuffer();
 		String str = null;
@@ -832,6 +903,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /**
      * Parses WARC record date.
      * @param dateStr the date to parse.
+     * @param field field name
      * @return the formatted date.
      */
     protected Date parseDate(String dateStr, String field) {
@@ -852,6 +924,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /**
      * Parses WARC record IP address.
      * @param ipAddress the IP address to parse
+     * @param field field name
      * @return the IP address
      */
     protected InetAddress parseIpAddress(String ipAddress, String field) {
@@ -872,6 +945,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /**
      * Returns an URL object holding the value of the specified string.
      * @param uriStr the URL to parse
+     * @param field field name
      * @return an URL object holding the value of the specified string
      */
     protected URI parseUri(String uriStr, String field) {
@@ -893,6 +967,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
         return uri;
     }
 
+    /**
+     * Parse and validate content-type string with optional parameters.
+     * @param contentTypeStr content-type string to parse
+     * @param field field name
+     * @return content-type wrapper object or null
+     */
     protected ContentType parseContentType(String contentTypeStr, String field) {
     	ContentType contentType = null;
     	if (contentTypeStr != null && contentTypeStr.length() != 0) {
@@ -908,6 +988,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
     	return contentType;
     }
 
+    /**
+     * Parse and validate WARC digest string.
+     * @param labelledDigest WARC digest string to parse
+     * @param field field name
+     * @return digest wrapper object or null
+     */
     protected WarcDigest parseDigest(String labelledDigest, String field) {
         WarcDigest digest = null;
         if (labelledDigest != null && labelledDigest.length() > 0) {
@@ -1245,8 +1331,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Get a <code>List</code> of all the non WARC headers found during
-     * parsing.
+     * Get a <code>List</code> of all the non-standard WARC headers found
+     * during parsing.
      * @return <code>List</code> of <code>WarcHeader</code>
      */
 	public List<WarcHeaderLine> getHeaderList() {
@@ -1259,7 +1345,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	}
 
 	/**
-	 * Get a non WARC header.
+	 * Get a non-standard WARC header.
 	 * @param field header name
 	 * @return WARC header line structure
 	 */
@@ -1294,6 +1380,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public InputStream getPayloadContent() {
         return (payload != null) ? payload.getInputStream() : null;
+    }
+
+    public long getOffset() {
+    	return offset;
     }
 
 }

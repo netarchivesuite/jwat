@@ -1,12 +1,14 @@
 package dk.netarkivet.common;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This class represents a content-type string parsed, validated and decomposed
  * into its separate components. It's based on the rfc2616 text and accordingly
- * fairly strict concerning whitespace's. Whitespace is only permissible after
+ * fairly strict concerning whitespaces. Whitespace is only permissible after
  * a ';' and before and after the whole content-type string.
  *
  * @author nicl
@@ -63,11 +65,21 @@ public class ContentType {
         }
     }
 
-	/**
+    /**
+     * Check whether character is a valid token.
+     * @param c character to check
+     * @return boolean indicating whether character is a valid token
+     */
+    public static boolean isTokenCharacter(int c) {
+    	return (c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256;
+    }
+
+    /**
 	 * Tries to parse and validate the given content-type string. Also tries
 	 * to parse and validate any optional parameters present in the string.
 	 * @param contentTypeStr content-type string
-	 * @return
+	 * @return a content-type object with all information in separate
+	 * structures.
 	 */
 	public static ContentType parseContentType(String contentTypeStr) {
 		if (contentTypeStr == null || contentTypeStr.length() == 0) {
@@ -91,7 +103,7 @@ public class ContentType {
 			case S_START:
 				if (c == ' ' || c == '\t') {
 					++idx;
-				} else if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				} else if (isTokenCharacter(c)) {
 					nameSb.setLength(0);
 					nameSb.append((char) c);
 					++idx;
@@ -102,7 +114,7 @@ public class ContentType {
 				}
 				break;
 			case S_CONTENTTYPE:
-				if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				if (isTokenCharacter(c)) {
 					nameSb.append((char) c);
 					++idx;
 				} else if (c == '/') {
@@ -117,7 +129,7 @@ public class ContentType {
 				}
 				break;
 			case S_MEDIATYPE:
-				if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				if (isTokenCharacter(c)) {
 					nameSb.append((char) c);
 					++idx;
 				} else if (c == -1) {
@@ -155,7 +167,7 @@ public class ContentType {
 			case S_SEMICOLON:
 				if (c == ' ' || c == '\t') {
 					++idx;
-				} else if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				} else if (isTokenCharacter(c)) {
 					nameSb.setLength(0);
 					valueSb.setLength(0);
 					nameSb.append((char) c);
@@ -169,7 +181,7 @@ public class ContentType {
 				}
 				break;
 			case S_PARAM_NAME:
-				if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				if (isTokenCharacter(c)) {
 					nameSb.append((char) c);
 					++idx;
 				} else if (c == '=') {
@@ -182,7 +194,7 @@ public class ContentType {
 				}
 				break;
 			case S_PARAM_EQ:
-				if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				if (isTokenCharacter(c)) {
 					valueSb.append((char) c);
 					++idx;
 					state = S_PARAM_VALUE;
@@ -196,7 +208,7 @@ public class ContentType {
 				}
 				break;
 			case S_PARAM_VALUE:
-				if ((c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256) {
+				if (isTokenCharacter(c)) {
 					valueSb.append((char) c);
 					++idx;
 				} else if (c == -1) {
@@ -256,6 +268,67 @@ public class ContentType {
 			return null;
 		}
 		return parameters.get(name.toLowerCase());
+	}
+
+	/**
+	 * Set a parameter with the given (name, value) pair.
+	 * @param name parameter name
+	 * @param value parameter value
+	 */
+	public void setParameter(String name, String value) {
+		if (name != null && name.length() > 0 && value != null) {
+			if (parameters == null) {
+				parameters = new HashMap<String, String>();
+			}
+			parameters.put(name, value);
+		}
+	}
+
+	/**
+	 * Examines a string and decides whether it should be quoted.
+	 * @param str input string
+	 * @return boolean indicating the string should be quoted
+	 */
+	public boolean quote(String str) {
+		boolean quote = false;
+		if (str != null && str.length() > 0) {
+			int idx = 0;
+			char c;
+			while (idx<str.length() && !quote) {
+				c = str.charAt(idx++);
+				if (c == ' ' || c == '\t') {
+					quote = true;
+				}
+			}
+		}
+		return quote;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(contentType);
+		sb.append('/');
+		sb.append(mediaType);
+		if (parameters != null) {
+			Iterator<Entry<String, String>> iter = parameters.entrySet().iterator();
+			Entry<String, String> entry;
+			while (iter.hasNext()) {
+				sb.append("; ");
+				entry = iter.next();
+				sb.append(entry.getKey());
+				sb.append('=');
+				if (quote(entry.getValue())) {
+					sb.append('"');
+					sb.append(entry.getValue());
+					sb.append('"');
+				}
+				else {
+					sb.append(entry.getValue());
+				}
+			}
+		}
+		return sb.toString();
 	}
 
 }

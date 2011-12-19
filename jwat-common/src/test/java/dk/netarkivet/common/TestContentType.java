@@ -21,6 +21,7 @@ public class TestContentType {
 	public void test() throws IOException {
 		ContentType ct;
 		String value;
+		String str;
 
 		ct = ContentType.parseContentType(null);
 		Assert.assertNull(ct);
@@ -251,12 +252,23 @@ public class TestContentType {
 		Assert.assertNotNull(value);
 		Assert.assertEquals("utf8", value);
 
+		str = ct.toString();
+		Assert.assertEquals("application/http; msgtype=request; charset=utf8", str);
+
 		ct = ContentType.parseContentType("application/warc-fields");
 		Assert.assertNotNull(ct);
 		//System.out.println(ct.contentType);
 		//System.out.println(ct.mediaType);
 		Assert.assertEquals("application", ct.contentType);
 		Assert.assertEquals("warc-fields", ct.mediaType);
+
+		str = ct.toString();
+		Assert.assertEquals("application/warc-fields", str);
+
+		ct.setParameter("quote", ".oOo. \t .oOo.");
+
+		str = ct.toString();
+		Assert.assertEquals("application/warc-fields; quote=\".oOo. \t .oOo.\"", str);
 	}
 
 }

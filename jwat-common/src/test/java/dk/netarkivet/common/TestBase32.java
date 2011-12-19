@@ -58,6 +58,26 @@ public class TestBase32 {
 		String base16da;
 		String base16ds;
 
+		base32a = Base32.encodeArray( null );
+		Assert.assertNull( base32a );
+		base32a = Base32.encodeArray( new byte[ 0 ] );
+		Assert.assertNull( base32a );
+
+		base32s = Base32.encodeString( null );
+		Assert.assertNull( base32s );
+		base32s = Base32.encodeString( "" );
+		Assert.assertNull( base32s );
+
+		dstArr = Base32.decodeToArray( null );
+		Assert.assertNull( dstArr );
+		dstArr = Base32.decodeToArray( "" );
+		Assert.assertNull( dstArr );
+
+		dstStr = Base32.decodeToString( null );
+		Assert.assertNull( dstStr );
+		dstStr = Base32.decodeToString( "" );
+		Assert.assertNull( dstStr );
+
 		for ( int r=0; r<runs; ++r ) {
 			for ( int n=min; n<max; ++n ) {
 				srcArr = new byte[ n ];

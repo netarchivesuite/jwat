@@ -61,6 +61,26 @@ public class TestBase16 {
 		}
 		*/
 
+		base16a = Base16.encodeArray( null );
+		Assert.assertNull( base16a );
+		base16a = Base16.encodeArray( new byte[ 0 ] );
+		Assert.assertNull( base16a );
+
+		base16s = Base16.encodeString( null );
+		Assert.assertNull( base16s );
+		base16s = Base16.encodeString( "" );
+		Assert.assertNull( base16s );
+
+		dstArr = Base16.decodeToArray( null );
+		Assert.assertNull( dstArr );
+		dstArr = Base16.decodeToArray( "" );
+		Assert.assertNull( dstArr );
+
+		dstStr = Base16.decodeToString( null );
+		Assert.assertNull( dstStr );
+		dstStr = Base16.decodeToString( "" );
+		Assert.assertNull( dstStr );
+
 		for ( int r=0; r<runs; ++r ) {
 			for ( int n=min; n<max; ++n ) {
 				srcArr = new byte[ n ];
