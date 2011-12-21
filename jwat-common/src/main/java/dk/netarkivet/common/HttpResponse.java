@@ -95,9 +95,10 @@ public class HttpResponse {
 	 * Reads the HTTP protocol response and return it as an object.
 	 * @param pbin payload input stream
 	 * @param length payload length
-     * @param digestAlgorithm digest algorithm to use on payload or null
+     * @param digestAlgorithm digest algorithm to use on payload or null if we
+     * don't want a digest of the payload
 	 * @return <code>HttpResponse</code> based on the http headers
-	 * @throws IOException if an error occurs while processing http header.
+	 * @throws IOException if an error occur while processing http header.
 	 */
 	public static HttpResponse processPayload(ByteCountingPushBackInputStream pbin,
 					long length, String digestAlgorithm) throws IOException {
@@ -353,13 +354,17 @@ public class HttpResponse {
 	}
 
 	/**
-	 * Gets ARC record object size.
-	 * @return the object size
+	 * Get http response payload length.
+	 * @return http response payload length
 	 */
-	public long getObjectSize() {
+	public long getPayloadLength() {
 		return objectSize;
 	}
 
+	/**
+	 * Get the raw http header as bytes.
+	 * @return raw http header as bytes
+	 */
 	public byte[] getHeader() {
 		return flrin.getRecording();
 	}
@@ -373,10 +378,10 @@ public class HttpResponse {
     }
 
     /**
-     * Get payload total length.
-     * @return payload total length
+     * Get payload total length, header and payload.
+     * @return payload total length, header and payload
      */
-    public long getLength() {
+    public long getTotalLength() {
         return length;
     }
 
@@ -384,16 +389,26 @@ public class HttpResponse {
      * Get the number of unavailable bytes missing due to unexpected EOF.
      * This method always returns <code>0</code> as long as the stream is open.
      * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException if errors occurs calling available method on stream
+     * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
         return length - pbin.getConsumed();
     }
 
+    /**
+     * Get an <code>InputStream</code> containing both the header and the
+     * payload.
+     * @return <code>InputStream</code> containing both the header and the
+     * payload.
+     */
 	public InputStream getInputStreamComplete() {
 		return new SequenceInputStream(new ByteArrayInputStream(flrin.getRecording()), in);
 	}
 
+	/**
+	 * Get an <code>InputStream</code> containing only the payload.
+	 * @return <code>InputStream</code> containing only the payload.
+	 */
 	public InputStream getPayloadInputStream() {
 		return in;
 	}
@@ -401,7 +416,7 @@ public class HttpResponse {
     /**
      * Get payload remaining length.
      * @return payload remaining length
-     * @throws IOException if errors occurs calling available method on stream
+     * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
     	return length - pbin.getConsumed();
@@ -413,9 +428,9 @@ public class HttpResponse {
      */
 	public void close() throws IOException {
         if (md != null) {
-        	// Ensure payload has been completely digested.
-        	// Skipping because the custom digestinpustream has been altered to
-        	// read when skipping.
+        	// Skip remaining unread bytes to ensure payload is completely
+        	// digested. Skipping because the DigestInputStreamNoSkip
+        	// has been altered to read when skipping.
             long s;
             while ((s = din.skip(length)) != -1) {
             }

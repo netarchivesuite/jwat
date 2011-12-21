@@ -34,9 +34,10 @@ public final class FixedLengthInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         long skippedLast = 0;
-        while (remaining > 0 && skippedLast != -1) {
+        // skippedLast != -1 does not work since skip can returns 0 at EOF.
+        while (remaining > 0 && skippedLast > 0) {
             remaining -= skippedLast;
-            skippedLast = in.skip(remaining);
+            skippedLast = skip(remaining);
         }
     }
 

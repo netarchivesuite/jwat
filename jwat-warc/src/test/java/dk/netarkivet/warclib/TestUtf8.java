@@ -84,7 +84,7 @@ public class TestUtf8 {
 					Payload payload = record.getPayload();
 					if (payload != null) {
 						InputStream pis = payload.getInputStream();
-						long l = payload.getLength();
+						long l = payload.getTotalLength();
 						System.out.println("Payload length: " + l);
 						savePayload(pis);
 					}

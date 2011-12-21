@@ -122,7 +122,7 @@ public class Payload {
      * Get payload total length.
      * @return payload total length
      */
-    public long getLength() {
+    public long getTotalLength() {
         return length;
     }
 
@@ -130,7 +130,7 @@ public class Payload {
      * Get the number of unavailable bytes missing due to unexpected EOF.
      * This method always returns <code>0</code> as long as the stream is open.
      * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException if errors occurs calling available method on stream
+     * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
         return flin.available();
@@ -184,7 +184,7 @@ public class Payload {
     /**
      * Get payload remaining length.
      * @return payload remaining length
-     * @throws IOException if errors occurs calling available method on stream
+     * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
     	if (httpResponse != null) {

@@ -85,7 +85,7 @@ public class TestWarcWriterCopy {
 				if ( record.hasPayload() ) {
 					Payload payload = record.getPayload();
 					//writer.transfer( payload.getInputStream(), payload.getTotalLength() );
-					writer.transfer( payload.getInputStreamComplete(), payload.getLength() );
+					writer.transfer( payload.getInputStreamComplete(), payload.getTotalLength() );
 				}
 
 				writer.closeRecord();

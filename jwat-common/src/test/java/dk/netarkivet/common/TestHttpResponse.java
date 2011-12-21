@@ -129,17 +129,17 @@ public class TestHttpResponse {
 					srcOut.write( payloadArr );
 					srcArr = srcOut.toByteArray();
 					/*
-					 * Payload.
+					 * HttpResponse Payload.
 					 */
 					pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
 					httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
 
 					in = httpResponse.getPayloadInputStream();
-					Assert.assertEquals( srcArr.length, httpResponse.getLength() );
+					Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
 
 					dstOut.reset();
 
-					remaining = httpResponse.getLength() - httpResponse.getHeader().length;
+					remaining = httpResponse.getTotalLength() - httpResponse.getHeader().length;
 					read = 0;
 					while ( remaining > 0 && read != -1 ) {
 						dstOut.write(tmpBuf, 0, read);
@@ -166,21 +166,80 @@ public class TestHttpResponse {
 					Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
 					Assert.assertEquals( "200", httpResponse.getProtocolResultCode() );
 					Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
-					Assert.assertEquals( n, httpResponse.getObjectSize() );
+					Assert.assertEquals( n, httpResponse.getPayloadLength() );
 
 					httpResponse.close();
 
 					Assert.assertNotNull( httpResponse.toString() );
 					/*
-					 * Digest.
+					 * HttpResponse Payload Digest.
 					 */
 					if ( digestAlgorithm != null ) {
 						Assert.assertNotNull( httpResponse.getMessageDigest() );
 
-						byte[] digest1 = httpResponse.getMessageDigest().digest();
+						md.reset();
+						byte[] digest1 = md.digest( payloadArr );
+
+						byte[] digest2 = httpResponse.getMessageDigest().digest();
+
+						Assert.assertArrayEquals( digest1, digest2 );
+					}
+					else {
+						Assert.assertNull( httpResponse.getMessageDigest() );
+					}
+					/*
+					 * HttpResponse Complete
+					 */
+					pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
+					httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
+
+					in = httpResponse.getInputStreamComplete();
+					Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
+
+					dstOut.reset();
+
+					remaining = httpResponse.getTotalLength();
+					read = 0;
+					while ( remaining > 0 && read != -1 ) {
+						dstOut.write(tmpBuf, 0, read);
+						remaining -= read;
+
+						// This wont work with buffered streams...
+						//Assert.assertEquals( remaining, payload.getUnavailable() );
+						//Assert.assertEquals( remaining, payload.getRemaining() );
+
+						read = random.nextInt( 15 ) + 1;
+						read = in.read(tmpBuf, 0, read);
+					}
+
+					Assert.assertEquals( 0, remaining );
+					Assert.assertEquals( 0, httpResponse.getUnavailable() );
+					Assert.assertEquals( 0, httpResponse.getRemaining() );
+
+					dstArr = dstOut.toByteArray();
+					Assert.assertEquals( srcArr.length, dstArr.length );
+					Assert.assertArrayEquals( srcArr, dstArr );
+
+					in.close();
+
+					Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
+					Assert.assertEquals( "200", httpResponse.getProtocolResultCode() );
+					Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
+					Assert.assertEquals( n, httpResponse.getPayloadLength() );
+
+					httpResponse.close();
+
+					Assert.assertNotNull( httpResponse.toString() );
+					/*
+					 * HttpResponse Payload Digest.
+					 */
+					if ( digestAlgorithm != null ) {
+						Assert.assertNotNull( httpResponse.getMessageDigest() );
 
 						md.reset();
-						byte[] digest2 = md.digest( payloadArr );
+						byte[] digest1 = md.digest( payloadArr );
+
+						byte[] digest2 = httpResponse.getMessageDigest().digest();
 
 						Assert.assertArrayEquals( digest1, digest2 );
 					}

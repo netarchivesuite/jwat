@@ -749,7 +749,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 * @param rtype WARC record type id
 	 * @param ftype WARC field type id
 	 * @param fieldObj WARC field
-	 * @param valueStr WARC raw field values
+	 * @param valueList WARC raw field values
 	 */
 	protected void checkFieldPolicy(int rtype, int ftype, List<?> fieldObj, List<String> valueList) {
 		String valueStr = null;
@@ -795,7 +795,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 * Concatenate a <code>List</code> of strings into one single delimited
 	 * string.
 	 * @param list <code>List</code> of strings to concatenate
-	 * @return concatenate string
+	 * @return concatenated string
 	 */
 	protected String listToStr(List<String> list) {
 		StringBuffer sb = new StringBuffer();
@@ -1382,6 +1382,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
         return (payload != null) ? payload.getInputStream() : null;
     }
 
+    /**
+     * Get the record offset relative to the start of the WARC file
+     * <code>InputStream</code>.
+     * @return the record offset relative to the start of the WARC file
+     */
     public long getOffset() {
     	return offset;
     }

@@ -33,6 +33,12 @@ public class WarcDateParser {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
+    /**
+     * Return a <code>DateFormat</code> object which can be used to string
+     * format WARC dates.
+     * @return <code>DateFormat</code> object which can be used to string
+     * format WARC dates.
+     */
     public static DateFormat getWarcDateFormat() {
     	DateFormat dateFormat;
         dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);

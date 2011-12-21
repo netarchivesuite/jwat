@@ -73,16 +73,18 @@ public class ArcRecord extends ArcRecordBase {
     protected void processPayload(ByteCountingPushBackInputStream in)
                                                         throws IOException {
         payload = null;
+        // Digest currently not supported by ARC reader.
+        String digestAlgorithm = null;
         if (recLength != null && recLength > 0L) {
             payload = Payload.processPayload(in, recLength.longValue(),
-            					  PAYLOAD_PUSHBACK_SIZE, null);
+            					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                             		recContentType)) {
                 httpResponse = HttpResponse.processPayload(
                             payload.getInputStream(), recLength.longValue(),
-                            null);
+                            digestAlgorithm);
                 if (httpResponse != null) {
                 	payload.setHttpResponse(httpResponse);
                 }

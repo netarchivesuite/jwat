@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 
 /**
- * This class wraps a <code>RancomAccessFile</code> into a usable
+ * This class wraps a <code>RandomAccessFile</code> into a usable
  * <code>InputStream</code> which supports random re-position.
- * Re-positioning is done by using seek() on the <code>RancomAccessFile</code>
+ * Re-positioning is done by using seek() on the <code>RandomAccessFile</code>
  * object. (@see RandomAccessFile#seek())
  *
  * @author nicl

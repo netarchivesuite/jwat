@@ -29,6 +29,7 @@ public class WarcWriterUncompressed extends WarcWriter {
 	 * @param buffer_size outputstream buffer size
 	 */
 	public WarcWriterUncompressed(OutputStream out, int buffer_size) {
+		// consider verifying that the arg 'buffer_size' > 0, and that arg 'out' is not null.
 		this.out = new BufferedOutputStream(out, buffer_size);
 	}
 
@@ -43,7 +44,6 @@ public class WarcWriterUncompressed extends WarcWriter {
 			out.close();
 		}
 		catch (IOException e) {
-			// TODO
 		}
 	}
 
@@ -51,6 +51,10 @@ public class WarcWriterUncompressed extends WarcWriter {
 
 	@Override
 	public void write(WarcRecord record) throws IOException {
+		if (record == null) {
+			throw new IllegalArgumentException(
+					"The 'record' parameter is null!");
+		}
 		/*
 		 * Version Line
 		 */
@@ -363,7 +367,16 @@ public class WarcWriterUncompressed extends WarcWriter {
 		out.write("\r\n".getBytes());
 	}
 
+	@Override
 	public long transfer(InputStream in, long length) throws IOException {
+		if (in == null) {
+			throw new IllegalArgumentException(
+					"The 'in' parameter is null!");
+		}
+		if (length < 0) {
+			throw new IllegalArgumentException(
+					"The 'length' parameter is less than zero!");
+		}
 		long written = 0;
         byte[] buffer = new byte[1024];
         int read = 0;
@@ -375,6 +388,7 @@ public class WarcWriterUncompressed extends WarcWriter {
 		return written;
 	}
 
+	@Override
 	public void closeRecord() throws IOException {
 		out.write("\r\n".getBytes());
 		out.write("\r\n".getBytes());

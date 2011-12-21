@@ -129,10 +129,10 @@ public class TestPayload implements PayloadOnClosedHandler {
 
 					in = payload.getInputStream();
 					Assert.assertEquals( payload.getInputStreamComplete(), payload.getInputStream() );
-					Assert.assertEquals( srcArr.length, payload.getLength() );
+					Assert.assertEquals( srcArr.length, payload.getTotalLength() );
 					Assert.assertEquals( 16, payload.getPushbackSize() );
 
-					remaining = payload.getLength();
+					remaining = payload.getTotalLength();
 					read = 0;
 					while ( remaining > 0 && read != -1 ) {
 						out.write(tmpBuf, 0, read);

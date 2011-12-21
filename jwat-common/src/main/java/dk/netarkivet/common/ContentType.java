@@ -285,9 +285,10 @@ public class ContentType {
 	}
 
 	/**
-	 * Examines a string and decides whether it should be quoted.
+	 * Determines whether a string should be quoted by examining if the string
+	 * contains tabs and/or spaces.
 	 * @param str input string
-	 * @return boolean indicating the string should be quoted
+	 * @return boolean indicating if the string should be quoted
 	 */
 	public boolean quote(String str) {
 		boolean quote = false;

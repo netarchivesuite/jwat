@@ -64,22 +64,22 @@ public class TestBase16 {
 		base16a = Base16.encodeArray( null );
 		Assert.assertNull( base16a );
 		base16a = Base16.encodeArray( new byte[ 0 ] );
-		Assert.assertNull( base16a );
+		Assert.assertEquals( "", base16a );
 
 		base16s = Base16.encodeString( null );
 		Assert.assertNull( base16s );
 		base16s = Base16.encodeString( "" );
-		Assert.assertNull( base16s );
+		Assert.assertEquals( "", base16s );
 
 		dstArr = Base16.decodeToArray( null );
 		Assert.assertNull( dstArr );
 		dstArr = Base16.decodeToArray( "" );
-		Assert.assertNull( dstArr );
+		Assert.assertArrayEquals( new byte[0], dstArr );
 
 		dstStr = Base16.decodeToString( null );
 		Assert.assertNull( dstStr );
 		dstStr = Base16.decodeToString( "" );
-		Assert.assertNull( dstStr );
+		Assert.assertEquals( "", dstStr );
 
 		for ( int r=0; r<runs; ++r ) {
 			for ( int n=min; n<max; ++n ) {

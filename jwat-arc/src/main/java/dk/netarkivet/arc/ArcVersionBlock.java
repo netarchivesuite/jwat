@@ -254,16 +254,18 @@ public class ArcVersionBlock extends ArcRecordBase {
     protected void processPayload(ByteCountingPushBackInputStream in)
                                                         throws IOException {
         payload = null;
+        // Digest currently not supported by ARC reader.
+        String digestAlgorithm = null;
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
             payload = Payload.processPayload(in,
             					  recLength.longValue() - in.getCounter(),
-            					  PAYLOAD_PUSHBACK_SIZE, null);
+            					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
             // Look for trailing XML formatted metadata.
             byte[] buffer = new byte[PROCESSPAYLOAD_BUFFER_SIZE];
             int read = 0;
             ByteArrayOutputStream payloadData =
-                    new ByteArrayOutputStream((int) payload.getLength());
+                    new ByteArrayOutputStream((int) payload.getTotalLength());
             while (payload.getInputStream().available() > 0 && read != -1) {
                 read = payload.getInputStream().read(buffer, 0, buffer.length);
                 if (read != -1) {

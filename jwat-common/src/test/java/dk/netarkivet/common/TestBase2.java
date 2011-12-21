@@ -60,27 +60,27 @@ public class TestBase2 {
 		base2a = Base2.encodeArray( null );
 		Assert.assertNull( base2a );
 		base2a = Base2.encodeArray( new byte[ 0 ] );
-		Assert.assertNull( base2a );
+		Assert.assertEquals( "", base2a );
 
 		base2s = Base2.encodeString( null );
 		Assert.assertNull( base2s );
 		base2s = Base2.encodeString( "" );
-		Assert.assertNull( base2s );
+		Assert.assertEquals( "", base2s );
 
 		dstArr = Base2.decodeToArray( null );
 		Assert.assertNull( dstArr );
 		dstArr = Base2.decodeToArray( "" );
-		Assert.assertNull( dstArr );
+		Assert.assertArrayEquals( new byte[0], dstArr );
 
 		dstStr = Base2.decodeToString( null );
 		Assert.assertNull( dstStr );
 		dstStr = Base2.decodeToString( "" );
-		Assert.assertNull( dstStr );
+		Assert.assertEquals( "", dstStr );
 
 		dstStr = Base2.delimit( null, 8, '.' );
 		Assert.assertNull( dstStr );
 		dstStr = Base2.delimit( "", 8, '.' );
-		Assert.assertNull( dstStr );
+		Assert.assertEquals( "", dstStr );
 
 		for ( int r=0; r<runs; ++r ) {
 			for ( int n=min; n<max; ++n ) {

@@ -55,10 +55,4 @@ public class WarcDigest {
 		return new String(algorithm + ":" + digestValue);
 	}
 
-	/*
-	public String toDebugString() {
-		return new String("[algorithm=" + algorithm + ",digest value=" + digestValue + "]");
-	}
-	*/
-
 }
