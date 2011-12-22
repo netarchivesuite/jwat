@@ -6,43 +6,27 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>dk.netarkivet.jwat</groupId>
+    <groupId>org.jwat</groupId>
     <artifactId>jwat-parent</artifactId>
     <version>0.8.0-SNAPSHOT</version>
     <relativePath>../jwat-parent/pom.xml</relativePath>
   </parent>
 
-  <groupId>dk.netarkivet.jwat</groupId>
   <artifactId>jwat-warc</artifactId>
-  <!--version>1.0.0-SNAPSHOT</version-->
 
   <dependencies>
     <dependency>
-      <groupId>dk.netarkivet.jwat</groupId>
+      <groupId>org.jwat</groupId>
       <artifactId>jwat-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
 
     <dependency>
-      <groupId>dk.netarkivet.jwat</groupId>
+      <groupId>org.jwat</groupId>
       <artifactId>jwat-gzip</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
-<!--
-    <dependency>
-      <groupId>checkstyle</groupId>
-      <artifactId>checkstyle</artifactId>
-      <version>2.8</version>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
-    </dependency>
--->
   </dependencies>
 </project>
