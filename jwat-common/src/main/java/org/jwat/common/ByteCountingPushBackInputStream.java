@@ -16,6 +16,9 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     /** Read line initial size. */
     public static final int READLINE_INITIAL_SIZE = 128;
 
+    /** Pushback buffer size. */
+    protected int pushback_size;
+
     /** Offset relative to beginning of stream. */
     protected long consumed = 0;
 
@@ -30,6 +33,15 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      */
     public ByteCountingPushBackInputStream(InputStream in, int size) {
         super(in, size);
+        pushback_size = size;
+    }
+
+    /**
+     * Get the pushback buffer size.
+     * @return pushback buffer size
+     */
+    public int getPushbackSize() {
+    	return pushback_size;
     }
 
     /**
@@ -143,7 +155,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
                 new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int b;
         while (true) {
-            b = this.read();
+            b = read();
             if (b == -1) {
                 return null;    //Unexpected EOF
             }

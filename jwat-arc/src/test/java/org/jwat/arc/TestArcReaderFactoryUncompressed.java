@@ -245,9 +245,23 @@ public class TestArcReaderFactoryUncompressed {
 
             Iterator<ArcRecord> recordIterator = reader.iterator();
 
-    		while (recordIterator.hasNext()) {
+            while (recordIterator.hasNext()) {
     			record = recordIterator.next();
     			++records;
+
+    			if (bDebugOutput) {
+        			System.out.println("0x" + Long.toString(record.getStartOffset(), 16) + "(" + record.getStartOffset() + ")");
+    				System.out.println( record.recUrl );
+    				System.out.println( record.recIpAddress );
+    				System.out.println( record.recArchiveDate );
+    				System.out.println( record.recContentType );
+    				System.out.println( record.recResultCode );
+    				System.out.println( record.recChecksum );
+    				System.out.println( record.recLocation );
+    				System.out.println( record.recOffset );
+    				System.out.println( record.recFilename );
+    				System.out.println( record.recLength );
+    			}
 
 				if (record.url == null) {
     				Assert.fail("Invalid arc uri");

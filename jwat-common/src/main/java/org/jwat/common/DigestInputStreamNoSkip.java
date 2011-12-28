@@ -54,11 +54,7 @@ public class DigestInputStreamNoSkip extends DigestInputStream {
             readLast = read(skip_read_buffer, 0, (int) Math.min(remaining,
             										  SKIP_READ_BUFFER_SIZE));
         }
-        if (skipped == 0 && readLast == -1) {
-        	return -1;
-        } else {
-    		return skipped;
-        }
+   		return skipped;
 	}
 
 }

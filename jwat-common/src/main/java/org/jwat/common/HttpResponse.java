@@ -38,26 +38,26 @@ public class HttpResponse {
 	protected static final String CONTENT_TYPE = "Content-Type:".toUpperCase();
 
 	/** <code>InputStream</code> to read payload. */
-	protected ByteCountingPushBackInputStream pbin;
+	protected ByteCountingPushBackInputStream in_pb;
 
     /** Payload length. */
     protected long length;
 
     /** Stream used to ensure we don't use more than the pushback buffer on
      *  headers and at the same time store everything read in an array. */
-	protected FixedLengthRecordingInputStream flrin;
+	protected MaxLengthRecordingInputStream in_flr;
 
 	/** Actual message digest algorithm used. */
     protected MessageDigest md;
 
     /** Automatic digesting of payload input stream. */
-    protected DigestInputStream din;
+    protected DigestInputStream in_digest;
 
     /** Boolean indicating no such algorithm exception under initialization. */
     protected boolean bNoSuchAlgorithmException;
 
     /** Http payload stream. */
-    protected InputStream in;
+    protected InputStream in_exposed;
 
     /** Http result code. */
 	public String resultCode;
@@ -111,10 +111,11 @@ public class HttpResponse {
                     "The 'length' is less than zero: " + length);
         }
 		HttpResponse hr = new HttpResponse();
-		hr.pbin = pbin;
+		hr.in_pb = pbin;
         hr.length = length;
-		hr.flrin = new FixedLengthRecordingInputStream(hr.pbin, 8192);		// TODO payload pushback buffer size
-		hr.objectSize = hr.readProtocolResponse(hr.flrin, length);
+		hr.in_flr = new MaxLengthRecordingInputStream(
+										hr.in_pb, hr.in_pb.getPushbackSize());
+		hr.objectSize = hr.readProtocolResponse(hr.in_flr, length);
         /*
          * Block Digest.
          */
@@ -126,15 +127,15 @@ public class HttpResponse {
             }
         }
         if (hr.md != null) {
-            hr.din = new DigestInputStreamNoSkip(hr.pbin, hr.md);
-            hr.in = hr.din;
+            hr.in_digest = new DigestInputStreamNoSkip(hr.in_pb, hr.md);
+            hr.in_exposed = hr.in_digest;
         } else {
-        	hr.in = hr.pbin;
+        	hr.in_exposed = hr.in_pb;
         }
         /*
          * Ensure close() is not called on the payload stream!
          */
-        hr.in = new FilterInputStream(hr.in) {
+        hr.in_exposed = new FilterInputStream(hr.in_exposed) {
             @Override
             public void close() throws IOException {
             }
@@ -310,26 +311,6 @@ public class HttpResponse {
 	}
 
 	/**
-	 * Network doc setter.
-	 * @throws IOException
-	 */
-	/*
-	public void setNetworkDoc() throws IOException{
-		ArcPayload networkDoc = this.processNetworkDoc();
-		if(networkDoc != null){
-			this.payload = networkDoc;
-			this.protocolResultCode = this.parseInteger(networkDoc.resultCode,
-					                                    null,true);
-			this.protocolVersion = this.parseString(networkDoc.protocolVersion,
-					                                null, true);
-			this.protocolContentType = this.parseString(networkDoc.contentType,
-					                                    null,true);
-		}
-		this.validateNetworkDoc();
-	}
-	*/
-
-	/**
 	 * Result-Code getter
 	 * @return the ResultCode
 	 */
@@ -366,7 +347,7 @@ public class HttpResponse {
 	 * @return raw http header as bytes
 	 */
 	public byte[] getHeader() {
-		return flrin.getRecording();
+		return in_flr.getRecording();
 	}
 
 	/**
@@ -392,7 +373,7 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
-        return length - pbin.getConsumed();
+        return length - in_pb.getConsumed();
     }
 
     /**
@@ -402,7 +383,7 @@ public class HttpResponse {
      * payload.
      */
 	public InputStream getInputStreamComplete() {
-		return new SequenceInputStream(new ByteArrayInputStream(flrin.getRecording()), in);
+		return new SequenceInputStream(new ByteArrayInputStream(in_flr.getRecording()), in_exposed);
 	}
 
 	/**
@@ -410,7 +391,7 @@ public class HttpResponse {
 	 * @return <code>InputStream</code> containing only the payload.
 	 */
 	public InputStream getPayloadInputStream() {
-		return in;
+		return in_exposed;
 	}
 
     /**
@@ -419,7 +400,7 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
-    	return length - pbin.getConsumed();
+    	return length - in_pb.getConsumed();
     }
 
     /**
@@ -431,13 +412,12 @@ public class HttpResponse {
         	// Skip remaining unread bytes to ensure payload is completely
         	// digested. Skipping because the DigestInputStreamNoSkip
         	// has been altered to read when skipping.
-            long s;
-            while ((s = din.skip(length)) != -1) {
+            while (in_digest.skip(length) > 0) {
             }
         }
-        if (pbin != null) {
-            pbin.close();
-            pbin = null;
+        if (in_pb != null) {
+            in_pb.close();
+            in_pb = null;
         }
 	}
 

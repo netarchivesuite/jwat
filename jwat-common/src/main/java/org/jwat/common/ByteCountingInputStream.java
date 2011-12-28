@@ -72,7 +72,7 @@ public class ByteCountingInputStream extends FilterInputStream {
 
     @Override
     public int read() throws IOException {
-        int b = super.read();
+        int b = in.read();
         if (b != -1) {
             ++consumed;
             ++counter;
@@ -82,7 +82,7 @@ public class ByteCountingInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int n = super.read(b, off, len);
+        int n = in.read(b, off, len);
         if (n > 0) {
             consumed += n;
             counter += n;
@@ -92,8 +92,9 @@ public class ByteCountingInputStream extends FilterInputStream {
 
     @Override
     public long skip(long n) throws IOException {
-        n = super.skip(n);
+        n = in.skip(n);
         consumed += n;
+        counter += n;
         return n;
     }
 
@@ -107,7 +108,7 @@ public class ByteCountingInputStream extends FilterInputStream {
                 new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int b;
         while (true) {
-            b = this.read();
+            b = read();
             if (b == -1) {
                 return null;    //Unexpected EOF
             }
@@ -130,7 +131,7 @@ public class ByteCountingInputStream extends FilterInputStream {
                 new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
         int i = lines;
         while (i > 0) {
-            int b = this.read();
+            int b = read();
             if (b == -1) {
                 bos = null;
                 break;             // Unexpected EOF!

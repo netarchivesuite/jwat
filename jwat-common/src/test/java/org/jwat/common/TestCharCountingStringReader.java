@@ -1,10 +1,6 @@
 package org.jwat.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,55 +12,46 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestDigestInputStream {
+public class TestCharCountingStringReader {
 
 	private int min;
 	private int max;
 	private int runs;
-	private String digestAlgorithm;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 1024, 2, "sha1"}
+				{1, 1024, 2}
 		});
 	}
 
-	public TestDigestInputStream(int min, int max, int runs, String digestAlgorithm) {
+	public TestCharCountingStringReader(int min, int max, int runs) {
 		this.min = min;
 		this.max = max;
 		this.runs = runs;
-		this.digestAlgorithm = digestAlgorithm;
 	}
 
 	@Test
 	public void test() {
 		SecureRandom random = new SecureRandom();
 
-		byte[] srcArr = new byte[ 0 ];
-		ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
-		byte[] dstArr;
+		byte[] srcArr;
+		StringBuffer srcSb = new StringBuffer( 256 );
+		String srcStr;
+		StringBuffer dstOut = new StringBuffer( 256 );
+		//byte[] dstArr;
+		String dstStr;
 
-		MessageDigest md = null;
+		CharCountingStringReader in;
+
 		try {
-			md = MessageDigest.getInstance( digestAlgorithm );
+			in = new CharCountingStringReader( null );
+			Assert.fail( "Exception expected!" );
 		}
-		catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+		catch (NullPointerException e) {
 		}
 
-		DigestInputStreamNoSkip in;
-
-		in = new DigestInputStreamNoSkip( null, null );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), null );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( null, md );
+		in = new CharCountingStringReader( "" );
 		Assert.assertNotNull( in );
 
 		Assert.assertFalse( in.markSupported() );
@@ -80,7 +67,8 @@ public class TestDigestInputStream {
 		}
 
 		long remaining;
-		byte[] tmpBuf = new byte[ 16 ];
+		long consumed;
+		char[] tmpBuf = new char[ 16 ];
 		int read;
 		int mod;
 
@@ -89,31 +77,38 @@ public class TestDigestInputStream {
 				srcArr = new byte[ n ];
 				random.nextBytes( srcArr );
 
+				srcSb.setLength( 0 );
+				for ( int i=0; i<srcArr.length; ++i ) {
+					srcSb.append( (char)(srcArr[ i ] & 255) );
+				}
+				srcStr = srcSb.toString();
+
 				try {
 					/*
 					 * Read.
 					 */
-					md.reset();
-					byte[] digest1 = md.digest( srcArr );
+					in = new CharCountingStringReader( srcStr );
 
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+					dstOut.setLength( 0 );
 
-					dstOut.reset();
-
-					remaining = srcArr.length;
+					remaining = srcStr.length();
+					consumed = 0;
 					read = 0;
 					mod = 2;
 					while ( remaining > 0 && read != -1 ) {
 						switch ( mod ) {
 						case 0:
-							dstOut.write( read );
+							dstOut.append( (char)read );
 							--remaining;
+							++consumed;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 1:
 						case 2:
-							dstOut.write( tmpBuf, 0, read );
+							dstOut.append( tmpBuf, 0, read );
 							remaining -= read;
+							consumed += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						}
 
@@ -134,47 +129,50 @@ public class TestDigestInputStream {
 					}
 
 					Assert.assertEquals( 0, remaining );
+					Assert.assertEquals( n, consumed );
+					Assert.assertEquals( n, in.consumed );
+					Assert.assertEquals( n, in.counter );
+					Assert.assertEquals( in.consumed, in.getConsumed() );
+					Assert.assertEquals( in.counter, in.getCounter() );
 
-					dstArr = dstOut.toByteArray();
-					Assert.assertEquals( srcArr.length, dstArr.length );
-					Assert.assertArrayEquals( srcArr, dstArr );
+					dstStr = dstOut.toString();
+					Assert.assertEquals( srcStr.length(), dstStr.length() );
+					Assert.assertEquals( srcStr, dstStr );
 
 					in.close();
-
-					byte[] digest2 = md.digest();
-
-					Assert.assertArrayEquals( digest1, digest2 );
-
-					md.reset();
-					byte[] digest3 = md.digest( dstArr );
-
-					Assert.assertArrayEquals( digest1, digest3 );
 					/*
 					 * Skip.
 					 */
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+					in = new CharCountingStringReader( srcStr );
+					in.setCounter( n );
 
-					dstOut.reset();
+					dstOut.setLength( 0 );
 
 					remaining = srcArr.length;
+					consumed = 0;
 					read = 0;
 					mod = 3;
 					int skipped = 0;
 					while ( remaining > 0 && read != -1 ) {
 						switch ( mod ) {
 						case 0:
-							dstOut.write( read );
+							dstOut.append( (char)read );
 							--remaining;
+							++consumed;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 1:
 						case 2:
-							dstOut.write( tmpBuf, 0, read );
+							dstOut.append( tmpBuf, 0, read );
 							remaining -= read;
+							consumed += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 3:
 							remaining -= read;
+							consumed += read;
 							skipped += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						}
 
@@ -199,15 +197,16 @@ public class TestDigestInputStream {
 					}
 
 					Assert.assertEquals( 0, remaining );
+					Assert.assertEquals( n, consumed );
+					Assert.assertEquals( n, in.consumed );
+					Assert.assertEquals( 2 * n, in.counter );
+					Assert.assertEquals( in.consumed, in.getConsumed() );
+					Assert.assertEquals( in.counter, in.getCounter() );
 
-					dstArr = dstOut.toByteArray();
-					Assert.assertEquals( srcArr.length, dstArr.length + skipped );
+					dstStr = dstOut.toString();
+					Assert.assertEquals( srcStr.length(), dstStr.length() + skipped );
 
 					in.close();
-
-					byte[] digest4 = md.digest();
-
-					Assert.assertArrayEquals( digest1, digest4 );
 				}
 				catch (IOException e) {
 					Assert.fail( "Exception not expected!" );

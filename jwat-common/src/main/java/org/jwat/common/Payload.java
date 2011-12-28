@@ -24,22 +24,25 @@ public class Payload {
 
     /** Base stream used to limit payload access to only the payload and
      * not any record data beyond that. Also detects unexpected EOF. */
-    protected FixedLengthInputStream flin;
+    protected FixedLengthInputStream in_fl;
 
     /** Actual message digest algorithm used. */
     protected MessageDigest md;
 
     /** Automatic digesting of payload input stream. */
-    protected DigestInputStream din;
+    protected DigestInputStream in_digest;
 
     /** Boolean indicating no such algorithm exception under initialization. */
     protected boolean bNoSuchAlgorithmException;
 
     /** Payload content. */
-    protected InputStream bin;
+    protected BufferedInputStream in_buffered;
 
     /** Pushback input stream usable by payload processors. */
-    protected ByteCountingPushBackInputStream pbin;
+    protected ByteCountingPushBackInputStream in_pb_exposed;
+
+    /** Payload stream. */
+    protected ByteCountingPushBackInputStream in_exposed;
 
     /** Pushback size. */
     protected int pushback_size;
@@ -81,7 +84,7 @@ public class Payload {
         Payload pl = new Payload();
         pl.length = length;
         pl.pushback_size = pushback_size;
-        pl.flin = new FixedLengthInputStream(in, length);
+        pl.in_fl = new FixedLengthInputStream(in, length);
         /*
          * Block Digest.
          */
@@ -93,12 +96,19 @@ public class Payload {
             }
         }
         if (pl.md != null) {
-            pl.din = new DigestInputStreamNoSkip(pl.flin, pl.md);
-            pl.bin = new BufferedInputStream(pl.din, BUFFER_SIZE);
+            pl.in_digest = new DigestInputStreamNoSkip(pl.in_fl, pl.md);
+            pl.in_buffered = new BufferedInputStream(pl.in_digest, BUFFER_SIZE);
         } else {
-            pl.bin = new BufferedInputStream(pl.flin, BUFFER_SIZE);
+            pl.in_buffered = new BufferedInputStream(pl.in_fl, BUFFER_SIZE);
         }
-        pl.pbin = new ByteCountingPushBackInputStream(pl.bin, pushback_size);
+        /*
+         * Ensure close() is not called on the payload stream!
+         */
+        pl.in_pb_exposed = new ByteCountingPushBackInputStream(pl.in_buffered, pushback_size) {
+            @Override
+            public void close() throws IOException {
+            }
+        };
         return pl;
     }
 
@@ -133,7 +143,7 @@ public class Payload {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
-        return flin.available();
+        return in_fl.available();
     }
 
     /**
@@ -168,7 +178,7 @@ public class Payload {
     	if (httpResponse != null) {
     		return httpResponse.getInputStreamComplete();
     	} else {
-            return pbin;
+            return in_pb_exposed;
     	}
     }
 
@@ -177,8 +187,7 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data.
      */
     public ByteCountingPushBackInputStream getInputStream() {
-    	// TODO close this externally and you DIE!
-    	return pbin;
+    	return in_pb_exposed;
     }
 
     /**
@@ -190,7 +199,7 @@ public class Payload {
     	if (httpResponse != null) {
     		return httpResponse.getPayloadInputStream().available();
     	} else {
-        	return pbin.available();
+        	return in_pb_exposed.available();
     	}
     }
 
@@ -203,16 +212,15 @@ public class Payload {
     		httpResponse.close();
     	}
         if (md != null) {
-        	// Ensure payload has been completely digested.
-        	// Skipping because the custom digestinpustream has been altered to
-        	// read when skipping.
-            long s;
-            while ((s = din.skip(length)) != -1) {
+        	// Skip remaining unread bytes to ensure payload is completely
+        	// digested. Skipping because the DigestInputStreamNoSkip
+        	// has been altered to read when skipping.
+            while (in_digest.skip(length) > 0) {
             }
         }
-        if (pbin != null) {
-            pbin.close();
-            pbin = null;
+        if (in_buffered != null) {
+            in_buffered.close();
+            in_buffered = null;
         }
         if (onClosedHandler != null) {
             onClosedHandler.payloadClosed();

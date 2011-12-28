@@ -129,6 +129,10 @@ public class TestPayload implements PayloadOnClosedHandler {
 					payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), srcArr.length, 16, digestAlgorithm );
 					payload.setOnClosedHandler( this );
 
+					Assert.assertNull( payload.getHttpResponse() );
+					payload.setHttpResponse( null );
+					Assert.assertNull( payload.getHttpResponse() );
+
 					in = payload.getInputStream();
 					Assert.assertEquals( payload.getInputStreamComplete(), payload.getInputStream() );
 					Assert.assertEquals( srcArr.length, payload.getTotalLength() );

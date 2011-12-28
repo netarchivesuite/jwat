@@ -3,8 +3,6 @@ package org.jwat.common;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,56 +14,34 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestDigestInputStream {
+public class TestByteCountingInputStream {
 
 	private int min;
 	private int max;
 	private int runs;
-	private String digestAlgorithm;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{1, 1024, 2, "sha1"}
+				{1, 1024, 2}
 		});
 	}
 
-	public TestDigestInputStream(int min, int max, int runs, String digestAlgorithm) {
+	public TestByteCountingInputStream(int min, int max, int runs) {
 		this.min = min;
 		this.max = max;
 		this.runs = runs;
-		this.digestAlgorithm = digestAlgorithm;
 	}
 
 	@Test
 	public void test() {
 		SecureRandom random = new SecureRandom();
 
-		byte[] srcArr = new byte[ 0 ];
+		byte[] srcArr = new byte[ 1 ];
 		ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
 		byte[] dstArr;
 
-		MessageDigest md = null;
-		try {
-			md = MessageDigest.getInstance( digestAlgorithm );
-		}
-		catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-
-		DigestInputStreamNoSkip in;
-
-		in = new DigestInputStreamNoSkip( null, null );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), null );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
-		Assert.assertNotNull( in );
-
-		in = new DigestInputStreamNoSkip( null, md );
-		Assert.assertNotNull( in );
+		ByteCountingInputStream in = new ByteCountingInputStream( new ByteArrayInputStream( srcArr ) );
 
 		Assert.assertFalse( in.markSupported() );
 		in.mark( 1 );
@@ -80,6 +56,7 @@ public class TestDigestInputStream {
 		}
 
 		long remaining;
+		long consumed;
 		byte[] tmpBuf = new byte[ 16 ];
 		int read;
 		int mod;
@@ -93,15 +70,12 @@ public class TestDigestInputStream {
 					/*
 					 * Read.
 					 */
-					md.reset();
-					byte[] digest1 = md.digest( srcArr );
-
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+					in = new ByteCountingInputStream( new ByteArrayInputStream( srcArr ) );
 
 					dstOut.reset();
 
 					remaining = srcArr.length;
+					consumed = 0;
 					read = 0;
 					mod = 2;
 					while ( remaining > 0 && read != -1 ) {
@@ -109,11 +83,15 @@ public class TestDigestInputStream {
 						case 0:
 							dstOut.write( read );
 							--remaining;
+							++consumed;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 1:
 						case 2:
 							dstOut.write( tmpBuf, 0, read );
 							remaining -= read;
+							consumed += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						}
 
@@ -134,30 +112,27 @@ public class TestDigestInputStream {
 					}
 
 					Assert.assertEquals( 0, remaining );
+					Assert.assertEquals( n, consumed );
+					Assert.assertEquals( n, in.consumed );
+					Assert.assertEquals( n, in.counter );
+					Assert.assertEquals( in.consumed, in.getConsumed() );
+					Assert.assertEquals( in.counter, in.getCounter() );
 
 					dstArr = dstOut.toByteArray();
 					Assert.assertEquals( srcArr.length, dstArr.length );
 					Assert.assertArrayEquals( srcArr, dstArr );
 
 					in.close();
-
-					byte[] digest2 = md.digest();
-
-					Assert.assertArrayEquals( digest1, digest2 );
-
-					md.reset();
-					byte[] digest3 = md.digest( dstArr );
-
-					Assert.assertArrayEquals( digest1, digest3 );
 					/*
 					 * Skip.
 					 */
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+					in = new ByteCountingInputStream( new ByteArrayInputStream( srcArr ) );
+					in.setCounter( n );
 
 					dstOut.reset();
 
 					remaining = srcArr.length;
+					consumed = 0;
 					read = 0;
 					mod = 3;
 					int skipped = 0;
@@ -166,15 +141,21 @@ public class TestDigestInputStream {
 						case 0:
 							dstOut.write( read );
 							--remaining;
+							++consumed;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 1:
 						case 2:
 							dstOut.write( tmpBuf, 0, read );
 							remaining -= read;
+							consumed += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						case 3:
 							remaining -= read;
+							consumed += read;
 							skipped += read;
+							Assert.assertEquals( consumed, in.consumed );
 							break;
 						}
 
@@ -199,15 +180,16 @@ public class TestDigestInputStream {
 					}
 
 					Assert.assertEquals( 0, remaining );
+					Assert.assertEquals( n, consumed );
+					Assert.assertEquals( n, in.consumed );
+					Assert.assertEquals( 2 * n, in.counter );
+					Assert.assertEquals( in.consumed, in.getConsumed() );
+					Assert.assertEquals( in.counter, in.getCounter() );
 
 					dstArr = dstOut.toByteArray();
 					Assert.assertEquals( srcArr.length, dstArr.length + skipped );
 
 					in.close();
-
-					byte[] digest4 = md.digest();
-
-					Assert.assertArrayEquals( digest1, digest4 );
 				}
 				catch (IOException e) {
 					Assert.fail( "Exception not expected!" );

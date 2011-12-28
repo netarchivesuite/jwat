@@ -17,7 +17,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.CharCountingStringReader;
 import org.jwat.common.DigestInputStreamNoSkip;
 import org.jwat.common.FixedLengthInputStream;
-import org.jwat.common.FixedLengthRecordingInputStream;
+import org.jwat.common.MaxLengthRecordingInputStream;
 
 @RunWith(JUnit4.class)
 public class TestSkip {
@@ -49,7 +49,7 @@ public class TestSkip {
 		Assert.assertEquals( 1, in.skip( 10 ) );
 		Assert.assertEquals( 0, in.skip( 10 ) );
 
-		sr = new CharCountingStringReader( srcStr, 0 );
+		sr = new CharCountingStringReader( srcStr );
 		Assert.assertEquals( 1, sr.skip( 10 ) );
 		Assert.assertEquals( 0, sr.skip( 10 ) );
 
@@ -61,7 +61,7 @@ public class TestSkip {
 		Assert.assertEquals( 1, in.skip( 10 ) );
 		Assert.assertEquals( 0, in.skip( 10 ) );
 
-		in = new FixedLengthRecordingInputStream( new ByteArrayInputStream( srcArr ), srcArr.length );
+		in = new MaxLengthRecordingInputStream( new ByteArrayInputStream( srcArr ), srcArr.length );
 		Assert.assertEquals( 1, in.skip( 10 ) );
 		Assert.assertEquals( 0, in.skip( 10 ) );
 	}

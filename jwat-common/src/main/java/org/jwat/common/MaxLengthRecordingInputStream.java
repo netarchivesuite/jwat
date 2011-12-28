@@ -6,13 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * <code>InputStream</code> with a fixed amount of bytes available to read.
- * When the stream is closed the remaining bytes that have not been read are
- * read or skipped.
+ * <code>InputStream</code> with a maximum amount of bytes available to read.
+ * When the stream is closed the remaining bytes are left untouched.
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class FixedLengthRecordingInputStream extends FilterInputStream {
+public class MaxLengthRecordingInputStream extends FilterInputStream {
 
 	/** Buffer size to use when read skipping. */
 	public static final int SKIP_READ_BUFFER_SIZE = 1024;
@@ -22,19 +21,19 @@ public class FixedLengthRecordingInputStream extends FilterInputStream {
 	/** Output stream used to keep a record of data read. */
 	protected ByteArrayOutputStream record;
 
-	/** Remaining bytes available. */
-    protected long remaining;
+	/** Maximum remaining bytes available. */
+    protected long available;
 
     /**
-     * Create a new input stream with a fixed number of bytes available from
+     * Create a new input stream with a maxumim number of bytes available from
      * the underlying stream.
      * @param in the input stream to wrap
-     * @param length fixed number of bytes available through this stream
+     * @param maximum available number of bytes available through this stream
      */
-    public FixedLengthRecordingInputStream(InputStream in, long length) {
+    public MaxLengthRecordingInputStream(InputStream in, long available) {
         super(in);
         this.record = new ByteArrayOutputStream();
-        this.remaining = length;
+        this.available = available;
     }
 
     /**
@@ -46,23 +45,17 @@ public class FixedLengthRecordingInputStream extends FilterInputStream {
     }
 
     /**
-     * Closing will only skip to the end of this fixed length input stream and
-     * not calling parent close method.
+     * Closing will only closes the recording.
      */
     @Override
     public void close() throws IOException {
-        long skippedLast = 0;
-        while (remaining > 0 && skippedLast != -1) {
-            remaining -= skippedLast;
-            skippedLast = skip(remaining);
-        }
         record.close();
     }
 
     @Override
     public int available() throws IOException {
-        return (remaining > Integer.MAX_VALUE)
-                                ? Integer.MAX_VALUE : (int) (remaining);
+        return (available > Integer.MAX_VALUE)
+                                ? Integer.MAX_VALUE : (int) (available);
     }
 
     @Override
@@ -80,30 +73,12 @@ public class FixedLengthRecordingInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] b) throws IOException {
-        return read(b, 0, b.length);
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        int l = -1;
-        if (remaining > 0L) {
-            l = super.read(b, off, (int) Math.min(len, remaining));
-            if (l > 0){
-                remaining -= l;
-                record.write(b, off, l);
-            }
-        }
-        return l;
-    }
-
-    @Override
     public int read() throws IOException {
         int b = -1;
-        if (remaining > 0L) {
-            b = super.read();
-            if (b > 0) {
-                --remaining;
+        if (available > 0) {
+            b = in.read();
+            if (b != -1) {
+                --available;
                 record.write(b);
             }
         }
@@ -111,15 +86,33 @@ public class FixedLengthRecordingInputStream extends FilterInputStream {
     }
 
     @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int l = -1;
+        if (available > 0) {
+            l = in.read(b, off, (int) Math.min(len, available));
+            if (l > 0){
+                available -= l;
+                record.write(b, off, l);
+            }
+        }
+        return l;
+    }
+
+    @Override
     public long skip(long n) throws IOException {
-        long l = -1;
-        if (remaining > 0L){
-            l = super.skip(Math.min(n, remaining));
+        long l = 0;
+        if (available > 0) {
             l = read(skip_read_buffer, 0, (int) Math.min(
-            				Math.min(n, remaining), SKIP_READ_BUFFER_SIZE));
-            if (l > 0L) {
-                remaining -= l;
+            				Math.min(n, available), SKIP_READ_BUFFER_SIZE));
+            if (l > 0) {
                 record.write(skip_read_buffer, 0, (int) l);
+            } else {
+            	l = 0;
             }
         }
         return l;

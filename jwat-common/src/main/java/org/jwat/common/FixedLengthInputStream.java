@@ -34,11 +34,11 @@ public final class FixedLengthInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         long skippedLast = 0;
-        // FIXME bad!
-        // skippedLast != -1 does not work since skip can returns 0 at EOF.
-        while (remaining > 0 && skippedLast != -1) {
-            remaining -= skippedLast;
+        if (remaining > 0) {
             skippedLast = skip(remaining);
+            while (remaining > 0 && skippedLast > 0) {
+                skippedLast = skip(remaining);
+            }
         }
     }
 
@@ -63,6 +63,18 @@ public final class FixedLengthInputStream extends FilterInputStream {
     }
 
     @Override
+    public int read() throws IOException {
+        int b = -1;
+        if (remaining > 0) {
+            b = in.read();
+            if (b != -1) {
+                --remaining;
+            }
+        }
+        return b;
+    }
+
+    @Override
     public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
@@ -71,7 +83,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
     public int read(byte[] b, int off, int len) throws IOException {
         int l = -1;
         if (remaining > 0) {
-            l = super.read(b, off, (int) Math.min(len, remaining));
+            l = in.read(b, off, (int) Math.min(len, remaining));
             if (l > 0){
                 remaining -= l;
             }
@@ -80,25 +92,11 @@ public final class FixedLengthInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read() throws IOException {
-        int b = -1;
-        if (remaining > 0) {
-            b = super.read();
-            if (b > 0) {
-                --remaining;
-            }
-        }
-        return b;
-    }
-
-    @Override
     public long skip(long n) throws IOException {
-        long l = -1;
-        if (remaining > 0){
-            l = super.skip(Math.min(n, remaining));
-            if (l > 0) {
-                remaining -= l;
-            }
+        long l = 0;
+        if (remaining > 0) {
+            l = in.skip(Math.min(n, remaining));
+            remaining -= l;
         }
         return l;
     }

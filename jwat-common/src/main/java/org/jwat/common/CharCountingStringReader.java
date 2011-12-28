@@ -11,11 +11,8 @@ import java.io.StringReader;
  */
 public class CharCountingStringReader extends StringReader {
 
-    /** Version block header length. */
-    protected final long consumedLength;
-
-    /** Offset relative to beginning of stream. */
-    protected long offset = 0;
+    /** Number of consumed bytes since the beginning of the stream. */
+    protected long consumed = 0;
 
     /** Byte counter which can also be changed. */
     protected long counter = 0;
@@ -24,11 +21,9 @@ public class CharCountingStringReader extends StringReader {
      * Creates a new <code>StringReader</code> that keeps track of
      * consumed characters.
      * @param str Arbitrary string.
-     * @param consumedLength version block header length.
      */
-    public CharCountingStringReader(String str, long consumedLength) {
+    public CharCountingStringReader(String str) {
         super(str);
-        this.consumedLength = consumedLength;
     }
 
     @Override
@@ -49,16 +44,8 @@ public class CharCountingStringReader extends StringReader {
      * Consumed length getter.
      * @return the consumed length
      */
-    public long getConsumedDataLength() {
-        return consumedLength;
-    }
-
-    /**
-     * Retrieve the current byte offset value.
-     * @return current byte offset in stream
-     */
-    public long getOffset() {
-        return offset;
+    public long getConsumed() {
+        return consumed;
     }
 
     /**
@@ -82,7 +69,7 @@ public class CharCountingStringReader extends StringReader {
     public int read() throws IOException {
         int c = super.read();
         if (c != -1) {
-            ++offset;
+            ++consumed;
             ++counter;
         }
         return c;
@@ -92,7 +79,7 @@ public class CharCountingStringReader extends StringReader {
     public int read(char[] cbuf, int off, int len) throws IOException {
         int n = super.read(cbuf, off, len);
         if (n > 0) {
-            offset += n;
+            consumed += n;
             counter += n;
         }
         return n;
@@ -101,7 +88,8 @@ public class CharCountingStringReader extends StringReader {
     @Override
     public long skip(long n) throws IOException {
         n = super.skip(n);
-        offset += n;
+        consumed += n;
+        counter += n;
         return n;
     }
 
