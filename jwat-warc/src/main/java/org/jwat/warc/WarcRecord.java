@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -16,6 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jwat.common.Base16;
+import org.jwat.common.Base32;
+import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
 import org.jwat.common.HttpResponse;
@@ -122,10 +126,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 */
 
 	/** List of parsed header fields. */
-	private List<WarcHeaderLine> headerList;
+	protected List<WarcHeaderLine> headerList;
 
 	/** Map of parsed header fields. */
-	private Map<String, WarcHeaderLine> headerMap;
+	protected Map<String, WarcHeaderLine> headerMap;
 
     /*
      * Payload
@@ -144,7 +148,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected Payload payload;
 
     /** HttpResponse header content parse from payload. */
-    protected HttpResponse httpResponse = null;
+    protected HttpResponse httpResponse;
+
+    /** Computed block digest. */
+    public byte[] computedBlockDigest;
+
+    /** Computed payload digest. */
+    public byte[] computedPayloadDigest;
 
 	/**
 	 * Given an <code>InputStream</code> it tries to read and validate a WARC
@@ -153,7 +163,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
 	 * @return <code>WarcRecord</code> or <code>null</code>
 	 * @throws IOException io exception in the process of reading record
 	 */
-	public static WarcRecord parseRecord(ByteCountingPushBackInputStream in) throws IOException {
+	public static WarcRecord parseRecord(ByteCountingPushBackInputStream in,
+									WarcReader reader) throws IOException {
 		WarcRecord wr = new WarcRecord();
 		wr.in = in;
 		if (wr.parseVersion(in)) {
@@ -172,29 +183,37 @@ public class WarcRecord implements PayloadOnClosedHandler {
 				/*
 				 * Payload.
 				 */
-				String algorithm = null;
-				if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
-					algorithm = wr.warcBlockDigest.algorithm;
+				String digestAlgorithm = null;
+				if (reader.bBlockDigest) {
+					if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
+						digestAlgorithm = wr.warcBlockDigest.algorithm;
+					} else {
+						digestAlgorithm = reader.blockDigestAlgorithm;
+					}
 				}
 	            wr.payload = Payload.processPayload(in, wr.contentLength,
-	            						 PAYLOAD_PUSHBACK_SIZE, algorithm);
+	            						 PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
 	            wr.payload.setOnClosedHandler(wr);
 	            /*
 	             * HttpResponse.
 	             */
-				algorithm = null;
-				if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null ) {
-					algorithm = wr.warcPayloadDigest.algorithm;
-				}
 				if (wr.contentType != null
 						&& wr.contentType.contentType.equals("application")
 						&& wr.contentType.mediaType.equals("http")) {
 					String value = wr.contentType.getParameter("msgtype");
 					// request
 					if ("response".equals(value)) {
+						digestAlgorithm = null;
+						if (reader.bPayloadDigest) {
+							if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null) {
+								digestAlgorithm = wr.warcPayloadDigest.algorithm;
+							} else {
+								digestAlgorithm = reader.payloadDigestAlgorithm;
+							}
+						}
 		            	wr.httpResponse = HttpResponse.processPayload(
 		                        wr.payload.getInputStream(), wr.contentLength,
-		                        algorithm);
+		                        digestAlgorithm);
 		            	if (wr.httpResponse != null) {
 		            		wr.payload.setHttpResponse(wr.httpResponse);
 		            	}
@@ -225,40 +244,62 @@ public class WarcRecord implements PayloadOnClosedHandler {
                  * Check block digest.
                  */
                 MessageDigest md = payload.getMessageDigest();
+                byte[] digest;
             	if (md != null) {
-            		byte[] digest = md.digest();
-            		if (digest != null) {
-            			/*
-            			for (int i=0; i<digest.length; ++i) {
-            				System.out.println(digest[i]);
-            			}
-            			*/
-            			//String digestStr = Base32.encodeFromArray(digest);
-            			// debug
-            			/*
-            			System.out.println("--------------");
-            			System.out.println("ComputedDigest: " + Base16.encodeFromArray(digest));
-            			System.out.println("ComputedDigest: " + Base32.encodeFromArray(digest));
-            			System.out.println("ComputedDigest: " + Base64.encodeFromArray(digest));
-            			if (warcBlockDigest != null) {
-                			System.out.println("  BlockDigest: " + warcBlockDigest.digestValue);
-            			}
-            			if (warcPayloadDigest != null) {
-                			System.out.println(" PayloadDigest: " + warcPayloadDigest.digestValue);
-            			}
-            			*/
-            		}
+            		computedBlockDigest = md.digest();
             	}
+    			if (warcBlockDigest != null && warcBlockDigest.digestValue != null) {
+            		if (computedBlockDigest != null) {
+            			if ((computedBlockDigest.length + 2) / 3 * 4 == warcBlockDigest.digestValue.length()) {
+            				digest = Base64.decodeToArray(warcBlockDigest.digestValue);
+            			}
+            			else if ((computedBlockDigest.length + 4) / 5 * 8 == warcBlockDigest.digestValue.length()) {
+            				digest = Base32.decodeToArray(warcBlockDigest.digestValue);
+            			}
+            			else if (computedBlockDigest.length * 2 == warcBlockDigest.digestValue.length()) {
+            				digest = Base16.decodeToArray(warcBlockDigest.digestValue);
+            			}
+            			else {
+                			digest = null;
+                            addValidationError(WarcErrorType.INVALID, "Encoding",
+                                    "Unknown block digest encoding");
+            			}
+        				if (!Arrays.equals(computedBlockDigest, digest)) {
+                            addValidationError(WarcErrorType.INVALID, "Block digest",
+                                    "Computed block digest does not match");
+        				}
+            		}
+    			}
             	if (httpResponse != null) {
             		/*
             		 * Check payload digest.
             		 */
             		md = httpResponse.getMessageDigest();
             		if (md != null) {
-                		byte[] digest = md.digest();
-                		if (digest != null) {
-                		}
+                		computedPayloadDigest = md.digest();
             		}
+        			if (warcPayloadDigest != null && warcPayloadDigest.digestValue != null ) {
+                		if (computedPayloadDigest != null) {
+                			if ((computedBlockDigest.length + 2) / 3 * 4 == warcPayloadDigest.digestValue.length()) {
+                				digest = Base64.decodeToArray(warcPayloadDigest.digestValue);
+                			}
+                			else if ((computedBlockDigest.length + 4) / 5 * 8 == warcPayloadDigest.digestValue.length()) {
+                				digest = Base32.decodeToArray(warcPayloadDigest.digestValue);
+                			}
+                			else if (computedBlockDigest.length * 2 == warcPayloadDigest.digestValue.length()) {
+                				digest = Base16.decodeToArray(warcPayloadDigest.digestValue);
+                			}
+                			else {
+                    			digest = null;
+                                addValidationError(WarcErrorType.INVALID, "Encoding",
+                                        "Unknown payload digest encoding");
+                			}
+            				if (!Arrays.equals(computedPayloadDigest, digest)) {
+                                addValidationError(WarcErrorType.INVALID, "Payload digest",
+                                        "Computed payload digest does not match");
+            				}
+                		}
+        			}
             	}
             }
             // Check for trailing newlines.

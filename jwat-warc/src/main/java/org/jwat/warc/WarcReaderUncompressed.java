@@ -70,7 +70,7 @@ public class WarcReaderUncompressed extends WarcReader {
             throw new IllegalStateException(
                     "The inputstream 'in' is null");
         }
-        warcRecord = WarcRecord.parseRecord(in);
+        warcRecord = WarcRecord.parseRecord(in, this);
         return warcRecord;
     }
 
@@ -84,7 +84,8 @@ public class WarcReaderUncompressed extends WarcReader {
                     "The inputstream 'rin' is null");
         }
         warcRecord = WarcRecord.parseRecord(
-                new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE));
+                new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE),
+                this);
         return warcRecord;
     }
 
@@ -106,7 +107,7 @@ public class WarcReaderUncompressed extends WarcReader {
         warcRecord = WarcRecord.parseRecord(
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
-                PUSHBACK_BUFFER_SIZE));
+                        PUSHBACK_BUFFER_SIZE), this);
         return warcRecord;
     }
 

@@ -3,6 +3,7 @@ package org.jwat.warc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -25,18 +26,22 @@ import org.jwat.warc.WarcRecord;
 public class TestWarcReaderFactory {
 
 	private int expected_records;
+	private boolean bDigest;
 	private String warcFile;
 
 	@Parameters
 	public static Collection<Object[]> configs() {
 		return Arrays.asList(new Object[][] {
-				{822, "IAH-20080430204825-00000-blackbook.warc"},
-				{822, "IAH-20080430204825-00000-blackbook.warc.gz"}
+				{822, false, "IAH-20080430204825-00000-blackbook.warc"},
+				{822, true, "IAH-20080430204825-00000-blackbook.warc"},
+				{822, false, "IAH-20080430204825-00000-blackbook.warc.gz"},
+				{822, true, "IAH-20080430204825-00000-blackbook.warc.gz"}
 		});
 	}
 
-	public TestWarcReaderFactory(int records, String warcFile) {
+	public TestWarcReaderFactory(int records, boolean bDigest, String warcFile) {
 		this.expected_records = records;
+		this.bDigest = bDigest;
 		this.warcFile = warcFile;
 	}
 
@@ -64,6 +69,13 @@ public class TestWarcReaderFactory {
 
 			reader = WarcReaderFactory.getReader(in);
 
+			if ( bDigest ) {
+				reader.setBlockDigestEnabled( true );
+				reader.setBlockDigestAlgorithm( "sha1" );
+				reader.setPayloadDigestEnabled( true );
+				reader.setPayloadDigestAlgorithm( "sha1" );
+			}
+
 			while ((record = reader.getNextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
@@ -71,6 +83,13 @@ public class TestWarcReaderFactory {
 				}
 
 				record.close();
+
+				if ( bDigest ) {
+					if ( (record.payload != null && record.computedBlockDigest == null)
+							|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+						Assert.fail( "Digest missing!" );
+					}
+				}
 
 				++records;
 
@@ -100,6 +119,11 @@ public class TestWarcReaderFactory {
 
 			reader = WarcReaderFactory.getReader(in, 8192);
 
+			reader.setBlockDigestEnabled( true );
+			reader.setBlockDigestAlgorithm( "sha1" );
+			reader.setPayloadDigestEnabled( true );
+			reader.setPayloadDigestAlgorithm( "sha1" );
+
 			while ((record = reader.getNextRecord()) != null) {
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
@@ -107,6 +131,13 @@ public class TestWarcReaderFactory {
 				}
 
 				record.close();
+
+				if ( bDigest ) {
+					if ( (record.payload != null && record.computedBlockDigest == null)
+							|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+						Assert.fail( "Digest missing!" );
+					}
+				}
 
 				++records;
 
@@ -130,6 +161,9 @@ public class TestWarcReaderFactory {
 		}
 		catch (IOException e) {
 			Assert.fail("Unexpected io exception");
+		}
+		catch (NoSuchAlgorithmException e) {
+			Assert.fail("Unexpected algorithm exception");
 		}
 	}
 

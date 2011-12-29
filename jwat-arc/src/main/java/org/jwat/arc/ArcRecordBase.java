@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.security.MessageDigest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.List;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
+import org.jwat.common.HttpResponse;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
@@ -122,7 +124,16 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Payload object if any exists. */
     protected Payload payload;
 
-    /**
+    /** HttpResponse header content parsed from payload. */
+    protected HttpResponse httpResponse;
+
+    /** Computed block digest. */
+    public byte[] computedBlockDigest;
+
+    /** Computed payload digest. */
+    public byte[] computedPayloadDigest;
+
+	/**
      * Creates an ARC record from the specified record description.
      * @param recordLine ARC record string
      */
@@ -259,10 +270,36 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     @Override
     public void payloadClosed() throws IOException {
         if (!bPayloadClosed) {
-            // Check for truncated payload.
-            if (payload != null && payload.getUnavailable() > 0) {
-                addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                        "Payload length mismatch");
+            if (payload != null) {
+                // Check for truncated payload.
+            	if (payload.getUnavailable() > 0) {
+                    addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+                            "Payload length mismatch");
+            	}
+                /*
+                 * Check block digest.
+                 */
+                MessageDigest md = payload.getMessageDigest();
+            	if (md != null) {
+            		computedBlockDigest = md.digest();
+            		/*
+            		if (computedBlockDigest != null) {
+            		}
+            		*/
+            	}
+            	if (httpResponse != null) {
+            		/*
+            		 * Check payload digest.
+            		 */
+            		md = httpResponse.getMessageDigest();
+            		if (md != null) {
+                		computedPayloadDigest = md.digest();
+                		/*
+                		if (computedPayloadDigest != null) {
+                		}
+                		*/
+            		}
+            	}
             }
             bPayloadClosed = true;
         }
@@ -298,8 +335,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param in ARC record <code>InputStream</code>
      * @throws IOException io exception in the parsing process
      */
-    protected abstract void processPayload(ByteCountingPushBackInputStream in)
-            throws IOException;
+    protected abstract void processPayload(ByteCountingPushBackInputStream in,
+    									ArcReader reader) throws IOException;
 
     /**
      * isNetworkDocValidated getter.

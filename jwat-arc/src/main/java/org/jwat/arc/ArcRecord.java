@@ -25,9 +25,6 @@ public class ArcRecord extends ArcRecordBase {
     /** Buffer size used in toString(). */
     public static final int TOSTRING_BUFFER_SIZE = 256;
 
-    /** HttpResponse header content parse from payload. */
-    public HttpResponse httpResponse = null;
-
     /**
      * Protected constructor to force instantiation of record header
      * from stream.
@@ -44,7 +41,8 @@ public class ArcRecord extends ArcRecordBase {
      * @throws IOException io exception while parsing arc record
      */
     public static ArcRecord parseArcRecord(ByteCountingPushBackInputStream in,
-                        ArcVersionBlock versionBlock) throws IOException {
+              					ArcVersionBlock versionBlock, ArcReader reader)
+              											throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
         ar.version = versionBlock.version;
@@ -64,24 +62,31 @@ public class ArcRecord extends ArcRecordBase {
             ar = null;
         }
         if (ar != null) {
-            ar.processPayload(in);
+            ar.processPayload(in, reader);
         }
         return ar;
     }
 
     @Override
-    protected void processPayload(ByteCountingPushBackInputStream in)
-                                                        throws IOException {
+    protected void processPayload(ByteCountingPushBackInputStream in,
+    									ArcReader reader) throws IOException {
         payload = null;
         // Digest currently not supported by ARC reader.
-        String digestAlgorithm = null;
         if (recLength != null && recLength > 0L) {
+            String digestAlgorithm = null;
+			if (reader.bBlockDigest) {
+				digestAlgorithm = reader.blockDigestAlgorithm;
+			}
             payload = Payload.processPayload(in, recLength.longValue(),
             					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                             		recContentType)) {
+				digestAlgorithm = null;
+				if (reader.bPayloadDigest) {
+					digestAlgorithm = reader.payloadDigestAlgorithm;
+				}
                 httpResponse = HttpResponse.processPayload(
                             payload.getInputStream(), recLength.longValue(),
                             digestAlgorithm);

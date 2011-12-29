@@ -144,11 +144,17 @@ public class TestParams {
 		readerUncompressed = new WarcReaderUncompressed();
 		Assert.assertFalse(readerUncompressed.isCompressed());
 
-		Assert.assertFalse(readerUncompressed.digest());
-		readerUncompressed.setDigest(true);
-		Assert.assertTrue(readerUncompressed.digest());
-		readerUncompressed.setDigest(false);
-		Assert.assertFalse(readerUncompressed.digest());
+		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
+		readerUncompressed.setBlockDigestEnabled(true);
+		Assert.assertTrue(readerUncompressed.getBlockDigestEnabled());
+		readerUncompressed.setBlockDigestEnabled(false);
+		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
+
+		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
+		readerUncompressed.setPayloadDigestEnabled(true);
+		Assert.assertTrue(readerUncompressed.getPayloadDigestEnabled());
+		readerUncompressed.setPayloadDigestEnabled(false);
+		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
 
 		readerUncompressed = new WarcReaderUncompressed();
 		try {
@@ -209,11 +215,17 @@ public class TestParams {
 		readerCompressed = new WarcReaderCompressed();
 		Assert.assertTrue(readerCompressed.isCompressed());
 
-		Assert.assertFalse(readerCompressed.digest());
-		readerCompressed.setDigest(true);
-		Assert.assertTrue(readerCompressed.digest());
-		readerCompressed.setDigest(false);
-		Assert.assertFalse(readerCompressed.digest());
+		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
+		readerUncompressed.setBlockDigestEnabled(true);
+		Assert.assertTrue(readerUncompressed.getBlockDigestEnabled());
+		readerUncompressed.setBlockDigestEnabled(false);
+		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
+
+		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
+		readerUncompressed.setPayloadDigestEnabled(true);
+		Assert.assertTrue(readerUncompressed.getPayloadDigestEnabled());
+		readerUncompressed.setPayloadDigestEnabled(false);
+		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
 
 		readerCompressed = new WarcReaderCompressed();
 		try {

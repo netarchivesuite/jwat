@@ -112,12 +112,12 @@ public class ArcReaderCompressed extends ArcReader {
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(
                                         in.getEntryInputStream(), bufferSize),
-                                PUSHBACK_BUFFER_SIZE));
+                                PUSHBACK_BUFFER_SIZE), this);
             } else {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
                                 in.getEntryInputStream(),
-                                PUSHBACK_BUFFER_SIZE));
+                                PUSHBACK_BUFFER_SIZE), this);
             }
         }
         if (versionBlock != null) {
@@ -145,12 +145,12 @@ public class ArcReaderCompressed extends ArcReader {
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(
                                         gzin.getEntryInputStream(), bufferSize),
-                                PUSHBACK_BUFFER_SIZE));
+                                PUSHBACK_BUFFER_SIZE), this);
             } else {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
                                 gzin.getEntryInputStream(),
-                                PUSHBACK_BUFFER_SIZE));
+                                PUSHBACK_BUFFER_SIZE), this);
             }
         }
         if (versionBlock != null) {
@@ -178,12 +178,12 @@ public class ArcReaderCompressed extends ArcReader {
                                         in.getEntryInputStream(),
                                         bufferSize),
                                 PUSHBACK_BUFFER_SIZE),
-                        versionBlock);
+                        versionBlock, this);
             } else {
                 arcRecord = ArcRecord.parseArcRecord(
                         new ByteCountingPushBackInputStream(
                                 in.getEntryInputStream(), PUSHBACK_BUFFER_SIZE),
-                        versionBlock);
+                        versionBlock, this);
             }
         }
         if (arcRecord != null) {
@@ -214,7 +214,7 @@ public class ArcReaderCompressed extends ArcReader {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             gzin.getEntryInputStream(), PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         }
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
@@ -252,7 +252,7 @@ public class ArcReaderCompressed extends ArcReader {
                                     gzin.getEntryInputStream(),
                                     buffer_size),
                             PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         }
         if (arcRecord != null) {
             arcRecord.startOffset = offset;

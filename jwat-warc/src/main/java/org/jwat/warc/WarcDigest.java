@@ -37,8 +37,8 @@ public class WarcDigest {
 		String digestValue;
 		int cIdx = labelledDigest.indexOf(':');
 		if (cIdx != -1) {
-			algorithm = new String(labelledDigest.substring(0, cIdx).trim());
-			digestValue = new String(labelledDigest.substring(cIdx + 1).trim());
+			algorithm = labelledDigest.substring(0, cIdx).trim();
+			digestValue = labelledDigest.substring(cIdx + 1).trim();
 			if (algorithm.length() > 0 && digestValue.length() > 0) {
 				return new WarcDigest(algorithm, digestValue);
 			}
@@ -52,7 +52,7 @@ public class WarcDigest {
 	 */
 	@Override
 	public String toString() {
-		return new String(algorithm + ":" + digestValue);
+		return (algorithm + ":" + digestValue);
 	}
 
 }

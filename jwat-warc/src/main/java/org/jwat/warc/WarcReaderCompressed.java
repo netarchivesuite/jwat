@@ -103,12 +103,13 @@ public class WarcReaderCompressed extends WarcReader {
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(in.getEntryInputStream(),
                                 bufferSize),
-                        PUSHBACK_BUFFER_SIZE));
+                                PUSHBACK_BUFFER_SIZE), this);
             }
             else {
                 warcRecord = WarcRecord.parseRecord(
                         new ByteCountingPushBackInputStream(
-                                in.getEntryInputStream(), PUSHBACK_BUFFER_SIZE));
+                                in.getEntryInputStream(),
+                                PUSHBACK_BUFFER_SIZE), this);
             }
         }
         if (warcRecord != null) {
@@ -132,7 +133,8 @@ public class WarcReaderCompressed extends WarcReader {
         if (entry != null) {
             warcRecord = WarcRecord.parseRecord(
                     new ByteCountingPushBackInputStream(
-                            gzin.getEntryInputStream(), PUSHBACK_BUFFER_SIZE));
+                            gzin.getEntryInputStream(),
+                            PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
             warcRecord.offset = -1L;
@@ -163,7 +165,7 @@ public class WarcReaderCompressed extends WarcReader {
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
                                     gzin.getEntryInputStream(), buffer_size),
-                    PUSHBACK_BUFFER_SIZE));
+                                    PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
             warcRecord.offset = -1L;

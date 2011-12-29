@@ -74,7 +74,7 @@ public class ArcReaderUncompressed extends ArcReader {
         if (in == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
-        versionBlock = ArcVersionBlock.parseVersionBlock(in);
+        versionBlock = ArcVersionBlock.parseVersionBlock(in, this);
         previousRecord = versionBlock;
         return versionBlock;
     }
@@ -91,7 +91,7 @@ public class ArcReaderUncompressed extends ArcReader {
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(vbin,
                         PUSHBACK_BUFFER_SIZE);
-        versionBlock = ArcVersionBlock.parseVersionBlock(pbin);
+        versionBlock = ArcVersionBlock.parseVersionBlock(pbin, this);
         previousRecord = versionBlock;
         return versionBlock;
     }
@@ -104,7 +104,7 @@ public class ArcReaderUncompressed extends ArcReader {
         if (in == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
-        arcRecord = ArcRecord.parseArcRecord(in, versionBlock);
+        arcRecord = ArcRecord.parseArcRecord(in, versionBlock, this);
         previousRecord = arcRecord;
         return arcRecord;
     }
@@ -126,7 +126,7 @@ public class ArcReaderUncompressed extends ArcReader {
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(rin,
                         PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
         }
@@ -157,7 +157,7 @@ public class ArcReaderUncompressed extends ArcReader {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock);
+        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
         }

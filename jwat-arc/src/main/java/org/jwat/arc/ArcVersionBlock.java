@@ -92,7 +92,8 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @throws IOException io exception in the process of reading version block
      */
     public static ArcVersionBlock parseVersionBlock(
-                    ByteCountingPushBackInputStream in) throws IOException {
+                    ByteCountingPushBackInputStream in, ArcReader reader)
+                    									throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
 
@@ -166,7 +167,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                         "VersionBlock length to small!");
             }
             // Process payload = xml config
-            vb.processPayload(in);
+            vb.processPayload(in, reader);
         }
         return vb;
     }
@@ -251,12 +252,15 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @throws IOException io exception in the process of reading payload
      */
     @Override
-    protected void processPayload(ByteCountingPushBackInputStream in)
-                                                        throws IOException {
+    protected void processPayload(ByteCountingPushBackInputStream in,
+    									ArcReader reader) throws IOException {
         payload = null;
         // Digest currently not supported by ARC reader.
-        String digestAlgorithm = null;
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
+            String digestAlgorithm = null;
+			if (reader.bBlockDigest) {
+				digestAlgorithm = reader.blockDigestAlgorithm;
+			}
             payload = Payload.processPayload(in,
             					  recLength.longValue() - in.getCounter(),
             					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
