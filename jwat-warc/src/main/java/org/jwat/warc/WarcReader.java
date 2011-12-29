@@ -88,7 +88,9 @@ public abstract class WarcReader {
      */
     public void setBlockDigestAlgorithm(String digestAlgorithm)
     										throws NoSuchAlgorithmException {
-		MessageDigest.getInstance(digestAlgorithm);
+    	if (digestAlgorithm != null) {
+    		MessageDigest.getInstance(digestAlgorithm);
+    	}
 		blockDigestAlgorithm = digestAlgorithm;
     }
 
@@ -108,7 +110,9 @@ public abstract class WarcReader {
      */
     public void setPayloadDigestAlgorithm(String digestAlgorithm)
 			throws NoSuchAlgorithmException {
-    	MessageDigest.getInstance(digestAlgorithm);
+    	if (digestAlgorithm != null) {
+        	MessageDigest.getInstance(digestAlgorithm);
+    	}
     	payloadDigestAlgorithm = digestAlgorithm;
     }
 

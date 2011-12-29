@@ -3,6 +3,7 @@ package org.jwat.warc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import junit.framework.Assert;
@@ -156,6 +157,23 @@ public class TestParams {
 		readerUncompressed.setPayloadDigestEnabled(false);
 		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
 
+		try {
+			Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+			readerUncompressed.setBlockDigestAlgorithm("sha1");
+			Assert.assertNotNull(readerUncompressed.getBlockDigestAlgorithm());
+			readerUncompressed.setBlockDigestAlgorithm(null);
+			Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+
+			Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+			readerUncompressed.setPayloadDigestAlgorithm("sha1");
+			Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
+			readerUncompressed.setPayloadDigestAlgorithm(null);
+			Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+		}
+		catch (NoSuchAlgorithmException e1) {
+			Assert.fail("Unexpected exception!");
+		}
+
 		readerUncompressed = new WarcReaderUncompressed();
 		try {
 			readerUncompressed = new WarcReaderUncompressed(null);
@@ -215,17 +233,34 @@ public class TestParams {
 		readerCompressed = new WarcReaderCompressed();
 		Assert.assertTrue(readerCompressed.isCompressed());
 
-		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
-		readerUncompressed.setBlockDigestEnabled(true);
-		Assert.assertTrue(readerUncompressed.getBlockDigestEnabled());
-		readerUncompressed.setBlockDigestEnabled(false);
-		Assert.assertFalse(readerUncompressed.getBlockDigestEnabled());
+		Assert.assertFalse(readerCompressed.getBlockDigestEnabled());
+		readerCompressed.setBlockDigestEnabled(true);
+		Assert.assertTrue(readerCompressed.getBlockDigestEnabled());
+		readerCompressed.setBlockDigestEnabled(false);
+		Assert.assertFalse(readerCompressed.getBlockDigestEnabled());
 
-		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
-		readerUncompressed.setPayloadDigestEnabled(true);
-		Assert.assertTrue(readerUncompressed.getPayloadDigestEnabled());
-		readerUncompressed.setPayloadDigestEnabled(false);
-		Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
+		Assert.assertFalse(readerCompressed.getPayloadDigestEnabled());
+		readerCompressed.setPayloadDigestEnabled(true);
+		Assert.assertTrue(readerCompressed.getPayloadDigestEnabled());
+		readerCompressed.setPayloadDigestEnabled(false);
+		Assert.assertFalse(readerCompressed.getPayloadDigestEnabled());
+
+		try {
+			Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+			readerCompressed.setBlockDigestAlgorithm("sha1");
+			Assert.assertNotNull(readerCompressed.getBlockDigestAlgorithm());
+			readerCompressed.setBlockDigestAlgorithm(null);
+			Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+
+			Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+			readerCompressed.setPayloadDigestAlgorithm("sha1");
+			Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
+			readerCompressed.setPayloadDigestAlgorithm(null);
+			Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+		}
+		catch (NoSuchAlgorithmException e1) {
+			Assert.fail("Unexpected exception!");
+		}
 
 		readerCompressed = new WarcReaderCompressed();
 		try {

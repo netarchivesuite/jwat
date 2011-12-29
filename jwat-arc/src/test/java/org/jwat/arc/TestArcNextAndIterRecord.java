@@ -114,7 +114,9 @@ public class TestArcNextAndIterRecord {
             	recordIterator = reader.iterator();
 
                 while (recordIterator.hasNext()) {
+                	Assert.assertNull(reader.getIteratorExceptionThrown());
                     arcRecord = recordIterator.next();
+                	Assert.assertNull(reader.getIteratorExceptionThrown());
                 	if (bDebugOutput) {
                     	RecordDebugBase.printRecord(arcRecord);
                 	}
@@ -125,6 +127,7 @@ public class TestArcNextAndIterRecord {
                         i_errors += arcRecord.getWarnings().size();
                     }
                 }
+            	Assert.assertNull(reader.getIteratorExceptionThrown());
 
             	if (bDebugOutput) {
                     RecordDebugBase.printStatus(i_records, i_errors);

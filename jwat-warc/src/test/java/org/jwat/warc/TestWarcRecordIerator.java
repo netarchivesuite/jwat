@@ -118,7 +118,9 @@ public class TestWarcRecordIerator {
 
 			recordIterator = reader.iterator();
 			while (recordIterator.hasNext()) {
+            	Assert.assertNull(reader.getIteratorExceptionThrown());
 				record = recordIterator.next();
+            	Assert.assertNull(reader.getIteratorExceptionThrown());
 
 				if (bDebugOutput) {
 					RecordDebugBase.printRecord(record);
@@ -140,6 +142,7 @@ public class TestWarcRecordIerator {
 					i_errors += record.getValidationErrors().size();
 				}
 			}
+        	Assert.assertNull(reader.getIteratorExceptionThrown());
 
 			reader.close();
 			in.close();
