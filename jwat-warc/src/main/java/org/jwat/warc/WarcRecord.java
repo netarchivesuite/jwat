@@ -280,13 +280,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
             		}
         			if (warcPayloadDigest != null && warcPayloadDigest.digestValue != null ) {
                 		if (computedPayloadDigest != null) {
-                			if ((computedBlockDigest.length + 2) / 3 * 4 == warcPayloadDigest.digestValue.length()) {
+                			if ((computedPayloadDigest.length + 2) / 3 * 4 == warcPayloadDigest.digestValue.length()) {
                 				digest = Base64.decodeToArray(warcPayloadDigest.digestValue);
                 			}
-                			else if ((computedBlockDigest.length + 4) / 5 * 8 == warcPayloadDigest.digestValue.length()) {
+                			else if ((computedPayloadDigest.length + 4) / 5 * 8 == warcPayloadDigest.digestValue.length()) {
                 				digest = Base32.decodeToArray(warcPayloadDigest.digestValue);
                 			}
-                			else if (computedBlockDigest.length * 2 == warcPayloadDigest.digestValue.length()) {
+                			else if (computedPayloadDigest.length * 2 == warcPayloadDigest.digestValue.length()) {
                 				digest = Base16.decodeToArray(warcPayloadDigest.digestValue);
                 			}
                 			else {
