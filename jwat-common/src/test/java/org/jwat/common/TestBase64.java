@@ -21,167 +21,167 @@ import org.jwat.common.Base64;
 @RunWith(Parameterized.class)
 public class TestBase64 {
 
-	private int min;
-	private int max;
-	private int runs;
+    private int min;
+    private int max;
+    private int runs;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{1, 256, 10}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {1, 256, 10}
+        });
+    }
 
-	public TestBase64(int min, int max, int runs) {
-		this.min = min;
-		this.max = max;
-		this.runs = runs;
-	}
+    public TestBase64(int min, int max, int runs) {
+        this.min = min;
+        this.max = max;
+        this.runs = runs;
+    }
 
-	@Test
-	public void test() {
-		SecureRandom random = new SecureRandom();
+    @Test
+    public void test() {
+        SecureRandom random = new SecureRandom();
 
-		byte[] srcArr;
-		StringBuffer srcSb = new StringBuffer( 256 );
-		String srcStr;
+        byte[] srcArr;
+        StringBuffer srcSb = new StringBuffer( 256 );
+        String srcStr;
 
-		String base64a;
-		String base64s;
+        String base64a;
+        String base64s;
 
-		byte[] dstArr;
-		String dstStr;
+        byte[] dstArr;
+        String dstStr;
 
-		String base16sa;
-		String base16ss;
-		String base16da;
-		String base16ds;
+        String base16sa;
+        String base16ss;
+        String base16da;
+        String base16ds;
 
-		base64a = Base64.encodeArray( null );
-		Assert.assertNull( base64a );
-		base64a = Base64.encodeArray( new byte[ 0 ] );
-		Assert.assertEquals( "", base64a );
+        base64a = Base64.encodeArray( null );
+        Assert.assertNull( base64a );
+        base64a = Base64.encodeArray( new byte[ 0 ] );
+        Assert.assertEquals( "", base64a );
 
-		base64s = Base64.encodeString( null );
-		Assert.assertNull( base64s );
-		base64s = Base64.encodeString( "" );
-		Assert.assertEquals( "", base64s );
+        base64s = Base64.encodeString( null );
+        Assert.assertNull( base64s );
+        base64s = Base64.encodeString( "" );
+        Assert.assertEquals( "", base64s );
 
-		dstArr = Base64.decodeToArray( null );
-		Assert.assertNull( dstArr );
-		dstArr = Base64.decodeToArray( "" );
-		Assert.assertArrayEquals( new byte[0], dstArr );
+        dstArr = Base64.decodeToArray( null );
+        Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "" );
+        Assert.assertArrayEquals( new byte[0], dstArr );
 
-		dstStr = Base64.decodeToString( null );
-		Assert.assertNull( dstStr );
-		dstStr = Base64.decodeToString( "" );
-		Assert.assertEquals( "", dstStr );
+        dstStr = Base64.decodeToString( null );
+        Assert.assertNull( dstStr );
+        dstStr = Base64.decodeToString( "" );
+        Assert.assertEquals( "", dstStr );
 
-		for ( int r=0; r<runs; ++r) {
-			for ( int n=min; n<max; ++n ) {
-				srcArr = new byte[ n ];
-				random.nextBytes( srcArr );
+        for ( int r=0; r<runs; ++r) {
+            for ( int n=min; n<max; ++n ) {
+                srcArr = new byte[ n ];
+                random.nextBytes( srcArr );
 
-				srcSb.setLength( 0 );
-				for ( int i=0; i<srcArr.length; ++i ) {
-					srcSb.append( (char)(srcArr[ i ] & 255) );
-				}
-				srcStr = srcSb.toString();
+                srcSb.setLength( 0 );
+                for ( int i=0; i<srcArr.length; ++i ) {
+                    srcSb.append( (char)(srcArr[ i ] & 255) );
+                }
+                srcStr = srcSb.toString();
 
-				base64a = Base64.encodeArray( srcArr );
-				base64s = Base64.encodeString( srcStr );
+                base64a = Base64.encodeArray( srcArr );
+                base64s = Base64.encodeString( srcStr );
 
-				dstArr = Base64.decodeToArray( base64a );
-				dstStr = Base64.decodeToString( base64s );
+                dstArr = Base64.decodeToArray( base64a );
+                dstStr = Base64.decodeToString( base64s );
 
-				base16sa = Base16.encodeArray( srcArr );
-				base16ss = Base16.encodeString( srcStr );
+                base16sa = Base16.encodeArray( srcArr );
+                base16ss = Base16.encodeString( srcStr );
 
-				base16da = Base16.encodeArray( dstArr );
-				base16ds = Base16.encodeString( dstStr );
+                base16da = Base16.encodeArray( dstArr );
+                base16ds = Base16.encodeString( dstStr );
 
-				/*
-				System.out.println( base16sa );
-				System.out.println( base16ss );
-				System.out.println( base64a );
-				System.out.println( base64s );
-				System.out.println( base16da );
-				System.out.println( base16ds );
-				*/
+                /*
+                System.out.println( base16sa );
+                System.out.println( base16ss );
+                System.out.println( base64a );
+                System.out.println( base64s );
+                System.out.println( base16da );
+                System.out.println( base16ds );
+                */
 
-				Assert.assertArrayEquals( srcArr, dstArr );
-				Assert.assertEquals( base64a, base64s );
-				Assert.assertEquals( srcStr, dstStr );
-				Assert.assertEquals( base16sa, base16ss );
-				Assert.assertEquals( base16da, base16ds );
-			}
-		}
+                Assert.assertArrayEquals( srcArr, dstArr );
+                Assert.assertEquals( base64a, base64s );
+                Assert.assertEquals( srcStr, dstStr );
+                Assert.assertEquals( base16sa, base16ss );
+                Assert.assertEquals( base16da, base16ds );
+            }
+        }
 
-		/*
-		 * encode(String)
-		 */
+        /*
+         * encode(String)
+         */
 
-		srcSb.setLength( 0 );
-		srcSb.append( (char)0x100 );
-		srcStr = srcSb.toString();
-		base64s = Base64.encodeString( srcStr );
-		Assert.assertNull( base64s );
+        srcSb.setLength( 0 );
+        srcSb.append( (char)0x100 );
+        srcStr = srcSb.toString();
+        base64s = Base64.encodeString( srcStr );
+        Assert.assertNull( base64s );
 
-		/*
-		 * decodeToArray
-		 */
+        /*
+         * decodeToArray
+         */
 
-		dstArr = Base64.decodeToArray( "aaaa" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base64.decodeToArray( "aaaa" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "aaa=" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base64.decodeToArray( "aaa=" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "aa==" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base64.decodeToArray( "aa==" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "a===" );
-		Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "a===" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "####" );
-		Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "####" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "###=" );
-		Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "###=" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "##==" );
-		Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "##==" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base64.decodeToArray( "#===" );
-		Assert.assertNull( dstArr );
+        dstArr = Base64.decodeToArray( "#===" );
+        Assert.assertNull( dstArr );
 
-		/*
-		 * decodeToArray
-		 */
+        /*
+         * decodeToArray
+         */
 
-		dstStr = Base64.decodeToString( "aaaa" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base64.decodeToString( "aaaa" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base64.decodeToString( "aaa=" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base64.decodeToString( "aaa=" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base64.decodeToString( "aa==" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base64.decodeToString( "aa==" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base64.decodeToString( "a===" );
-		Assert.assertNull( dstStr );
+        dstStr = Base64.decodeToString( "a===" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base64.decodeToString( "####" );
-		Assert.assertNull( dstStr );
+        dstStr = Base64.decodeToString( "####" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base64.decodeToString( "###=" );
-		Assert.assertNull( dstStr );
+        dstStr = Base64.decodeToString( "###=" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base64.decodeToString( "##==" );
-		Assert.assertNull( dstStr );
+        dstStr = Base64.decodeToString( "##==" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base64.decodeToString( "#===" );
-		Assert.assertNull( dstStr );
-	}
+        dstStr = Base64.decodeToString( "#===" );
+        Assert.assertNull( dstStr );
+    }
 
 }

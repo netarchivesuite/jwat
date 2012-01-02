@@ -33,316 +33,316 @@ import org.jwat.common.RandomAccessFileInputStream;
 @RunWith(Parameterized.class)
 public class TestWarcReaderFactoryUncompressed {
 
-	private int expected_records;
-	private boolean bDigest;
-	private String warcFile;
+    private int expected_records;
+    private boolean bDigest;
+    private String warcFile;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{822, false, "IAH-20080430204825-00000-blackbook.warc"},
-				{822, true, "IAH-20080430204825-00000-blackbook.warc"}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {822, false, "IAH-20080430204825-00000-blackbook.warc"},
+                {822, true, "IAH-20080430204825-00000-blackbook.warc"}
+        });
+    }
 
-	public TestWarcReaderFactoryUncompressed(int records, boolean bDigest, String warcFile) {
-		this.expected_records = records;
-		this.bDigest = bDigest;
-		this.warcFile = warcFile;
-	}
+    public TestWarcReaderFactoryUncompressed(int records, boolean bDigest, String warcFile) {
+        this.expected_records = records;
+        this.bDigest = bDigest;
+        this.warcFile = warcFile;
+    }
 
-	@Test
-	public void test() {
-		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+    @Test
+    public void test() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
         File file;
         RandomAccessFile ram;
-		InputStream in;
+        InputStream in;
 
-		WarcReader reader;
-		WarcRecord record;
+        WarcReader reader;
+        WarcRecord record;
 
         int records = 0;
         int errors = 0;
 
-		try {
-			List<WarcEntry> entries = indexWarcFile();
-			WarcEntry entry;
+        try {
+            List<WarcEntry> entries = indexWarcFile();
+            WarcEntry entry;
 
-			/*
-			 * getReaderUncompressed() / nextRecordFrom(in).
-			 */
+            /*
+             * getReaderUncompressed() / nextRecordFrom(in).
+             */
 
-	        records = 0;
-	        errors = 0;
+            records = 0;
+            errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
-	        file = new File(url.getFile());
-	        ram = new RandomAccessFile(file, "r");
-	        in = new RandomAccessFileInputStream(ram);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(url.getFile());
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed();
+            reader = WarcReaderFactory.getReaderUncompressed();
 
-			reader.setBlockDigestEnabled( true );
-			reader.setBlockDigestAlgorithm( "sha1" );
-			reader.setPayloadDigestEnabled( true );
-			reader.setPayloadDigestAlgorithm( "sha1" );
+            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestAlgorithm( "sha1" );
+            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestAlgorithm( "sha1" );
 
-			for (int i=0; i<entries.size(); ++i) {
-				entry = entries.get(i);
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
 
-				ram.seek(entry.offset);
+                ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in)) != null) {
-					if (bDebugOutput) {
-						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
-					}
+                if ((record = reader.getNextRecordFrom(in)) != null) {
+                    if (bDebugOutput) {
+                        RecordDebugBase.printRecord(record);
+                        RecordDebugBase.printRecordErrors(record);
+                    }
 
-					record.close();
+                    record.close();
 
-					if ( bDigest ) {
-						if ( (record.payload != null && record.computedBlockDigest == null)
-								|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
-							Assert.fail( "Digest missing!" );
-						}
-					}
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
 
-					++records;
+                    ++records;
 
-					if (record.hasErrors()) {
-						errors += record.getValidationErrors().size();
-					}
+                    if (record.hasErrors()) {
+                        errors += record.getValidationErrors().size();
+                    }
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
-						Assert.fail("Wrong record");
-					}
-				}
-				else {
-					Assert.fail("Location incorrect");
-				}
-			}
+                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                }
+                else {
+                    Assert.fail("Location incorrect");
+                }
+            }
 
-			reader.close();
-			in.close();
-			ram.close();
+            reader.close();
+            in.close();
+            ram.close();
 
-			if (bDebugOutput) {
-				RecordDebugBase.printStatus(records, errors);
-			}
+            if (bDebugOutput) {
+                RecordDebugBase.printStatus(records, errors);
+            }
 
-	        Assert.assertEquals(expected_records, records);
-	        Assert.assertEquals(0, errors);
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
 
-			/*
-			 * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
-			 */
+            /*
+             * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
+             */
 
-	        records = 0;
-	        errors = 0;
+            records = 0;
+            errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
-	        file = new File(url.getFile());
-	        ram = new RandomAccessFile(file, "r");
-	        in = new RandomAccessFileInputStream(ram);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(url.getFile());
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in);
+            reader = WarcReaderFactory.getReaderUncompressed(in);
 
-			reader.setBlockDigestEnabled( true );
-			reader.setBlockDigestAlgorithm( "sha1" );
-			reader.setPayloadDigestEnabled( true );
-			reader.setPayloadDigestAlgorithm( "sha1" );
+            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestAlgorithm( "sha1" );
+            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestAlgorithm( "sha1" );
 
-			for (int i=0; i<entries.size(); ++i) {
-				entry = entries.get(i);
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
 
-				ram.seek(entry.offset);
+                ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in, 8192)) != null) {
-					if (bDebugOutput) {
-						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
-					}
+                if ((record = reader.getNextRecordFrom(in, 8192)) != null) {
+                    if (bDebugOutput) {
+                        RecordDebugBase.printRecord(record);
+                        RecordDebugBase.printRecordErrors(record);
+                    }
 
-					record.close();
+                    record.close();
 
-					if ( bDigest ) {
-						if ( (record.payload != null && record.computedBlockDigest == null)
-								|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
-							Assert.fail( "Digest missing!" );
-						}
-					}
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
 
-					++records;
+                    ++records;
 
-					if (record.hasErrors()) {
-						errors += record.getValidationErrors().size();
-					}
+                    if (record.hasErrors()) {
+                        errors += record.getValidationErrors().size();
+                    }
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
-						Assert.fail("Wrong record");
-					}
-				}
-				else {
-					Assert.fail("Location incorrect");
-				}
-			}
+                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                }
+                else {
+                    Assert.fail("Location incorrect");
+                }
+            }
 
-			reader.close();
-			in.close();
+            reader.close();
+            in.close();
 
-			if (bDebugOutput) {
-				RecordDebugBase.printStatus(records, errors);
-			}
+            if (bDebugOutput) {
+                RecordDebugBase.printStatus(records, errors);
+            }
 
-	        Assert.assertEquals(expected_records, records);
-	        Assert.assertEquals(0, errors);
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
 
-	        /*
-			 * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
-			 */
+            /*
+             * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
+             */
 
-	        records = 0;
-	        errors = 0;
+            records = 0;
+            errors = 0;
 
-	        url = this.getClass().getClassLoader().getResource(warcFile);
-	        file = new File(url.getFile());
-	        ram = new RandomAccessFile(file, "r");
-	        in = new RandomAccessFileInputStream(ram);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(url.getFile());
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
 
-			reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
+            reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
 
-			reader.setBlockDigestEnabled( true );
-			reader.setBlockDigestAlgorithm( "sha1" );
-			reader.setPayloadDigestEnabled( true );
-			reader.setPayloadDigestAlgorithm( "sha1" );
+            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestAlgorithm( "sha1" );
+            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestAlgorithm( "sha1" );
 
-			for (int i=0; i<entries.size(); ++i) {
-				entry = entries.get(i);
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
 
-				ram.seek(entry.offset);
+                ram.seek(entry.offset);
 
-				if ((record = reader.getNextRecordFrom(in)) != null) {
-					if (bDebugOutput) {
-						RecordDebugBase.printRecord(record);
-						RecordDebugBase.printRecordErrors(record);
-					}
+                if ((record = reader.getNextRecordFrom(in)) != null) {
+                    if (bDebugOutput) {
+                        RecordDebugBase.printRecord(record);
+                        RecordDebugBase.printRecordErrors(record);
+                    }
 
-					record.close();
+                    record.close();
 
-					if ( bDigest ) {
-						if ( (record.payload != null && record.computedBlockDigest == null)
-								|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
-							Assert.fail( "Digest missing!" );
-						}
-					}
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
 
-					++records;
+                    ++records;
 
-					if (record.hasErrors()) {
-						errors += record.getValidationErrors().size();
-					}
+                    if (record.hasErrors()) {
+                        errors += record.getValidationErrors().size();
+                    }
 
-					if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
-						Assert.fail("Wrong record");
-					}
-				}
-				else {
-					Assert.fail("Location incorrect");
-				}
-			}
+                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                }
+                else {
+                    Assert.fail("Location incorrect");
+                }
+            }
 
-			reader.close();
-			in.close();
+            reader.close();
+            in.close();
 
-			if (bDebugOutput) {
-				RecordDebugBase.printStatus(records, errors);
-			}
+            if (bDebugOutput) {
+                RecordDebugBase.printStatus(records, errors);
+            }
 
-	        Assert.assertEquals(expected_records, records);
-	        Assert.assertEquals(0, errors);
-		}
-		catch (IOException e) {
-			Assert.fail("Unexpected io exception");
-		}
-		catch (NoSuchAlgorithmException e) {
-			Assert.fail("Unexpected algorithm exception");
-		}
-	}
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
+        }
+        catch (IOException e) {
+            Assert.fail("Unexpected io exception");
+        }
+        catch (NoSuchAlgorithmException e) {
+            Assert.fail("Unexpected algorithm exception");
+        }
+    }
 
-	class WarcEntry {
-		URI recordId;
-		long offset;
-	}
+    class WarcEntry {
+        URI recordId;
+        long offset;
+    }
 
-	public List<WarcEntry> indexWarcFile() {
-		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+    public List<WarcEntry> indexWarcFile() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		List<WarcEntry> warcEntries = new ArrayList<WarcEntry>();
-		WarcEntry warcEntry;
+        List<WarcEntry> warcEntries = new ArrayList<WarcEntry>();
+        WarcEntry warcEntry;
 
-		int records = 0;
+        int records = 0;
         int errors = 0;
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-    		WarcReader reader = WarcReaderFactory.getReader(in);
+            WarcReader reader = WarcReaderFactory.getReader(in);
 
-			reader.setBlockDigestEnabled( true );
-			reader.setBlockDigestAlgorithm( "sha1" );
-			reader.setPayloadDigestEnabled( true );
-			reader.setPayloadDigestAlgorithm( "sha1" );
+            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestAlgorithm( "sha1" );
+            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestAlgorithm( "sha1" );
 
-			Iterator<WarcRecord> recordIterator = reader.iterator();
-    		WarcRecord record;
+            Iterator<WarcRecord> recordIterator = reader.iterator();
+            WarcRecord record;
 
-    		while (recordIterator.hasNext()) {
-    			record = recordIterator.next();
-    			++records;
+            while (recordIterator.hasNext()) {
+                record = recordIterator.next();
+                ++records;
 
-				if (record.warcRecordIdUri == null) {
-    				Assert.fail("Invalid warc-record-id");
-    			}
+                if (record.warcRecordIdUri == null) {
+                    Assert.fail("Invalid warc-record-id");
+                }
 
-    			warcEntry = new WarcEntry();
-    			warcEntry.recordId = record.warcRecordIdUri;
-    			warcEntry.offset = record.offset;
-    			warcEntries.add(warcEntry);
+                warcEntry = new WarcEntry();
+                warcEntry.recordId = record.warcRecordIdUri;
+                warcEntry.offset = record.offset;
+                warcEntries.add(warcEntry);
 
-				record.close();
+                record.close();
 
-				if ( bDigest ) {
-					if ( (record.payload != null && record.computedBlockDigest == null)
-							|| (record.httpResponse != null && record.computedPayloadDigest == null) ) {
-						Assert.fail( "Digest missing!" );
-					}
-				}
+                if ( bDigest ) {
+                    if ( (record.payload != null && record.computedBlockDigest == null)
+                            || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                        Assert.fail( "Digest missing!" );
+                    }
+                }
 
-				if (bDebugOutput) {
-	    			System.out.println("0x" + Long.toString(warcEntry.offset, 16) + "(" + warcEntry.offset + ") - " + warcEntry.recordId);
-				}
+                if (bDebugOutput) {
+                    System.out.println("0x" + Long.toString(warcEntry.offset, 16) + "(" + warcEntry.offset + ") - " + warcEntry.recordId);
+                }
 
-				if (record.hasErrors()) {
-    				errors += record.getValidationErrors().size();
-    			}
-    		}
+                if (record.hasErrors()) {
+                    errors += record.getValidationErrors().size();
+                }
+            }
 
-    		reader.close();
-    		in.close();
+            reader.close();
+            in.close();
         }
         catch (IOException e) {
-			Assert.fail("Unexpected io exception");
-        } 
+            Assert.fail("Unexpected io exception");
+        }
         catch (NoSuchAlgorithmException e) {
-			Assert.fail("Unexpected algorithm exception");
-		}
+            Assert.fail("Unexpected algorithm exception");
+        }
 
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
 
         return warcEntries;
-	}
+    }
 
 }

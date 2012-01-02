@@ -40,7 +40,7 @@ public class WarcDateParser {
      * format WARC dates.
      */
     public static DateFormat getWarcDateFormat() {
-    	DateFormat dateFormat;
+        DateFormat dateFormat;
         dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);
         dateFormat.setLenient(false);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -55,11 +55,11 @@ public class WarcDateParser {
     private Date parseDate(String dateStr) {
         Date date = null;
         try {
-        	// We subtract 4 from the format because of the ' characters.
-        	// These characters are to specify constants in the format string. 
+            // We subtract 4 from the format because of the ' characters.
+            // These characters are to specify constants in the format string.
             if ((dateStr != null) && dateStr.length()
                             == WarcConstants.WARC_DATE_FORMAT.length() - 4) {
-            	// Support upper/lower-case.
+                // Support upper/lower-case.
                 date = dateFormat.parse(dateStr.toUpperCase());
             }
         } catch (Exception e) { /* Ignore */ }

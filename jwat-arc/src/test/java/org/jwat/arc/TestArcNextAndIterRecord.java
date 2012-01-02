@@ -40,9 +40,9 @@ public class TestArcNextAndIterRecord {
 
     @Test
     public void test() {
-		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		InputStream in;
+        InputStream in;
 
         ArcReader reader;
         ArcVersionBlock version;
@@ -60,23 +60,23 @@ public class TestArcNextAndIterRecord {
              * getNextArcRecord.
              */
 
-        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
             version = reader.getVersionBlock();
 
             if (version != null) {
-            	if (bDebugOutput) {
-                	RecordDebugBase.printVersionBlock(version);
-            	}
+                if (bDebugOutput) {
+                    RecordDebugBase.printVersionBlock(version);
+                }
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = reader.getNextRecord();
                     if (arcRecord != null) {
-                    	if (bDebugOutput) {
-                        	RecordDebugBase.printRecord(arcRecord);
-                    	}
+                        if (bDebugOutput) {
+                            RecordDebugBase.printRecord(arcRecord);
+                        }
 
                         ++n_records;
 
@@ -89,9 +89,9 @@ public class TestArcNextAndIterRecord {
                     }
                 }
 
-            	if (bDebugOutput) {
+                if (bDebugOutput) {
                     RecordDebugBase.printStatus(n_records, n_errors);
-            	}
+                }
             }
 
             reader.close();
@@ -101,25 +101,25 @@ public class TestArcNextAndIterRecord {
              * Iterator.
              */
 
-        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
             version = reader.getVersionBlock();
 
             if (version != null) {
-            	if (bDebugOutput) {
-                	RecordDebugBase.printVersionBlock(version);
-            	}
+                if (bDebugOutput) {
+                    RecordDebugBase.printVersionBlock(version);
+                }
 
-            	recordIterator = reader.iterator();
+                recordIterator = reader.iterator();
 
                 while (recordIterator.hasNext()) {
-                	Assert.assertNull(reader.getIteratorExceptionThrown());
+                    Assert.assertNull(reader.getIteratorExceptionThrown());
                     arcRecord = recordIterator.next();
-                	Assert.assertNull(reader.getIteratorExceptionThrown());
-                	if (bDebugOutput) {
-                    	RecordDebugBase.printRecord(arcRecord);
-                	}
+                    Assert.assertNull(reader.getIteratorExceptionThrown());
+                    if (bDebugOutput) {
+                        RecordDebugBase.printRecord(arcRecord);
+                    }
 
                     ++i_records;
 
@@ -127,11 +127,11 @@ public class TestArcNextAndIterRecord {
                         i_errors += arcRecord.getWarnings().size();
                     }
                 }
-            	Assert.assertNull(reader.getIteratorExceptionThrown());
+                Assert.assertNull(reader.getIteratorExceptionThrown());
 
-            	if (bDebugOutput) {
+                if (bDebugOutput) {
                     RecordDebugBase.printStatus(i_records, i_errors);
-            	}
+                }
             }
 
             reader.close();

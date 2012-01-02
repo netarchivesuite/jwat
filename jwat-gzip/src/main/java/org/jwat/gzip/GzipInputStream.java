@@ -34,7 +34,7 @@ public class GzipInputStream extends InflaterInputStream
 {
     /** CRC-32 for uncompressed data. */
     protected CRC32 crc = new CRC32();
- 
+
     /** Whether the main input stream has been closed. */
     private boolean closed = false;
     /** Whether the end of main input stream has been reached. */
@@ -50,24 +50,24 @@ public class GzipInputStream extends InflaterInputStream
     /** Whether the end of the current entry input stream has been reached. */
     private boolean entryEof = true;                    // No active entry.
 
-	/**
-	 * Check head of <code>PushBackInputStream</code> for a GZip magic number.
-	 * @param pbin <code>PushBackInputStream</code> with records
-	 * @return boolean indicating presence of GZip magic number
-	 * @throws IOException io exception while examing head of stream
-	 */
-	public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
-		byte[] magicBytes = new byte[2];
-		int magicNumber = 0xdeadbeef;
-		int read = pbin.readFully(magicBytes); 
-		if (read == 2) {
-			magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);
-		}
-		if (read > 0) {
-			pbin.unread(magicBytes, 0, read);
-		}
-		return (magicNumber == GzipConstants.GZIP_MAGIC);
-	}
+    /**
+     * Check head of <code>PushBackInputStream</code> for a GZip magic number.
+     * @param pbin <code>PushBackInputStream</code> with records
+     * @return boolean indicating presence of GZip magic number
+     * @throws IOException io exception while examing head of stream
+     */
+    public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
+        byte[] magicBytes = new byte[2];
+        int magicNumber = 0xdeadbeef;
+        int read = pbin.readFully(magicBytes);
+        if (read == 2) {
+            magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);
+        }
+        if (read > 0) {
+            pbin.unread(magicBytes, 0, read);
+        }
+        return (magicNumber == GzipConstants.GZIP_MAGIC);
+    }
 
     /**
      * Creates a new input stream with a default buffer size.
@@ -95,9 +95,9 @@ public class GzipInputStream extends InflaterInputStream
         super(new PushbackInputStream(in, size), new Inflater(true), size);
 
         this.entryInputStream = new FilterInputStream(this) {
-        	public void close() throws IOException {
-        		closeEntry();
-        	}
+            public void close() throws IOException {
+                closeEntry();
+            }
         };
     }
 
@@ -111,8 +111,8 @@ public class GzipInputStream extends InflaterInputStream
      * @throws IOException  if an I/O error has occurred.
      */
     public GzipEntry getNextEntry() throws IOException {
-    	closeEntry();
-    	entry = readHeader();
+        closeEntry();
+        entry = readHeader();
         entryEof = (entry == null);
         return entry;
     }
@@ -129,7 +129,7 @@ public class GzipInputStream extends InflaterInputStream
         if (! entryEof) {
             // Skip remaining entry data.
             byte[] tmpbuf = new byte[256];
-	    while (read(tmpbuf) != -1) { /* Keep on reading... */ }
+        while (read(tmpbuf) != -1) { /* Keep on reading... */ }
         }
         entryEof = true;
     }
@@ -253,7 +253,7 @@ public class GzipInputStream extends InflaterInputStream
         // Entry index and start offset
         entryCount++;
         long startOffset = getOffset();
- 
+
         // Check magic number
         int header = readUShort(cis);
         if (header != GzipConstants.GZIP_MAGIC) {
@@ -335,14 +335,14 @@ public class GzipInputStream extends InflaterInputStream
      * @throws IOException  if an I/O error has occurred.
      */
     private boolean readTrailer() throws IOException {
-    	int n = this.inf.getRemaining();
-    	if (n > 0) {
-    		((PushbackInputStream)this.in).unread(this.buf, this.len - n, n);
-    	}
+        int n = this.inf.getRemaining();
+        if (n > 0) {
+            ((PushbackInputStream)this.in).unread(this.buf, this.len - n, n);
+        }
         long csize = this.inf.getBytesRead();
         long size  = this.inf.getBytesWritten();
         pos += csize;
- 
+
         // Check member data CRC
         long readCrc32 = readUInt(this.in);
         long computedCrc32 = crc.getValue();

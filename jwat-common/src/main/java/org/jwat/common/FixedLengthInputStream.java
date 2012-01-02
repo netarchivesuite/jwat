@@ -13,7 +13,7 @@ import java.io.InputStream;
  */
 public final class FixedLengthInputStream extends FilterInputStream {
 
-	/** Remaining bytes available. */
+    /** Remaining bytes available. */
     protected long remaining;
 
     /**

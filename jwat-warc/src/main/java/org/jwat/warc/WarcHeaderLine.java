@@ -9,13 +9,13 @@ package org.jwat.warc;
  */
 public class WarcHeaderLine {
 
-	/** Header name. */
-	public String name;
+    /** Header name. */
+    public String name;
 
-	/** Header value. */
-	public String value;
+    /** Header value. */
+    public String value;
 
-	/** The raw line if no colon is present. */
-	public String line;
+    /** The raw line if no colon is present. */
+    public String line;
 
 }

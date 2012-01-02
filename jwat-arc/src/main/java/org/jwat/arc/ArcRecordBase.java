@@ -133,7 +133,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Computed payload digest. */
     public byte[] computedPayloadDigest;
 
-	/**
+    /**
      * Creates an ARC record from the specified record description.
      * @param recordLine ARC record string
      */
@@ -272,34 +272,34 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         if (!bPayloadClosed) {
             if (payload != null) {
                 // Check for truncated payload.
-            	if (payload.getUnavailable() > 0) {
+                if (payload.getUnavailable() > 0) {
                     addValidationError(ArcErrorType.INVALID, ARC_RECORD,
                             "Payload length mismatch");
-            	}
+                }
                 /*
                  * Check block digest.
                  */
                 MessageDigest md = payload.getMessageDigest();
-            	if (md != null) {
-            		computedBlockDigest = md.digest();
-            		/*
-            		if (computedBlockDigest != null) {
-            		}
-            		*/
-            	}
-            	if (httpResponse != null) {
-            		/*
-            		 * Check payload digest.
-            		 */
-            		md = httpResponse.getMessageDigest();
-            		if (md != null) {
-                		computedPayloadDigest = md.digest();
-                		/*
-                		if (computedPayloadDigest != null) {
-                		}
-                		*/
-            		}
-            	}
+                if (md != null) {
+                    computedBlockDigest = md.digest();
+                    /*
+                    if (computedBlockDigest != null) {
+                    }
+                    */
+                }
+                if (httpResponse != null) {
+                    /*
+                     * Check payload digest.
+                     */
+                    md = httpResponse.getMessageDigest();
+                    if (md != null) {
+                        computedPayloadDigest = md.digest();
+                        /*
+                        if (computedPayloadDigest != null) {
+                        }
+                        */
+                    }
+                }
             }
             bPayloadClosed = true;
         }
@@ -336,7 +336,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @throws IOException io exception in the parsing process
      */
     protected abstract void processPayload(ByteCountingPushBackInputStream in,
-    									ArcReader reader) throws IOException;
+                                        ArcReader reader) throws IOException;
 
     /**
      * isNetworkDocValidated getter.
@@ -577,22 +577,22 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return ARC record content type
      */
     protected ContentType parseContentType(String contentTypeStr) {
-    	ContentType contentType = null;
-    	if (contentTypeStr != null && contentTypeStr.length() != 0) {
-    		contentType = ContentType.parseContentType(contentTypeStr);
-    		if (contentType == null) {
+        ContentType contentType = null;
+        if (contentTypeStr != null && contentTypeStr.length() != 0) {
+            contentType = ContentType.parseContentType(contentTypeStr);
+            if (contentType == null) {
                 // Invalid content-type.
                 addValidationError(ArcErrorType.INVALID,
-                				   ArcConstants.CONTENT_TYPE_FIELD,
-                				   contentTypeStr);
-    		}
-    	} else {
+                                   ArcConstants.CONTENT_TYPE_FIELD,
+                                   contentTypeStr);
+            }
+        } else {
             // Missing content-type.
             addValidationError(ArcErrorType.MISSING,
-            				   ArcConstants.CONTENT_TYPE_FIELD,
-            				   contentTypeStr);
+                               ArcConstants.CONTENT_TYPE_FIELD,
+                               contentTypeStr);
         }
-    	return contentType;
+        return contentType;
     }
 
     /**

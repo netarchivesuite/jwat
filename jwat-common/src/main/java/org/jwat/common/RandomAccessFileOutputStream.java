@@ -30,29 +30,29 @@ public class RandomAccessFileOutputStream extends OutputStream {
      * Closing this stream has no effect.
      */
     @Override
-	public void close() throws IOException {
-	}
+    public void close() throws IOException {
+    }
 
     /**
      * Flushing this stream has no effect.
      */
-	@Override
-	public void flush() throws IOException {
-	}
+    @Override
+    public void flush() throws IOException {
+    }
 
-	@Override
-	public void write(int b) throws IOException {
-		raf.write(b);
-	}
+    @Override
+    public void write(int b) throws IOException {
+        raf.write(b);
+    }
 
-	@Override
-	public void write(byte[] b) throws IOException {
-		raf.write(b);
-	}
+    @Override
+    public void write(byte[] b) throws IOException {
+        raf.write(b);
+    }
 
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		raf.write(b, off, len);
-	}
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        raf.write(b, off, len);
+    }
 
 }

@@ -18,67 +18,67 @@ import org.jwat.warc.WarcRecord;
 @RunWith(Parameterized.class)
 public class TestUpperLowerCase {
 
-	private int expected_records;
-	private String warcFile;
+    private int expected_records;
+    private String warcFile;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{5, "test-upper-lower-case.warc"}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {5, "test-upper-lower-case.warc"}
+        });
+    }
 
-	public TestUpperLowerCase(int records, String warcFile) {
-		this.expected_records = records;
-		this.warcFile = warcFile;
-	}
+    public TestUpperLowerCase(int records, String warcFile) {
+        this.expected_records = records;
+        this.warcFile = warcFile;
+    }
 
-	@Test
-	public void test() {
-		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+    @Test
+    public void test() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		InputStream in;
+        InputStream in;
 
-		int records = 0;
-		int errors = 0;
+        int records = 0;
+        int errors = 0;
 
-		try {
-			in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+        try {
+            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-			WarcReader reader = WarcReaderFactory.getReader(in);
-			WarcRecord record;
+            WarcReader reader = WarcReaderFactory.getReader(in);
+            WarcRecord record;
 
-			while ((record = reader.getNextRecord()) != null) {
-				if (bDebugOutput) {
-					RecordDebugBase.printRecord(record);
-					RecordDebugBase.printRecordErrors(record);
-				}
+            while ((record = reader.getNextRecord()) != null) {
+                if (bDebugOutput) {
+                    RecordDebugBase.printRecord(record);
+                    RecordDebugBase.printRecordErrors(record);
+                }
 
-				record.close();
+                record.close();
 
-				++records;
+                ++records;
 
-				if (record.hasErrors()) {
-					errors += record.getValidationErrors().size();
-				}
-			}
+                if (record.hasErrors()) {
+                    errors += record.getValidationErrors().size();
+                }
+            }
 
-			reader.close();
-			in.close();
+            reader.close();
+            in.close();
 
-			if (bDebugOutput) {
-				RecordDebugBase.printStatus(records, errors);
-			}
-		}
-		catch (FileNotFoundException e) {
-			Assert.fail("Input file missing");
-		}
-		catch (IOException e) {
-			Assert.fail("Unexpected io exception");
-		}
+            if (bDebugOutput) {
+                RecordDebugBase.printStatus(records, errors);
+            }
+        }
+        catch (FileNotFoundException e) {
+            Assert.fail("Input file missing");
+        }
+        catch (IOException e) {
+            Assert.fail("Unexpected io exception");
+        }
 
-		Assert.assertEquals(expected_records, records);
-		Assert.assertEquals(0, errors);
-	}
+        Assert.assertEquals(expected_records, records);
+        Assert.assertEquals(0, errors);
+    }
 
 }

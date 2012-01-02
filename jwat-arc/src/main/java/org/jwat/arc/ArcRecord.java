@@ -41,8 +41,8 @@ public class ArcRecord extends ArcRecordBase {
      * @throws IOException io exception while parsing arc record
      */
     public static ArcRecord parseArcRecord(ByteCountingPushBackInputStream in,
-              					ArcVersionBlock versionBlock, ArcReader reader)
-              											throws IOException {
+                              ArcVersionBlock versionBlock, ArcReader reader)
+                                                          throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
         ar.version = versionBlock.version;
@@ -69,34 +69,34 @@ public class ArcRecord extends ArcRecordBase {
 
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in,
-    									ArcReader reader) throws IOException {
+                                        ArcReader reader) throws IOException {
         payload = null;
         // Digest currently not supported by ARC reader.
         if (recLength != null && recLength > 0L) {
             String digestAlgorithm = null;
-			if (reader.bBlockDigest) {
-				digestAlgorithm = reader.blockDigestAlgorithm;
-			}
+            if (reader.bBlockDigest) {
+                digestAlgorithm = reader.blockDigestAlgorithm;
+            }
             payload = Payload.processPayload(in, recLength.longValue(),
-            					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
+                                  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
             if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                            		recContentType)) {
-				digestAlgorithm = null;
-				if (reader.bPayloadDigest) {
-					digestAlgorithm = reader.payloadDigestAlgorithm;
-				}
+                                    recContentType)) {
+                digestAlgorithm = null;
+                if (reader.bPayloadDigest) {
+                    digestAlgorithm = reader.payloadDigestAlgorithm;
+                }
                 httpResponse = HttpResponse.processPayload(
                             payload.getInputStream(), recLength.longValue(),
                             digestAlgorithm);
                 if (httpResponse != null) {
-                	payload.setHttpResponse(httpResponse);
+                    payload.setHttpResponse(httpResponse);
                 }
             }
         } else if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                            		recContentType)) {
+                                    recContentType)) {
             addValidationError(ArcErrorType.INVALID, ARC_FILE,
                     "Expected payload not found in the record block");
         }

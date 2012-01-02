@@ -21,223 +21,223 @@ import org.jwat.common.Base32;
 @RunWith(Parameterized.class)
 public class TestBase32 {
 
-	private int min;
-	private int max;
-	private int runs;
+    private int min;
+    private int max;
+    private int runs;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{1, 256, 10}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {1, 256, 10}
+        });
+    }
 
-	public TestBase32(int min, int max, int runs) {
-		this.min = min;
-		this.max = max;
-		this.runs = runs;
-	}
+    public TestBase32(int min, int max, int runs) {
+        this.min = min;
+        this.max = max;
+        this.runs = runs;
+    }
 
-	@Test
-	public void test() {
-		SecureRandom random = new SecureRandom();
+    @Test
+    public void test() {
+        SecureRandom random = new SecureRandom();
 
-		byte[] srcArr;
-		StringBuffer srcSb = new StringBuffer( 256 );
-		String srcStr;
+        byte[] srcArr;
+        StringBuffer srcSb = new StringBuffer( 256 );
+        String srcStr;
 
-		String base32a;
-		String base32s;
+        String base32a;
+        String base32s;
 
-		byte[] dstArr;
-		String dstStr;
+        byte[] dstArr;
+        String dstStr;
 
-		byte[] dstArrLc;
-		String dstStrLc;
+        byte[] dstArrLc;
+        String dstStrLc;
 
-		String base16sa;
-		String base16ss;
-		String base16da;
-		String base16ds;
+        String base16sa;
+        String base16ss;
+        String base16da;
+        String base16ds;
 
-		base32a = Base32.encodeArray( null );
-		Assert.assertNull( base32a );
-		base32a = Base32.encodeArray( new byte[ 0 ] );
-		Assert.assertEquals( "", base32a );
+        base32a = Base32.encodeArray( null );
+        Assert.assertNull( base32a );
+        base32a = Base32.encodeArray( new byte[ 0 ] );
+        Assert.assertEquals( "", base32a );
 
-		base32s = Base32.encodeString( null );
-		Assert.assertNull( base32s );
-		base32s = Base32.encodeString( "" );
-		Assert.assertEquals( "", base32s );
+        base32s = Base32.encodeString( null );
+        Assert.assertNull( base32s );
+        base32s = Base32.encodeString( "" );
+        Assert.assertEquals( "", base32s );
 
-		dstArr = Base32.decodeToArray( null );
-		Assert.assertNull( dstArr );
-		dstArr = Base32.decodeToArray( "" );
-		Assert.assertArrayEquals( new byte[0], dstArr );
+        dstArr = Base32.decodeToArray( null );
+        Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "" );
+        Assert.assertArrayEquals( new byte[0], dstArr );
 
-		dstStr = Base32.decodeToString( null );
-		Assert.assertNull( dstStr );
-		dstStr = Base32.decodeToString( "" );
-		Assert.assertEquals( "", dstStr );
+        dstStr = Base32.decodeToString( null );
+        Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "" );
+        Assert.assertEquals( "", dstStr );
 
-		for ( int r=0; r<runs; ++r ) {
-			for ( int n=min; n<max; ++n ) {
-				srcArr = new byte[ n ];
-				random.nextBytes( srcArr );
+        for ( int r=0; r<runs; ++r ) {
+            for ( int n=min; n<max; ++n ) {
+                srcArr = new byte[ n ];
+                random.nextBytes( srcArr );
 
-				srcSb.setLength( 0 );
-				for ( int i=0; i<srcArr.length; ++i ) {
-					srcSb.append( (char)(srcArr[ i ] & 255) );
-				}
-				srcStr = srcSb.toString();
+                srcSb.setLength( 0 );
+                for ( int i=0; i<srcArr.length; ++i ) {
+                    srcSb.append( (char)(srcArr[ i ] & 255) );
+                }
+                srcStr = srcSb.toString();
 
-				base32a = Base32.encodeArray( srcArr );
-				base32s = Base32.encodeString( srcStr );
+                base32a = Base32.encodeArray( srcArr );
+                base32s = Base32.encodeString( srcStr );
 
-				dstArr = Base32.decodeToArray( base32a );
-				dstStr = Base32.decodeToString( base32s );
+                dstArr = Base32.decodeToArray( base32a );
+                dstStr = Base32.decodeToString( base32s );
 
-				dstArrLc = Base32.decodeToArray( base32a.toLowerCase() );
-				dstStrLc = Base32.decodeToString( base32s.toLowerCase() );
+                dstArrLc = Base32.decodeToArray( base32a.toLowerCase() );
+                dstStrLc = Base32.decodeToString( base32s.toLowerCase() );
 
-				base16sa = Base16.encodeArray( srcArr );
-				base16ss = Base16.encodeString( srcStr );
+                base16sa = Base16.encodeArray( srcArr );
+                base16ss = Base16.encodeString( srcStr );
 
-				base16da = Base16.encodeArray( dstArr );
-				base16ds = Base16.encodeString( dstStr );
+                base16da = Base16.encodeArray( dstArr );
+                base16ds = Base16.encodeString( dstStr );
 
-				/*
-				System.out.println( base16sa );
-				System.out.println( base16ss );
-				System.out.println( base32a );
-				System.out.println( base32s );
-				System.out.println( base16da );
-				System.out.println( base16ds );
-				*/
+                /*
+                System.out.println( base16sa );
+                System.out.println( base16ss );
+                System.out.println( base32a );
+                System.out.println( base32s );
+                System.out.println( base16da );
+                System.out.println( base16ds );
+                */
 
-				Assert.assertArrayEquals( srcArr, dstArr );
-				Assert.assertEquals( base32a, base32s );
-				Assert.assertEquals( srcStr, dstStr );
-				Assert.assertArrayEquals( dstArr, dstArrLc );
-				Assert.assertEquals( dstStr, dstStrLc );
-				Assert.assertEquals( base16sa, base16ss );
-				Assert.assertEquals( base16da, base16ds );
-			}
-		}
+                Assert.assertArrayEquals( srcArr, dstArr );
+                Assert.assertEquals( base32a, base32s );
+                Assert.assertEquals( srcStr, dstStr );
+                Assert.assertArrayEquals( dstArr, dstArrLc );
+                Assert.assertEquals( dstStr, dstStrLc );
+                Assert.assertEquals( base16sa, base16ss );
+                Assert.assertEquals( base16da, base16ds );
+            }
+        }
 
-		/*
-		 * encode(String)
-		 */
+        /*
+         * encode(String)
+         */
 
-		srcSb.setLength( 0 );
-		srcSb.append( (char)0x100 );
-		srcStr = srcSb.toString();
-		base32s = Base32.encodeString( srcStr );
-		Assert.assertNull( base32s );
+        srcSb.setLength( 0 );
+        srcSb.append( (char)0x100 );
+        srcStr = srcSb.toString();
+        base32s = Base32.encodeString( srcStr );
+        Assert.assertNull( base32s );
 
-		/*
-		 * decodeToArray
-		 */
+        /*
+         * decodeToArray
+         */
 
-		dstArr = Base32.decodeToArray( "aaaaaaaa" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaaaaaaa" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aaaaaaa=" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaaaaaa=" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aaaaaa==" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaaaaa==" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aaaaa===" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaaaa===" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aaaa====" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaaa====" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aaa=====" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "aaa=====" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "aa======" );
-		Assert.assertNotNull( dstArr );
+        dstArr = Base32.decodeToArray( "aa======" );
+        Assert.assertNotNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "a=======" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "a=======" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "########" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "########" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "#######=" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "#######=" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "######==" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "######==" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "#####===" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "#####===" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "####====" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "####====" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "###=====" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "###=====" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "##======" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "##======" );
+        Assert.assertNull( dstArr );
 
-		dstArr = Base32.decodeToArray( "#=======" );
-		Assert.assertNull( dstArr );
+        dstArr = Base32.decodeToArray( "#=======" );
+        Assert.assertNull( dstArr );
 
-		/*
-		 * decodeToArray
-		 */
+        /*
+         * decodeToArray
+         */
 
-		dstStr = Base32.decodeToString( "aaaaaaaa" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base32.decodeToString( "aaaaaaaa" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aaaaaaa=" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base32.decodeToString( "aaaaaaa=" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aaaaaa==" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "aaaaaa==" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aaaaa===" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base32.decodeToString( "aaaaa===" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aaaa====" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base32.decodeToString( "aaaa====" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aaa=====" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "aaa=====" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "aa======" );
-		Assert.assertNotNull( dstStr );
+        dstStr = Base32.decodeToString( "aa======" );
+        Assert.assertNotNull( dstStr );
 
-		dstStr = Base32.decodeToString( "a=======" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "a=======" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "########" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "########" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "#######=" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "#######=" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "######==" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "######==" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "#####===" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "#####===" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "####====" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "####====" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "###=====" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "###=====" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "##======" );
-		Assert.assertNull( dstStr );
+        dstStr = Base32.decodeToString( "##======" );
+        Assert.assertNull( dstStr );
 
-		dstStr = Base32.decodeToString( "#=======" );
-		Assert.assertNull( dstStr );
-	}
+        dstStr = Base32.decodeToString( "#=======" );
+        Assert.assertNull( dstStr );
+    }
 
 }

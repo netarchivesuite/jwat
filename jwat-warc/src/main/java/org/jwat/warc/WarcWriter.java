@@ -45,25 +45,25 @@ public abstract class WarcWriter {
     public abstract void close();
 
     /**
-     * Write a WARC header to the WARC output stream. 
+     * Write a WARC header to the WARC output stream.
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
     public abstract void write(WarcRecord record) throws IOException;
 
     /**
-     * 
+     *
      * @param in input stream containing payload data
      * @param length payload length
      * @return written length of payload data
      * @throws IOException if an exception occurs while writing payload data
      */
-	public abstract long transfer(InputStream in, long length) throws IOException;
+    public abstract long transfer(InputStream in, long length) throws IOException;
 
-	/**
-	 * Close the WARC record.
-	 * @throws IOException if an exception occurs while closing the record
-	 */
-	public abstract void closeRecord() throws IOException;
+    /**
+     * Close the WARC record.
+     * @throws IOException if an exception occurs while closing the record
+     */
+    public abstract void closeRecord() throws IOException;
 
 }

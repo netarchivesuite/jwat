@@ -41,7 +41,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * @return pushback buffer size
      */
     public int getPushbackSize() {
-    	return pushback_size;
+        return pushback_size;
     }
 
     /**

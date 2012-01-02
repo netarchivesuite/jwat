@@ -13,15 +13,15 @@ import java.io.InputStream;
  */
 public class MaxLengthRecordingInputStream extends FilterInputStream {
 
-	/** Buffer size to use when read skipping. */
-	public static final int SKIP_READ_BUFFER_SIZE = 1024;
+    /** Buffer size to use when read skipping. */
+    public static final int SKIP_READ_BUFFER_SIZE = 1024;
 
-	protected byte[] skip_read_buffer = new byte[SKIP_READ_BUFFER_SIZE];
+    protected byte[] skip_read_buffer = new byte[SKIP_READ_BUFFER_SIZE];
 
-	/** Output stream used to keep a record of data read. */
-	protected ByteArrayOutputStream record;
+    /** Output stream used to keep a record of data read. */
+    protected ByteArrayOutputStream record;
 
-	/** Maximum remaining bytes available. */
+    /** Maximum remaining bytes available. */
     protected long available;
 
     /**
@@ -41,7 +41,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
      * @return recorded data as a byte array
      */
     public byte[] getRecording() {
-    	return record.toByteArray();
+        return record.toByteArray();
     }
 
     /**
@@ -108,11 +108,11 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
         long l = 0;
         if (available > 0) {
             l = read(skip_read_buffer, 0, (int) Math.min(
-            				Math.min(n, available), SKIP_READ_BUFFER_SIZE));
+                            Math.min(n, available), SKIP_READ_BUFFER_SIZE));
             if (l > 0) {
                 record.write(skip_read_buffer, 0, (int) l);
             } else {
-            	l = 0;
+                l = 0;
             }
         }
         return l;

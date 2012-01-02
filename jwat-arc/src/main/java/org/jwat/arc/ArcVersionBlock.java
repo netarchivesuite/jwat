@@ -93,7 +93,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
     public static ArcVersionBlock parseVersionBlock(
                     ByteCountingPushBackInputStream in, ArcReader reader)
-                    									throws IOException {
+                                                        throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
 
@@ -234,7 +234,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                                contentTypeStr);
             ct = null;
         } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equals(
-                ct.contentType) || 
+                ct.contentType) ||
                 !ArcConstants.VERSION_BLOCK_MEDIA_TYPE.equals(ct.mediaType)) {
             // Version block content-type should be equal to "text/plain"
             addValidationError(ArcErrorType.INVALID,
@@ -253,17 +253,17 @@ public class ArcVersionBlock extends ArcRecordBase {
      */
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in,
-    									ArcReader reader) throws IOException {
+                                        ArcReader reader) throws IOException {
         payload = null;
         // Digest currently not supported by ARC reader.
         if (recLength != null && (recLength - in.getCounter()) > 0L) {
             String digestAlgorithm = null;
-			if (reader.bBlockDigest) {
-				digestAlgorithm = reader.blockDigestAlgorithm;
-			}
+            if (reader.bBlockDigest) {
+                digestAlgorithm = reader.blockDigestAlgorithm;
+            }
             payload = Payload.processPayload(in,
-            					  recLength.longValue() - in.getCounter(),
-            					  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
+                                  recLength.longValue() - in.getCounter(),
+                                  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
             // Look for trailing XML formatted metadata.
             byte[] buffer = new byte[PROCESSPAYLOAD_BUFFER_SIZE];

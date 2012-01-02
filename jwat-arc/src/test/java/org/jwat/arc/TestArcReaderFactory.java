@@ -37,9 +37,9 @@ public class TestArcReaderFactory {
 
     @Test
     public void test() {
-		boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-		InputStream in;
+        InputStream in;
 
         ArcReader reader;
         ArcVersionBlock version;
@@ -53,27 +53,27 @@ public class TestArcReaderFactory {
              * Auto detect unbuffered.
              */
 
-        	records = 0;
-        	errors = 0;
+            records = 0;
+            errors = 0;
 
-        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
 
             version = reader.getVersionBlock();
 
             if (version != null) {
-            	if (bDebugOutput) {
-                	RecordDebugBase.printVersionBlock(version);
-            	}
+                if (bDebugOutput) {
+                    RecordDebugBase.printVersionBlock(version);
+                }
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = reader.getNextRecord();
                     if (arcRecord != null) {
-                    	if (bDebugOutput) {
-                        	RecordDebugBase.printRecord(arcRecord);
-                    	}
+                        if (bDebugOutput) {
+                            RecordDebugBase.printRecord(arcRecord);
+                        }
 
                         ++records;
 
@@ -86,9 +86,9 @@ public class TestArcReaderFactory {
                     }
                 }
 
-            	if (bDebugOutput) {
+                if (bDebugOutput) {
                     RecordDebugBase.printStatus(records, errors);
-            	}
+                }
             }
 
             reader.close();
@@ -101,27 +101,27 @@ public class TestArcReaderFactory {
              * Auto detect buffered.
              */
 
-        	records = 0;
-        	errors = 0;
+            records = 0;
+            errors = 0;
 
-        	in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in, 8192);
 
             version = reader.getVersionBlock();
 
             if (version != null) {
-            	if (bDebugOutput) {
-                	RecordDebugBase.printVersionBlock(version);
-            	}
+                if (bDebugOutput) {
+                    RecordDebugBase.printVersionBlock(version);
+                }
 
                 boolean b = true;
                 while ( b ) {
                     arcRecord = reader.getNextRecord();
                     if (arcRecord != null) {
-                    	if (bDebugOutput) {
-                        	RecordDebugBase.printRecord(arcRecord);
-                    	}
+                        if (bDebugOutput) {
+                            RecordDebugBase.printRecord(arcRecord);
+                        }
 
                         ++records;
 
@@ -134,9 +134,9 @@ public class TestArcReaderFactory {
                     }
                 }
 
-            	if (bDebugOutput) {
+                if (bDebugOutput) {
                     RecordDebugBase.printStatus(records, errors);
-            	}
+                }
             }
 
             reader.close();

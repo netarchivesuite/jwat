@@ -7,28 +7,28 @@ package org.jwat.warc;
  */
 public enum WarcErrorType {
 
-	/** Error type referring to a empty value where one is expected. */
-	EMPTY("empty"),
+    /** Error type referring to a empty value where one is expected. */
+    EMPTY("empty"),
 
-	/** Error type referring to an invalid value. */
+    /** Error type referring to an invalid value. */
     INVALID("invalid"),
 
-	/** Error type referring to a duplicate field encountered. */
-	DUPLICATE("duplicate"),
+    /** Error type referring to a duplicate field encountered. */
+    DUPLICATE("duplicate"),
 
-	/** Error type referring to an existing but unrecognized value. */
-	UNKNOWN("unknown"),
+    /** Error type referring to an existing but unrecognized value. */
+    UNKNOWN("unknown"),
 
-	/** Error type referring to something missing. */
+    /** Error type referring to something missing. */
     WANTED("wanted"),
 
-	/** Error type referring to an unwanted value. */
-	UNWANTED("unwanted"),
+    /** Error type referring to an unwanted value. */
+    UNWANTED("unwanted"),
 
-	/** Error type referring to a recommended value. */
-	RECOMMENDED("recommended");
+    /** Error type referring to a recommended value. */
+    RECOMMENDED("recommended");
 
-	/** Error type name. */
+    /** Error type name. */
     private String name;
 
     /**

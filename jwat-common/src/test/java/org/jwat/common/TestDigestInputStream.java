@@ -18,203 +18,203 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestDigestInputStream {
 
-	private int min;
-	private int max;
-	private int runs;
-	private String digestAlgorithm;
+    private int min;
+    private int max;
+    private int runs;
+    private String digestAlgorithm;
 
-	@Parameters
-	public static Collection<Object[]> configs() {
-		return Arrays.asList(new Object[][] {
-				{1, 1024, 2, "sha1"}
-		});
-	}
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {
+                {1, 1024, 2, "sha1"}
+        });
+    }
 
-	public TestDigestInputStream(int min, int max, int runs, String digestAlgorithm) {
-		this.min = min;
-		this.max = max;
-		this.runs = runs;
-		this.digestAlgorithm = digestAlgorithm;
-	}
+    public TestDigestInputStream(int min, int max, int runs, String digestAlgorithm) {
+        this.min = min;
+        this.max = max;
+        this.runs = runs;
+        this.digestAlgorithm = digestAlgorithm;
+    }
 
-	@Test
-	public void test() {
-		SecureRandom random = new SecureRandom();
+    @Test
+    public void test() {
+        SecureRandom random = new SecureRandom();
 
-		byte[] srcArr = new byte[ 0 ];
-		ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
-		byte[] dstArr;
+        byte[] srcArr = new byte[ 0 ];
+        ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
+        byte[] dstArr;
 
-		MessageDigest md = null;
-		try {
-			md = MessageDigest.getInstance( digestAlgorithm );
-		}
-		catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance( digestAlgorithm );
+        }
+        catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
 
-		DigestInputStreamNoSkip in;
+        DigestInputStreamNoSkip in;
 
-		in = new DigestInputStreamNoSkip( null, null );
-		Assert.assertNotNull( in );
+        in = new DigestInputStreamNoSkip( null, null );
+        Assert.assertNotNull( in );
 
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), null );
-		Assert.assertNotNull( in );
+        in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), null );
+        Assert.assertNotNull( in );
 
-		in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
-		Assert.assertNotNull( in );
+        in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+        Assert.assertNotNull( in );
 
-		in = new DigestInputStreamNoSkip( null, md );
-		Assert.assertNotNull( in );
+        in = new DigestInputStreamNoSkip( null, md );
+        Assert.assertNotNull( in );
 
-		Assert.assertFalse( in.markSupported() );
-		in.mark( 1 );
-		try {
-			in.reset();
-			Assert.fail( "Exception expected!" );
-		}
-		catch (IOException e) {
-			Assert.fail( "Exception expected!" );
-		}
-		catch (UnsupportedOperationException e) {
-		}
+        Assert.assertFalse( in.markSupported() );
+        in.mark( 1 );
+        try {
+            in.reset();
+            Assert.fail( "Exception expected!" );
+        }
+        catch (IOException e) {
+            Assert.fail( "Exception expected!" );
+        }
+        catch (UnsupportedOperationException e) {
+        }
 
-		long remaining;
-		byte[] tmpBuf = new byte[ 16 ];
-		int read;
-		int mod;
+        long remaining;
+        byte[] tmpBuf = new byte[ 16 ];
+        int read;
+        int mod;
 
-		for ( int r=0; r<runs; ++r) {
-			for ( int n=min; n<max; ++n ) {
-				srcArr = new byte[ n ];
-				random.nextBytes( srcArr );
+        for ( int r=0; r<runs; ++r) {
+            for ( int n=min; n<max; ++n ) {
+                srcArr = new byte[ n ];
+                random.nextBytes( srcArr );
 
-				try {
-					/*
-					 * Read.
-					 */
-					md.reset();
-					byte[] digest1 = md.digest( srcArr );
+                try {
+                    /*
+                     * Read.
+                     */
+                    md.reset();
+                    byte[] digest1 = md.digest( srcArr );
 
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+                    md.reset();
+                    in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
 
-					dstOut.reset();
+                    dstOut.reset();
 
-					remaining = srcArr.length;
-					read = 0;
-					mod = 2;
-					while ( remaining > 0 && read != -1 ) {
-						switch ( mod ) {
-						case 0:
-							dstOut.write( read );
-							--remaining;
-							break;
-						case 1:
-						case 2:
-							dstOut.write( tmpBuf, 0, read );
-							remaining -= read;
-							break;
-						}
+                    remaining = srcArr.length;
+                    read = 0;
+                    mod = 2;
+                    while ( remaining > 0 && read != -1 ) {
+                        switch ( mod ) {
+                        case 0:
+                            dstOut.write( read );
+                            --remaining;
+                            break;
+                        case 1:
+                        case 2:
+                            dstOut.write( tmpBuf, 0, read );
+                            remaining -= read;
+                            break;
+                        }
 
-						mod = (mod + 1) % 3;
+                        mod = (mod + 1) % 3;
 
-						switch ( mod ) {
-						case 0:
-							read = in.read();
-							break;
-						case 1:
-							read = in.read( tmpBuf );
-							break;
-						case 2:
-							read = random.nextInt( 15 ) + 1;
-							read = in.read( tmpBuf, 0, read );
-							break;
-						}
-					}
+                        switch ( mod ) {
+                        case 0:
+                            read = in.read();
+                            break;
+                        case 1:
+                            read = in.read( tmpBuf );
+                            break;
+                        case 2:
+                            read = random.nextInt( 15 ) + 1;
+                            read = in.read( tmpBuf, 0, read );
+                            break;
+                        }
+                    }
 
-					Assert.assertEquals( 0, remaining );
+                    Assert.assertEquals( 0, remaining );
 
-					dstArr = dstOut.toByteArray();
-					Assert.assertEquals( srcArr.length, dstArr.length );
-					Assert.assertArrayEquals( srcArr, dstArr );
+                    dstArr = dstOut.toByteArray();
+                    Assert.assertEquals( srcArr.length, dstArr.length );
+                    Assert.assertArrayEquals( srcArr, dstArr );
 
-					in.close();
+                    in.close();
 
-					byte[] digest2 = md.digest();
+                    byte[] digest2 = md.digest();
 
-					Assert.assertArrayEquals( digest1, digest2 );
+                    Assert.assertArrayEquals( digest1, digest2 );
 
-					md.reset();
-					byte[] digest3 = md.digest( dstArr );
+                    md.reset();
+                    byte[] digest3 = md.digest( dstArr );
 
-					Assert.assertArrayEquals( digest1, digest3 );
-					/*
-					 * Skip.
-					 */
-					md.reset();
-					in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
+                    Assert.assertArrayEquals( digest1, digest3 );
+                    /*
+                     * Skip.
+                     */
+                    md.reset();
+                    in = new DigestInputStreamNoSkip( new ByteArrayInputStream( srcArr ), md );
 
-					dstOut.reset();
+                    dstOut.reset();
 
-					remaining = srcArr.length;
-					read = 0;
-					mod = 3;
-					int skipped = 0;
-					while ( remaining > 0 && read != -1 ) {
-						switch ( mod ) {
-						case 0:
-							dstOut.write( read );
-							--remaining;
-							break;
-						case 1:
-						case 2:
-							dstOut.write( tmpBuf, 0, read );
-							remaining -= read;
-							break;
-						case 3:
-							remaining -= read;
-							skipped += read;
-							break;
-						}
+                    remaining = srcArr.length;
+                    read = 0;
+                    mod = 3;
+                    int skipped = 0;
+                    while ( remaining > 0 && read != -1 ) {
+                        switch ( mod ) {
+                        case 0:
+                            dstOut.write( read );
+                            --remaining;
+                            break;
+                        case 1:
+                        case 2:
+                            dstOut.write( tmpBuf, 0, read );
+                            remaining -= read;
+                            break;
+                        case 3:
+                            remaining -= read;
+                            skipped += read;
+                            break;
+                        }
 
-						mod = (mod + 1) % 4;
+                        mod = (mod + 1) % 4;
 
-						switch ( mod ) {
-						case 0:
-							read = in.read();
-							break;
-						case 1:
-							read = in.read( tmpBuf );
-							break;
-						case 2:
-							read = random.nextInt( 15 ) + 1;
-							read = in.read( tmpBuf, 0, read );
-							break;
-						case 3:
-							read = random.nextInt( 15 ) + 1;
-							read = (int)in.skip( read );
-							break;
-						}
-					}
+                        switch ( mod ) {
+                        case 0:
+                            read = in.read();
+                            break;
+                        case 1:
+                            read = in.read( tmpBuf );
+                            break;
+                        case 2:
+                            read = random.nextInt( 15 ) + 1;
+                            read = in.read( tmpBuf, 0, read );
+                            break;
+                        case 3:
+                            read = random.nextInt( 15 ) + 1;
+                            read = (int)in.skip( read );
+                            break;
+                        }
+                    }
 
-					Assert.assertEquals( 0, remaining );
+                    Assert.assertEquals( 0, remaining );
 
-					dstArr = dstOut.toByteArray();
-					Assert.assertEquals( srcArr.length, dstArr.length + skipped );
+                    dstArr = dstOut.toByteArray();
+                    Assert.assertEquals( srcArr.length, dstArr.length + skipped );
 
-					in.close();
+                    in.close();
 
-					byte[] digest4 = md.digest();
+                    byte[] digest4 = md.digest();
 
-					Assert.assertArrayEquals( digest1, digest4 );
-				}
-				catch (IOException e) {
-					Assert.fail( "Exception not expected!" );
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+                    Assert.assertArrayEquals( digest1, digest4 );
+                }
+                catch (IOException e) {
+                    Assert.fail( "Exception not expected!" );
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

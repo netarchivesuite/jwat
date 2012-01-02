@@ -53,11 +53,11 @@ public class Payload {
     /** Handler called when this payloads stream has been fully consumed. */
     protected PayloadOnClosedHandler onClosedHandler;
 
-	/**
-	 * Non public constructor.
-	 */
-	protected Payload() {
-	}
+    /**
+     * Non public constructor.
+     */
+    protected Payload() {
+    }
 
     /**
      * Creates new <code>ArcPayload</code> instance.
@@ -67,7 +67,7 @@ public class Payload {
      * @throws IOException if an error occurs while initializing
      */
     public static Payload processPayload(InputStream in, long length,
-    		int pushback_size, String digestAlgorithm) throws IOException {
+            int pushback_size, String digestAlgorithm) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
@@ -79,7 +79,7 @@ public class Payload {
         if (pushback_size <= 0) {
             throw new IllegalArgumentException(
                     "The 'pushback_size' is less than or equal to zero: " +
-                    		pushback_size);
+                            pushback_size);
         }
         Payload pl = new Payload();
         pl.length = length;
@@ -92,7 +92,7 @@ public class Payload {
             try {
                 pl.md = MessageDigest.getInstance(digestAlgorithm);
             } catch (NoSuchAlgorithmException e) {
-            	pl.bNoSuchAlgorithmException = true;
+                pl.bNoSuchAlgorithmException = true;
             }
         }
         if (pl.md != null) {
@@ -151,7 +151,7 @@ public class Payload {
      * @return pushback buffer size
      */
     public int getPushbackSize() {
-    	return pushback_size;
+        return pushback_size;
     }
 
     /**
@@ -159,7 +159,7 @@ public class Payload {
      * @param httpResponse http response payload object
      */
     public void setHttpResponse(HttpResponse httpResponse) {
-    	this.httpResponse = httpResponse;
+        this.httpResponse = httpResponse;
     }
 
     /**
@@ -167,7 +167,7 @@ public class Payload {
      * @return <code>HttpResponse</code> object or null
      */
     public HttpResponse getHttpResponse() {
-    	return httpResponse;
+        return httpResponse;
     }
 
     /**
@@ -175,11 +175,11 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data.
      */
     public InputStream getInputStreamComplete() {
-    	if (httpResponse != null) {
-    		return httpResponse.getInputStreamComplete();
-    	} else {
+        if (httpResponse != null) {
+            return httpResponse.getInputStreamComplete();
+        } else {
             return in_pb_exposed;
-    	}
+        }
     }
 
     /**
@@ -187,7 +187,7 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data.
      */
     public ByteCountingPushBackInputStream getInputStream() {
-    	return in_pb_exposed;
+        return in_pb_exposed;
     }
 
     /**
@@ -196,11 +196,11 @@ public class Payload {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
-    	if (httpResponse != null) {
-    		return httpResponse.getPayloadInputStream().available();
-    	} else {
-        	return in_pb_exposed.available();
-    	}
+        if (httpResponse != null) {
+            return httpResponse.getPayloadInputStream().available();
+        } else {
+            return in_pb_exposed.available();
+        }
     }
 
     /**
@@ -208,13 +208,13 @@ public class Payload {
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
-    	if (httpResponse != null) {
-    		httpResponse.close();
-    	}
+        if (httpResponse != null) {
+            httpResponse.close();
+        }
         if (md != null) {
-        	// Skip remaining unread bytes to ensure payload is completely
-        	// digested. Skipping because the DigestInputStreamNoSkip
-        	// has been altered to read when skipping.
+            // Skip remaining unread bytes to ensure payload is completely
+            // digested. Skipping because the DigestInputStreamNoSkip
+            // has been altered to read when skipping.
             while (in_digest.skip(length) > 0) {
             }
         }

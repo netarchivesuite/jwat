@@ -81,7 +81,7 @@ public abstract class ArcReader {
      * @return optional block digest algorithm
      */
     public String getBlockDigestAlgorithm() {
-    	return blockDigestAlgorithm;
+        return blockDigestAlgorithm;
     }
 
     /**
@@ -91,11 +91,11 @@ public abstract class ArcReader {
      * be identified
      */
     public void setBlockDigestAlgorithm(String digestAlgorithm)
-    										throws NoSuchAlgorithmException {
-    	if (digestAlgorithm != null) {
-        	MessageDigest.getInstance(digestAlgorithm);
-    	}
-		blockDigestAlgorithm = digestAlgorithm;
+                                            throws NoSuchAlgorithmException {
+        if (digestAlgorithm != null) {
+            MessageDigest.getInstance(digestAlgorithm);
+        }
+        blockDigestAlgorithm = digestAlgorithm;
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class ArcReader {
      * @return optional payload digest algorithm
      */
     public String getPayloadDigestAlgorithm() {
-    	return payloadDigestAlgorithm;
+        return payloadDigestAlgorithm;
     }
 
     /**
@@ -113,11 +113,11 @@ public abstract class ArcReader {
      * be identified
      */
     public void setPayloadDigestAlgorithm(String digestAlgorithm)
-			throws NoSuchAlgorithmException {
-    	if (digestAlgorithm != null) {
-        	MessageDigest.getInstance(digestAlgorithm);
-    	}
-    	payloadDigestAlgorithm = digestAlgorithm;
+            throws NoSuchAlgorithmException {
+        if (digestAlgorithm != null) {
+            MessageDigest.getInstance(digestAlgorithm);
+        }
+        payloadDigestAlgorithm = digestAlgorithm;
     }
 
     /**
@@ -183,7 +183,7 @@ public abstract class ArcReader {
      * @return exception thrown in the iterator if any or null
      */
     public Exception getIteratorExceptionThrown() {
-    	return iteratorExceptionThrown;
+        return iteratorExceptionThrown;
     }
 
     /**
@@ -202,7 +202,7 @@ public abstract class ArcReader {
             @Override
             public boolean hasNext() {
                 if (next == null) {
-                	iteratorExceptionThrown = null;
+                    iteratorExceptionThrown = null;
                     try {
                         next = getNextRecord();
                     } catch (IOException e) {
@@ -215,7 +215,7 @@ public abstract class ArcReader {
             @Override
             public ArcRecord next() {
                 if (next == null) {
-                	iteratorExceptionThrown = null;
+                    iteratorExceptionThrown = null;
                     try {
                         next = getNextRecord();
                     } catch (IOException e) {
