@@ -188,13 +188,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 String digestAlgorithm = null;
                 if (reader.bBlockDigest) {
                     if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
-                    	// If a WARC block digest header is present in the
-                    	// record, use that algorithm.
+                        // If a WARC block digest header is present in the
+                        // record, use that algorithm.
                         digestAlgorithm = wr.warcBlockDigest.algorithm;
                     } else {
-                    	// If no WARC block digest header is present,
-                    	// use the optional user specified algorithm.
-                    	// Can be null in which case nothing is computed.
+                        // If no WARC block digest header is present,
+                        // use the optional user specified algorithm.
+                        // Can be null in which case nothing is computed.
                         digestAlgorithm = reader.blockDigestAlgorithm;
                     }
                 }
@@ -213,13 +213,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         digestAlgorithm = null;
                         if (reader.bPayloadDigest) {
                             if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null) {
-                            	// If a WARC payload digest header is present in the
-                            	// record, use that algorithm.
+                                // If a WARC payload digest header is present in the
+                                // record, use that algorithm.
                                 digestAlgorithm = wr.warcPayloadDigest.algorithm;
                             } else {
-                            	// If no WARC payload digest header is present,
-                            	// use the optional user specified algorithm.
-                            	// Can be null in which case nothing is computed.
+                                // If no WARC payload digest header is present,
+                                // use the optional user specified algorithm.
+                                // Can be null in which case nothing is computed.
                                 digestAlgorithm = reader.payloadDigestAlgorithm;
                             }
                         }

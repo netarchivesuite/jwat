@@ -7,9 +7,8 @@
 
   <parent>
     <groupId>org.jwat</groupId>
-    <artifactId>jwat-parent</artifactId>
+    <artifactId>jwat</artifactId>
     <version>0.8.0-SNAPSHOT</version>
-    <relativePath>../jwat-parent/pom.xml</relativePath>
   </parent>
 
   <artifactId>jwat-gzip</artifactId>

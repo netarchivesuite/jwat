@@ -7,9 +7,8 @@
 
   <parent>
     <groupId>org.jwat</groupId>
-    <artifactId>jwat-parent</artifactId>
+    <artifactId>jwat</artifactId>
     <version>0.8.0-SNAPSHOT</version>
-    <relativePath>../jwat-parent/pom.xml</relativePath>
   </parent>
 
   <artifactId>jwat-distribution</artifactId>
@@ -42,20 +41,20 @@
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.2.2</version>
-      <executions>
-        <execution>
-          <id>distro-assembly</id>
-          <phase>package</phase>
-          <goals>
-            <goal>single</goal>
-          </goals>
-          <configuration>
-            <descriptors>
-              <descriptor>src/main/assembly/bin.xml</descriptor>
-            </descriptors>
-          </configuration>
-        </execution>
-      </executions>
+        <executions>
+          <execution>
+            <id>distro-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/bin.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
