@@ -49,7 +49,8 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the readers block digest on/off status.
+     * Set the readers block digest on/off status. Digest will only be
+     * computed if an algorithm has also been chosen.
      * @param enabled boolean indicating block digest on/off
      */
     public void setBlockDigestEnabled(boolean enabled) {
@@ -65,7 +66,8 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the readers payload digest on/off status.
+     * Set the readers payload digest on/off status. Digest will only be
+     * computed if an algorithm has also been chosen.
      * @param enabled boolean indicating payload digest on/off
      */
     public void setPayloadDigestEnabled(boolean enabled) {
@@ -81,8 +83,10 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the optional block digest algorithm.
+     * Set the optional block digest algorithm. This algorithm is only used
+     * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm block digest algorithm
+     * (null means optional block digest is disabled)
      * @throws NoSuchAlgorithmException occurs in case the algorithm can not
      * be identified
      */
@@ -103,8 +107,10 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the optional payload digest algorithm.
+     * Set the optional payload digest algorithm. This algorithm is only used
+     * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm payload digest algorithm
+     * (null means optional payload digest is disabled)
      * @throws NoSuchAlgorithmException occurs in case the algorithm can not
      * be identified
      */

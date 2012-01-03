@@ -37,6 +37,8 @@ public class ArcRecord extends ArcRecordBase {
      * stream.
      * @param in <code>InputStream</code> used to read record header
      * @param versionBlock ARC file <code>VersionBlock</code>
+     * @param reader <code>ArcReader</code> used, with access to user defined
+     * options
      * @return an <code>ArcRecord</code> or null if none was found.
      * @throws IOException io exception while parsing arc record
      */

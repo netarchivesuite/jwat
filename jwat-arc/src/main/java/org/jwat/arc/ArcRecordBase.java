@@ -282,10 +282,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 MessageDigest md = payload.getMessageDigest();
                 if (md != null) {
                     computedBlockDigest = md.digest();
-                    /*
-                    if (computedBlockDigest != null) {
-                    }
-                    */
                 }
                 if (httpResponse != null) {
                     /*
@@ -294,10 +290,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                     md = httpResponse.getMessageDigest();
                     if (md != null) {
                         computedPayloadDigest = md.digest();
-                        /*
-                        if (computedPayloadDigest != null) {
-                        }
-                        */
                     }
                 }
             }
@@ -333,6 +325,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Process the ARC record stream for possible payload data.
      * @param in ARC record <code>InputStream</code>
+     * @param reader <code>ArcReader</code> used, with access to user defined
+     * options
      * @throws IOException io exception in the parsing process
      */
     protected abstract void processPayload(ByteCountingPushBackInputStream in,

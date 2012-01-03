@@ -25,10 +25,10 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
     protected long available;
 
     /**
-     * Create a new input stream with a maxumim number of bytes available from
+     * Create a new input stream with a maximum number of bytes available from
      * the underlying stream.
      * @param in the input stream to wrap
-     * @param maximum available number of bytes available through this stream
+     * @param available maximum number of bytes available through this stream
      */
     public MaxLengthRecordingInputStream(InputStream in, long available) {
         super(in);

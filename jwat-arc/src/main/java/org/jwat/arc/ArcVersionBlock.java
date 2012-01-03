@@ -88,6 +88,8 @@ public class ArcVersionBlock extends ArcRecordBase {
      * Creates new <code>VersionBlock</code> based on data read from input
      * stream.
      * @param in <code>InputStream</code> used to read version block
+     * @param reader <code>ArcReader</code> used, with access to user defined
+     * options
      * @return an <code>ArcVersionBlock</code> or null if none was found.
      * @throws IOException io exception in the process of reading version block
      */
@@ -249,6 +251,8 @@ public class ArcVersionBlock extends ArcRecordBase {
      * formatted
      * metadata related to the harvesters configuration.
      * @param in input stream containing the payload
+     * @param reader <code>ArcReader</code> used, with access to user defined
+     * options
      * @throws IOException io exception in the process of reading payload
      */
     @Override

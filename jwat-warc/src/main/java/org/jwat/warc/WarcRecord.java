@@ -160,6 +160,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Given an <code>InputStream</code> it tries to read and validate a WARC
      * header block.
      * @param in <code>InputStream</code> containing WARC record data
+     * @param reader <code>WarcReader</code> used, with access to user defined
+     * options
      * @return <code>WarcRecord</code> or <code>null</code>
      * @throws IOException io exception in the process of reading record
      */
@@ -186,8 +188,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 String digestAlgorithm = null;
                 if (reader.bBlockDigest) {
                     if (wr.warcBlockDigest != null && wr.warcBlockDigest.algorithm != null) {
+                    	// If a WARC block digest header is present in the
+                    	// record, use that algorithm.
                         digestAlgorithm = wr.warcBlockDigest.algorithm;
                     } else {
+                    	// If no WARC block digest header is present,
+                    	// use the optional user specified algorithm.
+                    	// Can be null in which case nothing is computed.
                         digestAlgorithm = reader.blockDigestAlgorithm;
                     }
                 }
@@ -206,8 +213,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         digestAlgorithm = null;
                         if (reader.bPayloadDigest) {
                             if (wr.warcPayloadDigest != null && wr.warcPayloadDigest.algorithm != null) {
+                            	// If a WARC payload digest header is present in the
+                            	// record, use that algorithm.
                                 digestAlgorithm = wr.warcPayloadDigest.algorithm;
                             } else {
+                            	// If no WARC payload digest header is present,
+                            	// use the optional user specified algorithm.
+                            	// Can be null in which case nothing is computed.
                                 digestAlgorithm = reader.payloadDigestAlgorithm;
                             }
                         }
