@@ -62,7 +62,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
 
     public String warcTypeStr;
-    Integer warcTypeIdx;
+    public Integer warcTypeIdx;
 
     // Warcinfo record only
     public String warcFilename;
@@ -866,8 +866,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Checks if the ARC record has errors.
-     * @return true/false based on whether the ARC record is valid or not
+     * Checks if the WARC record has errors.
+     * @return true/false based on whether the WARC record is valid or not
      */
     public boolean hasErrors() {
         return ((errors != null) && (!errors.isEmpty()));
