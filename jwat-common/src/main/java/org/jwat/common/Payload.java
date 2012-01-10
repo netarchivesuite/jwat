@@ -19,6 +19,9 @@ public class Payload {
     /** Payload content. */
     private static final int BUFFER_SIZE = 4096;
 
+    /** Has record been closed before. */
+    protected boolean bClosed;
+
     /** Payload length. */
     protected long length;
 
@@ -204,27 +207,38 @@ public class Payload {
     }
 
     /**
+     * Check to see if the payload has been closed.
+     * @return boolean indicating whether this payload is closed or not
+     */
+    public boolean isClosed() {
+        return bClosed;
+    }
+
+    /**
      * Closes the this payload stream, skipping unread bytes in the process.
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
-        if (httpResponse != null) {
-            httpResponse.close();
-        }
-        if (md != null) {
-            // Skip remaining unread bytes to ensure payload is completely
-            // digested. Skipping because the DigestInputStreamNoSkip
-            // has been altered to read when skipping.
-            while (in_digest.skip(length) > 0) {
+        if (!bClosed) {
+            if (httpResponse != null) {
+                httpResponse.close();
             }
-        }
-        if (in_buffered != null) {
-            in_buffered.close();
-            in_buffered = null;
-        }
-        if (onClosedHandler != null) {
-            onClosedHandler.payloadClosed();
-            onClosedHandler = null;
+            if (md != null) {
+                // Skip remaining unread bytes to ensure payload is completely
+                // digested. Skipping because the DigestInputStreamNoSkip
+                // has been altered to read when skipping.
+                while (in_digest.skip(length) > 0) {
+                }
+            }
+            if (in_buffered != null) {
+                in_buffered.close();
+                in_buffered = null;
+            }
+            if (onClosedHandler != null) {
+                onClosedHandler.payloadClosed();
+                onClosedHandler = null;
+            }
+            bClosed = true;
         }
     }
 

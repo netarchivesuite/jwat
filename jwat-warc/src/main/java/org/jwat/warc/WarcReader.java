@@ -49,8 +49,10 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the readers block digest on/off status. Digest will only be
-     * computed if an algorithm has also been chosen.
+     * Set the readers block digest on/off status. Digest, however,
+     * will only be computed if either a Warc-Block-Digest header is
+     * present or an optional algorithm has been chosen.
+     * The Warc-Block-Digest always takes precedence.
      * @param enabled boolean indicating block digest on/off
      */
     public void setBlockDigestEnabled(boolean enabled) {
@@ -66,8 +68,10 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the readers payload digest on/off status. Digest will only be
-     * computed if an algorithm has also been chosen.
+     * Set the readers payload digest on/off status. Digest, however,
+     * will only be computed if either a Warc-Payload-Digest header is
+     * present or an optional algorithm has been chosen.
+     * The Warc-Payload-Digest always takes precedence.
      * @param enabled boolean indicating payload digest on/off
      */
     public void setPayloadDigestEnabled(boolean enabled) {

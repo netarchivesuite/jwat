@@ -191,7 +191,7 @@ public class Base2 {
      * @param inStr input string
      * @param width interval width
      * @param delimiter delimit character
-     * @return
+     * @return input string with delimiters inserted at specified intervals
      */
     public static String delimit(String inStr, int width, char delimiter) {
         if (inStr == null) {

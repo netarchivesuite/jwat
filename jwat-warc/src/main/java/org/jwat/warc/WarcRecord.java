@@ -264,12 +264,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     if (computedBlockDigest != null) {
                         if ((computedBlockDigest.length + 2) / 3 * 4 == warcBlockDigest.digestValue.length()) {
                             digest = Base64.decodeToArray(warcBlockDigest.digestValue);
+                            warcBlockDigest.encoding = "Base64";
                         }
                         else if ((computedBlockDigest.length + 4) / 5 * 8 == warcBlockDigest.digestValue.length()) {
                             digest = Base32.decodeToArray(warcBlockDigest.digestValue);
+                            warcBlockDigest.encoding = "Base32";
                         }
                         else if (computedBlockDigest.length * 2 == warcBlockDigest.digestValue.length()) {
                             digest = Base16.decodeToArray(warcBlockDigest.digestValue);
+                            warcBlockDigest.encoding = "Base16";
                         }
                         else {
                             digest = null;
@@ -294,12 +297,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         if (computedPayloadDigest != null) {
                             if ((computedPayloadDigest.length + 2) / 3 * 4 == warcPayloadDigest.digestValue.length()) {
                                 digest = Base64.decodeToArray(warcPayloadDigest.digestValue);
+                                warcPayloadDigest.encoding = "Base64";
                             }
                             else if ((computedPayloadDigest.length + 4) / 5 * 8 == warcPayloadDigest.digestValue.length()) {
                                 digest = Base32.decodeToArray(warcPayloadDigest.digestValue);
+                                warcPayloadDigest.encoding = "Base32";
                             }
                             else if (computedPayloadDigest.length * 2 == warcPayloadDigest.digestValue.length()) {
                                 digest = Base16.decodeToArray(warcPayloadDigest.digestValue);
+                                warcPayloadDigest.encoding = "Base16";
                             }
                             else {
                                 digest = null;
@@ -343,7 +349,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 payload.close();
             }
             payloadClosed();
-            payload = null;
             bClosed = true;
         }
     }
@@ -943,7 +948,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Parses a string.
      * @param str the value to parse
      * @param field field name
-     * @param optional specifies if the value is optional or not
      * @return the parsed value
      */
     protected String parseString(String str, String field) {

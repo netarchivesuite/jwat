@@ -37,6 +37,9 @@ public class HttpResponse {
     /** Content-type header name. */
     protected static final String CONTENT_TYPE = "Content-Type:".toUpperCase();
 
+    /** Has record been closed before. */
+    protected boolean bClosed;
+
     /** <code>InputStream</code> to read payload. */
     protected ByteCountingPushBackInputStream in_pb;
 
@@ -404,20 +407,31 @@ public class HttpResponse {
     }
 
     /**
+     * Check to see if the http response has been closed.
+     * @return boolean indicating whether this http response is closed or not
+     */
+    public boolean isClosed() {
+        return bClosed;
+    }
+
+    /**
      * Closes the this payload stream, skipping unread bytes in the process.
      * @throws IOException io exception in closing process
      */
     public void close() throws IOException {
-        if (md != null) {
-            // Skip remaining unread bytes to ensure payload is completely
-            // digested. Skipping because the DigestInputStreamNoSkip
-            // has been altered to read when skipping.
-            while (in_digest.skip(length) > 0) {
+        if (!bClosed) {
+            if (md != null) {
+                // Skip remaining unread bytes to ensure payload is completely
+                // digested. Skipping because the DigestInputStreamNoSkip
+                // has been altered to read when skipping.
+                while (in_digest.skip(length) > 0) {
+                }
             }
-        }
-        if (in_pb != null) {
-            in_pb.close();
-            in_pb = null;
+            if (in_pb != null) {
+                in_pb.close();
+                in_pb = null;
+            }
+            bClosed = true;
         }
     }
 

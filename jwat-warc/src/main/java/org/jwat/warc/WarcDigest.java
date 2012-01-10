@@ -14,6 +14,9 @@ public class WarcDigest {
     /** Digest value, in Base<x> format. (Where x is 16, 32 or 64) */
     public String digestValue;
 
+    /** Digest encoding used. */
+    public String encoding;
+
     /**
      * Construct an object with the supplied parameters.
      * @param algorithm digest algorithm
