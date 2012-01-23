@@ -1,21 +1,14 @@
 package org.jwat.warc;
 
+import org.jwat.common.Digest;
+
 /**
  * This class represents the parsed and format validated information provided
  * from a WARC digest header value.
  *
  * @author nicl
  */
-public class WarcDigest {
-
-    /** Digest algorithm. */
-    public String algorithm;
-
-    /** Digest value, in Base<x> format. (Where x is 16, 32 or 64) */
-    public String digestValue;
-
-    /** Digest encoding used. */
-    public String encoding;
+public class WarcDigest extends Digest {
 
     /**
      * Construct an object with the supplied parameters.
@@ -24,7 +17,7 @@ public class WarcDigest {
      */
     private WarcDigest(String algorithm, String digestValue) {
         this.algorithm = algorithm;
-        this.digestValue = digestValue;
+        this.digestString = digestValue;
     }
 
     /**
@@ -32,7 +25,7 @@ public class WarcDigest {
      * @param labelledDigest WARC digest header value
      * @return <code>WarcDigest</code> object or <code>null</code>
      */
-    public static WarcDigest parseDigest(String labelledDigest) {
+    public static Digest parseDigest(String labelledDigest) {
         if (labelledDigest == null || labelledDigest.length() == 0) {
             return null;
         }
@@ -55,7 +48,7 @@ public class WarcDigest {
      */
     @Override
     public String toString() {
-        return (algorithm + ":" + digestValue);
+        return (algorithm + ":" + digestString);
     }
 
 }

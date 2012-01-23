@@ -12,10 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.warc.WarcHeaderLine;
-import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcReaderFactory;
-import org.jwat.warc.WarcRecord;
+import org.jwat.common.HeaderLine;
 
 @RunWith(Parameterized.class)
 public class TestNonWarcHeaders {
@@ -60,8 +57,8 @@ public class TestNonWarcHeaders {
 
                 record.close();
 
-                WarcHeaderLine header1 = record.getHeader("header1");
-                WarcHeaderLine header2 = record.getHeader("HEADER2");
+                HeaderLine header1 = record.getHeader("header1");
+                HeaderLine header2 = record.getHeader("HEADER2");
 
                 Assert.assertNotNull(header1);
                 Assert.assertNotNull(header2);
@@ -69,7 +66,7 @@ public class TestNonWarcHeaders {
                 Assert.assertEquals("domination", header1.value);
                 Assert.assertEquals("world", header2.value);
 
-                List<WarcHeaderLine> headers = record.getHeaderList();
+                List<HeaderLine> headers = record.getHeaderList();
 
                 String[][] headerRef = {
                         {"Header1", "hello"},

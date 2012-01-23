@@ -10,9 +10,12 @@ import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class represents a recognized HttpResponse payload.
@@ -62,6 +65,22 @@ public class HttpResponse {
     /** Http payload stream. */
     protected InputStream in_exposed;
 
+    /** Object size, in bytes. */
+    public long objectSize = 0L;
+
+    /** Warnings detected when processing HTTP protocol response. */
+    protected List<String> warnings = null;
+
+    /*
+     * Header-Fields.
+     */
+
+    /** List of parsed header fields. */
+    protected List<HeaderLine> headerList = new ArrayList<HeaderLine>();
+
+    /** Map of parsed header fields. */
+    protected Map<String, HeaderLine> headerMap = new HashMap<String, HeaderLine>();
+
     /** Http result code. */
     public String resultCode;
 
@@ -70,12 +89,6 @@ public class HttpResponse {
 
     /** Http content Content-type. */
     public String contentType;
-
-    /** Object size, in bytes. */
-    public long objectSize = 0L;
-
-    /** Warnings detected when processing HTTP protocol response. */
-    protected List<String> warnings = null;
 
     /**
      * Non public constructor.
@@ -220,6 +233,20 @@ public class HttpResponse {
             if (l.toUpperCase().startsWith(CONTENT_TYPE)) {
                 this.contentType = l.substring(l.indexOf(':') + 1).trim();
             }
+            // Temporary hack to save header lines.
+            int idx = l.indexOf(':');
+            HeaderLine headerLine = new HeaderLine();
+            if (idx != -1) {
+                headerLine.name = l.substring(0, idx);
+                headerLine.value = l.substring(idx + 1).trim();
+                // Uses a map for fast lookup of single header.
+                headerMap.put(headerLine.name.toLowerCase(), headerLine);
+           }
+            else {
+                headerLine.line = l;
+            }
+            // Uses a list because there can be multiple occurrences.
+            headerList.add(headerLine);
         }
         if (invalidProtocolResponse) {
             //if the protocol response is invalid, re-read the input stream. In this case
@@ -311,6 +338,31 @@ public class HttpResponse {
             this.warnings = new LinkedList<String>();
         }
         this.warnings.add(w);
+    }
+
+    /**
+     * Get a <code>List</code> of all the headers found during parsing.
+     * @return <code>List</code> of <code>HeaderLine</code>
+     */
+    public List<HeaderLine> getHeaderList() {
+        if (headerList != null) {
+            return Collections.unmodifiableList(headerList);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get a header value.
+     * @param field header name
+     * @return WARC header line structure
+     */
+    public HeaderLine getHeader(String field) {
+        if (headerMap != null && field != null) {
+            return headerMap.get(field.toLowerCase());
+        } else {
+            return null;
+        }
     }
 
     /**

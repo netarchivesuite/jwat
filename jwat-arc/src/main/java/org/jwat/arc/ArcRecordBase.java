@@ -11,8 +11,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jwat.common.Base16;
+import org.jwat.common.Base32;
+import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
+import org.jwat.common.Digest;
 import org.jwat.common.HttpResponse;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Payload;
@@ -38,6 +42,15 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Invalid ARC record property. */
     protected static final String ARC_RECORD = "ARC record";
 
+    /** Is this record compliant ie. error free. */
+    protected boolean bIsCompliant;
+
+    /** Reader instance used, required for file compliance. */
+    protected ArcReader reader;
+
+    /** Input stream used to read this record. */
+    protected ByteCountingPushBackInputStream in;
+
     /** ARC record version. */
     protected ArcVersion version;
 
@@ -47,6 +60,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** ARC record starting offset relative to the source arc file input
      *  stream. */
     protected long startOffset = -1L;
+
+    protected long consumed;
 
     /** Validation errors. */
     protected List<ArcValidationError> errors = null;
@@ -128,10 +143,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected HttpResponse httpResponse;
 
     /** Computed block digest. */
-    public byte[] computedBlockDigest;
+    public Digest computedBlockDigest;
 
     /** Computed payload digest. */
-    public byte[] computedPayloadDigest;
+    public Digest computedPayloadDigest;
 
     /**
      * Creates an ARC record from the specified record description.
@@ -161,6 +176,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                     ArcConstants.AF_IDX_CONTENTTYPE);
             // Validate
             url = this.parseUri(recUrl);
+            if (url != null) {
+                protocol = url.getScheme();
+            }
             inetAddress = parseIpAddress(recIpAddress);
             archiveDate = parseDate(recArchiveDate);
             contentType = parseContentType(recContentType);
@@ -281,7 +299,21 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                  */
                 MessageDigest md = payload.getMessageDigest();
                 if (md != null) {
-                    computedBlockDigest = md.digest();
+                    computedBlockDigest = new Digest();
+                    computedBlockDigest.digestBytes = md.digest();
+                    computedBlockDigest.algorithm = reader.blockDigestAlgorithm;
+                    if (reader.blockDigestEncoding != null) {
+                        if ("base32".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base32";
+                            computedBlockDigest.digestString = Base32.encodeArray(computedBlockDigest.digestBytes);
+                        } else if ("base64".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base64";
+                            computedBlockDigest.digestString = Base64.encodeArray(computedBlockDigest.digestBytes);
+                        } else if ("base16".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base16";
+                            computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
+                        }
+                    }
                 }
                 if (httpResponse != null) {
                     /*
@@ -289,10 +321,36 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                      */
                     md = httpResponse.getMessageDigest();
                     if (md != null) {
-                        computedPayloadDigest = md.digest();
+                        computedPayloadDigest = new Digest();
+                        computedPayloadDigest.digestBytes = md.digest();
+                        computedPayloadDigest.algorithm = reader.payloadDigestAlgorithm;
+                        if (reader.payloadDigestEncoding != null) {
+                            if ("base32".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base32";
+                                computedPayloadDigest.digestString = Base32.encodeArray(computedPayloadDigest.digestBytes);
+                            } else if ("base64".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base64";
+                                computedPayloadDigest.digestString = Base64.encodeArray(computedPayloadDigest.digestBytes);
+                            } else if ("base16".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base16";
+                                computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
+                            }
+                        }
                     }
                 }
             }
+            // isCompliant status update.
+            if (errors == null || errors.isEmpty()) {
+                bIsCompliant = true;
+            } else {
+                bIsCompliant = false;
+                reader.errors += errors.size();
+            }
+            reader.bIsCompliant &= bIsCompliant;
+            // Updated consumed after payload has been consumed.
+            consumed = in.getConsumed() - startOffset;
+            reader.consumed += consumed;
+            // Dont not close payload again.
             bPayloadClosed = true;
         }
     }
@@ -318,8 +376,18 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             payloadClosed();
             payload = null;
+            reader = null;
+            in = null;
             bClosed = true;
         }
+    }
+
+    /**
+     * Returns a boolean indicating this records standard compliance.
+     * @return a boolean indicating this records standard compliance
+     */
+    public boolean isCompliant() {
+        return bIsCompliant;
     }
 
     /**
@@ -507,7 +575,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         if ((value != null) && (value.length() != 0)) {
             try {
                 uri = new URI(value);
-                protocol = uri.getScheme();
             } catch (Exception e) {
                 // Invalid URI.
                 addValidationError(ArcErrorType.INVALID,
@@ -685,6 +752,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         return recOffset;
     }
 
+    /**
+     * Return consumed bytes.
+     * @return consumed bytes
+     */
+    public Long getConsumed() {
+        return consumed;
+    }
 
     /**
      * FileName getter.

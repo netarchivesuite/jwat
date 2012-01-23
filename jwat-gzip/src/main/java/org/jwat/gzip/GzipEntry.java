@@ -1,8 +1,6 @@
 package org.jwat.gzip;
 
-
 import java.util.Date;
-
 
 /**
  * A GZip file entry.

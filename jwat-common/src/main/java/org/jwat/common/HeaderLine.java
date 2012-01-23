@@ -1,4 +1,4 @@
-package org.jwat.warc;
+package org.jwat.common;
 
 /**
  * Parsed header entry split into a (name, value) pair. Unless the header
@@ -7,7 +7,7 @@ package org.jwat.warc;
  *
  * @author nicl
  */
-public class WarcHeaderLine {
+public class HeaderLine {
 
     /** Header name. */
     public String name;

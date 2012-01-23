@@ -48,6 +48,9 @@ public class ArcRecord extends ArcRecordBase {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
         ar.version = versionBlock.version;
+        ar.in = in;
+        ar.reader = reader;
+        ar.startOffset = in.getConsumed();
 
         // Read record line.
         // Looping past empty lines.
@@ -59,12 +62,26 @@ public class ArcRecord extends ArcRecordBase {
         }
         if (recordLine != null) {
             ar.parseRecord(recordLine);
+            // Preliminary compliance status, will be updated when the
+            // payload/record is closed.
+            if (ar.errors == null || ar.errors.isEmpty()) {
+                ar.bIsCompliant = true;
+            } else {
+                ar.bIsCompliant = false;
+            }
+            ar.reader.bIsCompliant &= ar.bIsCompliant;
         } else {
+            if (ar.errors != null && !ar.errors.isEmpty()) {
+                ar.reader.bIsCompliant = false;
+                reader.errors += ar.errors.size();
+            }
             // EOF
             ar = null;
         }
         if (ar != null) {
             ar.processPayload(in, reader);
+            // Updated consumed after payload has been consumed.
+            ar.consumed = in.getConsumed() - ar.startOffset;
         }
         return ar;
     }

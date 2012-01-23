@@ -25,7 +25,7 @@ public enum WarcErrorType {
     /** Error type referring to an unwanted value. */
     UNWANTED("unwanted"),
 
-    /** Error type referring to a recommended value. */
+    /** Error type referring to a recommended value not being used. */
     RECOMMENDED("recommended");
 
     /** Error type name. */

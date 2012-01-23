@@ -14,17 +14,32 @@ import java.util.NoSuchElementException;
  */
 public abstract class ArcReader {
 
+    /** Compliance status for records parsed up to now. */
+    protected boolean bIsCompliant = true;
+
+    /** Number of bytes consumed by this reader. */
+    protected long consumed = 0;
+
+    /** Aggregated number of errors encountered while parsing. */
+    protected int errors = 0;
+
     /** Block Digest enabled/disabled. */
     protected boolean bBlockDigest = false;
-
-    /** Payload Digest enabled/disabled. */
-    protected boolean bPayloadDigest = false;
 
     /** Optional block digest algorithm to use. */
     protected String blockDigestAlgorithm;
 
+    /** Encoding scheme used to encode block digest into a string. */
+    protected String blockDigestEncoding = "base32";
+
+    /** Payload Digest enabled/disabled. */
+    protected boolean bPayloadDigest = false;
+
     /** Optional payload digest algorithm to use. */
     protected String payloadDigestAlgorithm;
+
+    /** Encoding scheme used to encode payload digest into a string. */
+    protected String payloadDigestEncoding = "base32";
 
     /** Current ARC version block object. */
     protected ArcVersionBlock versionBlock = null;
@@ -37,6 +52,15 @@ public abstract class ArcReader {
 
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
+
+    /**
+     * Returns a boolean indicating whether the reader has only parsed
+     * compliant records up to now.
+     * @return a boolean indicating all compliant records parsed to far
+     */
+    public boolean isCompliant() {
+        return bIsCompliant;
+    }
 
     /**
      * Is this reader assuming GZip compressed input.
@@ -71,7 +95,7 @@ public abstract class ArcReader {
 
     /**
      * Set the readers payload digest on/off status. Digest, however,
-     * will only be computed if an algorithm has also been chosen.  
+     * will only be computed if an algorithm has also been chosen.
      * @param enabled boolean indicating payload digest on/off
      */
     public void setPayloadDigestEnabled(boolean enabled) {
@@ -125,6 +149,48 @@ public abstract class ArcReader {
     }
 
     /**
+     * Get the optional block digest encoding scheme.
+     * @return optional block digest encoding scheme
+     */
+    public String getBlockDigestEncoding() {
+        return blockDigestEncoding;
+    }
+
+    /**
+     * Set the optional block digest encoding scheme.
+     * @param encoding encoding scheme
+     * (null means optional block digest is not encoded)
+     */
+    public void setBlockDigestEncoding(String encoding) {
+        if (encoding != null && encoding.length() > 0) {
+            blockDigestEncoding = encoding.toLowerCase();
+        } else {
+            blockDigestEncoding = null;
+        }
+    }
+
+    /**
+     * Get the optional payload digest encoding scheme.
+     * @return optional payload digest encoding scheme
+     */
+    public String getPayloadDigestEncoding() {
+        return payloadDigestEncoding;
+    }
+
+    /**
+     * Set the optional payload digest encoding scheme.
+     * @param encoding encoding scheme
+     * (null means optional payload digest is not encoded)
+     */
+    public void setPayloadDigestEncoding(String encoding) {
+        if (encoding != null && encoding.length() > 0) {
+            payloadDigestEncoding = encoding.toLowerCase();
+        } else {
+            payloadDigestEncoding = null;
+        }
+    }
+
+    /**
      * Close current record resource(s) and input stream(s).
      */
     public abstract void close();
@@ -136,6 +202,11 @@ public abstract class ArcReader {
      */
     @Deprecated
     public abstract long getOffset();
+
+    /** Get number of bytes consumed by this reader. */
+    public long getConsumed() {
+        return consumed;
+    }
 
     /**
      * Parses and gets the version block of the ARC file.

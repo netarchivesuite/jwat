@@ -3,14 +3,23 @@ package org.jwat.gzip;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class containing all relevant GZip constants and structures.
+ * Including but not limited to compression methods, flags
+ * and known Operating Systems.
+ * Also includes non statically initialized structures for validation.
+ *
+ * @author nicl
+ */
 public class GzipConstants {
 
     /** GZip header magic number. */
     public static final int GZIP_MAGIC = 0x8b1f;
 
+    /** Deflate compression method friendly name. */
     public static final String CM_STRING_DEFLATE = "deflate";
     
-    /** The Deflate compression method. */
+    /** Deflate compression method. */
     public static final int CM_DEFLATE = 8;
 
     /** File header flags. */
@@ -53,8 +62,12 @@ public class GzipConstants {
     public static final int OS_ACORN = 13;
     public static final int OS_UNKNOWN = 255;
 
+    /** Operating Systems lookup map used to identify OS values. */
     public static final Map<Integer, String> osIdxStr = new HashMap<Integer, String>();
 
+    /**
+     * Populate the lookup map with known Operating Systems.
+     */
     static {
         osIdxStr.put(OS_FAT_FS, OS_STRING_FAT_FS);
         osIdxStr.put(OS_AMIGA, OS_STRING_AMIGA);

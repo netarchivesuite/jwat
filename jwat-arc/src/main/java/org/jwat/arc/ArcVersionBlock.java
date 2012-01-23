@@ -98,6 +98,9 @@ public class ArcVersionBlock extends ArcRecordBase {
                                                         throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.versionBlock = vb;
+        vb.in = in;
+        vb.reader = reader;
+        vb.startOffset = in.getConsumed();
 
         vb.isMagicArcFile = false;
         vb.isVersionValid = false;
@@ -154,7 +157,19 @@ public class ArcVersionBlock extends ArcRecordBase {
         // Parse record.
         if (recordLine != null) {
             vb.parseRecord(recordLine);
+            // Preliminary compliance status, will be updated when the
+            // payload/record is closed.
+            if (vb.errors == null || vb.errors.isEmpty()) {
+                vb.bIsCompliant = true;
+            } else {
+                vb.bIsCompliant = false;
+            }
+            vb.reader.bIsCompliant &= vb.bIsCompliant;
         } else {
+            if (vb.errors != null && !vb.errors.isEmpty()) {
+                vb.reader.bIsCompliant = false;
+                reader.errors += vb.errors.size();
+            }
             // EOF
             vb = null;
         }
@@ -170,6 +185,8 @@ public class ArcVersionBlock extends ArcRecordBase {
             }
             // Process payload = xml config
             vb.processPayload(in, reader);
+            // Updated consumed after payload has been consumed.
+            vb.consumed = in.getConsumed() - vb.startOffset;
         }
         return vb;
     }

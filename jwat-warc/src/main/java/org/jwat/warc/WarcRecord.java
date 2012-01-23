@@ -22,6 +22,8 @@ import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
+import org.jwat.common.Digest;
+import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpResponse;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Payload;
@@ -40,8 +42,23 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Pushback size used in payload. */
     public static final int PAYLOAD_PUSHBACK_SIZE = 8192;
 
+    /** Reader instance used, required for file compliance. */
+    protected WarcReader reader;
+
+    /** Input stream used to read this record. */
+    protected ByteCountingPushBackInputStream in;
+
+    /** Is this record compliant ie. error free. */
+    protected boolean bIsCompliant;
+
     /** Validation errors */
     protected List<WarcValidationError> errors = null;
+
+    /** Is Warc-Block-Digest valid. (Null is equal to not tested) */
+    public Boolean isValidBlockDigest = null;
+
+    /** Is Warc-Payload-Digest valid. (Null is equal to not tested) */
+    public Boolean isValidPayloadDigest = null;
 
     /*
      * Version related fields.
@@ -53,7 +70,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
     int major = -1;
     int minor = -1;
 
-    long offset = -1L;
+    long offset = -1;
+
+    long consumed = 0;
 
     boolean bMandatoryMissing;
 
@@ -98,10 +117,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
     public URI warcWarcInfoIdUri;
 
     public String warcBlockDigestStr;
-    public WarcDigest warcBlockDigest;
+    public Digest warcBlockDigest;
 
     public String warcPayloadDigestStr;
-    public WarcDigest warcPayloadDigest;
+    public Digest warcPayloadDigest;
 
     public String warcIdentifiedPayloadTypeStr;
     public ContentType warcIdentifiedPayloadType;
@@ -126,17 +145,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
 
     /** List of parsed header fields. */
-    protected List<WarcHeaderLine> headerList;
+    protected List<HeaderLine> headerList;
 
     /** Map of parsed header fields. */
-    protected Map<String, WarcHeaderLine> headerMap;
+    protected Map<String, HeaderLine> headerMap;
 
     /*
      * Payload
      */
-
-    /** Input stream used to read this record. */
-    protected ByteCountingPushBackInputStream in;
 
     /** Has payload been closed before. */
     protected boolean bPayloadClosed;
@@ -151,10 +167,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected HttpResponse httpResponse;
 
     /** Computed block digest. */
-    public byte[] computedBlockDigest;
+    public Digest computedBlockDigest;
 
     /** Computed payload digest. */
-    public byte[] computedPayloadDigest;
+    public Digest computedPayloadDigest;
 
     /**
      * Given an <code>InputStream</code> it tries to read and validate a WARC
@@ -169,6 +185,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                     WarcReader reader) throws IOException {
         WarcRecord wr = new WarcRecord();
         wr.in = in;
+        wr.reader = reader;
+        wr.offset = in.getConsumed();
         if (wr.parseVersion(in)) {
             // debug
             //System.out.println(wr.bMagicIdentified);
@@ -232,7 +250,21 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     }
                 }
             }
+            // Preliminary compliance status, will be updated when the
+            // payload/record is closed.
+            if (wr.errors == null || wr.errors.isEmpty()) {
+                wr.bIsCompliant = true;
+            } else {
+                wr.bIsCompliant = false;
+            }
+            wr.reader.bIsCompliant &= wr.bIsCompliant;
+            wr.consumed = in.getConsumed() - wr.offset;
         } else {
+            if (wr.errors != null && !wr.errors.isEmpty()) {
+                wr.reader.bIsCompliant = false;
+                reader.errors += wr.errors.size();
+            }
+            // EOF
             wr = null;
         }
         return wr;
@@ -257,31 +289,64 @@ public class WarcRecord implements PayloadOnClosedHandler {
                  */
                 MessageDigest md = payload.getMessageDigest();
                 byte[] digest;
+                // Check for computed block digest.
                 if (md != null) {
-                    computedBlockDigest = md.digest();
+                    computedBlockDigest = new Digest();
+                    computedBlockDigest.digestBytes = md.digest();
                 }
-                if (warcBlockDigest != null && warcBlockDigest.digestValue != null) {
+                // Auto detect encoding used in WARC header.
+                if (warcBlockDigest != null && warcBlockDigest.digestString != null) {
                     if (computedBlockDigest != null) {
-                        if ((computedBlockDigest.length + 2) / 3 * 4 == warcBlockDigest.digestValue.length()) {
-                            digest = Base64.decodeToArray(warcBlockDigest.digestValue);
-                            warcBlockDigest.encoding = "Base64";
-                        }
-                        else if ((computedBlockDigest.length + 4) / 5 * 8 == warcBlockDigest.digestValue.length()) {
-                            digest = Base32.decodeToArray(warcBlockDigest.digestValue);
-                            warcBlockDigest.encoding = "Base32";
-                        }
-                        else if (computedBlockDigest.length * 2 == warcBlockDigest.digestValue.length()) {
-                            digest = Base16.decodeToArray(warcBlockDigest.digestValue);
-                            warcBlockDigest.encoding = "Base16";
-                        }
-                        else {
+                        computedBlockDigest.algorithm = warcBlockDigest.algorithm;
+                        if ((computedBlockDigest.digestBytes.length + 2) / 3 * 4 == warcBlockDigest.digestString.length()) {
+                            digest = Base64.decodeToArray(warcBlockDigest.digestString);
+                            warcBlockDigest.encoding = "base64";
+                            computedBlockDigest.encoding = warcBlockDigest.encoding;
+                        } else if ((computedBlockDigest.digestBytes.length + 4) / 5 * 8 == warcBlockDigest.digestString.length()) {
+                            digest = Base32.decodeToArray(warcBlockDigest.digestString);
+                            warcBlockDigest.encoding = "base32";
+                            computedBlockDigest.encoding = warcBlockDigest.encoding;
+                        } else if (computedBlockDigest.digestBytes.length * 2 == warcBlockDigest.digestString.length()) {
+                            digest = Base16.decodeToArray(warcBlockDigest.digestString);
+                            warcBlockDigest.encoding = "base16";
+                            computedBlockDigest.encoding = warcBlockDigest.encoding;
+                        } else {
                             digest = null;
                             addValidationError(WarcErrorType.INVALID, "Encoding",
                                     "Unknown block digest encoding");
                         }
-                        if (!Arrays.equals(computedBlockDigest, digest)) {
-                            addValidationError(WarcErrorType.INVALID, "Block digest",
-                                    "Computed block digest does not match");
+                        if (digest != null) {
+                            if (!Arrays.equals(computedBlockDigest.digestBytes, digest)) {
+                                addValidationError(WarcErrorType.INVALID, "Block digest",
+                                        "Computed block digest does not match");
+                                isValidBlockDigest = false;
+                            } else {
+                                isValidBlockDigest = true;
+                            }
+                        }
+                    }
+                }
+                // Adjust information about computed block digest.
+                if (computedBlockDigest != null) {
+                    if (computedBlockDigest.algorithm == null) {
+                        computedBlockDigest.algorithm = reader.blockDigestAlgorithm;
+                    }
+                    if (computedBlockDigest.encoding == null && reader.blockDigestEncoding != null) {
+                        if ("base32".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base32";
+                        } else if ("base64".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base64";
+                        } else if ("base16".equals(reader.blockDigestEncoding)) {
+                            computedBlockDigest.encoding = "base16";
+                        }
+                    }
+                    if (computedBlockDigest.encoding != null) {
+                        if ("base32".equals(computedBlockDigest.encoding)) {
+                            computedBlockDigest.digestString = Base32.encodeArray(computedBlockDigest.digestBytes);
+                        } else if ("base64".equals(computedBlockDigest.encoding)) {
+                            computedBlockDigest.digestString = Base64.encodeArray(computedBlockDigest.digestBytes);
+                        } else if ("base16".equals(computedBlockDigest.encoding)) {
+                            computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
                         }
                     }
                 }
@@ -290,31 +355,64 @@ public class WarcRecord implements PayloadOnClosedHandler {
                      * Check payload digest.
                      */
                     md = httpResponse.getMessageDigest();
+                    // Check for computed payload digest.
                     if (md != null) {
-                        computedPayloadDigest = md.digest();
+                        computedPayloadDigest = new Digest();
+                        computedPayloadDigest.digestBytes = md.digest();
                     }
-                    if (warcPayloadDigest != null && warcPayloadDigest.digestValue != null ) {
+                    // Auto detect encoding used in WARC header.
+                    if (warcPayloadDigest != null && warcPayloadDigest.digestString != null ) {
                         if (computedPayloadDigest != null) {
-                            if ((computedPayloadDigest.length + 2) / 3 * 4 == warcPayloadDigest.digestValue.length()) {
-                                digest = Base64.decodeToArray(warcPayloadDigest.digestValue);
-                                warcPayloadDigest.encoding = "Base64";
-                            }
-                            else if ((computedPayloadDigest.length + 4) / 5 * 8 == warcPayloadDigest.digestValue.length()) {
-                                digest = Base32.decodeToArray(warcPayloadDigest.digestValue);
-                                warcPayloadDigest.encoding = "Base32";
-                            }
-                            else if (computedPayloadDigest.length * 2 == warcPayloadDigest.digestValue.length()) {
-                                digest = Base16.decodeToArray(warcPayloadDigest.digestValue);
-                                warcPayloadDigest.encoding = "Base16";
-                            }
-                            else {
+                            computedPayloadDigest.algorithm = warcPayloadDigest.algorithm;
+                            if ((computedPayloadDigest.digestBytes.length + 2) / 3 * 4 == warcPayloadDigest.digestString.length()) {
+                                digest = Base64.decodeToArray(warcPayloadDigest.digestString);
+                                warcPayloadDigest.encoding = "base64";
+                                computedPayloadDigest.encoding = warcPayloadDigest.encoding;
+                            } else if ((computedPayloadDigest.digestBytes.length + 4) / 5 * 8 == warcPayloadDigest.digestString.length()) {
+                                digest = Base32.decodeToArray(warcPayloadDigest.digestString);
+                                warcPayloadDigest.encoding = "base32";
+                                computedPayloadDigest.encoding = warcPayloadDigest.encoding;
+                            } else if (computedPayloadDigest.digestBytes.length * 2 == warcPayloadDigest.digestString.length()) {
+                                digest = Base16.decodeToArray(warcPayloadDigest.digestString);
+                                warcPayloadDigest.encoding = "base16";
+                                computedPayloadDigest.encoding = warcPayloadDigest.encoding;
+                            } else {
                                 digest = null;
                                 addValidationError(WarcErrorType.INVALID, "Encoding",
                                         "Unknown payload digest encoding");
                             }
-                            if (!Arrays.equals(computedPayloadDigest, digest)) {
-                                addValidationError(WarcErrorType.INVALID, "Payload digest",
-                                        "Computed payload digest does not match");
+                            if (digest != null) {
+                                if (!Arrays.equals(computedPayloadDigest.digestBytes, digest)) {
+                                    addValidationError(WarcErrorType.INVALID, "Payload digest",
+                                            "Computed payload digest does not match");
+                                    isValidPayloadDigest = false;
+                                } else {
+                                    isValidPayloadDigest = true;
+                                }
+                            }
+                        }
+                    }
+                    // Adjust information about computed payload digest.
+                    if (computedPayloadDigest != null) {
+                        if (computedPayloadDigest.algorithm == null) {
+                            computedPayloadDigest.algorithm = reader.payloadDigestAlgorithm;
+                        }
+                        if (computedPayloadDigest.encoding == null && reader.payloadDigestEncoding != null) {
+                            if ("base32".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base32";
+                            } else if ("base64".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base64";
+                            } else if ("base16".equals(reader.payloadDigestEncoding)) {
+                                computedPayloadDigest.encoding = "base16";
+                            }
+                        }
+                        if (computedPayloadDigest.encoding != null) {
+                            if ("base32".equals(computedPayloadDigest.encoding)) {
+                                computedPayloadDigest.digestString = Base32.encodeArray(computedPayloadDigest.digestBytes);
+                            } else if ("base64".equals(computedPayloadDigest.encoding)) {
+                                computedPayloadDigest.digestString = Base64.encodeArray(computedPayloadDigest.digestBytes);
+                            } else if ("base16".equals(computedPayloadDigest.encoding)) {
+                                computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
                             }
                         }
                     }
@@ -325,6 +423,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
                 addValidationError(WarcErrorType.INVALID, "Trailing newlines", Integer.toString(newlines));
             }
+            // isCompliant status update.
+            if (errors == null || errors.isEmpty()) {
+                bIsCompliant = true;
+            } else {
+                bIsCompliant = false;
+                reader.errors += errors.size();
+            }
+            reader.bIsCompliant &= bIsCompliant;
+            // Updated consumed after payload has been consumed.
+            consumed = in.getConsumed() - offset;
+            reader.consumed += consumed;
+            // Dont not close payload again.
             bPayloadClosed = true;
         }
     }
@@ -349,8 +459,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 payload.close();
             }
             payloadClosed();
+            reader = null;
+            in = null;
             bClosed = true;
         }
+    }
+
+    /**
+     * Returns a boolean indicating this records ISO compliance.
+     * @return a boolean indicating this records ISO compliance
+     */
+    public boolean isCompliant() {
+        return bIsCompliant;
     }
 
     /**
@@ -417,7 +537,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
                         bMagicIdentified = true;
                         String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
-                        String[] tmpArr = versionStr.split("\\.", -1);        // Slow?
+                        String[] tmpArr = versionStr.split("\\.", -1);        // Not optimal
                         if (tmpArr.length >= 2 && tmpArr.length <= 4) {
                             bVersionParsed = true;
                             int[] versionArr = new int[tmpArr.length];
@@ -462,24 +582,25 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @throws IOException if an error occurs while reading the WARC header
      */
     protected void parseFields(ByteCountingPushBackInputStream in) throws IOException {
-        WarcHeaderLine warcHeader;
+        HeaderLine headerLine;
         boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
         boolean bFields = true;
         while (bFields) {
-            warcHeader = readHeaderLine(in);
-            if (warcHeader != null) {
-                if (warcHeader.line == null) {
-                    if (warcHeader.name != null && warcHeader.name.length() > 0) {
+            headerLine = readHeaderLine(in);
+            if (headerLine != null) {
+                // An empty line means the name/value pair was used.
+                if (headerLine.line == null) {
+                    if (headerLine.name != null && headerLine.name.length() > 0) {
                         // debug
-                        //System.out.println(warcHeader.name);
-                        //System.out.println(warcHeader.value);
+                        //System.out.println(headerLine.name);
+                        //System.out.println(headerLine.value);
 
-                        parseField(warcHeader, seen);
+                        parseField(headerLine, seen);
                     } else {
                         // Empty field name.
                     }
                 } else {
-                    if (warcHeader.line.length() == 0) {
+                    if (headerLine.line.length() == 0) {
                         // Empty line.
                         bFields = false;
                     } else {
@@ -495,12 +616,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     /**
      * Identify a WARC header line and validate it accordingly.
-     * @param warcHeader WARC header line
+     * @param headerLine WARC header line
      * @param seen array of headers seen so far used for duplication check
      */
-    protected void parseField(WarcHeaderLine warcHeader, boolean[] seen) {
-        String field = warcHeader.name;
-        String value = warcHeader.value;
+    protected void parseField(HeaderLine headerLine, boolean[] seen) {
+        String field = headerLine.name;
+        String value = headerLine.value;
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
         if (fn_idx != null) {
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
@@ -634,13 +755,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
         } else {
             // Not a recognized WARC field name.
             if (headerList == null) {
-                headerList = new ArrayList<WarcHeaderLine>();
+                headerList = new ArrayList<HeaderLine>();
             }
             if (headerMap == null) {
-                headerMap = new HashMap<String, WarcHeaderLine>();
+                headerMap = new HashMap<String, HeaderLine>();
             }
-            headerList.add(warcHeader);
-            headerMap.put(field.toLowerCase(), warcHeader);
+            // Uses a list because there can be multiple occurrences.
+            headerList.add(headerLine);
+            // Uses a map for fast lookup of single header.
+            headerMap.put(field.toLowerCase(), headerLine);
         }
     }
 
@@ -692,7 +815,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
         /*
          * Content-Type should be present if Content-Length > 0.
-         * Exception for continuation records.
+         * Except for continuation records.
          */
 
         if (contentLength != null && contentLength.longValue() > 0L &&
@@ -1051,8 +1174,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @param field field name
      * @return digest wrapper object or null
      */
-    protected WarcDigest parseDigest(String labelledDigest, String field) {
-        WarcDigest digest = null;
+    protected Digest parseDigest(String labelledDigest, String field) {
+        Digest digest = null;
         if (labelledDigest != null && labelledDigest.length() > 0) {
                 digest = WarcDigest.parseDigest(labelledDigest);
                 if (digest == null) {
@@ -1108,8 +1231,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
         }
     }
 
-    protected WarcHeaderLine readHeaderLine(PushbackInputStream in) throws IOException {
-        WarcHeaderLine warcHeader = null;
+    protected HeaderLine readHeaderLine(PushbackInputStream in) throws IOException {
+        HeaderLine headerLine = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
         StringBuilder sb = new StringBuilder(128);
         int state = S_START;
@@ -1133,8 +1256,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     bCr = true;
                     break;
                 case '\n':
-                    warcHeader = new WarcHeaderLine();
-                    warcHeader.line = bos.toString();
+                    headerLine = new HeaderLine();
+                    headerLine.line = bos.toString();
                     if (!bCr) {
                         // Missing CR.
                         bCr = false;
@@ -1162,8 +1285,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     bCr = true;
                     break;
                 case '\n':
-                    warcHeader = new WarcHeaderLine();
-                    warcHeader.line = bos.toString();
+                    headerLine = new HeaderLine();
+                    headerLine.line = bos.toString();
                     if (!bCr) {
                         // Missing CR.
                         bCr = false;
@@ -1185,8 +1308,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     bCr = true;
                     break;
                 case '\n':
-                    warcHeader = new WarcHeaderLine();
-                    warcHeader.line = bos.toString();
+                    headerLine = new HeaderLine();
+                    headerLine.line = bos.toString();
                     if (!bCr) {
                         // Missing CR.
                         bCr = false;
@@ -1194,8 +1317,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     bLoop = false;
                     break;
                 case ':':
-                    warcHeader = new WarcHeaderLine();
-                    warcHeader.name = bos.toString("US-ASCII");
+                    headerLine = new HeaderLine();
+                    headerLine.name = bos.toString("US-ASCII");
                     if (bCr) {
                         // Misplaced CR.
                         bCr = false;
@@ -1335,7 +1458,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     state = S_VALUE;
                 } else {
                     in.unread(c);
-                    warcHeader.value = sb.toString().trim();
+                    headerLine.value = sb.toString().trim();
                     bLoop = false;
                 }
                 break;
@@ -1378,25 +1501,24 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 } else {
                     // Non LWS force end of quoted text parsing and header line.
                     in.unread(c);
-                    warcHeader.value = sb.toString().trim();
+                    headerLine.value = sb.toString().trim();
                     bLoop = false;
                 }
                 break;
             }
         }
-        return warcHeader;
+        return headerLine;
     }
 
     /**
      * Get a <code>List</code> of all the non-standard WARC headers found
      * during parsing.
-     * @return <code>List</code> of <code>WarcHeader</code>
+     * @return <code>List</code> of <code>HeaderLine</code>
      */
-    public List<WarcHeaderLine> getHeaderList() {
+    public List<HeaderLine> getHeaderList() {
         if (headerList != null) {
             return Collections.unmodifiableList(headerList);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -1406,11 +1528,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @param field header name
      * @return WARC header line structure
      */
-    public WarcHeaderLine getHeader(String field) {
+    public HeaderLine getHeader(String field) {
         if (headerMap != null && field != null) {
             return headerMap.get(field.toLowerCase());
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -1446,6 +1567,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public long getOffset() {
         return offset;
+    }
+
+    /**
+     * Return consumed bytes.
+     * @return consumed bytes
+     */
+    public Long getConsumed() {
+        return consumed;
     }
 
 }

@@ -59,6 +59,7 @@ public class GzipInputStream extends InflaterInputStream
     public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
+        // Look for the leading 2 byte magic in from of every valid GZip.
         int read = pbin.readFully(magicBytes);
         if (read == 2) {
             magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);
@@ -71,8 +72,8 @@ public class GzipInputStream extends InflaterInputStream
 
     /**
      * Creates a new input stream with a default buffer size.
+     * (default buffersize is 512 bytes)
      * @param  in   the input stream.
-     *
      * @throws ZipException if a GZip format error has occurred or the
      *                      compression method used is unsupported.
      * @throws IOException  if an I/O error has occurred.
