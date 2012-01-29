@@ -38,7 +38,7 @@ public class TestDigestInputStream {
     }
 
     @Test
-    public void test() {
+    public void test_inputstream_digest() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 0 ];

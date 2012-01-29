@@ -19,7 +19,7 @@ import org.jwat.common.IPAddressParser;
 public class TestParams {
 
     @Test
-    public void test() throws IOException {
+    public void test_parameters() throws IOException {
         /*
          * IpAddressParser.
          */

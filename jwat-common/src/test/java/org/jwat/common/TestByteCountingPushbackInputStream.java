@@ -34,7 +34,7 @@ public class TestByteCountingPushbackInputStream {
     }
 
     @Test
-    public void test() {
+    public void test_inputstream_countingpushback() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 1 ];

@@ -1,6 +1,5 @@
 package org.jwat.common;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
@@ -148,11 +147,10 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     /**
      * Read a single line into a string.
      * @return single string line
-     * @throws IOException io exception while reading line
+     * @throws IOException if an io error occurs while reading line
      */
     public String readLine() throws IOException {
-        ByteArrayOutputStream bos =
-                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
+        StringBuffer sb = new StringBuffer(READLINE_INITIAL_SIZE);
         int b;
         while (true) {
             b = read();
@@ -163,10 +161,10 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
                 break;
             }
             if (b != '\r') {
-                bos.write(b);
+                sb.append((char) b);
             }
         }
-        return bos.toString("US-ASCII");
+        return sb.toString();
     }
 
     /**
@@ -174,7 +172,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * if not, the bytes are pushed back into the stream before returning.
      * @param buffer byte buffer to read bytes into
      * @return the number of bytes read into array
-     * @throws IOException io exception while reading array
+     * @throws IOException if an io error occurs while reading array
      */
     public int readFully(byte[] buffer) throws IOException {
         int readOffset = 0;

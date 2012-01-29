@@ -44,7 +44,7 @@ public class TestPayload implements PayloadOnClosedHandler {
     public int closed = 0;
 
     @Test
-    public void test() {
+    public void test_payload() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 0 ];

@@ -34,7 +34,7 @@ public class TestByteCountingInputStream {
     }
 
     @Test
-    public void test() {
+    public void test_inputstream_bytecounting() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 1 ];

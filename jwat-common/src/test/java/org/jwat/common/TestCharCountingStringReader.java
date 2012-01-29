@@ -32,7 +32,7 @@ public class TestCharCountingStringReader {
     }
 
     @Test
-    public void test() {
+    public void test_stringreader_charcounting() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr;

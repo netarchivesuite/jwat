@@ -31,6 +31,7 @@ public class RandomAccessFileOutputStream extends OutputStream {
      */
     @Override
     public void close() throws IOException {
+    	raf = null;
     }
 
     /**

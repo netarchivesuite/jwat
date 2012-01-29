@@ -19,7 +19,7 @@ import org.jwat.common.ContentType;
 public class TestContentType {
 
     @Test
-    public void test() throws IOException {
+    public void test_contenttype() throws IOException {
         ContentType ct;
         String value;
         String str;

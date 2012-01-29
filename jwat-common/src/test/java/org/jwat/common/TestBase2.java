@@ -37,7 +37,7 @@ public class TestBase2 {
     }
 
     @Test
-    public void test() {
+    public void test_base2() {
         SecureRandom random = new SecureRandom();
         byte[] srcArr;
         StringBuffer srcSb = new StringBuffer( 256 );

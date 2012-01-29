@@ -39,7 +39,7 @@ public class TestBase64 {
     }
 
     @Test
-    public void test() {
+    public void test_base64() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr;

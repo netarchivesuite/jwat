@@ -34,7 +34,7 @@ public class TestFixedLengthInputStream {
     }
 
     @Test
-    public void test() {
+    public void test_inputstream_fixedlength() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 1 ];

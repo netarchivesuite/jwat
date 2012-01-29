@@ -23,7 +23,7 @@ import org.jwat.common.MaxLengthRecordingInputStream;
 public class TestSkip {
 
     @Test
-    public void test() throws IOException {
+    public void test_inputstream_skipping() throws IOException {
         InputStream in;
         StringReader sr;
 

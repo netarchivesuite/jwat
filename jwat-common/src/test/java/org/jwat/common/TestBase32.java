@@ -39,7 +39,7 @@ public class TestBase32 {
     }
 
     @Test
-    public void test() {
+    public void test_base32() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr;

@@ -56,7 +56,7 @@ public class TestHttpResponse {
     }
 
     @Test
-    public void test() {
+    public void test_httpresponse() {
         SecureRandom random = new SecureRandom();
 
         byte[] payloadArr;

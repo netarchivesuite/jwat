@@ -34,7 +34,7 @@ public class TestMaxLengthRecordInputStream {
     }
 
     @Test
-    public void test() {
+    public void test_inputstream_maxlengthrecording() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 1 ];

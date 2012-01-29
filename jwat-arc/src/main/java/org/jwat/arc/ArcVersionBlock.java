@@ -140,6 +140,7 @@ public class ArcVersionBlock extends ArcRecordBase {
         }
         // Extract format description.
         if (fieldLine != null) {
+        	// TODO Compare against version number
             if (ArcConstants.VERSION_1_BLOCK_DEF.equals(fieldLine)) {
                 vb.isValidFieldDesc = true;
                 vb.descValidator = version1DescValidator;

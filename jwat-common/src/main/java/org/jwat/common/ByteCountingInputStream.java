@@ -1,6 +1,5 @@
 package org.jwat.common;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,52 +95,6 @@ public class ByteCountingInputStream extends FilterInputStream {
         consumed += n;
         counter += n;
         return n;
-    }
-
-    /**
-     * Read a single line into a string.
-     * @return single string line
-     * @throws IOException io exception while reading line
-     */
-    public String readLine() throws IOException {
-        ByteArrayOutputStream bos =
-                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
-        int b;
-        while (true) {
-            b = read();
-            if (b == -1) {
-                return null;    //Unexpected EOF
-            }
-            if (b == '\n'){
-                break;
-            }
-            bos.write(b);
-        }
-        return bos.toString("US-ASCII");
-    }
-
-    /**
-     * Read several lines into one string.
-     * @param lines number of lines to read
-     * @return String counting the requested amount of lines.
-     * @throws IOException io exception while reading line
-     */
-    public String readLines(int lines) throws IOException {
-        ByteArrayOutputStream bos =
-                new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
-        int i = lines;
-        while (i > 0) {
-            int b = read();
-            if (b == -1) {
-                bos = null;
-                break;             // Unexpected EOF!
-            }
-            bos.write(b);
-            if (b == '\n') {
-                --i;
-            }
-        }
-        return (bos!=null) ? bos.toString("US-ASCII") : null;
     }
 
 }
