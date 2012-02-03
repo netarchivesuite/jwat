@@ -9,7 +9,7 @@ import java.io.InputStream;
  * <code>InputStream</code> with a maximum amount of bytes available to read.
  * When the stream is closed the remaining bytes are left untouched.
  *
- * @author lbihanic, selghissassi, nicl
+ * @author nicl
  */
 public class MaxLengthRecordingInputStream extends FilterInputStream {
 

@@ -59,7 +59,7 @@ public class GzipInputStream extends InflaterInputStream
     public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
-        // Look for the leading 2 byte magic in from of every valid GZip.
+        // Look for the leading 2 byte magic in front of every valid GZip.
         int read = pbin.readFully(magicBytes);
         if (read == 2) {
             magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);

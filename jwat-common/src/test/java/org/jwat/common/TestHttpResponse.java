@@ -68,6 +68,10 @@ public class TestHttpResponse {
         ByteCountingPushBackInputStream pbin;
         HttpResponse httpResponse;
 
+        httpResponse = new HttpResponse();
+    	String tmpStr = httpResponse.toString();
+    	Assert.assertNotNull(tmpStr);
+
         Assert.assertTrue( HttpResponse.isSupported( "http" ) );
         Assert.assertTrue( HttpResponse.isSupported( "https" ) );
         Assert.assertTrue( HttpResponse.isSupported( "Http" ) );
@@ -255,6 +259,50 @@ public class TestHttpResponse {
                 }
             }
         }
+    }
+
+    @Test
+    public void test_httpresponse_isprotocolvalid() {
+    	HttpResponse hr = new HttpResponse();
+    	boolean isValid;
+
+    	isValid = hr.isProtocolResponseValid( null );
+    	Assert.assertFalse( isValid );
+    	isValid = hr.isProtocolResponseValid( "" );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( " " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "  " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( " HTTP/1.1 OK " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "MONKEY/1.1 OK " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1" );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1 " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1  " );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1  100" );
+    	Assert.assertFalse( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1  100 " );
+    	Assert.assertFalse( isValid );
+    	isValid = hr.isProtocolResponseValid( "HTTP/1.1 001" );
+    	Assert.assertFalse( isValid );
+    	isValid = hr.isProtocolResponseValid( "HTTP/1.1 1000" );
+    	Assert.assertFalse( isValid );
+    	isValid = hr.isProtocolResponseValid( "HTTP/1.1 MONKEY!" );
+    	Assert.assertFalse( isValid );
+
+    	isValid = hr.isProtocolResponseValid( "HTTP/1.1 100" );
+    	Assert.assertTrue( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100 " );
+    	Assert.assertTrue( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100  " );
+    	Assert.assertTrue( isValid );
+        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100 Monkeys are OK" );
+    	Assert.assertTrue( isValid );
     }
 
 }

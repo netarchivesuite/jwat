@@ -59,7 +59,7 @@ public class RecordDebugBase {
             System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
             System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
             System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
-            System.out.println( " object-size: " + arcRecord.httpResponse.objectSize );
+            System.out.println( " object-size: " + arcRecord.httpResponse.payloadLength );
             //saveHttpResponse( arcRecord.recUrl, arcRecord.httpResponse );
         }
         System.out.println( "      errors: " + arcRecord.hasErrors() );
@@ -73,7 +73,7 @@ public class RecordDebugBase {
     }
 
     public static void saveHttpResponse(String url, HttpResponse httpResponse) {
-        if ( "200".equals(httpResponse.resultCode) && url != null && url.length() > 0 && httpResponse.objectSize > 0L ) {
+        if ( "200".equals(httpResponse.resultCode) && url != null && url.length() > 0 && httpResponse.payloadLength > 0L ) {
             if ( url.startsWith("http://") ) {
                 int fidx = "http://".length();
                 fidx = url.indexOf( '/', fidx );

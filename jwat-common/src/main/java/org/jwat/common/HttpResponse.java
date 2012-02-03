@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * This class represents a recognized HttpResponse payload.
  *
- * @author lbihanic, selghissassi
+ * @author lbihanic, selghissassi, nicl
  */
 public class HttpResponse {
 
@@ -47,7 +47,7 @@ public class HttpResponse {
     protected ByteCountingPushBackInputStream in_pb;
 
     /** Payload length. */
-    protected long length;
+    protected long totalLength;
 
     /** Stream used to ensure we don't use more than the pushback buffer on
      *  headers and at the same time store everything read in an array. */
@@ -66,7 +66,7 @@ public class HttpResponse {
     protected InputStream in_exposed;
 
     /** Object size, in bytes. */
-    public long objectSize = 0L;
+    public long payloadLength = 0L;
 
     /** Warnings detected when processing HTTP protocol response. */
     protected List<String> warnings = null;
@@ -75,17 +75,20 @@ public class HttpResponse {
      * Header-Fields.
      */
 
+    /** Http protocol version. */
+    public String protocolVersion;
+
+    /** Http result code. */
+    public String resultCode;
+
+    /** Http result message. */
+    public String resultMessage;
+
     /** List of parsed header fields. */
     protected List<HeaderLine> headerList = new ArrayList<HeaderLine>();
 
     /** Map of parsed header fields. */
     protected Map<String, HeaderLine> headerMap = new HashMap<String, HeaderLine>();
-
-    /** Http result code. */
-    public String resultCode;
-
-    /** Http protocol version. */
-    public String protocolVersion;
 
     /** Http content Content-type. */
     public String contentType;
@@ -128,10 +131,10 @@ public class HttpResponse {
         }
         HttpResponse hr = new HttpResponse();
         hr.in_pb = pbin;
-        hr.length = length;
+        hr.totalLength = length;
         hr.in_flr = new MaxLengthRecordingInputStream(
                                         hr.in_pb, hr.in_pb.getPushbackSize());
-        hr.objectSize = hr.readProtocolResponse(hr.in_flr, length);
+        hr.payloadLength = hr.readProtocolResponse(hr.in_flr, length);
         /*
          * Block Digest.
          */
@@ -161,26 +164,48 @@ public class HttpResponse {
 
     /**
      * Checks protocol response validity.
-     * @param firstLine the first line of the HTTP response
+     * @param line the first line of the HTTP response
      * @return true/false based on whether the protocol response is valid or not.
      */
-    protected boolean isProtocolResponseValid(String firstLine) {
-        boolean isValid = (firstLine != null);
-        if(isValid){
-            String [] parameters = firstLine.split(" ");
-            if(parameters.length < 2 || !parameters[0].startsWith(HTTP)) {
-                isValid = false;
-            }
-            if (isValid) {
-                try {
-                    int parameter = Integer.parseInt(parameters[1]);
-                    if(parameter < 100 || parameter > 999) {
-                        isValid = false;
-                    }
-                }
-                catch(NumberFormatException e) {
+    protected boolean isProtocolResponseValid(String line) {
+        int idx;
+        int pIdx;
+        boolean isValid = (line != null) && (line.length() > 0);
+        if (isValid) {
+        	idx = line.indexOf(' ');
+        	if (idx > 0) {
+                protocolVersion = line.substring(0, idx);
+                if (!protocolVersion.startsWith(HTTP)) {
                     isValid = false;
                 }
+        	} else {
+                isValid = false;
+        	}
+            if (isValid) {
+            	pIdx = ++idx;
+            	idx = line.indexOf(' ', idx);
+            	if (idx == -1) {
+            		idx = line.length();
+            	}
+            	if (idx > pIdx) {
+                	resultCode = line.substring(pIdx, idx);
+                    try {
+                        int rc = Integer.parseInt(resultCode);
+                        if (rc < 100 || rc > 999) {
+                            isValid = false;
+                        }
+                    } catch(NumberFormatException e) {
+                        isValid = false;
+                    }
+            	} else {
+                    isValid = false;
+            	}
+            	if (isValid) {
+            		if (idx < line.length()) {
+            			++idx;
+            			resultMessage = line.substring(idx);
+            		}
+            	}
             }
         }
         return isValid;
@@ -222,9 +247,6 @@ public class HttpResponse {
                     invalidProtocolResponse = true;
                     break;
                 }
-                String [] parameters = l.split(" ");
-                this.protocolVersion = parameters[0];
-                this.resultCode = parameters[1];
                 firstLineMatched = true;
             }
             if (l.length() == 0) {
@@ -394,7 +416,7 @@ public class HttpResponse {
      * @return http response payload length
      */
     public long getPayloadLength() {
-        return objectSize;
+        return payloadLength;
     }
 
     /**
@@ -418,7 +440,7 @@ public class HttpResponse {
      * @return payload total length, header and payload
      */
     public long getTotalLength() {
-        return length;
+        return totalLength;
     }
 
     /**
@@ -428,7 +450,7 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
-        return length - in_pb.getConsumed();
+        return totalLength - in_pb.getConsumed();
     }
 
     /**
@@ -455,7 +477,7 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
-        return length - in_pb.getConsumed();
+        return totalLength - in_pb.getConsumed();
     }
 
     /**
@@ -476,7 +498,7 @@ public class HttpResponse {
                 // Skip remaining unread bytes to ensure payload is completely
                 // digested. Skipping because the DigestInputStreamNoSkip
                 // has been altered to read when skipping.
-                while (in_digest.skip(length) > 0) {
+                while (in_digest.skip(totalLength) > 0) {
                 }
             }
             if (in_pb != null) {

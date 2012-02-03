@@ -131,6 +131,7 @@
           <header>${basedir}/etc/header.txt</header>
           <failIfMissing>true</failIfMissing>
           <aggregate>true</aggregate>
+          <strictCheck>true</strictCheck>
           <properties>
             <license.strictCheck>true</license.strictCheck>
             <owner>Nicholas Clarke</owner>

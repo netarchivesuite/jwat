@@ -3,6 +3,7 @@ package org.jwat.warc;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.gzip.GzipInputStream;
@@ -27,6 +28,17 @@ public class WarcReaderFactory {
      * Private constructor to enforce factory method.
      */
     private WarcReaderFactory() {
+    }
+
+    public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
+        byte[] magicBytes = new byte["WARC/".length()];
+        byte[] warcBytes = "WARC/".getBytes();
+        // Look for the leading magic in front of every valid WARC file.
+        int read = pbin.readFully(magicBytes);
+        if (read > 0) {
+            pbin.unread(magicBytes, 0, read);
+        }
+        return (Arrays.equals(warcBytes, magicBytes));
     }
 
     /**
