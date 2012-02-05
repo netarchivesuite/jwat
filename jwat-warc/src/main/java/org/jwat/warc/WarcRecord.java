@@ -72,6 +72,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     long offset = -1;
 
+    /** Bytes consumed while validating this record. */
     long consumed = 0;
 
     boolean bMandatoryMissing;
@@ -313,7 +314,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         } else {
                             digest = null;
                             addValidationError(WarcErrorType.INVALID, "Encoding",
-                                    "Unknown block digest encoding");
+                                    "Unrecognized block digest encoding scheme");
                         }
                         if (digest != null) {
                             if (!Arrays.equals(computedBlockDigest.digestBytes, digest)) {
@@ -338,6 +339,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             computedBlockDigest.encoding = "base64";
                         } else if ("base16".equals(reader.blockDigestEncoding)) {
                             computedBlockDigest.encoding = "base16";
+                        } else {
+                            addValidationError(WarcErrorType.INVALID, "Encoding",
+                                    "Unknown block digest encoding scheme '" + reader.blockDigestEncoding + "'" );
                         }
                     }
                     if (computedBlockDigest.encoding != null) {
@@ -379,7 +383,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             } else {
                                 digest = null;
                                 addValidationError(WarcErrorType.INVALID, "Encoding",
-                                        "Unknown payload digest encoding");
+                                        "Unrecognized payload digest encoding scheme");
                             }
                             if (digest != null) {
                                 if (!Arrays.equals(computedPayloadDigest.digestBytes, digest)) {
@@ -404,6 +408,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 computedPayloadDigest.encoding = "base64";
                             } else if ("base16".equals(reader.payloadDigestEncoding)) {
                                 computedPayloadDigest.encoding = "base16";
+                            } else {
+                                addValidationError(WarcErrorType.INVALID, "Encoding",
+                                        "Unknown payload digest encoding scheme '" + reader.payloadDigestEncoding + "'" );
                             }
                         }
                         if (computedPayloadDigest.encoding != null) {
@@ -466,8 +473,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Returns a boolean indicating this records ISO compliance.
-     * @return a boolean indicating this records ISO compliance
+     * Returns a boolean indicating the ISO compliance status of this record.
+     * @return a boolean indicating the ISO compliance status of this record
      */
     public boolean isCompliant() {
         return bIsCompliant;
@@ -1524,9 +1531,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Get a non-standard WARC header.
+     * Get a non-standard WARC header or null, if nothing is stored for this
+     * header name.
      * @param field header name
-     * @return WARC header line structure
+     * @return WARC header line structure or null
      */
     public HeaderLine getHeader(String field) {
         if (headerMap != null && field != null) {
@@ -1570,8 +1578,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Return consumed bytes.
-     * @return consumed bytes
+     * Return number of bytes consumed validating this record.
+     * @return number of bytes consumed validating this record
      */
     public Long getConsumed() {
         return consumed;

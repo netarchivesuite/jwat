@@ -170,7 +170,7 @@ public class TestHttpResponse {
                     in.close();
 
                     Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
-                    Assert.assertEquals( "200", httpResponse.getProtocolResultCode() );
+                    Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
                     Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
                     Assert.assertEquals( n, httpResponse.getPayloadLength() );
 
@@ -229,7 +229,7 @@ public class TestHttpResponse {
                     in.close();
 
                     Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
-                    Assert.assertEquals( "200", httpResponse.getProtocolResultCode() );
+                    Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
                     Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
                     Assert.assertEquals( n, httpResponse.getPayloadLength() );
 

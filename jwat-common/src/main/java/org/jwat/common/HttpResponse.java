@@ -62,8 +62,8 @@ public class HttpResponse {
     /** Boolean indicating no such algorithm exception under initialization. */
     protected boolean bNoSuchAlgorithmException;
 
-    /** Http payload stream. */
-    protected InputStream in_exposed;
+    /** Http payload stream returned to user. */
+    protected InputStream in_payload;
 
     /** Object size, in bytes. */
     public long payloadLength = 0L;
@@ -79,7 +79,10 @@ public class HttpResponse {
     public String protocolVersion;
 
     /** Http result code. */
-    public String resultCode;
+    public String resultCodeStr;
+
+    /** Http result code. */
+    public Integer resultCode;
 
     /** Http result message. */
     public String resultMessage;
@@ -147,14 +150,14 @@ public class HttpResponse {
         }
         if (hr.md != null) {
             hr.in_digest = new DigestInputStreamNoSkip(hr.in_pb, hr.md);
-            hr.in_exposed = hr.in_digest;
+            hr.in_payload = hr.in_digest;
         } else {
-            hr.in_exposed = hr.in_pb;
+            hr.in_payload = hr.in_pb;
         }
         /*
          * Ensure close() is not called on the payload stream!
          */
-        hr.in_exposed = new FilterInputStream(hr.in_exposed) {
+        hr.in_payload = new FilterInputStream(hr.in_payload) {
             @Override
             public void close() throws IOException {
             }
@@ -169,7 +172,7 @@ public class HttpResponse {
      */
     protected boolean isProtocolResponseValid(String line) {
         int idx;
-        int pIdx;
+        int prevIdx;
         boolean isValid = (line != null) && (line.length() > 0);
         if (isValid) {
         	idx = line.indexOf(' ');
@@ -182,16 +185,16 @@ public class HttpResponse {
                 isValid = false;
         	}
             if (isValid) {
-            	pIdx = ++idx;
+            	prevIdx = ++idx;
             	idx = line.indexOf(' ', idx);
             	if (idx == -1) {
             		idx = line.length();
             	}
-            	if (idx > pIdx) {
-                	resultCode = line.substring(pIdx, idx);
+            	if (idx > prevIdx) {
+                	resultCodeStr = line.substring(prevIdx, idx);
                     try {
-                        int rc = Integer.parseInt(resultCode);
-                        if (rc < 100 || rc > 999) {
+                        resultCode = Integer.parseInt(resultCodeStr);
+                        if (resultCode < 100 || resultCode > 999) {
                             isValid = false;
                         }
                     } catch(NumberFormatException e) {
@@ -234,38 +237,38 @@ public class HttpResponse {
             }
             LineToken token = readStringUntilCRLF(in, remaining);
             remaining -= token.consumed;
-            String l = token.line;
+            String line = token.line;
             if (token.missingCr) {
                 linesWithoutCrEnding++;
             }
             if (token.missingLf) {
                 linesWithoutLfEnding++;
             }
-            if (!firstLineMatched && (l.length() != 0)) {
-                if (!isProtocolResponseValid(l)){
-                    this.addWarning("Invalid HTTP response header: " + l);
+            if (!firstLineMatched && (line.length() != 0)) {
+                if (!isProtocolResponseValid(line)){
+                    this.addWarning("Invalid HTTP response header: " + line);
                     invalidProtocolResponse = true;
                     break;
                 }
                 firstLineMatched = true;
             }
-            if (l.length() == 0) {
+            if (line.length() == 0) {
                 break;
             }
-            if (l.toUpperCase().startsWith(CONTENT_TYPE)) {
-                this.contentType = l.substring(l.indexOf(':') + 1).trim();
+            if (line.toUpperCase().startsWith(CONTENT_TYPE)) {
+                this.contentType = line.substring(line.indexOf(':') + 1).trim();
             }
             // Temporary hack to save header lines.
-            int idx = l.indexOf(':');
+            int idx = line.indexOf(':');
             HeaderLine headerLine = new HeaderLine();
             if (idx != -1) {
-                headerLine.name = l.substring(0, idx);
-                headerLine.value = l.substring(idx + 1).trim();
+                headerLine.name = line.substring(0, idx);
+                headerLine.value = line.substring(idx + 1).trim();
                 // Uses a map for fast lookup of single header.
                 headerMap.put(headerLine.name.toLowerCase(), headerLine);
            }
             else {
-                headerLine.line = l;
+                headerLine.line = line;
             }
             // Uses a list because there can be multiple occurrences.
             headerList.add(headerLine);
@@ -367,17 +370,14 @@ public class HttpResponse {
      * @return <code>List</code> of <code>HeaderLine</code>
      */
     public List<HeaderLine> getHeaderList() {
-        if (headerList != null) {
-            return Collections.unmodifiableList(headerList);
-        } else {
-            return null;
-        }
+        return Collections.unmodifiableList(headerList);
     }
 
     /**
-     * Get a header value.
+     * Get a header line structure or null, if no header line structure is
+     * stored with the given header name.
      * @param field header name
-     * @return WARC header line structure
+     * @return WARC header line structure or null
      */
     public HeaderLine getHeader(String field) {
         if (headerMap != null && field != null) {
@@ -388,10 +388,18 @@ public class HttpResponse {
     }
 
     /**
-     * Result-Code getter
+     * Result-Code string getter
      * @return the ResultCode
      */
-    public String getProtocolResultCode() {
+    public String getProtocolResultCodeStr() {
+        return resultCodeStr;
+    }
+
+    /**
+     * Result-Code integer getter
+     * @return the ResultCode
+     */
+    public Integer getProtocolResultCode() {
         return resultCode;
     }
 
@@ -460,7 +468,7 @@ public class HttpResponse {
      * payload.
      */
     public InputStream getInputStreamComplete() {
-        return new SequenceInputStream(new ByteArrayInputStream(in_flr.getRecording()), in_exposed);
+        return new SequenceInputStream(new ByteArrayInputStream(in_flr.getRecording()), in_payload);
     }
 
     /**
@@ -468,7 +476,7 @@ public class HttpResponse {
      * @return <code>InputStream</code> containing only the payload.
      */
     public InputStream getPayloadInputStream() {
-        return in_exposed;
+        return in_payload;
     }
 
     /**

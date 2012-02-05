@@ -61,6 +61,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      *  stream. */
     protected long startOffset = -1L;
 
+    /** Bytes consumed while validating this record. */
     protected long consumed;
 
     /** Validation errors. */
@@ -312,6 +313,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                         } else if ("base16".equals(reader.blockDigestEncoding)) {
                             computedBlockDigest.encoding = "base16";
                             computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
+                        } else {
+                            addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+                                    "Unsupported block digest encoding scheme '" + reader.blockDigestEncoding + "'" );
                         }
                     }
                 }
@@ -334,6 +338,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                             } else if ("base16".equals(reader.payloadDigestEncoding)) {
                                 computedPayloadDigest.encoding = "base16";
                                 computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
+                            } else {
+                                addValidationError(ArcErrorType.INVALID, ARC_RECORD,
+                                        "Unsupported payload digest encoding scheme '" + reader.payloadDigestEncoding + "'" );
                             }
                         }
                     }
@@ -383,8 +390,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Returns a boolean indicating this records standard compliance.
-     * @return a boolean indicating this records standard compliance
+     * Returns a boolean indicating the standard compliance of this record.
+     * @return a boolean indicating the standard compliance of this record
      */
     public boolean isCompliant() {
         return bIsCompliant;
@@ -753,8 +760,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Return consumed bytes.
-     * @return consumed bytes
+     * Return number of bytes consumed validating this record.
+     * @return number of bytes consumed validating this record
      */
     public Long getConsumed() {
         return consumed;

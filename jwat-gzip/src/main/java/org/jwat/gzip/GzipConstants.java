@@ -16,7 +16,7 @@ public class GzipConstants {
     /** GZip header magic number. */
     public static final int GZIP_MAGIC = 0x8b1f;
 
-    /** Deflate compression method friendly name. */
+    /** Friendly name for the deflate compression method. */
     public static final String CM_STRING_DEFLATE = "deflate";
     
     /** Deflate compression method. */

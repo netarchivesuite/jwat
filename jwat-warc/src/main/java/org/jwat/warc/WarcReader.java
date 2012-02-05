@@ -26,22 +26,22 @@ public abstract class WarcReader {
     /** Block Digest enabled/disabled. */
     protected boolean bBlockDigest = false;
 
-    /** Optional block digest algorithm to use if none is present in the
+    /** Default block digest algorithm to use if none is present in the
      *  record. */
     protected String blockDigestAlgorithm;
 
-    /** Optional encoding scheme used to encode block digest into a string,
+    /** Default encoding scheme used to encode block digest into a string,
      *  if none is detected from the record. */
     protected String blockDigestEncoding = "base32";
 
     /** Payload Digest enabled/disabled. */
     protected boolean bPayloadDigest = false;
 
-    /** Optional payload digest algorithm to use if none is present in the
+    /** Default payload digest algorithm to use if none is present in the
      *  record. */
     protected String payloadDigestAlgorithm;
 
-    /** Optional encoding scheme used to encode payload digest into a string,
+    /** Default encoding scheme used to encode payload digest into a string,
      *  if none is detected from the record. */
     protected String payloadDigestEncoding = "base32";
 
@@ -52,9 +52,8 @@ public abstract class WarcReader {
     protected Exception iteratorExceptionThrown;
 
     /**
-     * Returns a boolean indicating whether the reader has only parsed
-     * compliant records up to now.
-     * @return a boolean indicating all compliant records parsed to far
+     * Returns a boolean indicating if all records parsed so far are compliant.
+     * @return a boolean indicating if all records parsed so far are compliant
      */
     public boolean isCompliant() {
         return bIsCompliant;
@@ -105,18 +104,18 @@ public abstract class WarcReader {
     }
 
     /**
-     * Get the optional block digest algorithm.
-     * @return optional block digest algorithm
+     * Get the default block digest algorithm.
+     * @return default block digest algorithm
      */
     public String getBlockDigestAlgorithm() {
         return blockDigestAlgorithm;
     }
 
     /**
-     * Set the optional block digest algorithm. This algorithm is only used
+     * Set the default block digest algorithm. This algorithm is only used
      * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm block digest algorithm
-     * (null means optional block digest is disabled)
+     * (null means default block digest is disabled)
      * @throws NoSuchAlgorithmException occurs in case the algorithm can not
      * be identified
      */
@@ -129,18 +128,18 @@ public abstract class WarcReader {
     }
 
     /**
-     * Get the optional payload digest algorithm.
-     * @return optional payload digest algorithm
+     * Get the default payload digest algorithm.
+     * @return default payload digest algorithm
      */
     public String getPayloadDigestAlgorithm() {
         return payloadDigestAlgorithm;
     }
 
     /**
-     * Set the optional payload digest algorithm. This algorithm is only used
+     * Set the default payload digest algorithm. This algorithm is only used
      * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm payload digest algorithm
-     * (null means optional payload digest is disabled)
+     * (null means default payload digest is disabled)
      * @throws NoSuchAlgorithmException occurs in case the algorithm can not
      * be identified
      */
@@ -153,44 +152,44 @@ public abstract class WarcReader {
     }
 
     /**
-     * Get the optional block digest encoding scheme.
-     * @return optional block digest encoding scheme
+     * Get the default block digest encoding scheme.
+     * @return default block digest encoding scheme
      */
     public String getBlockDigestEncoding() {
         return blockDigestEncoding;
     }
 
     /**
-     * Set the optional block digest encoding scheme. This scheme is only
+     * Set the default block digest encoding scheme. This scheme is only
      * used if none can be inferred from an existing block digest header.
-     * @param encoding encoding scheme
-     * (null means optional block digest is not encoded)
+     * @param encodingScheme encoding scheme
+     * (null means default block digest is not encoded)
      */
-    public void setBlockDigestEncoding(String encoding) {
-        if (encoding != null && encoding.length() > 0) {
-            blockDigestEncoding = encoding.toLowerCase();
+    public void setBlockDigestEncoding(String encodingScheme) {
+        if (encodingScheme != null && encodingScheme.length() > 0) {
+            blockDigestEncoding = encodingScheme.toLowerCase();
         } else {
             blockDigestEncoding = null;
         }
     }
 
     /**
-     * Get the optional payload digest encoding scheme.
-     * @return optional payload digest encoding scheme
+     * Get the default payload digest encoding scheme.
+     * @return default payload digest encoding scheme
      */
     public String getPayloadDigestEncoding() {
         return payloadDigestEncoding;
     }
 
     /**
-     * Set the optional payload digest encoding scheme. This scheme is only
+     * Set the default payload digest encoding scheme. This scheme is only
      * used if none can be inferred from an existing payload digest header.
-     * @param encoding encoding scheme
-     * (null means optional payload digest is not encoded)
+     * @param encodingScheme encoding scheme
+     * (null means default payload digest is not encoded)
      */
-    public void setPayloadDigestEncoding(String encoding) {
-        if (encoding != null && encoding.length() > 0) {
-            payloadDigestEncoding = encoding.toLowerCase();
+    public void setPayloadDigestEncoding(String encodingScheme) {
+        if (encodingScheme != null && encodingScheme.length() > 0) {
+            payloadDigestEncoding = encodingScheme.toLowerCase();
         } else {
             payloadDigestEncoding = null;
         }
@@ -201,7 +200,9 @@ public abstract class WarcReader {
      */
     public abstract void close();
 
-    /** Get number of bytes consumed by this reader. */
+    /** Get number of bytes consumed by this reader.
+     * @return number of bytes consumed by this reader
+     */
    public long getConsumed() {
         return consumed;
     }

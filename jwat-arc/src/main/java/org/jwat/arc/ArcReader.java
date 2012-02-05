@@ -158,12 +158,12 @@ public abstract class ArcReader {
 
     /**
      * Set the optional block digest encoding scheme.
-     * @param encoding encoding scheme
+     * @param encodingScheme encoding scheme
      * (null means optional block digest is not encoded)
      */
-    public void setBlockDigestEncoding(String encoding) {
-        if (encoding != null && encoding.length() > 0) {
-            blockDigestEncoding = encoding.toLowerCase();
+    public void setBlockDigestEncoding(String encodingScheme) {
+        if (encodingScheme != null && encodingScheme.length() > 0) {
+            blockDigestEncoding = encodingScheme.toLowerCase();
         } else {
             blockDigestEncoding = null;
         }
@@ -179,12 +179,12 @@ public abstract class ArcReader {
 
     /**
      * Set the optional payload digest encoding scheme.
-     * @param encoding encoding scheme
+     * @param encodingScheme encoding scheme
      * (null means optional payload digest is not encoded)
      */
-    public void setPayloadDigestEncoding(String encoding) {
-        if (encoding != null && encoding.length() > 0) {
-            payloadDigestEncoding = encoding.toLowerCase();
+    public void setPayloadDigestEncoding(String encodingScheme) {
+        if (encodingScheme != null && encodingScheme.length() > 0) {
+            payloadDigestEncoding = encodingScheme.toLowerCase();
         } else {
             payloadDigestEncoding = null;
         }
@@ -203,7 +203,9 @@ public abstract class ArcReader {
     @Deprecated
     public abstract long getOffset();
 
-    /** Get number of bytes consumed by this reader. */
+    /** Get number of bytes consumed by this reader.
+     * @return number of bytes consumed by this reader
+     */
     public long getConsumed() {
         return consumed;
     }
