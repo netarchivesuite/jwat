@@ -35,7 +35,7 @@ public class TestNonWarcHeaders {
     }
 
     @Test
-    public void test() {
+    public void test_non_warc_headers() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

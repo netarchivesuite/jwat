@@ -38,7 +38,7 @@ public class TestFields {
     }
 
     @Test
-    public void test() {
+    public void test_fields() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

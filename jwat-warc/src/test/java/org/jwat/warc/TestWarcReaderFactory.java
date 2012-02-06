@@ -46,7 +46,7 @@ public class TestWarcReaderFactory {
     }
 
     @Test
-    public void test() {
+    public void test_warcreaderfactory_autodetect() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

@@ -14,6 +14,9 @@ import java.util.Map;
 public class GzipConstants {
 
     /** GZip header magic number. */
+    public static final byte[] GZIP_MAGIC_HEADER = new byte[] {(byte)0x1f, (byte)0x8b};
+
+    /** GZip header magic number. */
     public static final int GZIP_MAGIC = 0x8b1f;
 
     /** Friendly name for the deflate compression method. */

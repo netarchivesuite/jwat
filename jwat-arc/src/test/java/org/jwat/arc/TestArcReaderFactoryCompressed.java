@@ -38,7 +38,7 @@ public class TestArcReaderFactoryCompressed {
     }
 
     @Test
-    public void test() {
+    public void test_arcreaderfactory_compressed() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;

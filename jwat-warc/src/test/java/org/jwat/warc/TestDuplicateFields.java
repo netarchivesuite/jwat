@@ -39,7 +39,7 @@ public class TestDuplicateFields {
     }
 
     @Test
-    public void test() {
+    public void test_duplicate_fields() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

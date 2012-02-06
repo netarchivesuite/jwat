@@ -39,7 +39,7 @@ public class TestArcNextAndIterRecord {
     }
 
     @Test
-    public void test() {
+    public void test_arcreader_nextrecord_and_iterator() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

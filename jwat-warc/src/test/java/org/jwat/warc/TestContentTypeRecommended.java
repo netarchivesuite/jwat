@@ -38,7 +38,7 @@ public class TestContentTypeRecommended {
     }
 
     @Test
-    public void test() {
+    public void test_contenttype_recommended() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

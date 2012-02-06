@@ -52,14 +52,14 @@ public class GzipInputStream extends InflaterInputStream
 
     /**
      * Check head of <code>PushBackInputStream</code> for a GZip magic number.
-     * @param pbin <code>PushBackInputStream</code> with records
-     * @return boolean indicating presence of GZip magic number
-     * @throws IOException io exception while examing head of stream
+     * @param pbin <code>PushBackInputStream</code> with GZip entries
+     * @return boolean indicating presence of a GZip magic number
+     * @throws IOException if an io error occurs while examining head of stream
      */
     public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
-        //  Look for the leading 2 magic bytes in front of every valid GZip.
+        // Look for the leading 2 magic bytes in front of every valid GZip entry.
         int read = pbin.readFully(magicBytes);
         if (read == 2) {
             magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);

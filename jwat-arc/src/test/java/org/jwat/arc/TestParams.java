@@ -17,7 +17,7 @@ import org.jwat.gzip.GzipInputStream;
 public class TestParams {
 
     @Test
-    public void test() throws IOException {
+    public void test_parameters() throws IOException {
         String str;
         InputStream is;
 

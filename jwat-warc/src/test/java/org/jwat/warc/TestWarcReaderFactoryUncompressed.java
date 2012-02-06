@@ -52,7 +52,7 @@ public class TestWarcReaderFactoryUncompressed {
     }
 
     @Test
-    public void test() {
+    public void test_warcreaderfactory_uncompressed() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;

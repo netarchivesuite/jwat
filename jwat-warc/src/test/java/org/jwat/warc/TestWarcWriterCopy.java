@@ -36,7 +36,7 @@ public class TestWarcWriterCopy {
     }
 
     @Test
-    public void test() {
+    public void test_warcwriter_cloning() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

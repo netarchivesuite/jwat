@@ -34,7 +34,7 @@ public class TestUpperLowerCase {
     }
 
     @Test
-    public void test() {
+    public void test_uppercase_lowercase() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

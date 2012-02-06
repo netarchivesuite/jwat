@@ -30,10 +30,16 @@ public class WarcReaderFactory {
     private WarcReaderFactory() {
     }
 
+    /**
+     * Check head of <code>PushBackInputStream</code> for a WARC magic number.
+     * @param pbin <code>PushBackInputStream</code> with WARC records
+     * @return boolean indicating presence of a WARC magic number
+     * @throws IOException if an io error occurs while examining head of stream
+     */
     public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
-        byte[] magicBytes = new byte["WARC/".length()];
-        byte[] warcBytes = "WARC/".getBytes();
-        // Look for the leading magic in front of every valid WARC file.
+        byte[] magicBytes = new byte[WarcConstants.WARC_MAGIC_HEADER.length()];
+        byte[] warcBytes = WarcConstants.WARC_MAGIC_HEADER.getBytes();
+        // Look for the leading magic bytes in front of every valid WARC record.
         int read = pbin.readFully(magicBytes);
         if (read > 0) {
             pbin.unread(magicBytes, 0, read);

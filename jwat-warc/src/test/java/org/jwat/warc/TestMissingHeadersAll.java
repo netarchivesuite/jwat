@@ -45,7 +45,7 @@ public class TestMissingHeadersAll {
     }
 
     @Test
-    public void test() {
+    public void test_missing_headers() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

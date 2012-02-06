@@ -37,7 +37,7 @@ public class TestSegmentNumber {
     }
 
     @Test
-    public void test() {
+    public void test_segment_number() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

@@ -30,10 +30,16 @@ public class ArcReaderFactory {
     private ArcReaderFactory() {
     }
 
+    /**
+     * Check head of <code>PushBackInputStream</code> for an ARC magic number.
+     * @param pbin <code>PushBackInputStream</code> with an ARC version block
+     * @return boolean indicating presence of an ARC magic number
+     * @throws IOException if an io error occurs while examining head of stream
+     */
     public static boolean isArcFile(ByteCountingPushBackInputStream pbin) throws IOException {
-        byte[] magicBytes = new byte["filedesc:".length()];
-        byte[] arcBytes = "filedesc:".getBytes();
-        // Look for the leading magic in front of every valid ARC file.
+        byte[] magicBytes = new byte[ArcConstants.ARC_MAGIC_HEADER.length()];
+        byte[] arcBytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
+        // Look for the leading magic bytes in front of every valid ARC file.
         int read = pbin.readFully(magicBytes);
         if (read > 0) {
             pbin.unread(magicBytes, 0, read);

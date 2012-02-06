@@ -38,7 +38,7 @@ public class TestArcReaderFactoryUncompressed {
     }
 
     @Test
-    public void test() {
+    public void test_arcreaderfactory_uncompressed() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;

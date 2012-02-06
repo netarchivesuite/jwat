@@ -36,7 +36,7 @@ public class TestDigestFields {
     }
 
     @Test
-    public void test() {
+    public void test_digest_fields() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

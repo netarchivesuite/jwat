@@ -8,6 +8,9 @@ package org.jwat.arc;
  */
 public final class ArcConstants {
 
+    /** An ARC version block starts with this string. */
+    public static final String ARC_MAGIC_HEADER = "filedesc:";
+
     /** Arc file magic number. */
     public static final String ARC_SCHEME = "filedesc://";
 

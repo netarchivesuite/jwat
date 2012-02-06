@@ -38,7 +38,7 @@ public class TestUtf8 {
     }
 
     @Test
-    public void test() {
+    public void test_utf8() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
