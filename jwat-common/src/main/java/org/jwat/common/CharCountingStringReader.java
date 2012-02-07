@@ -101,18 +101,18 @@ public class CharCountingStringReader extends StringReader {
      */
     public String readLine() throws IOException {
         StringBuilder buf = new StringBuilder();
-    	int c;
+        int c;
         while (true) {
-        	c = read();
-        	if (c == -1) {
-        		return null;
-        	}
-        	if (c == '\n') {
-        		break;
-        	}
-        	if (c != '\r') {
+            c = read();
+            if (c == -1) {
+                return null;
+            }
+            if (c == '\n') {
+                break;
+            }
+            if (c != '\r') {
                 buf.append((char) c);
-        	}
+            }
         }
         return buf.toString();
     }

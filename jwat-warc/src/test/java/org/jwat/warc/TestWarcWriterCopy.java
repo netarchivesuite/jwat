@@ -1,6 +1,7 @@
 package org.jwat.warc;
 
 import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,6 +41,7 @@ public class TestWarcWriterCopy {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
+        RandomAccessFile raf = null;
 
         WarcReader reader;
         WarcRecord record;
@@ -54,7 +56,7 @@ public class TestWarcWriterCopy {
 
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-            RandomAccessFile raf = new RandomAccessFile("WarcWriteTest.warc", "rw");
+            raf = new RandomAccessFile("WarcWriteTest.warc", "rw");
             raf.seek(0);
             raf.setLength(0);
             //OutputStream out = new FileOutputStream( "WarcWriteTest.warc" );
@@ -149,6 +151,17 @@ public class TestWarcWriterCopy {
         }
         catch (IOException e) {
             Assert.fail("Unexpected io exception");
+        }
+        finally {
+            if ( raf != null ) {
+                try {
+                    raf.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                    Assert.fail( "Exception not expected!" );
+                }
+            }
         }
 
     }

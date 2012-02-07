@@ -175,23 +175,23 @@ public class HttpResponse {
         int prevIdx;
         boolean isValid = (line != null) && (line.length() > 0);
         if (isValid) {
-        	idx = line.indexOf(' ');
-        	if (idx > 0) {
+            idx = line.indexOf(' ');
+            if (idx > 0) {
                 protocolVersion = line.substring(0, idx);
                 if (!protocolVersion.startsWith(HTTP)) {
                     isValid = false;
                 }
-        	} else {
+            } else {
                 isValid = false;
-        	}
+            }
             if (isValid) {
-            	prevIdx = ++idx;
-            	idx = line.indexOf(' ', idx);
-            	if (idx == -1) {
-            		idx = line.length();
-            	}
-            	if (idx > prevIdx) {
-                	resultCodeStr = line.substring(prevIdx, idx);
+                prevIdx = ++idx;
+                idx = line.indexOf(' ', idx);
+                if (idx == -1) {
+                    idx = line.length();
+                }
+                if (idx > prevIdx) {
+                    resultCodeStr = line.substring(prevIdx, idx);
                     try {
                         resultCode = Integer.parseInt(resultCodeStr);
                         if (resultCode < 100 || resultCode > 999) {
@@ -200,15 +200,15 @@ public class HttpResponse {
                     } catch(NumberFormatException e) {
                         isValid = false;
                     }
-            	} else {
+                } else {
                     isValid = false;
-            	}
-            	if (isValid) {
-            		if (idx < line.length()) {
-            			++idx;
-            			resultMessage = line.substring(idx);
-            		}
-            	}
+                }
+                if (isValid) {
+                    if (idx < line.length()) {
+                        ++idx;
+                        resultMessage = line.substring(idx);
+                    }
+                }
             }
         }
         return isValid;

@@ -15,37 +15,37 @@ public class TestMagic {
 
     @Test
     public void test_magicbytes() {
-    	byte[] bytes;
-    	ByteCountingPushBackInputStream pbin;
-    	try {
-        	bytes = GzipConstants.GZIP_MAGIC_HEADER;
-        	pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
-			Assert.assertTrue(GzipInputStream.isGziped(pbin));
-	    	pbin.close();
+        byte[] bytes;
+        ByteCountingPushBackInputStream pbin;
+        try {
+            bytes = GzipConstants.GZIP_MAGIC_HEADER;
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(GzipInputStream.isGziped(pbin));
+            pbin.close();
 
-        	bytes = new byte[] {(byte)0x1f, (byte)0x8b, (byte)0x2f};
-        	pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
-			Assert.assertTrue(GzipInputStream.isGziped(pbin));
-	    	pbin.close();
+            bytes = new byte[] {(byte)0x1f, (byte)0x8b, (byte)0x2f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(GzipInputStream.isGziped(pbin));
+            pbin.close();
 
-        	bytes = new byte[] {(byte)0x8b, (byte)0x1f};
-        	pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
-			Assert.assertFalse(GzipInputStream.isGziped(pbin));
-	    	pbin.close();
+            bytes = new byte[] {(byte)0x8b, (byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipInputStream.isGziped(pbin));
+            pbin.close();
 
-        	bytes = new byte[] {(byte)0x1f};
-        	pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
-			Assert.assertFalse(GzipInputStream.isGziped(pbin));
-	    	pbin.close();
+            bytes = new byte[] {(byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipInputStream.isGziped(pbin));
+            pbin.close();
 
-        	bytes = new byte[] {(byte)0x8b};
-        	pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
-			Assert.assertFalse(GzipInputStream.isGziped(pbin));
-	    	pbin.close();
-    	} catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail("Exception not expected!");
-		}
+            bytes = new byte[] {(byte)0x8b};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipInputStream.isGziped(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
     }
 
 }
