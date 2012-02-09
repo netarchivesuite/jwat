@@ -6,6 +6,16 @@
     <format>zip</format>
     <format>tar.gz</format>
   </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${main.basedir}</directory>
+      <includes>
+        <include>LICENSE*</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
   <dependencySets>
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
