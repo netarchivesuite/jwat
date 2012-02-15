@@ -42,13 +42,16 @@ public class GzipConstants {
     /** Deflate compression method. */
     public static final int CM_DEFLATE = 8;
 
+    public static final int DEFLATE_XFL_MAXIMUM_COMPRESSION = 2;
+    public static final int DEFLATE_XFL_FASTEST_COMPRESSION = 4;
+
     /** File header flags. */
-    public static final int FTEXT      = 1;    // Extra text
-    public static final int FHCRC      = 2;    // Header CRC
-    public static final int FEXTRA     = 4;    // Extra field
-    public static final int FNAME      = 8;    // File name
-    public static final int FCOMMENT   = 16;   // File comment
-    public static final int FRESERVED  = 224;  // Reserved flags
+    public static final int FLG_FTEXT = 1;			// Extra text
+    public static final int FLG_FHCRC = 2;			// Header CRC
+    public static final int FLG_FEXTRA = 4;			// Extra field
+    public static final int FLG_FNAME = 8;			// File name
+    public static final int FLG_FCOMMENT = 16;		// File comment
+    public static final int FLG_FRESERVED = 224;	// Reserved flags
 
     public static final String OS_STRING_FAT_FS = "FAT filesystem (MS-DOS, OS/2, NT/Win32)";
     public static final String OS_STRING_AMIGA = "Amiga";
@@ -106,6 +109,9 @@ public class GzipConstants {
         osIdxStr.put(OS_UNKNOWN, OS_STRING_UNKNOWN);
     }
 
+    /**
+     * This utility class does not require instantiation.
+     */
     private GzipConstants() {
     }
 

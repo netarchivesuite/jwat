@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4;
 public class TestInvalid {
 
     @Test
-    public void test() throws IOException {
+    public void test_invalid_gzip_inputstream() throws IOException {
         InputStream in;
         GzipInputStream gzin;
         GzipEntry entry;
@@ -67,6 +67,52 @@ public class TestInvalid {
             Assert.fail("Exception expected!");
         }
         catch (ZipException e) {
+        }
+        in.close();
+    }
+
+    @Test
+    public void test_invalid_gzip_reader() throws IOException {
+        InputStream in;
+        GzipReader reader;
+        GzipReaderEntry entry;
+
+        in = this.getClass().getClassLoader().getResourceAsStream("invalid-compression.gz");
+        reader = new GzipReader(in);
+        try {
+            while ((entry = reader.getNextEntry()) != null) {
+                entry.close();
+            }
+            reader.close();
+        }
+        catch (IOException e) {
+            Assert.fail("Unexpected exception!");
+        }
+        in.close();
+
+        in = this.getClass().getClassLoader().getResourceAsStream("invalid-entries.gz");
+        reader = new GzipReader(in);
+        try {
+            while ((entry = reader.getNextEntry()) != null) {
+                entry.close();
+            }
+            reader.close();
+        }
+        catch (IOException e) {
+            Assert.fail("Unexpected exception!");
+        }
+        in.close();
+
+        in = this.getClass().getClassLoader().getResourceAsStream("invalid-magic.gz");
+        reader = new GzipReader(in);
+        try {
+            while ((entry = reader.getNextEntry()) != null) {
+                entry.close();
+            }
+            reader.close();
+        }
+        catch (IOException e) {
+            Assert.fail("Unexpected exception!");
         }
         in.close();
     }

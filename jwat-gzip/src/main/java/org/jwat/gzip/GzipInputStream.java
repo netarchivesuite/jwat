@@ -300,34 +300,34 @@ public class GzipInputStream extends InflaterInputStream
         int os = readUByte(cis);
 
         // Check ASCII text flag
-        boolean asciiFlag = ((flg & GzipConstants.FTEXT) == GzipConstants.FTEXT);
+        boolean asciiFlag = ((flg & GzipConstants.FLG_FTEXT) == GzipConstants.FLG_FTEXT);
 
         // Read optional extra fields
         byte[] extraFields = null;
-        if ((flg & GzipConstants.FEXTRA) == GzipConstants.FEXTRA) {
+        if ((flg & GzipConstants.FLG_FEXTRA) == GzipConstants.FLG_FEXTRA) {
             int xlen = readUShort(cis);
             extraFields = readBytes(cis, xlen);
         }
 
         // Read optional file name
         String fileName = null;
-        if ((flg & GzipConstants.FNAME) == GzipConstants.FNAME) {
+        if ((flg & GzipConstants.FLG_FNAME) == GzipConstants.FLG_FNAME) {
             fileName = readString(cis);
         }
 
         // Read optional file comment
         String comment = null;
-        if ((flg & GzipConstants.FCOMMENT) == GzipConstants.FCOMMENT) {
+        if ((flg & GzipConstants.FLG_FCOMMENT) == GzipConstants.FLG_FCOMMENT) {
             comment = readString(cis);
         }
 
         // Check that no reserved flags is set
-        int reservedFlags = (flg & GzipConstants.FRESERVED);
+        int reservedFlags = (flg & GzipConstants.FLG_FRESERVED);
 
         // Check optional header CRC
         int readCrc16 = -1;
         int computedCrc16 = ((int)(this.crc.getValue())) & 0x0000ffff;
-        if ((flg & GzipConstants.FHCRC) == GzipConstants.FHCRC) {
+        if ((flg & GzipConstants.FLG_FHCRC) == GzipConstants.FLG_FHCRC) {
             readCrc16 = readUShort(cis);
         }
 

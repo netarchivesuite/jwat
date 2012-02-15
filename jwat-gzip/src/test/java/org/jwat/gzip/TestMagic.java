@@ -31,7 +31,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 public class TestMagic {
 
     @Test
-    public void test_magicbytes() {
+    public void test_magicbytes_old() {
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {
@@ -64,5 +64,41 @@ public class TestMagic {
             Assert.fail("Exception not expected!");
         }
     }
+
+    @Test
+    public void test_magicbytes_new() {
+        byte[] bytes;
+        ByteCountingPushBackInputStream pbin;
+        try {
+            bytes = GzipConstants.GZIP_MAGIC_HEADER;
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(GzipReader.isGziped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x1f, (byte)0x8b, (byte)0x2f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(GzipReader.isGziped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x8b, (byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipReader.isGziped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipReader.isGziped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x8b};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(GzipReader.isGziped(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+    }
+
 
 }

@@ -34,6 +34,7 @@ public class DigestInputStreamNoSkip extends DigestInputStream {
     /** Buffer size to use when read skipping. */
     public static final int SKIP_READ_BUFFER_SIZE = 1024;
 
+    /** Read buffer used by the skip method. */
     protected byte[] skip_read_buffer = new byte[SKIP_READ_BUFFER_SIZE];
 
     /**
