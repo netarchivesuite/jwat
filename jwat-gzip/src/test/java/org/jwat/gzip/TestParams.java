@@ -32,98 +32,98 @@ public class TestParams {
 
     @Test
     public void test_parameters() throws IOException {
-    	GzipReader reader;
+        GzipReader reader;
 
-    	ByteArrayInputStream in = new ByteArrayInputStream(new byte[] {42});
+        ByteArrayInputStream in = new ByteArrayInputStream(new byte[] {42});
 
-    	try {
-        	reader = new GzipReader(null);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-        	reader = new GzipReader(null, 1024);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-        	reader = new GzipReader(in, -1);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-        	reader = new GzipReader(in, -0);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	reader = new GzipReader(in, 1024);
+        try {
+            reader = new GzipReader(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            reader = new GzipReader(null, 1024);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            reader = new GzipReader(in, -1);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            reader = new GzipReader(in, -0);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        reader = new GzipReader(in, 1024);
 
-    	GzipWriter writer;
+        GzipWriter writer;
 
-    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    	try {
-    	writer = new GzipWriter(null);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-    		writer = new GzipWriter(null, 1024);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-    		writer = new GzipWriter(out, -1);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	try {
-    		writer = new GzipWriter(out, 0);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
-    	writer = new GzipWriter(out, 1024);
+        try {
+        writer = new GzipWriter(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new GzipWriter(null, 1024);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new GzipWriter(out, -1);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new GzipWriter(out, 0);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        writer = new GzipWriter(out, 1024);
 
-		GzipReaderEntry entry = new GzipReaderEntry();
-		entry.magic = GzipConstants.GZIP_MAGIC;
-		entry.cm = GzipConstants.CM_DEFLATE;
-		entry.flg = 0;
-		entry.mtime = System.currentTimeMillis() / 1000;
-		entry.xfl = 0;
-		entry.os = GzipConstants.OS_AMIGA;
+        GzipReaderEntry entry = new GzipReaderEntry();
+        entry.magic = GzipConstants.GZIP_MAGIC;
+        entry.cm = GzipConstants.CM_DEFLATE;
+        entry.flg = 0;
+        entry.mtime = System.currentTimeMillis() / 1000;
+        entry.xfl = 0;
+        entry.os = GzipConstants.OS_AMIGA;
 
-    	try {
-    		writer.writeEntryHeader(null);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
+        try {
+            writer.writeEntryHeader(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
 
-    	try {
-    		entry.writeFrom(null);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
+        try {
+            entry.writeFrom(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
 
-		writer.writeEntryHeader(entry);
+        writer.writeEntryHeader(entry);
 
-    	try {
-    		entry.writeFrom(null);
-    		Assert.fail("Exception expected!");
-    	}
-    	catch (IllegalArgumentException e) {
-    	}
+        try {
+            entry.writeFrom(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
 
-    	entry.writeFrom(in);
+        entry.writeFrom(in);
     }
 
 }

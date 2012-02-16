@@ -33,289 +33,289 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestFlagged {
 
-	protected ByteArrayOutputStream out = new ByteArrayOutputStream();
+    protected ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-	protected byte[] tmpBuf = new byte[768];
+    protected byte[] tmpBuf = new byte[768];
 
-	@Test
-	public void test_gzip_writer() {
-		GzipReaderEntry wEntry = new GzipReaderEntry();
-		wEntry.magic = GzipConstants.GZIP_MAGIC;
-		wEntry.cm = GzipConstants.CM_DEFLATE;
-		wEntry.flg = 0;
-		wEntry.mtime = System.currentTimeMillis() / 1000;
-		wEntry.xfl = 0;
-		wEntry.os = GzipConstants.OS_AMIGA;
-		wEntry.bFText = true;
-		wEntry.extraBytes = new byte[] { 'W', 'A', 0, 5, 'D', 'o', 'l', 'l', 'y' };
-		wEntry.fname = "hello dolly";
-		wEntry.fcomment = "This is my gzip'ed sheep\nDolly!";
-		wEntry.bFhCrc = true;
+    @Test
+    public void test_gzip_writer() {
+        GzipReaderEntry wEntry = new GzipReaderEntry();
+        wEntry.magic = GzipConstants.GZIP_MAGIC;
+        wEntry.cm = GzipConstants.CM_DEFLATE;
+        wEntry.flg = 0;
+        wEntry.mtime = System.currentTimeMillis() / 1000;
+        wEntry.xfl = 0;
+        wEntry.os = GzipConstants.OS_AMIGA;
+        wEntry.bFText = true;
+        wEntry.extraBytes = new byte[] { 'W', 'A', 0, 5, 'D', 'o', 'l', 'l', 'y' };
+        wEntry.fname = "hello dolly";
+        wEntry.fcomment = "This is my gzip'ed sheep\nDolly!";
+        wEntry.bFhCrc = true;
 
-		byte[] data = null;
-		try {
-			data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-		}
-		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			Assert.fail("Unexpected exception!");
-		}
+        byte[] data = null;
+        try {
+            data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
 
-		ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
 
-		byte[] gzipFile = null;
+        byte[] gzipFile = null;
 
-		try {
-			GzipWriter writer = new GzipWriter(out);
-			writer.writeEntryHeader(wEntry);
-			wEntry.writeFrom(in);
-			in.close();
-			wEntry.close();
-			writer.close();
-			out.flush();
-			out.close();
+        try {
+            GzipWriter writer = new GzipWriter(out);
+            writer.writeEntryHeader(wEntry);
+            wEntry.writeFrom(in);
+            in.close();
+            wEntry.close();
+            writer.close();
+            out.flush();
+            out.close();
 
-			gzipFile = out.toByteArray();
+            gzipFile = out.toByteArray();
 
-			GzipReader reader;
-        	reader = new GzipReader(new ByteArrayInputStream(gzipFile));
+            GzipReader reader;
+            reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-        	GzipReaderEntry rEntry;
-        	InputStream entryIn;
-        	int read;
-        	if ((rEntry = reader.getNextEntry()) != null) {
-        		out.reset();
-        		entryIn = rEntry.getInputStream();
-        		Assert.assertEquals(1, entryIn.available());
-        		while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
-        			out.write(tmpBuf, 0, read);
-        		}
-        		entryIn.close();
-        		Assert.assertEquals(0, entryIn.available());
-        		Assert.assertEquals(-1, entryIn.read());
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf));
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
-        		Assert.assertEquals(0, entryIn.skip(1024));
-        		rEntry.close();
+            GzipReaderEntry rEntry;
+            InputStream entryIn;
+            int read;
+            if ((rEntry = reader.getNextEntry()) != null) {
+                out.reset();
+                entryIn = rEntry.getInputStream();
+                Assert.assertEquals(1, entryIn.available());
+                while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                entryIn.close();
+                Assert.assertEquals(0, entryIn.available());
+                Assert.assertEquals(-1, entryIn.read());
+                Assert.assertEquals(-1, entryIn.read(tmpBuf));
+                Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
+                Assert.assertEquals(0, entryIn.skip(1024));
+                rEntry.close();
                 Assert.assertArrayEquals(data, out.toByteArray());
-        		out.close();
-        		out.reset();
+                out.close();
+                out.reset();
 
-        		Assert.assertEquals(wEntry.cm, rEntry.cm);
-        		Assert.assertEquals(wEntry.flg, rEntry.flg);
-        		Assert.assertEquals(wEntry.mtime, rEntry.mtime);
-        		Assert.assertEquals(wEntry.date, rEntry.date);
-        		Assert.assertEquals(wEntry.xfl, rEntry.xfl);
-        		Assert.assertEquals(wEntry.os, rEntry.os);
-        		Assert.assertEquals(wEntry.bFText, rEntry.bFText);
-        		Assert.assertEquals(wEntry.xlen, rEntry.xlen);
-        		Assert.assertArrayEquals(wEntry.extraBytes, rEntry.extraBytes);
-        		Assert.assertEquals(wEntry.fname, rEntry.fname);
-        		Assert.assertEquals(wEntry.fcomment, rEntry.fcomment);
-        		Assert.assertEquals(wEntry.bFhCrc, rEntry.bFhCrc);
-        		Assert.assertEquals(wEntry.crc16, rEntry.crc16);
-        		Assert.assertEquals(wEntry.comp_crc16, rEntry.comp_crc16);
-        		Assert.assertEquals(wEntry.crc32, rEntry.crc32);
-        		Assert.assertEquals(wEntry.comp_crc32, rEntry.comp_crc32);
-        		Assert.assertEquals(wEntry.isize, rEntry.isize);
-        		Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
-        		Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
-        		Assert.assertEquals(wEntry.toString(), rEntry.toString());
-        	}
-        	else {
-        		Assert.fail("Expected an entry!");
-        	}
-        	if (reader.getNextEntry() != null) {
-        		Assert.fail("Did not expect more entries!");
-        	}
-        	reader.close();
+                Assert.assertEquals(wEntry.cm, rEntry.cm);
+                Assert.assertEquals(wEntry.flg, rEntry.flg);
+                Assert.assertEquals(wEntry.mtime, rEntry.mtime);
+                Assert.assertEquals(wEntry.date, rEntry.date);
+                Assert.assertEquals(wEntry.xfl, rEntry.xfl);
+                Assert.assertEquals(wEntry.os, rEntry.os);
+                Assert.assertEquals(wEntry.bFText, rEntry.bFText);
+                Assert.assertEquals(wEntry.xlen, rEntry.xlen);
+                Assert.assertArrayEquals(wEntry.extraBytes, rEntry.extraBytes);
+                Assert.assertEquals(wEntry.fname, rEntry.fname);
+                Assert.assertEquals(wEntry.fcomment, rEntry.fcomment);
+                Assert.assertEquals(wEntry.bFhCrc, rEntry.bFhCrc);
+                Assert.assertEquals(wEntry.crc16, rEntry.crc16);
+                Assert.assertEquals(wEntry.comp_crc16, rEntry.comp_crc16);
+                Assert.assertEquals(wEntry.crc32, rEntry.crc32);
+                Assert.assertEquals(wEntry.comp_crc32, rEntry.comp_crc32);
+                Assert.assertEquals(wEntry.isize, rEntry.isize);
+                Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
+                Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
+                Assert.assertEquals(wEntry.toString(), rEntry.toString());
+            }
+            else {
+                Assert.fail("Expected an entry!");
+            }
+            if (reader.getNextEntry() != null) {
+                Assert.fail("Did not expect more entries!");
+            }
+            reader.close();
 
             GzipInputStream gzin;
             GzipEntry entry;
             InputStream gzis;
             gzin = new GzipInputStream(new ByteArrayInputStream(gzipFile));
             if ((entry = gzin.getNextEntry()) != null) {
-            	out.reset();
-            	gzis = gzin.getEntryInputStream();
-            	Assert.assertEquals(1, gzin.available());
-            	while ((read = gzin.read(tmpBuf)) != -1) {
-            		out.write(tmpBuf, 0, read);
-            	}
-            	Assert.assertEquals(0, gzin.available());
-            	gzis.close();
-            	Assert.assertEquals(0, gzin.available());
+                out.reset();
+                gzis = gzin.getEntryInputStream();
+                Assert.assertEquals(1, gzin.available());
+                while ((read = gzin.read(tmpBuf)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                Assert.assertEquals(0, gzin.available());
+                gzis.close();
+                Assert.assertEquals(0, gzin.available());
                 gzin.closeEntry();
-            	Assert.assertEquals(0, gzin.available());
+                Assert.assertEquals(0, gzin.available());
                 out.close();
                 Assert.assertArrayEquals(data, out.toByteArray());
                 out.reset();
 
-        		Assert.assertEquals(rEntry.cm, entry.method);
-        		Assert.assertEquals((rEntry.mtime == 0) ? -1 : rEntry.mtime * 1000, entry.getTime());
-        		Assert.assertEquals(rEntry.os, entry.os);
-        		Assert.assertEquals(rEntry.xfl, entry.extraFlags);
-        		Assert.assertEquals(rEntry.fname, entry.fileName);
-        		Assert.assertEquals(rEntry.fcomment, entry.getComment());
-        		Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
-        		Assert.assertEquals(rEntry.crc32 & 0xffffffffL, entry.readCrc32 & 0xffffffffL);
-        		Assert.assertEquals(rEntry.isize, entry.readISize);
+                Assert.assertEquals(rEntry.cm, entry.method);
+                Assert.assertEquals((rEntry.mtime == 0) ? -1 : rEntry.mtime * 1000, entry.getTime());
+                Assert.assertEquals(rEntry.os, entry.os);
+                Assert.assertEquals(rEntry.xfl, entry.extraFlags);
+                Assert.assertEquals(rEntry.fname, entry.fileName);
+                Assert.assertEquals(rEntry.fcomment, entry.getComment());
+                Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
+                Assert.assertEquals(rEntry.crc32 & 0xffffffffL, entry.readCrc32 & 0xffffffffL);
+                Assert.assertEquals(rEntry.isize, entry.readISize);
             }
             else {
-        		Assert.fail("Expected an entry!");
+                Assert.fail("Expected an entry!");
             }
             if (gzin.getNextEntry() != null) {
-        		Assert.fail("Did not expect more entries!");
+                Assert.fail("Did not expect more entries!");
             }
             gzin.close();
             in.close();
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		byte[] partialFile;
-        for (int i=1; i<gzipFile.length; ++i) {
-        	partialFile = new byte[i];
-        	System.arraycopy(gzipFile, 0, partialFile, 0, i);
-        	try {
-            	tryread(partialFile);
-            	Assert.fail("Exception expected!");
-        	}
-        	catch (IOException e) {
-        	}
         }
-	}
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        byte[] partialFile;
+        for (int i=1; i<gzipFile.length; ++i) {
+            partialFile = new byte[i];
+            System.arraycopy(gzipFile, 0, partialFile, 0, i);
+            try {
+                tryread(partialFile);
+                Assert.fail("Exception expected!");
+            }
+            catch (IOException e) {
+            }
+        }
+    }
 
-	public void tryread(byte[] gzipFile) throws IOException {
-    	GzipReader reader = new GzipReader(new ByteArrayInputStream(gzipFile));
+    public void tryread(byte[] gzipFile) throws IOException {
+        GzipReader reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-    	GzipReaderEntry rEntry;
-    	InputStream entryIn;
-    	int read;
-    	if ((rEntry = reader.getNextEntry()) != null) {
-    		out.reset();
-    		entryIn = rEntry.getInputStream();
-    		while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
-    			out.write(tmpBuf, 0, read);
-    		}
-    		entryIn.close();
-    		rEntry.close();
-    		out.close();
-    		out.reset();
-    	}
-    	else {
-    		Assert.fail("Expected an entry!");
-    	}
-    	if (reader.getNextEntry() != null) {
-    		Assert.fail("Did not expect more entries!");
-    	}
-    	reader.close();
-	}
+        GzipReaderEntry rEntry;
+        InputStream entryIn;
+        int read;
+        if ((rEntry = reader.getNextEntry()) != null) {
+            out.reset();
+            entryIn = rEntry.getInputStream();
+            while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
+                out.write(tmpBuf, 0, read);
+            }
+            entryIn.close();
+            rEntry.close();
+            out.close();
+            out.reset();
+        }
+        else {
+            Assert.fail("Expected an entry!");
+        }
+        if (reader.getNextEntry() != null) {
+            Assert.fail("Did not expect more entries!");
+        }
+        reader.close();
+    }
 
-	@Test
-	public void test_gzip_dates() {
-		GzipReaderEntry wEntry = new GzipReaderEntry();
-		wEntry.magic = GzipConstants.GZIP_MAGIC;
-		wEntry.cm = GzipConstants.CM_DEFLATE;
-		wEntry.flg = 0;
-		wEntry.date = new Date(System.currentTimeMillis());
-		wEntry.xfl = 0;
-		wEntry.os = GzipConstants.OS_AMIGA;
-		wEntry.bFText = true;
-		wEntry.extraBytes = new byte[0];
-		wEntry.fname = "hello dolly";
-		wEntry.fcomment = "This is my gzip'ed sheep\nDolly!";
-		wEntry.bFhCrc = true;
+    @Test
+    public void test_gzip_dates() {
+        GzipReaderEntry wEntry = new GzipReaderEntry();
+        wEntry.magic = GzipConstants.GZIP_MAGIC;
+        wEntry.cm = GzipConstants.CM_DEFLATE;
+        wEntry.flg = 0;
+        wEntry.date = new Date(System.currentTimeMillis());
+        wEntry.xfl = 0;
+        wEntry.os = GzipConstants.OS_AMIGA;
+        wEntry.bFText = true;
+        wEntry.extraBytes = new byte[0];
+        wEntry.fname = "hello dolly";
+        wEntry.fcomment = "This is my gzip'ed sheep\nDolly!";
+        wEntry.bFhCrc = true;
 
-		byte[] data = null;
-		try {
-			data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-		}
-		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			Assert.fail("Unexpected exception!");
-		}
+        byte[] data = null;
+        try {
+            data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
 
-		ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
 
-		byte[] gzipFile = null;
+        byte[] gzipFile = null;
 
-		try {
-			GzipWriter writer = new GzipWriter(out);
-			writer.writeEntryHeader(wEntry);
-			wEntry.writeFrom(in);
-			in.close();
-			wEntry.close();
-			writer.close();
-			out.flush();
-			out.close();
+        try {
+            GzipWriter writer = new GzipWriter(out);
+            writer.writeEntryHeader(wEntry);
+            wEntry.writeFrom(in);
+            in.close();
+            wEntry.close();
+            writer.close();
+            out.flush();
+            out.close();
 
-			gzipFile = out.toByteArray();
+            gzipFile = out.toByteArray();
 
-			GzipReader reader;
-        	reader = new GzipReader(new ByteArrayInputStream(gzipFile));
+            GzipReader reader;
+            reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-        	GzipReaderEntry rEntry;
-        	InputStream entryIn;
-        	int read;
-        	if ((rEntry = reader.getNextEntry()) != null) {
-        		out.reset();
-        		entryIn = rEntry.getInputStream();
-        		Assert.assertEquals(1, entryIn.available());
-        		while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
-        			out.write(tmpBuf, 0, read);
-        		}
-        		entryIn.close();
-        		Assert.assertEquals(0, entryIn.available());
-        		Assert.assertEquals(-1, entryIn.read());
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf));
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
-        		Assert.assertEquals(0, entryIn.skip(1024));
-        		rEntry.close();
+            GzipReaderEntry rEntry;
+            InputStream entryIn;
+            int read;
+            if ((rEntry = reader.getNextEntry()) != null) {
+                out.reset();
+                entryIn = rEntry.getInputStream();
+                Assert.assertEquals(1, entryIn.available());
+                while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                entryIn.close();
+                Assert.assertEquals(0, entryIn.available());
+                Assert.assertEquals(-1, entryIn.read());
+                Assert.assertEquals(-1, entryIn.read(tmpBuf));
+                Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
+                Assert.assertEquals(0, entryIn.skip(1024));
+                rEntry.close();
                 Assert.assertArrayEquals(data, out.toByteArray());
-        		out.close();
-        		out.reset();
+                out.close();
+                out.reset();
 
-        		Assert.assertEquals(wEntry.cm, rEntry.cm);
-        		Assert.assertEquals(wEntry.flg, rEntry.flg);
-        		Assert.assertEquals(wEntry.mtime, rEntry.mtime);
-        		Assert.assertEquals((wEntry.date.getTime() / 1000) * 1000, rEntry.date.getTime());
-        		Assert.assertEquals(wEntry.xfl, rEntry.xfl);
-        		Assert.assertEquals(wEntry.os, rEntry.os);
-        		Assert.assertEquals(wEntry.bFText, rEntry.bFText);
-        		Assert.assertEquals(wEntry.xlen, rEntry.xlen);
-        		Assert.assertArrayEquals(wEntry.extraBytes, rEntry.extraBytes);
-        		Assert.assertEquals(wEntry.fname, rEntry.fname);
-        		Assert.assertEquals(wEntry.fcomment, rEntry.fcomment);
-        		Assert.assertEquals(wEntry.bFhCrc, rEntry.bFhCrc);
-        		Assert.assertEquals(wEntry.crc16, rEntry.crc16);
-        		Assert.assertEquals(wEntry.comp_crc16, rEntry.comp_crc16);
-        		Assert.assertEquals(wEntry.crc32, rEntry.crc32);
-        		Assert.assertEquals(wEntry.comp_crc32, rEntry.comp_crc32);
-        		Assert.assertEquals(wEntry.isize, rEntry.isize);
-        		Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
-        		Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
-        	}
-        	else {
-        		Assert.fail("Expected an entry!");
-        	}
-        	if (reader.getNextEntry() != null) {
-        		Assert.fail("Did not expect more entries!");
-        	}
-        	reader.close();
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+                Assert.assertEquals(wEntry.cm, rEntry.cm);
+                Assert.assertEquals(wEntry.flg, rEntry.flg);
+                Assert.assertEquals(wEntry.mtime, rEntry.mtime);
+                Assert.assertEquals((wEntry.date.getTime() / 1000) * 1000, rEntry.date.getTime());
+                Assert.assertEquals(wEntry.xfl, rEntry.xfl);
+                Assert.assertEquals(wEntry.os, rEntry.os);
+                Assert.assertEquals(wEntry.bFText, rEntry.bFText);
+                Assert.assertEquals(wEntry.xlen, rEntry.xlen);
+                Assert.assertArrayEquals(wEntry.extraBytes, rEntry.extraBytes);
+                Assert.assertEquals(wEntry.fname, rEntry.fname);
+                Assert.assertEquals(wEntry.fcomment, rEntry.fcomment);
+                Assert.assertEquals(wEntry.bFhCrc, rEntry.bFhCrc);
+                Assert.assertEquals(wEntry.crc16, rEntry.crc16);
+                Assert.assertEquals(wEntry.comp_crc16, rEntry.comp_crc16);
+                Assert.assertEquals(wEntry.crc32, rEntry.crc32);
+                Assert.assertEquals(wEntry.comp_crc32, rEntry.comp_crc32);
+                Assert.assertEquals(wEntry.isize, rEntry.isize);
+                Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
+                Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
+            }
+            else {
+                Assert.fail("Expected an entry!");
+            }
+            if (reader.getNextEntry() != null) {
+                Assert.fail("Did not expect more entries!");
+            }
+            reader.close();
+        }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }

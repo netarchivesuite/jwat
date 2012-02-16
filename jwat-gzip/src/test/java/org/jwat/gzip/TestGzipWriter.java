@@ -31,52 +31,52 @@ import org.jwat.common.RandomAccessFileOutputStream;
 @RunWith(JUnit4.class)
 public class TestGzipWriter {
 
-	@Test
-	public void test_gzip_writer() {
-		String in_file = "C:\\Java\\workspace\\jwat\\jwat-warc\\src\\test\\resources\\IAH-20080430204825-00000-blackbook.warc";
+    @Test
+    public void test_gzip_writer() {
+        String in_file = "C:\\Java\\workspace\\jwat\\jwat-warc\\src\\test\\resources\\IAH-20080430204825-00000-blackbook.warc";
 
-		String out_file = "testwrite.gz";
+        String out_file = "testwrite.gz";
 
-		RandomAccessFile raf;
-	    RandomAccessFileOutputStream out;
-		InputStream in;
+        RandomAccessFile raf;
+        RandomAccessFileOutputStream out;
+        InputStream in;
 
-		GzipReaderEntry entry = new GzipReaderEntry();
-		entry.magic = GzipConstants.GZIP_MAGIC;
-		entry.cm = GzipConstants.CM_DEFLATE;
-		entry.flg = 0;
-		entry.mtime = System.currentTimeMillis() / 1000;
-		entry.xfl = 0;
-		entry.os = GzipConstants.OS_AMIGA;
+        GzipReaderEntry entry = new GzipReaderEntry();
+        entry.magic = GzipConstants.GZIP_MAGIC;
+        entry.cm = GzipConstants.CM_DEFLATE;
+        entry.flg = 0;
+        entry.mtime = System.currentTimeMillis() / 1000;
+        entry.xfl = 0;
+        entry.os = GzipConstants.OS_AMIGA;
 
-		try {
-			raf = new RandomAccessFile(out_file, "rw");
-			raf.seek(0);
-			raf.setLength(0);
-			out = new RandomAccessFileOutputStream(raf);
+        try {
+            raf = new RandomAccessFile(out_file, "rw");
+            raf.seek(0);
+            raf.setLength(0);
+            out = new RandomAccessFileOutputStream(raf);
 
-			GzipWriter writer = new GzipWriter(out);
-			writer.writeEntryHeader(entry);
+            GzipWriter writer = new GzipWriter(out);
+            writer.writeEntryHeader(entry);
 
-			in = new FileInputStream(in_file);
-			entry.writeFrom(in);
-			in.close();
+            in = new FileInputStream(in_file);
+            entry.writeFrom(in);
+            in.close();
 
-			writer.close();
-			writer.close();
+            writer.close();
+            writer.close();
 
-			out.flush();
-			out.close();
-			raf.close();
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+            out.flush();
+            out.close();
+            raf.close();
+        }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }

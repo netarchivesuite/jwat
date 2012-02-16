@@ -33,55 +33,55 @@ public class TestSkippingClose {
 
     @Test
     public void test_gzipreader() {
-    	InputStream in;
-    	ByteCountingPushBackInputStream pbin;
-    	GzipReader reader;
+        InputStream in;
+        ByteCountingPushBackInputStream pbin;
+        GzipReader reader;
 
-    	String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
+        String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
 
-    	try {
+        try {
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
-        	reader = new GzipReader(pbin);
-        	readEntries(reader);
-			pbin.close();
+            reader = new GzipReader(pbin);
+            readEntries(reader);
+            pbin.close();
 
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
-        	reader = new GzipReader(pbin, 8192);
-        	readEntries(reader);
-			pbin.close();
-    	}
-    	catch (IOException e) {
+            reader = new GzipReader(pbin, 8192);
+            readEntries(reader);
+            pbin.close();
+        }
+        catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
-		}
+        }
     }
 
-	protected ByteArrayOutputStream out;
-	protected byte[] tmpBuf = new byte[768];
-	protected InputStream entryIn;
+    protected ByteArrayOutputStream out;
+    protected byte[] tmpBuf = new byte[768];
+    protected InputStream entryIn;
 
-	protected void readEntries(GzipReader reader) {
-		int entries = 0;
-		String tmpStr;
+    protected void readEntries(GzipReader reader) {
+        int entries = 0;
+        String tmpStr;
         try {
-        	GzipReaderEntry entry;
-        	while ((entry = reader.getNextEntry()) != null) {
-        		entryIn = entry.getInputStream();
-        		tmpStr = entry.toString();
-        		Assert.assertEquals(1, entryIn.available());
-        		entry.close();
-        		Assert.assertEquals(0, entryIn.available());
-        		Assert.assertEquals(-1, entryIn.read());
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf));
-        		Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
-        		Assert.assertEquals(0, entryIn.skip(1024));
-        		entry.close();
-        		++entries;
-        	}
-        	reader.close();
-        	reader.close();
+            GzipReaderEntry entry;
+            while ((entry = reader.getNextEntry()) != null) {
+                entryIn = entry.getInputStream();
+                tmpStr = entry.toString();
+                Assert.assertEquals(1, entryIn.available());
+                entry.close();
+                Assert.assertEquals(0, entryIn.available());
+                Assert.assertEquals(-1, entryIn.read());
+                Assert.assertEquals(-1, entryIn.read(tmpBuf));
+                Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
+                Assert.assertEquals(0, entryIn.skip(1024));
+                entry.close();
+                ++entries;
+            }
+            reader.close();
+            reader.close();
         }
         catch (IOException e) {
             e.printStackTrace();

@@ -38,7 +38,7 @@ public class GzipConstants {
 
     /** Friendly name for the deflate compression method. */
     public static final String CM_STRING_DEFLATE = "deflate";
-    
+
     /** Deflate compression method. */
     public static final int CM_DEFLATE = 8;
 
@@ -46,12 +46,12 @@ public class GzipConstants {
     public static final int DEFLATE_XFL_FASTEST_COMPRESSION = 4;
 
     /** File header flags. */
-    public static final int FLG_FTEXT = 1;			// Extra text
-    public static final int FLG_FHCRC = 2;			// Header CRC
-    public static final int FLG_FEXTRA = 4;			// Extra field
-    public static final int FLG_FNAME = 8;			// File name
-    public static final int FLG_FCOMMENT = 16;		// File comment
-    public static final int FLG_FRESERVED = 224;	// Reserved flags
+    public static final int FLG_FTEXT = 1;          // Extra text
+    public static final int FLG_FHCRC = 2;          // Header CRC
+    public static final int FLG_FEXTRA = 4;         // Extra field
+    public static final int FLG_FNAME = 8;          // File name
+    public static final int FLG_FCOMMENT = 16;      // File comment
+    public static final int FLG_FRESERVED = 224;    // Reserved flags
 
     public static final String OS_STRING_FAT_FS = "FAT filesystem (MS-DOS, OS/2, NT/Win32)";
     public static final String OS_STRING_AMIGA = "Amiga";
