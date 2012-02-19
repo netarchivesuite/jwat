@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -70,12 +71,12 @@ public class TestGzipWriter {
             raf.close();
         }
         catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

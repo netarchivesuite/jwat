@@ -28,7 +28,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.jwat.gzip.GzipInputStream;
+import org.jwat.gzip.GzipReader;
 
 @RunWith(JUnit4.class)
 public class TestParams {
@@ -313,11 +313,11 @@ public class TestParams {
         }
         Assert.assertNull(readerCompressed);
 
-        GzipInputStream gzis = new GzipInputStream(new ByteArrayInputStream(new byte[] {42}));
+        GzipReader gzipReader = new GzipReader(new ByteArrayInputStream(new byte[] {42}));
 
         readerCompressed = new ArcReaderCompressed();
         try {
-            readerCompressed = new ArcReaderCompressed(gzis, -1);
+            readerCompressed = new ArcReaderCompressed(gzipReader, -1);
         }
         catch (IllegalArgumentException e) {
             readerCompressed = null;
@@ -326,15 +326,15 @@ public class TestParams {
 
         readerCompressed = new ArcReaderCompressed();
         try {
-            readerCompressed = new ArcReaderCompressed(gzis, 0);
+            readerCompressed = new ArcReaderCompressed(gzipReader, 0);
         }
         catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
 
-        gzis.close();
-        gzis = null;
+        gzipReader.close();
+        gzipReader = null;
 
         readerCompressed = new ArcReaderCompressed();
         try {

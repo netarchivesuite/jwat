@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipEntry;
-import org.jwat.gzip.GzipInputStream;
+import org.jwat.gzip.GzipReader;
+import org.jwat.gzip.GzipReaderEntry;
 
 /**
  * ARC Reader used on GZip compressed files.
@@ -36,7 +36,7 @@ public class ArcReaderCompressed extends ArcReader {
     public static final int PUSHBACK_BUFFER_SIZE = 16;
 
     /** ARC file <code>GzipInputStream</code>. */
-    protected GzipInputStream in;
+    protected GzipReader reader;
 
     /** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
     protected int bufferSize;
@@ -52,31 +52,31 @@ public class ArcReaderCompressed extends ArcReader {
     /**
      * Construct reader using the supplied input stream.
      * This method is primarily for sequential access to records.
-     * @param in ARC file GZip input stream
+     * @param reader GZip reader
      */
-    ArcReaderCompressed(GzipInputStream in) {
-        if (in == null) {
-            throw new IllegalArgumentException("The inputstream 'in' is null");
+    ArcReaderCompressed(GzipReader reader) {
+        if (reader == null) {
+            throw new IllegalArgumentException("'reader' is null");
         }
-        this.in = in;
+        this.reader = reader;
     }
 
     /**
      * Construct object using supplied <code>GzipInputStream</code>.
      * This method is primarily for sequential access to records.
-     * @param in GZip input stream
+     * @param reader GZip reader
      * @param buffer_size buffer size used on entries
      */
-    ArcReaderCompressed(GzipInputStream in, int buffer_size) {
-        if (in == null) {
-            throw new IllegalArgumentException("The inputstream 'in' is null");
+    ArcReaderCompressed(GzipReader reader, int buffer_size) {
+        if (reader == null) {
+            throw new IllegalArgumentException("'reader' is null");
         }
         if (buffer_size <= 0) {
             throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        this.in = in;
+        this.reader = reader;
         this.bufferSize = buffer_size;
     }
 
@@ -93,24 +93,30 @@ public class ArcReaderCompressed extends ArcReader {
             } catch (IOException e) { /* ignore */ }
             arcRecord = null;
         }
-        if (in != null) {
+        if (reader != null) {
             try {
-                in.close();
+                reader.close();
             } catch (IOException e) { /* ignore */ }
-            in = null;
+            reader = null;
         }
     }
 
     /**
-     * Get the current offset in the ARC <code>GzipInputStream</code>.
+     * Get the current offset in the ARC <code>GzipReader</code>.
      * @return offset in ARC <code>InputStream</code>
      */
     @Override
-    @Deprecated
+    public long getStartOffset() {
+        return reader.getStartOffset();
+    }
+
+    /**
+     * Get the current offset in the ARC <code>GzipReader</code>.
+     * @return offset in ARC <code>InputStream</code>
+     */
+    @Override
     public long getOffset() {
-        // FIXME Somehow this is not working properly with the GZip package.
-        // Use GzipEntry.getOffset() for record offset.
-        return in.getOffset();
+        return reader.getOffset();
     }
 
     @Override
@@ -118,27 +124,27 @@ public class ArcReaderCompressed extends ArcReader {
         if (previousRecord != null) {
             previousRecord.close();
         }
-        if (in == null) {
+        if (reader == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         versionBlock = null;
-        GzipEntry entry = in.getNextEntry();
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(
-                                        in.getEntryInputStream(), bufferSize),
+                                        entry.getInputStream(), bufferSize),
                                 PUSHBACK_BUFFER_SIZE), this);
             } else {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
-                                in.getEntryInputStream(),
+                                entry.getInputStream(),
                                 PUSHBACK_BUFFER_SIZE), this);
             }
         }
         if (versionBlock != null) {
-            versionBlock.startOffset = entry.getOffset();
+            versionBlock.startOffset = entry.getStartOffset();
         }
         previousRecord = versionBlock;
         return versionBlock;
@@ -154,19 +160,19 @@ public class ArcReaderCompressed extends ArcReader {
             throw new IllegalArgumentException("The inputstream 'vbin' is null");
         }
         versionBlock = null;
-        GzipInputStream gzin = new GzipInputStream(vbin);
-        GzipEntry entry = gzin.getNextEntry();
+        GzipReader reader = new GzipReader(vbin);
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(
-                                        gzin.getEntryInputStream(), bufferSize),
+                                        entry.getInputStream(), bufferSize),
                                 PUSHBACK_BUFFER_SIZE), this);
             } else {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
                         new ByteCountingPushBackInputStream(
-                                gzin.getEntryInputStream(),
+                                entry.getInputStream(),
                                 PUSHBACK_BUFFER_SIZE), this);
             }
         }
@@ -182,29 +188,29 @@ public class ArcReaderCompressed extends ArcReader {
         if (previousRecord != null) {
             previousRecord.close();
         }
-        if (in == null) {
+        if (reader == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         arcRecord = null;
-        GzipEntry entry = in.getNextEntry();
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 arcRecord = ArcRecord.parseArcRecord(
                         new ByteCountingPushBackInputStream(
                                 new BufferedInputStream(
-                                        in.getEntryInputStream(),
+                                        entry.getInputStream(),
                                         bufferSize),
                                 PUSHBACK_BUFFER_SIZE),
                         versionBlock, this);
             } else {
                 arcRecord = ArcRecord.parseArcRecord(
                         new ByteCountingPushBackInputStream(
-                                in.getEntryInputStream(), PUSHBACK_BUFFER_SIZE),
+                                entry.getInputStream(), PUSHBACK_BUFFER_SIZE),
                         versionBlock, this);
             }
         }
         if (arcRecord != null) {
-            arcRecord.startOffset = entry.getOffset();
+            arcRecord.startOffset = entry.getStartOffset();
         }
         previousRecord = arcRecord;
         return arcRecord;
@@ -225,12 +231,12 @@ public class ArcReaderCompressed extends ArcReader {
                     "The 'offset' is less than zero: " + offset);
         }
         arcRecord = null;
-        GzipInputStream gzin = new GzipInputStream(rin);
-        GzipEntry entry = gzin.getNextEntry();
+        GzipReader reader = new GzipReader(rin);
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
-                            gzin.getEntryInputStream(), PUSHBACK_BUFFER_SIZE);
+                            entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
             arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         }
         if (arcRecord != null) {
@@ -260,13 +266,13 @@ public class ArcReaderCompressed extends ArcReader {
                     "The 'offset' is less than zero: " + offset);
         }
         arcRecord = null;
-        GzipInputStream gzin = new GzipInputStream(rin);
-        GzipEntry entry = gzin.getNextEntry();
+        GzipReader reader = new GzipReader(rin);
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
-                                    gzin.getEntryInputStream(),
+                                    entry.getInputStream(),
                                     buffer_size),
                             PUSHBACK_BUFFER_SIZE);
             arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);

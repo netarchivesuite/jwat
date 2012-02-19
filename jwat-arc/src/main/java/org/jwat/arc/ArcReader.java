@@ -213,11 +213,16 @@ public abstract class ArcReader {
     public abstract void close();
 
     /**
-     * Get the currect offset in the ARC <code>InputStream</code>.
+     * Get the offset of the current or next ARC record.
+     * @return offset of the current of next ARC record
+     */
+    public abstract long getStartOffset();
+
+    /**
+     * Get the current offset in the ARC <code>InputStream</code>.
      * @return offset in ARC <code>InputStream</code>
      * @see ArcRecordBase#getOffset()
      */
-    @Deprecated
     public abstract long getOffset();
 
     /** Get number of bytes consumed by this reader.

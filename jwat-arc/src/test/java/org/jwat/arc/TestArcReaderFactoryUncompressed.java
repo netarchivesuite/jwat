@@ -17,6 +17,10 @@
  */
 package org.jwat.arc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -284,6 +288,9 @@ public class TestArcReaderFactoryUncompressed {
                     Assert.fail("Invalid arc uri");
                 }
 
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
+
                 arcEntry = new ArcEntry();
                 arcEntry.recordId = record.url;
                 arcEntry.offset = record.getStartOffset();
@@ -294,6 +301,9 @@ public class TestArcReaderFactoryUncompressed {
                 }
 
                 record.close();
+
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
                 if (record.hasErrors()) {
                     errors += record.getValidationErrors().size();

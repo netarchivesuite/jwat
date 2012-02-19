@@ -131,7 +131,7 @@ public class TestFlagged {
             reader.close();
 
             GzipInputStream gzin;
-            GzipEntry entry;
+            GzipInputStreamEntry entry;
             InputStream gzis;
             gzin = new GzipInputStream(new ByteArrayInputStream(gzipFile));
             if ((entry = gzin.getNextEntry()) != null) {
@@ -170,12 +170,12 @@ public class TestFlagged {
             in.close();
         }
         catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         byte[] partialFile;
         for (int i=1; i<gzipFile.length; ++i) {
@@ -309,12 +309,12 @@ public class TestFlagged {
             reader.close();
         }
         catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

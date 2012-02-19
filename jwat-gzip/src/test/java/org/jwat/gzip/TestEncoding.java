@@ -138,7 +138,7 @@ public class TestEncoding {
             System.out.println(rEntry.fcomment);
 
             GzipInputStream gzin;
-            GzipEntry entry;
+            GzipInputStreamEntry entry;
             InputStream gzis;
             gzin = new GzipInputStream(new ByteArrayInputStream(gzipFile));
             if ((entry = gzin.getNextEntry()) != null) {
@@ -177,12 +177,12 @@ public class TestEncoding {
             in.close();
         }
         catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

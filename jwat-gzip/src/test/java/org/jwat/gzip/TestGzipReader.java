@@ -40,7 +40,7 @@ public class TestGzipReader {
         out = new ByteArrayOutputStream();
 
         String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
-
+        
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);

@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipEntry;
-import org.jwat.gzip.GzipInputStream;
+import org.jwat.gzip.GzipReader;
+import org.jwat.gzip.GzipReaderEntry;
 
 /**
  * WARC Reader used on GZip compressed files.
@@ -36,7 +36,7 @@ public class WarcReaderCompressed extends WarcReader {
     public static final int PUSHBACK_BUFFER_SIZE = 16;
 
     /** WARC file <code>InputStream</code>. */
-    protected GzipInputStream in;
+    protected GzipReader reader;
 
     /** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
     protected int bufferSize;
@@ -52,33 +52,33 @@ public class WarcReaderCompressed extends WarcReader {
     /**
      * Construct reader using the supplied input stream.
      * This method is primarily for sequential access to records.
-     * @param in WARC file GZip input stream
+     * @param reader GZip reader
      */
-    WarcReaderCompressed(GzipInputStream in) {
-        if (in == null) {
+    WarcReaderCompressed(GzipReader reader) {
+        if (reader == null) {
             throw new IllegalArgumentException(
-                    "The inputstream 'in' is null");
+                    "'reader' is null");
         }
-        this.in = in;
+        this.reader = reader;
     }
 
     /**
      * Construct object using supplied <code>GzipInputStream</code>.
      * This method is primarily for sequential access to records.
-     * @param in GZip input stream
+     * @param reader GZip reader
      * @param buffer_size buffer size used on entries
      */
-    WarcReaderCompressed(GzipInputStream in, int buffer_size) {
-        if (in == null) {
+    WarcReaderCompressed(GzipReader reader, int buffer_size) {
+        if (reader == null) {
             throw new IllegalArgumentException(
-                    "The inputstream 'in' is null");
+                    "'reader' is null");
         }
         if (buffer_size <= 0) {
             throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        this.in = in;
+        this.reader = reader;
         this.bufferSize = buffer_size;
     }
 
@@ -95,12 +95,30 @@ public class WarcReaderCompressed extends WarcReader {
             } catch (IOException e) { /* ignore */ }
             warcRecord = null;
         }
-        if (in != null) {
+        if (reader != null) {
             try {
-                in.close();
+                reader.close();
             } catch (IOException e) { /* ignore */ }
-            in = null;
+            reader = null;
         }
+    }
+
+    /**
+     * Get the current offset in the WARC <code>GzipReader</code>.
+     * @return offset in WARC <code>InputStream</code>
+     */
+    @Override
+    public long getStartOffset() {
+        return reader.getStartOffset();
+    }
+
+    /**
+     * Get the current offset in the WARC <code>GzipReader</code>.
+     * @return offset in WARC <code>InputStream</code>
+     */
+    @Override
+    public long getOffset() {
+        return reader.getOffset();
     }
 
     @Override
@@ -108,29 +126,28 @@ public class WarcReaderCompressed extends WarcReader {
         if (warcRecord != null) {
             warcRecord.close();
         }
-        if (in == null) {
+        if (reader == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         warcRecord = null;
-        long offset = in.getOffset();
-        GzipEntry entry = in.getNextEntry();
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 warcRecord = WarcRecord.parseRecord(
                         new ByteCountingPushBackInputStream(
-                                new BufferedInputStream(in.getEntryInputStream(),
+                                new BufferedInputStream(entry.getInputStream(),
                                 bufferSize),
                                 PUSHBACK_BUFFER_SIZE), this);
             }
             else {
                 warcRecord = WarcRecord.parseRecord(
                         new ByteCountingPushBackInputStream(
-                                in.getEntryInputStream(),
+                                entry.getInputStream(),
                                 PUSHBACK_BUFFER_SIZE), this);
             }
         }
         if (warcRecord != null) {
-            warcRecord.offset = offset;
+            warcRecord.startOffset = entry.getStartOffset();
         }
         return warcRecord;
     }
@@ -145,16 +162,16 @@ public class WarcReaderCompressed extends WarcReader {
                     "The inputstream 'rin' is null");
         }
         warcRecord = null;
-        GzipInputStream gzin = new GzipInputStream(rin);
-        GzipEntry entry = gzin.getNextEntry();
+        GzipReader reader = new GzipReader(rin);
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             warcRecord = WarcRecord.parseRecord(
                     new ByteCountingPushBackInputStream(
-                            gzin.getEntryInputStream(),
+                            entry.getInputStream(),
                             PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.offset = -1L;
+            warcRecord.startOffset = -1L;
         }
         return warcRecord;
     }
@@ -175,17 +192,17 @@ public class WarcReaderCompressed extends WarcReader {
                     + buffer_size);
         }
         warcRecord = null;
-        GzipInputStream gzin = new GzipInputStream(rin);
-        GzipEntry entry = gzin.getNextEntry();
+        GzipReader reader = new GzipReader(rin);
+        GzipReaderEntry entry = reader.getNextEntry();
         if (entry != null) {
             warcRecord = WarcRecord.parseRecord(
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
-                                    gzin.getEntryInputStream(), buffer_size),
+                                    entry.getInputStream(), buffer_size),
                                     PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.offset = -1L;
+            warcRecord.startOffset = -1L;
         }
         return warcRecord;
     }

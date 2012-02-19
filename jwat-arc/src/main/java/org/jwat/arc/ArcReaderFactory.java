@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipInputStream;
+import org.jwat.gzip.GzipReader;
 
 /**
  * Factory used for creating <code>ArcReader</code> instances.
@@ -90,8 +90,8 @@ public class ArcReaderFactory {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(in, buffer_size),
                                                 PUSHBACK_BUFFER_SIZE);
-        if (GzipInputStream.isGziped(pbin)) {
-            return new ArcReaderCompressed(new GzipInputStream(pbin),
+        if (GzipReader.isGzipped(pbin)) {
+            return new ArcReaderCompressed(new GzipReader(pbin),
                                            buffer_size);
         }
         return new ArcReaderUncompressed(pbin);
@@ -113,8 +113,8 @@ public class ArcReaderFactory {
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(in, PUSHBACK_BUFFER_SIZE);
-        if (GzipInputStream.isGziped(pbin)) {
-            return new ArcReaderCompressed(new GzipInputStream(pbin));
+        if (GzipReader.isGzipped(pbin)) {
+            return new ArcReaderCompressed(new GzipReader(pbin));
         }
         return new ArcReaderUncompressed(pbin);
     }
@@ -200,7 +200,7 @@ public class ArcReaderFactory {
             throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
-        return new ArcReaderCompressed(new GzipInputStream(in));
+        return new ArcReaderCompressed(new GzipReader(in));
     }
 
     /**
@@ -224,7 +224,7 @@ public class ArcReaderFactory {
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        return new ArcReaderCompressed(new GzipInputStream(
+        return new ArcReaderCompressed(new GzipReader(
                                 new BufferedInputStream(in, buffer_size)));
     }
 

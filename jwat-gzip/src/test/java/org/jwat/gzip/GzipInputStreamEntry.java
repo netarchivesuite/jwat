@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * A GZip file entry.
  */
-public class GzipEntry
+public class GzipInputStreamEntry
 {
     /* Error flags */
     public static final int INVALID_EXTRA_FLAGS = 1;
@@ -63,13 +63,13 @@ public class GzipEntry
 
     
     /** Zero argument constructor. */
-    public GzipEntry()
+    public GzipInputStreamEntry()
     {
         super();
     }
 
     /** Creates a new GzipEntry object. */
-    GzipEntry(int index, long offset,
+    GzipInputStreamEntry(int index, long offset,
                      int method, int extraFlags,
                      Date date, String fileName, int os,
                      String comment, boolean asciiFlag, byte[] extraFields,

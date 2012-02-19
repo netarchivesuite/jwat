@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipInputStream;
+import org.jwat.gzip.GzipReader;
 
 /**
  * Factory used for creating <code>WarcReader</code> instances.
@@ -90,8 +90,8 @@ public class WarcReaderFactory {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(in, buffer_size),
                 PUSHBACK_BUFFER_SIZE);
-        if (GzipInputStream.isGziped(pbin)) {
-            return new WarcReaderCompressed(new GzipInputStream(pbin),
+        if (GzipReader.isGzipped(pbin)) {
+            return new WarcReaderCompressed(new GzipReader(pbin),
                                             buffer_size);
         }
         return new WarcReaderUncompressed(pbin);
@@ -113,8 +113,8 @@ public class WarcReaderFactory {
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(in, PUSHBACK_BUFFER_SIZE);
-        if (GzipInputStream.isGziped(pbin)) {
-            return new WarcReaderCompressed(new GzipInputStream(pbin));
+        if (GzipReader.isGzipped(pbin)) {
+            return new WarcReaderCompressed(new GzipReader(pbin));
         }
         return new WarcReaderUncompressed(pbin);
     }
@@ -200,7 +200,7 @@ public class WarcReaderFactory {
             throw new IllegalArgumentException(
                     "The inputstream 'in' is null");
         }
-        return new WarcReaderCompressed(new GzipInputStream(in));
+        return new WarcReaderCompressed(new GzipReader(in));
     }
 
     /**
@@ -224,7 +224,7 @@ public class WarcReaderFactory {
                     "The 'buffer_size' is less than or equal to zero: " +
                     buffer_size);
         }
-        return new WarcReaderCompressed(new GzipInputStream(
+        return new WarcReaderCompressed(new GzipReader(
                 new BufferedInputStream(in, buffer_size)));
     }
 

@@ -32,7 +32,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 /**
  * A reader for (multi-part) GZip files. Validates header and CRC's.
  * Entries are read sequentially from the input stream. Random access is
- * supported indirectly if the used input stream can handle this.
+ * supported indirectly if the used input stream supports this.
  * Compressed data is available through an uncompressing input stream wrapper.
  *
  * @author nicl
@@ -62,6 +62,9 @@ public class GzipReader {
     /** Current GZip entry object. */
     protected GzipReaderEntry gzipEntry;
 
+    /** Entry offset, updated each time an entry is closed. */
+    protected long startOffset = 0;
+
     /** Buffer used to read header.  */
     protected byte[] headerBytes = new byte[10];
     /** Buffer used to read the XLEN value. */
@@ -81,7 +84,10 @@ public class GzipReader {
      * @return boolean indicating presence of a GZip magic number
      * @throws IOException if an io error occurs while examining head of stream
      */
-    public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
+    public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
+    	if (pbin == null) {
+    		throw new IllegalArgumentException("'pbin'is null!");
+    	}
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
         // Look for the leading 2 magic bytes in front of every valid GZip entry.
@@ -125,13 +131,37 @@ public class GzipReader {
 
     /**
      * Release resources associated with this reader.
+     * @throws IOException if an io error occurs while closing reader
      */
-    public void close() {
-        pbin = null;
+    public void close() throws IOException {
+        if (gzipEntry != null) {
+            gzipEntry.close();
+        	startOffset = pbin.getConsumed();
+            gzipEntry = null;
+        }
         if (inf != null) {
             inf.end();
             inf = null;
         }
+        pbin = null;
+    }
+
+    /**
+     * Returns the offset of the current or next entry depending of when in the
+     * parsing it is called.
+     * @return offset of current or next entry
+     */
+    public long getStartOffset() {
+    	return startOffset;
+    }
+
+    /**
+     * Returns the current offset in the input stream. Which could be anywhere
+     * in the (multi-part) GZip file.
+     * @return
+     */
+    public long getOffset() {
+    	return pbin.getConsumed();
     }
 
     /**
@@ -142,6 +172,8 @@ public class GzipReader {
      */
     public GzipReaderEntry getNextEntry() throws IOException {
         if (gzipEntry != null) {
+        	gzipEntry.close();
+        	startOffset = pbin.getConsumed();
             gzipEntry = null;
         }
         int read = pbin.readFully(headerBytes);
@@ -149,6 +181,7 @@ public class GzipReader {
             crc.reset();
             inf.reset();
             gzipEntry = new GzipReaderEntry();
+            gzipEntry.startOffset = startOffset;
             /*
              * Header.
              */

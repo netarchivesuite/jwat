@@ -17,6 +17,10 @@
  */
 package org.jwat.arc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -235,6 +239,7 @@ public class TestArcReaderFactoryCompressed {
             Assert.assertEquals(0, errors);
         }
         catch (IOException e) {
+            e.printStackTrace();
             Assert.fail("Unexpected io exception");
         }
     }
@@ -272,6 +277,13 @@ public class TestArcReaderFactoryCompressed {
                     Assert.fail("Invalid arc uri");
                 }
 
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
+
+                //System.out.println(record.getStartOffset());
+                //System.out.println(reader.getStartOffset());
+                //System.out.println(reader.getOffset());
+
                 arcEntry = new ArcEntry();
                 arcEntry.recordId = record.url;
                 arcEntry.offset = record.getStartOffset();
@@ -283,16 +295,29 @@ public class TestArcReaderFactoryCompressed {
 
                 record.close();
 
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
+
+                //System.out.println(record.getStartOffset());
+                //System.out.println(reader.getStartOffset());
+                //System.out.println(reader.getOffset());
+
                 if (record.hasErrors()) {
                     errors += record.getValidationErrors().size();
                 }
+            }
+
+            if (reader.getIteratorExceptionThrown() != null) {
+            	reader.getIteratorExceptionThrown().printStackTrace();
+            	Assert.fail("Unexpected exception!");
             }
 
             reader.close();
             in.close();
         }
         catch (IOException e) {
-            Assert.fail("Unexpected io exception");
+            e.printStackTrace();
+            Assert.fail("Unexpected exception");
         }
 
         Assert.assertEquals(expected_records, records);

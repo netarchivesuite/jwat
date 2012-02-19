@@ -217,6 +217,19 @@ public abstract class WarcReader {
      */
     public abstract void close();
 
+    /**
+     * Get the offset of the current or next WARC record.
+     * @return offset of the current of next WARC record
+     */
+    public abstract long getStartOffset();
+
+    /**
+     * Get the current offset in the WARC <code>InputStream</code>.
+     * @return offset in WARC <code>InputStream</code>
+     * @see WarcRecordBase#getStartOffset()
+     */
+    public abstract long getOffset();
+
     /** Get number of bytes consumed by this reader.
      * @return number of bytes consumed by this reader
      */

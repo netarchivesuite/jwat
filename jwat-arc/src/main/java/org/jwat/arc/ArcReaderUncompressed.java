@@ -36,6 +36,9 @@ public class ArcReaderUncompressed extends ArcReader {
     /** ARC file <code>ByteCountingPushBackInputStream</code>. */
     protected ByteCountingPushBackInputStream in;
 
+    /** Start offset of current or next valid record. */
+    protected long startOffset = 0;
+
     /**
      * This constructor is used to get random access to records.
      * The records are then accessed using the getNextRecordFrom methods
@@ -78,7 +81,11 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
-    @Deprecated
+    public long getStartOffset() {
+        return startOffset;
+    }
+
+    @Override
     public long getOffset() {
         return in.getConsumed();
     }
@@ -92,6 +99,9 @@ public class ArcReaderUncompressed extends ArcReader {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         versionBlock = ArcVersionBlock.parseVersionBlock(in, this);
+        if (versionBlock != null) {
+        	startOffset = versionBlock.startOffset;
+        }
         previousRecord = versionBlock;
         return versionBlock;
     }
@@ -109,6 +119,9 @@ public class ArcReaderUncompressed extends ArcReader {
                 new ByteCountingPushBackInputStream(vbin,
                         PUSHBACK_BUFFER_SIZE);
         versionBlock = ArcVersionBlock.parseVersionBlock(pbin, this);
+        if (versionBlock != null) {
+        	startOffset = versionBlock.startOffset;
+        }
         previousRecord = versionBlock;
         return versionBlock;
     }
@@ -122,6 +135,9 @@ public class ArcReaderUncompressed extends ArcReader {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         arcRecord = ArcRecord.parseArcRecord(in, versionBlock, this);
+        if (arcRecord != null) {
+        	startOffset = arcRecord.startOffset;
+        }
         previousRecord = arcRecord;
         return arcRecord;
     }
@@ -146,6 +162,7 @@ public class ArcReaderUncompressed extends ArcReader {
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
+            startOffset = offset;
         }
         previousRecord = arcRecord;
         return arcRecord;
@@ -177,6 +194,7 @@ public class ArcReaderUncompressed extends ArcReader {
         arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
         if (arcRecord != null) {
             arcRecord.startOffset = offset;
+            startOffset = offset;
         }
         previousRecord = arcRecord;
         return arcRecord;

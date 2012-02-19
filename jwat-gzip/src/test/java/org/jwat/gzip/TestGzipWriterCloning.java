@@ -143,11 +143,11 @@ public class TestGzipWriterCloning {
 
     protected ByteArrayOutputStream out = new ByteArrayOutputStream();
     protected List<byte[]> dataList = new ArrayList<byte[]>();
-    protected List<GzipEntry> entryList = new ArrayList<GzipEntry>();
+    protected List<GzipInputStreamEntry> entryList = new ArrayList<GzipInputStreamEntry>();
 
     public void readEntriesOld(InputStream in) {
         GzipInputStream gzin;
-        GzipEntry entry;
+        GzipInputStreamEntry entry;
         InputStream gzis;
         int entries = 0;
         int read;
@@ -179,7 +179,7 @@ public class TestGzipWriterCloning {
     protected void readEntries(GzipReader reader) {
         int entries = 0;
         int read;
-        GzipEntry refEntry;
+        GzipInputStreamEntry refEntry;
         try {
             GzipReaderEntry entry;
             while ((entry = reader.getNextEntry()) != null) {

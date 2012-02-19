@@ -96,7 +96,7 @@ public class GzipWriter {
     }
 
     /**
-     * Release resources associated with this reader.
+     * Release resources associated with this writer.
      * @throws IOException if an io error occurs while closing writer
      */
     public void close() throws IOException {

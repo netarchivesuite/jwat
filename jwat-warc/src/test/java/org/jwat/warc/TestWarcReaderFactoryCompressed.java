@@ -17,6 +17,10 @@
  */
 package org.jwat.warc;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -313,12 +317,18 @@ public class TestWarcReaderFactoryCompressed {
                     Assert.fail("Invalid warc-record-id");
                 }
 
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
+
                 warcEntry = new WarcEntry();
                 warcEntry.recordId = record.warcRecordIdUri;
-                warcEntry.offset = record.offset;
+                warcEntry.offset = record.startOffset;
                 warcEntries.add(warcEntry);
 
                 record.close();
+
+                Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
+                Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
                 if ( bDigest ) {
                     if ( (record.payload != null && record.computedBlockDigest == null)

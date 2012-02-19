@@ -87,7 +87,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     int major = -1;
     int minor = -1;
 
-    long offset = -1;
+    protected long startOffset = -1;
 
     /** Bytes consumed while validating this record. */
     long consumed = 0;
@@ -204,7 +204,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         WarcRecord wr = new WarcRecord();
         wr.in = in;
         wr.reader = reader;
-        wr.offset = in.getConsumed();
+        wr.startOffset = in.getConsumed();
         if (wr.parseVersion(in)) {
             // debug
             //System.out.println(wr.bMagicIdentified);
@@ -276,7 +276,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 wr.bIsCompliant = false;
             }
             wr.reader.bIsCompliant &= wr.bIsCompliant;
-            wr.consumed = in.getConsumed() - wr.offset;
+            wr.consumed = in.getConsumed() - wr.startOffset;
         } else {
             if (wr.errors != null && !wr.errors.isEmpty()) {
                 wr.reader.bIsCompliant = false;
@@ -456,7 +456,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
-            consumed = in.getConsumed() - offset;
+            consumed = in.getConsumed() - startOffset;
             reader.consumed += consumed;
             // Dont not close payload again.
             bPayloadClosed = true;
@@ -552,7 +552,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         String tmpStr;
         boolean bSeekMagic = true;
         while (bSeekMagic) {
-            offset = in.getConsumed();
+            startOffset = in.getConsumed();
             tmpStr = readLine(in);
             if (tmpStr != null) {
                 // debug
@@ -1590,8 +1590,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * <code>InputStream</code>.
      * @return the record offset relative to the start of the WARC file
      */
-    public long getOffset() {
-        return offset;
+    public long getStartOffset() {
+        return startOffset;
     }
 
     /**

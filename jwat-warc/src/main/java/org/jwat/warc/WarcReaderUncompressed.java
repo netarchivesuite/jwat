@@ -36,6 +36,9 @@ public class WarcReaderUncompressed extends WarcReader {
     /** WARC file <code>InputStream</code>. */
     protected ByteCountingPushBackInputStream in;
 
+    /** Start offset of current or next valid record. */
+    protected long startOffset = 0;
+
     /**
      * This constructor is used to get random access to records.
      * The records are then accessed using the getNextRecordFrom methods
@@ -79,6 +82,16 @@ public class WarcReaderUncompressed extends WarcReader {
     }
 
     @Override
+    public long getStartOffset() {
+        return startOffset;
+    }
+
+    @Override
+    public long getOffset() {
+        return in.getConsumed();
+    }
+
+    @Override
     public WarcRecord getNextRecord() throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
@@ -88,6 +101,9 @@ public class WarcReaderUncompressed extends WarcReader {
                     "The inputstream 'in' is null");
         }
         warcRecord = WarcRecord.parseRecord(in, this);
+        if (warcRecord != null) {
+        	startOffset = warcRecord.getStartOffset();
+        }
         return warcRecord;
     }
 
@@ -103,6 +119,9 @@ public class WarcReaderUncompressed extends WarcReader {
         warcRecord = WarcRecord.parseRecord(
                 new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE),
                 this);
+        if (warcRecord != null) {
+        	startOffset = warcRecord.getStartOffset();
+        }
         return warcRecord;
     }
 
@@ -125,6 +144,9 @@ public class WarcReaderUncompressed extends WarcReader {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE), this);
+        if (warcRecord != null) {
+        	startOffset = warcRecord.getStartOffset();
+        }
         return warcRecord;
     }
 

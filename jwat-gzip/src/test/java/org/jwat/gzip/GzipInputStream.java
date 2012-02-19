@@ -61,7 +61,7 @@ public class GzipInputStream extends InflaterInputStream
     /** The position in the underlying (compressed) input stream. */
     private long pos = 0L;
     /** The current entry. */
-    private GzipEntry entry = null;
+    private GzipInputStreamEntry entry = null;
     /** The input stream to read the current entry data. */
     private final InputStream entryInputStream;
     /** Whether the end of the current entry input stream has been reached. */
@@ -73,7 +73,10 @@ public class GzipInputStream extends InflaterInputStream
      * @return boolean indicating presence of a GZip magic number
      * @throws IOException if an io error occurs while examining head of stream
      */
-    public static boolean isGziped(ByteCountingPushBackInputStream pbin) throws IOException {
+    public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
+    	if (pbin == null) {
+    		throw new IllegalArgumentException("'pbin'is null!");
+    	}
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
         // Look for the leading 2 magic bytes in front of every valid GZip entry.
@@ -128,7 +131,7 @@ public class GzipInputStream extends InflaterInputStream
      * @throws ZipException if a GZip format error has occurred.
      * @throws IOException  if an I/O error has occurred.
      */
-    public GzipEntry getNextEntry() throws IOException {
+    public GzipInputStreamEntry getNextEntry() throws IOException {
         closeEntry();
         entry = readHeader();
         entryEof = (entry == null);
@@ -258,7 +261,7 @@ public class GzipInputStream extends InflaterInputStream
      * @throws ZipException if the compressed input data is corrupt.
      * @throws IOException  if an I/O error has occurred.
      */
-    private GzipEntry readHeader() throws IOException {
+    private GzipInputStreamEntry readHeader() throws IOException {
         if (eos) {
             return null;        // end of stream reached.
         }
@@ -332,7 +335,7 @@ public class GzipInputStream extends InflaterInputStream
         }
 
         // Create GZip entry object with header fields
-        GzipEntry e = new GzipEntry(this.entryCount, startOffset, cm,
+        GzipInputStreamEntry e = new GzipInputStreamEntry(this.entryCount, startOffset, cm,
                                     xfl, date, fileName, os, comment,
                                     asciiFlag, extraFields, reservedFlags,
                                     readCrc16, computedCrc16);

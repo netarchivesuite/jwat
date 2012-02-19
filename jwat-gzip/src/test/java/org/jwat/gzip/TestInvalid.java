@@ -34,7 +34,7 @@ public class TestInvalid {
     public void test_invalid_gzip_inputstream() throws IOException {
         InputStream in;
         GzipInputStream gzin;
-        GzipEntry entry;
+        GzipInputStreamEntry entry;
 
         in = this.getClass().getClassLoader().getResourceAsStream("invalid-compression.gz");
         gzin = new GzipInputStream(in);

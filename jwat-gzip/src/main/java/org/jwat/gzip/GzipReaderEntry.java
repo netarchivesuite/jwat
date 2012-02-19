@@ -29,7 +29,11 @@ import java.util.zip.DataFormatException;
  */
 public class GzipReaderEntry {
 
-    /** Leading magic. */
+	/** Starting offset of this entry in the input stream from whence it came.
+	 */
+	public long startOffset = -1L;
+
+	/** Leading magic. */
     public int magic;
     /** Compression mode. */
     public short cm;
@@ -92,6 +96,10 @@ public class GzipReaderEntry {
         if (writer != null) {
             writer = null;
         }
+    }
+
+    public long getStartOffset() {
+    	return startOffset;
     }
 
     /**

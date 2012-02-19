@@ -122,7 +122,7 @@ public class TestInputStream {
 
     public void readEntriesOld(InputStream in) {
         GzipInputStream gzin;
-        GzipEntry entry;
+        GzipInputStreamEntry entry;
         InputStream gzis;
         int entries = 0;
         int read;
