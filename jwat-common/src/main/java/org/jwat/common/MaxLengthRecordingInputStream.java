@@ -127,9 +127,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
         if (available > 0) {
             l = read(skip_read_buffer, 0, (int) Math.min(
                             Math.min(n, available), SKIP_READ_BUFFER_SIZE));
-            if (l > 0) {
-                record.write(skip_read_buffer, 0, (int) l);
-            } else {
+            if (l == -1) {
                 l = 0;
             }
         }

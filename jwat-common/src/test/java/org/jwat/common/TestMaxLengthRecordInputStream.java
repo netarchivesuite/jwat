@@ -208,6 +208,9 @@ public class TestMaxLengthRecordInputStream {
                     dstArr = dstOut.toByteArray();
                     Assert.assertEquals( srcArr.length, dstArr.length + skipped );
 
+                    Assert.assertEquals( srcArr.length, in.getRecording().length );
+                    Assert.assertArrayEquals( srcArr, in.getRecording() );
+
                     in.close();
                 }
                 catch (IOException e) {
