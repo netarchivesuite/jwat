@@ -66,12 +66,14 @@ public class TestSkippingClose {
         int entries = 0;
         String tmpStr;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 entryIn = entry.getInputStream();
                 tmpStr = entry.toString();
                 Assert.assertEquals(1, entryIn.available());
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));

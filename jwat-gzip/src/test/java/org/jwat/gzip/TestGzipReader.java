@@ -17,12 +17,15 @@
  */
 package org.jwat.gzip;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,7 +35,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 public class TestGzipReader {
 
     @Test
-    public void test_gzipreader() {
+    public void test_gzipreader_nextentry() {
         InputStream in;
         ByteCountingPushBackInputStream pbin;
         GzipReader reader;
@@ -45,13 +48,19 @@ public class TestGzipReader {
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
-            readEntries(reader);
+            readEntries(reader, Integer.MAX_VALUE);
             pbin.close();
 
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
-            readEntries(reader);
+            readEntries(reader, Integer.MAX_VALUE);
+            pbin.close();
+
+            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            pbin = new ByteCountingPushBackInputStream(in, 16);
+            reader = new GzipReader(pbin);
+            readEntries(reader, 1);
             pbin.close();
         }
         catch (IOException e) {
@@ -64,12 +73,14 @@ public class TestGzipReader {
     protected byte[] tmpBuf = new byte[768];
     protected InputStream entryIn;
 
-    protected void readEntries(GzipReader reader) {
+    protected void readEntries(GzipReader reader, int max_entries) {
         int entries = 0;
         int read;
         try {
-            GzipReaderEntry entry;
-            while ((entry = reader.getNextEntry()) != null) {
+            GzipEntry entry;
+            Assert.assertEquals(0, reader.getStartOffset());
+            Assert.assertEquals(0, reader.getOffset());
+            while ((entry = reader.getNextEntry()) != null && (entries < max_entries)) {
                 out.reset();
                 entryIn = entry.getInputStream();
                 while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
@@ -80,10 +91,14 @@ public class TestGzipReader {
                 Assert.assertEquals(entry.crc32, entry.comp_crc32);
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 entry.close();
                 out.close();
                 out.reset();
                 ++entries;
+                Assert.assertEquals(entry.getStartOffset(), reader.getStartOffset());
+                Assert.assertThat(reader.getStartOffset(), is(not(equalTo(reader.getOffset()))));
             }
             reader.close();
             reader.close();
@@ -92,7 +107,7 @@ public class TestGzipReader {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
-        Assert.assertEquals(822, entries);
+        Assert.assertEquals(Math.min(822, max_entries), entries);
     }
 
 }

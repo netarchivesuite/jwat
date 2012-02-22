@@ -17,8 +17,8 @@
  */
 package org.jwat.gzip;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Class containing all relevant GZip constants and structures.
@@ -44,6 +44,8 @@ public class GzipConstants {
 
     public static final int DEFLATE_XFL_MAXIMUM_COMPRESSION = 2;
     public static final int DEFLATE_XFL_FASTEST_COMPRESSION = 4;
+    public static final int DEFLATE_XFL_MAXIEST_COMPRESSION = DEFLATE_XFL_MAXIMUM_COMPRESSION + DEFLATE_XFL_FASTEST_COMPRESSION;
+    public static final int DEFLATE_XLF_RESERVED = 1 + 8 + 16 + 32 + 64 + 128;
 
     /** File header flags. */
     public static final int FLG_FTEXT = 1;          // Extra text
@@ -86,7 +88,7 @@ public class GzipConstants {
     public static final int OS_UNKNOWN = 255;
 
     /** Operating Systems lookup map used to identify OS values. */
-    public static final Map<Integer, String> osIdxStr = new HashMap<Integer, String>();
+    public static final Map<Integer, String> osIdxStr = new TreeMap<Integer, String>();
 
     /**
      * Populate the lookup map with known Operating Systems.

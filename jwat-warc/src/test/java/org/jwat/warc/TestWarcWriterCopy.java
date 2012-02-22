@@ -17,6 +17,7 @@
  */
 package org.jwat.warc;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +73,9 @@ public class TestWarcWriterCopy {
 
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
 
-            raf = new RandomAccessFile("WarcWriteTest.warc", "rw");
+            File out_file = File.createTempFile("jwat-warcwritetest-", ".warc");
+
+            raf = new RandomAccessFile(out_file, "rw");
             raf.seek(0);
             raf.setLength(0);
             //OutputStream out = new FileOutputStream( "WarcWriteTest.warc" );

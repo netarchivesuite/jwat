@@ -21,13 +21,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.ISO8859_1;
 
 /**
  * A reader for (multi-part) GZip files. Validates header and CRC's.
@@ -59,8 +61,11 @@ public class GzipReader {
     /** Input buffer used to feed the inflater. */
     protected byte[] inputBytes;
 
+    /** ISO-8859-1 validating de-/encoder. */
+    protected final ISO8859_1 iso8859_1 = new ISO8859_1();
+
     /** Current GZip entry object. */
-    protected GzipReaderEntry gzipEntry;
+    protected GzipEntry gzipEntry;
 
     /** Entry offset, updated each time an entry is closed. */
     protected long startOffset = 0;
@@ -170,7 +175,7 @@ public class GzipReader {
      * @return GZip entry or null
      * @throws IOException if an io error occurs while reading entry
      */
-    public GzipReaderEntry getNextEntry() throws IOException {
+    public GzipEntry getNextEntry() throws IOException {
         if (gzipEntry != null) {
         	gzipEntry.close();
         	startOffset = pbin.getConsumed();
@@ -180,19 +185,76 @@ public class GzipReader {
         if (read == 10) {
             crc.reset();
             inf.reset();
-            gzipEntry = new GzipReaderEntry();
+            gzipEntry = new GzipEntry();
             gzipEntry.startOffset = startOffset;
             /*
              * Header.
              */
             gzipEntry.magic = ((headerBytes[1] & 255) << 8) | (headerBytes[0] & 255);
-            gzipEntry.cm = headerBytes[2];
-            gzipEntry.flg = headerBytes[3];
+            gzipEntry.cm = (short)(headerBytes[2] & 255);
+            gzipEntry.flg = (short)(headerBytes[3] & 255);
             gzipEntry.mtime = ((headerBytes[7] & 255) << 24) | ((headerBytes[6] & 255) << 16) | ((headerBytes[5] & 255) << 8) | (headerBytes[4] & 255);
             gzipEntry.date = (gzipEntry.mtime != 0) ? new Date(gzipEntry.mtime * 1000) : null;
-            gzipEntry.xfl = headerBytes[8];
-            gzipEntry.os = headerBytes[9];
+            gzipEntry.xfl = (short)(headerBytes[8] & 255);
+            gzipEntry.os = (short)(headerBytes[9] & 255);
             crc.update(headerBytes);
+            if (gzipEntry.magic != GzipConstants.GZIP_MAGIC) {
+            	gzipEntry.diagnostics.addError(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_EXPECTED,
+            					"Magic Value",
+            					Integer.toHexString(gzipEntry.magic),
+            					Integer.toHexString(GzipConstants.GZIP_MAGIC)
+            				)
+            			);
+            }
+            if (gzipEntry.cm != GzipConstants.CM_DEFLATE) {
+            	gzipEntry.diagnostics.addError(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_EXPECTED,
+            					"Compression Method",
+            					Integer.toHexString(gzipEntry.cm),
+            					Integer.toHexString(GzipConstants.CM_DEFLATE)
+            				)
+            			);
+            } else {
+                if ((gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED) != 0) {
+                	gzipEntry.diagnostics.addWarning(
+                			new Diagnosis(
+                					DiagnosisType.RESERVED,
+                					"eXtra FLags",
+                					Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED)
+                				)
+                			);
+                }
+                if ((gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) == GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) {
+                	gzipEntry.diagnostics.addError(
+                			new Diagnosis(
+                					DiagnosisType.INVALID,
+                					"eXtra FLags",
+                					Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION)
+                				)
+                			);
+                }
+            }
+            if ((gzipEntry.flg & GzipConstants.FLG_FRESERVED) != 0) {
+            	gzipEntry.diagnostics.addWarning(
+            			new Diagnosis(
+            					DiagnosisType.RESERVED,
+            					"FLaGs",
+            					Integer.toHexString(gzipEntry.flg & GzipConstants.FLG_FRESERVED)
+            				)
+            			);
+            }
+            if (!GzipConstants.osIdxStr.containsKey((int)gzipEntry.os)) {
+            	gzipEntry.diagnostics.addWarning(
+            			new Diagnosis(
+            					DiagnosisType.UNKNOWN,
+            					"Operating System",
+            					Integer.toString(gzipEntry.os)
+    				)
+    			);
+            }
             /*
              * FTEXT.
              */
@@ -229,11 +291,17 @@ public class GzipReader {
                 if (fnameBytes == null) {
                     throw new EOFException("Unexpected EOF!");
                 }
-                try {
-                    gzipEntry.fname = new String(fnameBytes, "ISO-8859-1");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                if (!iso8859_1.decode(fnameBytes, "")) {
+                	gzipEntry.diagnostics.addWarning(
+                			new Diagnosis(
+                					DiagnosisType.INVALID_ENCODING,
+                					"FName",
+                					iso8859_1.decoded,
+                					"ISO-8859-1"
+                				)
+                			);
                 }
+                gzipEntry.fname = iso8859_1.decoded;
                 crc.update(fnameBytes);
                 crc.update(0);
             }
@@ -245,11 +313,17 @@ public class GzipReader {
                 if (fcommentBytes == null) {
                     throw new EOFException("Unexpected EOF!");
                 }
-                try {
-                    gzipEntry.fcomment = new String(fcommentBytes, "ISO-8859-1");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                if (!iso8859_1.decode(fcommentBytes, "\n")) {
+                	gzipEntry.diagnostics.addWarning(
+                			new Diagnosis(
+                					DiagnosisType.INVALID_ENCODING,
+                					"FComment",
+                					iso8859_1.decoded,
+                					"ISO-8859-1"
+                				)
+                			);
                 }
+                gzipEntry.fcomment = iso8859_1.decoded;
                 crc.update(fcommentBytes);
                 crc.update(0);
             }
@@ -270,6 +344,16 @@ public class GzipReader {
              */
             gzipEntry.comp_crc16 = ((int)crc.getValue()) & 0x0000ffff;
             crc.reset();
+            if (gzipEntry.crc16 != null && gzipEntry.crc16 != gzipEntry.comp_crc16) {
+            	gzipEntry.diagnostics.addError(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_EXPECTED,
+            					"CRC16",
+            					Integer.toHexString(gzipEntry.crc16),
+            					Integer.toHexString(gzipEntry.comp_crc16)
+            				)
+            			);
+            }
             /*
              * Prepare Entry InputStream.
              */
@@ -302,15 +386,36 @@ public class GzipReader {
      * @param entry Gzip entry
      * @throws IOException if an io error occurs while reading data
      */
-    protected void readTrailer(GzipReaderEntry entry) throws IOException {
+    protected void readTrailer(GzipEntry entry) throws IOException {
         int read = pbin.readFully(trailerBytes);
         if (read == 8) {
-            gzipEntry.crc32 = ((trailerBytes[3] & 255) << 24) | ((trailerBytes[2] & 255) << 16) | ((trailerBytes[1] & 255) << 8) | (trailerBytes[0] & 255);
-            gzipEntry.isize = ((trailerBytes[7] & 255) << 24) | ((trailerBytes[6] & 255) << 16) | ((trailerBytes[5] & 255) << 8) | (trailerBytes[4] & 255);
+            entry.crc32 = ((trailerBytes[3] & 255) << 24) | ((trailerBytes[2] & 255) << 16) | ((trailerBytes[1] & 255) << 8) | (trailerBytes[0] & 255);
+            entry.isize = ((trailerBytes[7] & 255) << 24) | ((trailerBytes[6] & 255) << 16) | ((trailerBytes[5] & 255) << 8) | (trailerBytes[4] & 255);
+            entry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
+            entry.comp_isize = inf.getBytesWritten() & 0xffffffff;
+            if (entry.comp_crc32 != entry.crc32) {
+            	entry.diagnostics.addError(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_EXPECTED,
+            					"CRC32",
+            					Integer.toHexString(entry.crc32),
+            					Integer.toHexString(entry.comp_crc32)
+            				)
+            			);
+            }
+            if (entry.comp_isize != entry.isize) {
+            	entry.diagnostics.addError(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_EXPECTED,
+            					"ISize",
+            					Long.toString(entry.isize),
+            					Long.toString(entry.comp_isize)
+            				)
+            			);
+            }
         } else {
             throw new EOFException("Unexpected EOF!");
         }
-        gzipEntry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
     }
 
     /**
@@ -354,7 +459,7 @@ public class GzipReader {
         GzipReader reader;
 
         /** Associated GZip entry. */
-        GzipReaderEntry gzipEntry;
+        GzipEntry gzipEntry;
 
         /** End of uncompressed file status. */
         boolean bEof = false;
@@ -368,7 +473,7 @@ public class GzipReader {
          * @param gzipEntry GZip entry
          */
         public GzipEntryInputStream(GzipReader reader,
-                                    GzipReaderEntry gzipEntry) {
+                                    GzipEntry gzipEntry) {
             this.reader = reader;
             this.gzipEntry = gzipEntry;
         }

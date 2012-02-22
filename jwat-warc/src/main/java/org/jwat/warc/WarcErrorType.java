@@ -52,12 +52,12 @@ public enum WarcErrorType {
      * Construct an error type enum value.
      * @param name error type name
      */
-    private WarcErrorType(String name){
+    private WarcErrorType(String name) {
         this.name = name;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.name;
     }
 

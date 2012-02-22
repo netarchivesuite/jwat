@@ -72,7 +72,7 @@ public class TestInputStream {
         int entries = 0;
         int read;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 out.reset();
                 entryIn = entry.getInputStream();
@@ -99,6 +99,8 @@ public class TestInputStream {
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));

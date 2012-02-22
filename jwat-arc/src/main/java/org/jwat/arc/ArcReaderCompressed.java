@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.gzip.GzipReader;
-import org.jwat.gzip.GzipReaderEntry;
+import org.jwat.gzip.GzipEntry;
 
 /**
  * ARC Reader used on GZip compressed files.
@@ -128,7 +128,7 @@ public class ArcReaderCompressed extends ArcReader {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         versionBlock = null;
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
@@ -161,7 +161,7 @@ public class ArcReaderCompressed extends ArcReader {
         }
         versionBlock = null;
         GzipReader reader = new GzipReader(vbin);
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 versionBlock = ArcVersionBlock.parseVersionBlock(
@@ -192,7 +192,7 @@ public class ArcReaderCompressed extends ArcReader {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         arcRecord = null;
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 arcRecord = ArcRecord.parseArcRecord(
@@ -232,7 +232,7 @@ public class ArcReaderCompressed extends ArcReader {
         }
         arcRecord = null;
         GzipReader reader = new GzipReader(rin);
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
@@ -267,7 +267,7 @@ public class ArcReaderCompressed extends ArcReader {
         }
         arcRecord = null;
         GzipReader reader = new GzipReader(rin);
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(

@@ -28,6 +28,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.ISO8859_1;
 
 @RunWith(JUnit4.class)
 public class TestEncoding {
@@ -39,11 +41,20 @@ public class TestEncoding {
     @Test
     public void test_gzip_writer() {
         StringBuffer sb = new StringBuffer();
+        StringBuffer sbFname = new StringBuffer();
+        StringBuffer sbFcomment = new StringBuffer();
         for (int i=1; i<256; ++i) {
             sb.append((char)i);
+            if (ISO8859_1.validBytes[i] != 0) {
+            	sbFname.append((char)i);
+            	sbFcomment.append((char)i);
+            }
+            else if (i == 10) {
+            	sbFcomment.append((char)i);
+            }
         }
 
-        GzipReaderEntry wEntry = new GzipReaderEntry();
+        GzipEntry wEntry = new GzipEntry();
         wEntry.magic = GzipConstants.GZIP_MAGIC;
         wEntry.cm = GzipConstants.CM_DEFLATE;
         wEntry.flg = 0;
@@ -79,12 +90,19 @@ public class TestEncoding {
             out.flush();
             out.close();
 
+            Assert.assertFalse(wEntry.diagnostics.hasErrors());
+            Assert.assertTrue(wEntry.diagnostics.hasWarnings());
+
+            Assert.assertEquals(2, wEntry.diagnostics.getWarnings().size());
+            Assert.assertTrue(GzipTestHelper.containsWarning(wEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FName", 2));
+            Assert.assertTrue(GzipTestHelper.containsWarning(wEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FComment", 2));
+
             gzipFile = out.toByteArray();
 
             GzipReader reader;
             reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-            GzipReaderEntry rEntry;
+            GzipEntry rEntry;
             InputStream entryIn;
             int read;
             if ((rEntry = reader.getNextEntry()) != null) {
@@ -105,6 +123,9 @@ public class TestEncoding {
                 out.close();
                 out.reset();
 
+                Assert.assertFalse(rEntry.diagnostics.hasErrors());
+                Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);
                 Assert.assertEquals(wEntry.mtime, rEntry.mtime);
@@ -116,6 +137,10 @@ public class TestEncoding {
                 Assert.assertArrayEquals(wEntry.extraBytes, rEntry.extraBytes);
                 Assert.assertEquals(wEntry.fname, rEntry.fname);
                 Assert.assertEquals(wEntry.fcomment, rEntry.fcomment);
+                Assert.assertEquals(wEntry.fname, sbFname.toString());
+                Assert.assertEquals(rEntry.fname, sbFname.toString());
+                Assert.assertEquals(wEntry.fcomment, sbFcomment.toString());
+                Assert.assertEquals(rEntry.fcomment, sbFcomment.toString());
                 Assert.assertEquals(wEntry.bFhCrc, rEntry.bFhCrc);
                 Assert.assertEquals(wEntry.crc16, rEntry.crc16);
                 Assert.assertEquals(wEntry.comp_crc16, rEntry.comp_crc16);
@@ -133,9 +158,6 @@ public class TestEncoding {
                 Assert.fail("Did not expect more entries!");
             }
             reader.close();
-
-            System.out.println(rEntry.fname);
-            System.out.println(rEntry.fcomment);
 
             GzipInputStream gzin;
             GzipInputStreamEntry entry;

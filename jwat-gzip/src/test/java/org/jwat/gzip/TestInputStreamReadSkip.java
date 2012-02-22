@@ -98,7 +98,7 @@ public class TestInputStreamReadSkip {
         int entries = 0;
         int read;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 out.reset();
                 entryIn = entry.getInputStream();
@@ -114,6 +114,8 @@ public class TestInputStreamReadSkip {
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
@@ -141,7 +143,7 @@ public class TestInputStreamReadSkip {
         int read;
         int mod;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 out.reset();
                 entryIn = entry.getInputStream();
@@ -182,6 +184,8 @@ public class TestInputStreamReadSkip {
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
@@ -211,7 +215,7 @@ public class TestInputStreamReadSkip {
         int read;
         int mod;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 entryIn = entry.getInputStream();
                 Assert.assertEquals(1, entryIn.available());
@@ -264,6 +268,8 @@ public class TestInputStreamReadSkip {
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));

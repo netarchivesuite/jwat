@@ -17,7 +17,7 @@
  */
 package org.jwat.gzip;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,15 +34,13 @@ public class TestGzipWriter {
 
     @Test
     public void test_gzip_writer() {
-        String in_file = "C:\\Java\\workspace\\jwat\\jwat-warc\\src\\test\\resources\\IAH-20080430204825-00000-blackbook.warc";
-
-        String out_file = "testwrite.gz";
+        String in_file = "IAH-20080430204825-00000-blackbook.warc";
 
         RandomAccessFile raf;
         RandomAccessFileOutputStream out;
         InputStream in;
 
-        GzipReaderEntry entry = new GzipReaderEntry();
+        GzipEntry entry = new GzipEntry();
         entry.magic = GzipConstants.GZIP_MAGIC;
         entry.cm = GzipConstants.CM_DEFLATE;
         entry.flg = 0;
@@ -51,6 +49,9 @@ public class TestGzipWriter {
         entry.os = GzipConstants.OS_AMIGA;
 
         try {
+            File out_file = File.createTempFile("jwat-testwrite", ".gz");
+            out_file.deleteOnExit();
+
             raf = new RandomAccessFile(out_file, "rw");
             raf.seek(0);
             raf.setLength(0);
@@ -59,9 +60,13 @@ public class TestGzipWriter {
             GzipWriter writer = new GzipWriter(out);
             writer.writeEntryHeader(entry);
 
-            in = new FileInputStream(in_file);
+            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            //in = new FileInputStream(in_file);
             entry.writeFrom(in);
             in.close();
+
+            Assert.assertFalse(entry.diagnostics.hasErrors());
+            Assert.assertFalse(entry.diagnostics.hasWarnings());
 
             writer.close();
             writer.close();

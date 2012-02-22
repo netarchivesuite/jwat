@@ -21,11 +21,14 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.ISO8859_1;
 
 /**
  * A writer for (multi-part) GZip files.
@@ -50,8 +53,14 @@ public class GzipWriter {
     /** Input buffer used to feed the deflater. */
     protected byte[] inputBytes;
 
+    /** Compression level to be used by deflater. */
+    protected int compressionLevel = Deflater.DEFAULT_COMPRESSION;
+
+    /** ISO-8859-1 validating de-/encoder. */
+    protected final ISO8859_1 iso8859_1 = new ISO8859_1();
+
     /** Current GZip entry object. */
-    protected GzipReaderEntry gzipEntry;
+    protected GzipEntry gzipEntry;
 
     /** Buffer used to read header.  */
     byte[] headerBytes = new byte[10];
@@ -112,22 +121,73 @@ public class GzipWriter {
     }
 
     /**
+     * Set compression level used by deflater. Only changed in deflater prior
+     * to writing an entry header.
+     * @param compressionLevel compression level
+     */
+    public void setCompressionLevel(int compressionLevel) {
+    	if (compressionLevel == Deflater.DEFAULT_COMPRESSION
+    			|| compressionLevel == Deflater.NO_COMPRESSION
+    			|| (compressionLevel >= 1 && compressionLevel <= 9)) {
+        	this.compressionLevel = compressionLevel;
+    	}
+    	else {
+    		throw new IllegalArgumentException("Invalid compression level: " + compressionLevel);
+    	}
+    }
+
+    /**
+     * Returns current compression level used by deflater.
+     * @return current compression level
+     */
+    public int getCompressionLevel() {
+    	return compressionLevel;
+    }
+
+    /**
      * Write a GZip entry header and prepare for compressing input data.
      * @param entry GZip entry object
      * @throws IOException if an io error occurs while writing header
      */
-    public void writeEntryHeader(GzipReaderEntry entry) throws IOException {
+    public void writeEntryHeader(GzipEntry entry) throws IOException {
         if (entry == null) {
             throw new IllegalArgumentException("entry is null!");
         }
         crc.reset();
         def.reset();
+        def.setLevel(compressionLevel);
         gzipEntry = entry;
+        /*
+         * Header.
+         */
+        entry.magic = GzipConstants.GZIP_MAGIC;
+        if (entry.date != null) {
+            entry.mtime = entry.date.getTime() / 1000;
+        }
+        else if (entry.mtime != 0) {
+            entry.date = new Date(entry.mtime * 1000);
+        }
+        entry.xfl = 0;
+        if (compressionLevel == 1) {
+        	entry.xfl |= GzipConstants.DEFLATE_XFL_FASTEST_COMPRESSION;
+        } else if (compressionLevel == 9) {
+        	entry.xfl |= GzipConstants.DEFLATE_XFL_MAXIMUM_COMPRESSION;
+        }
+        entry.flg = 0;
+        if (!GzipConstants.osIdxStr.containsKey((int)entry.os)) {
+        	entry.diagnostics.addWarning(
+        			new Diagnosis(
+        					DiagnosisType.UNKNOWN,
+        					"Operating System",
+        					Integer.toString(entry.os)
+				)
+			);
+        }
         /*
          * FTEXT.
          */
-        if (gzipEntry.bFText) {
-            gzipEntry.flg |= GzipConstants.FLG_FTEXT;
+        if (entry.bFText) {
+            entry.flg |= GzipConstants.FLG_FTEXT;
         }
         /*
          * FEXTRA.
@@ -143,40 +203,46 @@ public class GzipWriter {
          */
         if (entry.fname != null) {
             entry.flg |= GzipConstants.FLG_FNAME;
-            try {
-                fnameBytes = entry.fname.getBytes("ISO-8859-1");
+            if (!iso8859_1.encode(entry.fname, "")) {
+            	entry.diagnostics.addWarning(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_ENCODING,
+            					"FName",
+            					entry.fname,
+            					"ISO-8859-1"
+            				)
+            			);
             }
-            catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            entry.fname = iso8859_1.decoded;
+            fnameBytes = iso8859_1.encoded;
         }
         /*
          * FCOMMENT.
          */
         if (entry.fcomment != null) {
             entry.flg |= GzipConstants.FLG_FCOMMENT;
-            try {
-                fcommentBytes = entry.fcomment.getBytes("ISO-8859-1");
+            if (!iso8859_1.encode(entry.fcomment, "\n")) {
+            	entry.diagnostics.addWarning(
+            			new Diagnosis(
+            					DiagnosisType.INVALID_ENCODING,
+            					"FComment",
+            					entry.fcomment,
+            					"ISO-8859-1"
+            				)
+            			);
             }
-            catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            entry.fcomment = iso8859_1.decoded;
+            fcommentBytes = iso8859_1.encoded;
         }
         /*
          * FHCRC.
          */
-        if (gzipEntry.bFhCrc) {
-            gzipEntry.flg |= GzipConstants.FLG_FHCRC;
+        if (entry.bFhCrc) {
+            entry.flg |= GzipConstants.FLG_FHCRC;
         }
         /*
          * Header.
          */
-        if (gzipEntry.date != null) {
-            gzipEntry.mtime = gzipEntry.date.getTime() / 1000;
-        }
-        else if (gzipEntry.mtime != 0) {
-            gzipEntry.date = new Date(gzipEntry.mtime * 1000);
-        }
         headerBytes[0] = (byte)(entry.magic & 255);
         headerBytes[1] = (byte)((entry.magic >> 8) & 255);
         headerBytes[2] = (byte)entry.cm;
@@ -228,7 +294,7 @@ public class GzipWriter {
      * @param entry GZip entry object
      * @throws IOException if an io error occurs while writing trailer
      */
-    protected void writeTrailer(GzipReaderEntry entry) throws IOException {
+    protected void writeTrailer(GzipEntry entry) throws IOException {
         trailerBytes[0] = (byte)(entry.crc32 & 255);
         trailerBytes[1] = (byte)((entry.crc32 >> 8) & 255);
         trailerBytes[2] = (byte)((entry.crc32 >> 16) & 255);
@@ -256,18 +322,15 @@ public class GzipWriter {
         while ((deflated = def.deflate(b, off, len)) == 0) {
             if (def.finished()) {
                 return -1;
-            }
-            else if (def.needsInput()) {
+            } else if (def.needsInput()) {
                 int read = in.read(inputBytes, 0, inputBytes.length);
                 if (read != -1) {
                     def.setInput(inputBytes, 0, read);
                     crc.update(inputBytes, 0, read);
-                }
-                else {
+                } else {
                     def.finish();
                 }
-            }
-            else {
+            } else {
                 throw new DataFormatException("Deflater malfunction!");
             }
         }

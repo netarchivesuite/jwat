@@ -39,7 +39,7 @@ public class TestFlagged {
 
     @Test
     public void test_gzip_writer() {
-        GzipReaderEntry wEntry = new GzipReaderEntry();
+        GzipEntry wEntry = new GzipEntry();
         wEntry.magic = GzipConstants.GZIP_MAGIC;
         wEntry.cm = GzipConstants.CM_DEFLATE;
         wEntry.flg = 0;
@@ -75,12 +75,15 @@ public class TestFlagged {
             out.flush();
             out.close();
 
+            Assert.assertFalse(wEntry.diagnostics.hasErrors());
+            Assert.assertFalse(wEntry.diagnostics.hasWarnings());
+
             gzipFile = out.toByteArray();
 
             GzipReader reader;
             reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-            GzipReaderEntry rEntry;
+            GzipEntry rEntry;
             InputStream entryIn;
             int read;
             if ((rEntry = reader.getNextEntry()) != null) {
@@ -100,6 +103,9 @@ public class TestFlagged {
                 Assert.assertArrayEquals(data, out.toByteArray());
                 out.close();
                 out.reset();
+
+                Assert.assertFalse(rEntry.diagnostics.hasErrors());
+                Assert.assertFalse(rEntry.diagnostics.hasWarnings());
 
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);
@@ -193,7 +199,7 @@ public class TestFlagged {
     public void tryread(byte[] gzipFile) throws IOException {
         GzipReader reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-        GzipReaderEntry rEntry;
+        GzipEntry rEntry;
         InputStream entryIn;
         int read;
         if ((rEntry = reader.getNextEntry()) != null) {
@@ -218,7 +224,7 @@ public class TestFlagged {
 
     @Test
     public void test_gzip_dates() {
-        GzipReaderEntry wEntry = new GzipReaderEntry();
+        GzipEntry wEntry = new GzipEntry();
         wEntry.magic = GzipConstants.GZIP_MAGIC;
         wEntry.cm = GzipConstants.CM_DEFLATE;
         wEntry.flg = 0;
@@ -254,12 +260,15 @@ public class TestFlagged {
             out.flush();
             out.close();
 
+            Assert.assertFalse(wEntry.diagnostics.hasErrors());
+            Assert.assertFalse(wEntry.diagnostics.hasWarnings());
+
             gzipFile = out.toByteArray();
 
             GzipReader reader;
             reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
-            GzipReaderEntry rEntry;
+            GzipEntry rEntry;
             InputStream entryIn;
             int read;
             if ((rEntry = reader.getNextEntry()) != null) {
@@ -279,6 +288,9 @@ public class TestFlagged {
                 Assert.assertArrayEquals(data, out.toByteArray());
                 out.close();
                 out.reset();
+
+                Assert.assertFalse(rEntry.diagnostics.hasErrors());
+                Assert.assertFalse(rEntry.diagnostics.hasWarnings());
 
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);

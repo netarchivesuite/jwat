@@ -52,7 +52,7 @@ public class WarcValidationError {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append('[');
         builder.append("error: ");

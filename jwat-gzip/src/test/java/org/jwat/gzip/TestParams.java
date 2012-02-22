@@ -20,6 +20,7 @@ package org.jwat.gzip;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.zip.Deflater;
 
 import junit.framework.Assert;
 
@@ -92,13 +93,51 @@ public class TestParams {
         }
         writer = new GzipWriter(out, 1024);
 
-        GzipReaderEntry entry = new GzipReaderEntry();
+        GzipEntry entry = new GzipEntry();
         entry.magic = GzipConstants.GZIP_MAGIC;
         entry.cm = GzipConstants.CM_DEFLATE;
         entry.flg = 0;
         entry.mtime = System.currentTimeMillis() / 1000;
         entry.xfl = 0;
         entry.os = GzipConstants.OS_AMIGA;
+
+        Assert.assertEquals(Deflater.DEFAULT_COMPRESSION, writer.getCompressionLevel());
+        writer.setCompressionLevel(Deflater.NO_COMPRESSION);
+        Assert.assertEquals(Deflater.NO_COMPRESSION, writer.getCompressionLevel());
+        writer.setCompressionLevel(Deflater.DEFAULT_COMPRESSION);
+        Assert.assertEquals(Deflater.DEFAULT_COMPRESSION, writer.getCompressionLevel());
+        writer.setCompressionLevel(1);
+        Assert.assertEquals(1, writer.getCompressionLevel());
+        writer.setCompressionLevel(2);
+        Assert.assertEquals(2, writer.getCompressionLevel());
+        writer.setCompressionLevel(3);
+        Assert.assertEquals(3, writer.getCompressionLevel());
+        writer.setCompressionLevel(4);
+        Assert.assertEquals(4, writer.getCompressionLevel());
+        writer.setCompressionLevel(5);
+        Assert.assertEquals(5, writer.getCompressionLevel());
+        writer.setCompressionLevel(6);
+        Assert.assertEquals(6, writer.getCompressionLevel());
+        writer.setCompressionLevel(7);
+        Assert.assertEquals(7, writer.getCompressionLevel());
+        writer.setCompressionLevel(8);
+        Assert.assertEquals(8, writer.getCompressionLevel());
+        writer.setCompressionLevel(9);
+        Assert.assertEquals(9, writer.getCompressionLevel());
+        try {
+            writer.setCompressionLevel(-2);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        Assert.assertEquals(9, writer.getCompressionLevel());
+        try {
+            writer.setCompressionLevel(10);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        Assert.assertEquals(9, writer.getCompressionLevel());
 
         try {
             writer.writeEntryHeader(null);
@@ -124,6 +163,18 @@ public class TestParams {
         }
 
         entry.writeFrom(in);
+        entry.close();
+        Assert.assertFalse(entry.diagnostics.hasErrors());
+        Assert.assertFalse(entry.diagnostics.hasWarnings());
+
+        writer.setCompressionLevel(1);
+        writer.writeEntryHeader(entry);
+        entry.writeFrom(in);
+        entry.close();
+        Assert.assertFalse(entry.diagnostics.hasErrors());
+        Assert.assertFalse(entry.diagnostics.hasWarnings());
+
+        writer.close();
     }
 
 }

@@ -23,7 +23,7 @@ import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.gzip.GzipReader;
-import org.jwat.gzip.GzipReaderEntry;
+import org.jwat.gzip.GzipEntry;
 
 /**
  * WARC Reader used on GZip compressed files.
@@ -130,7 +130,7 @@ public class WarcReaderCompressed extends WarcReader {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
         warcRecord = null;
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             if (bufferSize > 0) {
                 warcRecord = WarcRecord.parseRecord(
@@ -163,7 +163,7 @@ public class WarcReaderCompressed extends WarcReader {
         }
         warcRecord = null;
         GzipReader reader = new GzipReader(rin);
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             warcRecord = WarcRecord.parseRecord(
                     new ByteCountingPushBackInputStream(
@@ -193,7 +193,7 @@ public class WarcReaderCompressed extends WarcReader {
         }
         warcRecord = null;
         GzipReader reader = new GzipReader(rin);
-        GzipReaderEntry entry = reader.getNextEntry();
+        GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
             warcRecord = WarcRecord.parseRecord(
                     new ByteCountingPushBackInputStream(

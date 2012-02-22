@@ -35,6 +35,16 @@ public class TestMagic {
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {
+            GzipInputStream.isGzipped(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        catch (IOException e) {
+			e.printStackTrace();
+            Assert.fail("Exception not expected!");
+		}
+        try {
             bytes = GzipConstants.GZIP_MAGIC_HEADER;
             pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
             Assert.assertTrue(GzipInputStream.isGzipped(pbin));
@@ -69,6 +79,16 @@ public class TestMagic {
     public void test_magicbytes_new() {
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
+        try {
+            GzipReader.isGzipped(null);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        catch (IOException e) {
+			e.printStackTrace();
+            Assert.fail("Exception not expected!");
+		}
         try {
             bytes = GzipConstants.GZIP_MAGIC_HEADER;
             pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);

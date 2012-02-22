@@ -18,6 +18,7 @@
 package org.jwat.gzip;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -44,13 +45,15 @@ public class TestGzipWriterCloning {
 
         String in_file = "IAH-20080430204825-00000-blackbook.warc.gz";
 
-        String out_file1 = "testwrite2.gz";
-        String out_file2 = "testwrite3.gz";
-
         RandomAccessFile raf;
         RandomAccessFileOutputStream out;
 
         try {
+            File out_file1 = File.createTempFile("jwat-testwrite2-", ".gz");
+            File out_file2 = File.createTempFile("jwat-testwrite3-", ".gz");
+            out_file1.deleteOnExit();
+            out_file2.deleteOnExit();
+
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
@@ -117,7 +120,7 @@ public class TestGzipWriterCloning {
         int entries = 0;
         InputStream entryIn;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 entryIn = entry.getInputStream();
                 Assert.assertEquals(1, entryIn.available());
@@ -130,6 +133,8 @@ public class TestGzipWriterCloning {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 ++entries;
             }
             reader.close();
@@ -181,7 +186,7 @@ public class TestGzipWriterCloning {
         int read;
         GzipInputStreamEntry refEntry;
         try {
-            GzipReaderEntry entry;
+            GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
                 refEntry = entryList.get(entries);
                 out.reset();
@@ -207,6 +212,8 @@ public class TestGzipWriterCloning {
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
                 entry.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
