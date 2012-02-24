@@ -65,6 +65,7 @@ public class TestWarcWriterCopy {
 
         int records;
         int errors;
+        int warnings;
 
         try {
             /*
@@ -87,6 +88,7 @@ public class TestWarcWriterCopy {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
@@ -96,8 +98,11 @@ public class TestWarcWriterCopy {
 
                 ++records;
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
 
                 writer.write(record);
@@ -124,6 +129,7 @@ public class TestWarcWriterCopy {
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * Validate written warc.
@@ -137,6 +143,7 @@ public class TestWarcWriterCopy {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
@@ -146,8 +153,11 @@ public class TestWarcWriterCopy {
 
                 ++records;
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
             }
 
@@ -164,6 +174,7 @@ public class TestWarcWriterCopy {
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
         }
         catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

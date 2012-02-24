@@ -58,6 +58,7 @@ public class TestUpperLowerCase {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
@@ -75,8 +76,11 @@ public class TestUpperLowerCase {
 
                 ++records;
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
             }
 
@@ -84,7 +88,7 @@ public class TestUpperLowerCase {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
         }
         catch (FileNotFoundException e) {
@@ -96,6 +100,7 @@ public class TestUpperLowerCase {
 
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
+        Assert.assertEquals(0, warnings);
     }
 
 }

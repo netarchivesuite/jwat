@@ -32,33 +32,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcReaderFactory;
-import org.jwat.warc.WarcRecord;
-import org.jwat.warc.WarcValidationError;
+import org.jwat.common.Diagnosis;
 
 @RunWith(Parameterized.class)
 public class TestMissingHeadersAll {
 
     private int expected_records;
     private String warcFile;
-    private Set<String> fieldNamesSet;
+    private Set<String> errorsFieldNamesSet;
+    private Set<String> warningsFieldNamesSet;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {2, "test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length"},
-                {4, "test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI"},
-                {1, "test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID"},
-                {1, "test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile"},
-                {1, "test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length,WARC-Type"}
+                {2, "test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length", ""},
+                {4, "test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI", ""},
+                {1, "test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID", ""},
+                {1, "test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile", ""},
+                {1, "test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length", "WARC-Type"}
         });
     }
 
-    public TestMissingHeadersAll(int records, String warcFile, String fieldNames) {
+    public TestMissingHeadersAll(int records, String warcFile, String errorFieldNames, String warningFieldNames) {
         this.expected_records = records;
         this.warcFile = warcFile;
-        this.fieldNamesSet = new HashSet<String>(Arrays.asList((fieldNames.split(",", -1))));
+        this.errorsFieldNamesSet = new HashSet<String>(Arrays.asList((errorFieldNames.split(",", -1))));
+        this.warningsFieldNamesSet = new HashSet<String>(Arrays.asList((warningFieldNames.split(",", -1))));
     }
 
     @Test
@@ -69,6 +68,7 @@ public class TestMissingHeadersAll {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
@@ -86,15 +86,22 @@ public class TestMissingHeadersAll {
 
                 ++records;
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
 
-                    Assert.assertTrue(fieldNamesSet.containsAll(
-                            filter(record.getValidationErrors())
+                    Assert.assertTrue(errorsFieldNamesSet.containsAll(
+                            filter(record.diagnostics.getErrors())
                             ));
                 }
                 else {
                     Assert.fail("There must be errors.");
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
+
+                    Assert.assertTrue(warningsFieldNamesSet.containsAll(
+                            filter(record.diagnostics.getWarnings())
+                            ));
                 }
             }
 
@@ -102,7 +109,7 @@ public class TestMissingHeadersAll {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
         }
         catch (FileNotFoundException e) {
@@ -114,12 +121,19 @@ public class TestMissingHeadersAll {
 
         Assert.assertEquals(expected_records, records);
         //Assert.assertEquals(0, errors);
+        //Assert.assertEquals(0, warnings);
     }
 
-    public List<String> filter(Collection<WarcValidationError> errors) {
+    public List<String> filter(List<Diagnosis> errors) {
         List<String> fields = new ArrayList<String>();
-        for (WarcValidationError error : errors) {
-            fields.add(error.field);
+        for (Diagnosis error : errors) {
+        	int idx = error.entity.indexOf('\'');
+        	if (idx != 0) {
+        		idx = error.entity.indexOf('\'', 1);
+        		if (idx != -1) {
+                    fields.add(error.entity.substring(1, idx));
+        		}
+        	}
         }
         return fields;
     }

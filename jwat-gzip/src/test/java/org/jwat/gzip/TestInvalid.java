@@ -274,7 +274,7 @@ public class TestInvalid {
         Assert.assertTrue(rEntry.diagnostics.hasErrors());
         Assert.assertTrue(rEntry.diagnostics.hasWarnings());
         Assert.assertEquals(4, rEntry.diagnostics.getErrors().size());
-        Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID, "eXtra FLags", 1));
+        Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_DATA, "eXtra FLags", 1));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "CRC16", 2));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "CRC32", 2));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "ISize", 2));

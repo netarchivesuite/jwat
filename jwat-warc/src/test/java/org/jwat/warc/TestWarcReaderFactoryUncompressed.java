@@ -86,6 +86,7 @@ public class TestWarcReaderFactoryUncompressed {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             List<WarcEntry> entries = indexWarcFile();
@@ -97,6 +98,7 @@ public class TestWarcReaderFactoryUncompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
             file = new File(url.getFile());
@@ -132,8 +134,11 @@ public class TestWarcReaderFactoryUncompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
@@ -150,11 +155,12 @@ public class TestWarcReaderFactoryUncompressed {
             ram.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
@@ -162,6 +168,7 @@ public class TestWarcReaderFactoryUncompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
             file = new File(url.getFile());
@@ -197,8 +204,11 @@ public class TestWarcReaderFactoryUncompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
@@ -214,11 +224,12 @@ public class TestWarcReaderFactoryUncompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
@@ -226,6 +237,7 @@ public class TestWarcReaderFactoryUncompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
             file = new File(url.getFile());
@@ -261,8 +273,11 @@ public class TestWarcReaderFactoryUncompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
@@ -278,11 +293,12 @@ public class TestWarcReaderFactoryUncompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
         }
         catch (IOException e) {
             Assert.fail("Unexpected io exception");
@@ -305,6 +321,7 @@ public class TestWarcReaderFactoryUncompressed {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
@@ -351,8 +368,11 @@ public class TestWarcReaderFactoryUncompressed {
                     System.out.println("0x" + Long.toString(warcEntry.offset, 16) + "(" + warcEntry.offset + ") - " + warcEntry.recordId);
                 }
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
             }
 
@@ -368,6 +388,7 @@ public class TestWarcReaderFactoryUncompressed {
 
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
+        Assert.assertEquals(0, warnings);
 
         return warcEntries;
     }

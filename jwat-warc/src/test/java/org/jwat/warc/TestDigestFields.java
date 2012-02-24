@@ -37,18 +37,20 @@ public class TestDigestFields {
 
     private int expected_records;
     private int[] expected_errors;
+    private int[] expected_warnings;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {4, new int[]{0, 2, 2, 2}, "test-digest-fields.warc"}
+                {4, new int[]{0, 2, 2, 2}, new int[]{0, 0, 0, 0}, "test-digest-fields.warc"}
         });
     }
 
-    public TestDigestFields(int records, int[] errors, String warcFile) {
+    public TestDigestFields(int records, int[] errors, int[] warnings, String warcFile) {
         this.expected_records = records;
         this.expected_errors = errors;
+        this.expected_warnings = warnings;
         this.warcFile = warcFile;
     }
 
@@ -60,6 +62,7 @@ public class TestDigestFields {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
@@ -76,11 +79,16 @@ public class TestDigestFields {
                 record.close();
 
                 errors = 0;
-                if (record.hasErrors()) {
-                    errors = record.getValidationErrors().size();
+                warnings = 0;
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
 
                 Assert.assertEquals(expected_errors[records], errors);
+                Assert.assertEquals(expected_warnings[records], warnings);
 
                 ++records;
             }
@@ -89,7 +97,7 @@ public class TestDigestFields {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
         }
         catch (FileNotFoundException e) {

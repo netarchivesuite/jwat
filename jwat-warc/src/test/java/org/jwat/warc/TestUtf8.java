@@ -39,18 +39,20 @@ public class TestUtf8 {
 
     private int expected_records;
     private int expected_errors;
+    private int expected_warnings;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, "test-utf8.warc"}
+                {1, 0, 0, "test-utf8.warc"}
         });
     }
 
-    public TestUtf8(int records, int errors, String warcFile) {
+    public TestUtf8(int records, int errors, int warnings, String warcFile) {
         this.expected_records = records;
         this.expected_errors = errors;
+        this.expected_warnings = warnings;
         this.warcFile = warcFile;
     }
 
@@ -62,6 +64,7 @@ public class TestUtf8 {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             if (bDebugOutput) {
@@ -114,8 +117,12 @@ public class TestUtf8 {
                 }
 
                 errors = 0;
-                if (record.hasErrors()) {
-                    errors = record.getValidationErrors().size();
+                warnings = 0;
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
 
                 ++records;
@@ -125,7 +132,7 @@ public class TestUtf8 {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
         }
         catch (FileNotFoundException e) {
@@ -137,6 +144,7 @@ public class TestUtf8 {
 
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(expected_errors, errors);
+        Assert.assertEquals(expected_warnings, warnings);
     }
 
     public static void saveUtf8(String str) {

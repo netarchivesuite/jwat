@@ -73,9 +73,11 @@ public class TestWarcRecordIerator {
 
         int n_records = 0;
         int n_errors = 0;
+        int n_warnings = 0;
 
         int i_records = 0;
         int i_errors = 0;
+        int i_warnings = 0;
 
         try {
             /*
@@ -108,8 +110,11 @@ public class TestWarcRecordIerator {
 
                 ++n_records;
 
-                if (record.hasErrors()) {
-                    n_errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    n_errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    n_warnings += record.diagnostics.getWarnings().size();
                 }
             }
 
@@ -117,7 +122,7 @@ public class TestWarcRecordIerator {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(n_records, n_errors);
+                RecordDebugBase.printStatus(n_records, n_errors, n_warnings);
             }
 
             /*
@@ -155,8 +160,11 @@ public class TestWarcRecordIerator {
 
                 ++i_records;
 
-                if (record.hasErrors()) {
-                    i_errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    i_errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    i_warnings += record.diagnostics.getWarnings().size();
                 }
             }
             Assert.assertNull(reader.getIteratorExceptionThrown());
@@ -165,7 +173,7 @@ public class TestWarcRecordIerator {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(i_records, i_errors);
+                RecordDebugBase.printStatus(i_records, i_errors, i_warnings);
             }
         }
         catch (FileNotFoundException e) {
@@ -186,6 +194,9 @@ public class TestWarcRecordIerator {
 
         Assert.assertEquals(0, n_errors);
         Assert.assertEquals(0, i_errors);
+
+        Assert.assertEquals(0, n_warnings);
+        Assert.assertEquals(0, i_warnings);
     }
 
 }

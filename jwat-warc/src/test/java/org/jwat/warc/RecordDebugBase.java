@@ -17,11 +17,10 @@
  */
 package org.jwat.warc;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
-import org.jwat.warc.WarcRecord;
-import org.jwat.warc.WarcValidationError;
+import org.jwat.common.Diagnosis;
 
 public class RecordDebugBase {
 
@@ -53,22 +52,48 @@ public class RecordDebugBase {
         System.out.println("SegmentTLength: " + record.warcSegmentTotalLength);
     }
 
-    public static void printStatus(int records, int errors) {
+    public static void printStatus(int records, int errors, int warnings) {
         System.out.println("--------------");
         System.out.println("       Records: " + records);
         System.out.println("        Errors: " + errors);
+        System.out.println("      Warnings: " + warnings);
     }
 
     public static void printRecordErrors(WarcRecord record) {
-        if (record.hasErrors()) {
-            Collection<WarcValidationError> errorCol = record.getValidationErrors();
-            if (errorCol != null && errorCol.size() > 0) {
-                Iterator<WarcValidationError> iter = errorCol.iterator();
-                while (iter.hasNext()) {
-                    WarcValidationError error = iter.next();
-                    System.out.println( error.error );
-                    System.out.println( error.field );
-                    System.out.println( error.value );
+        List<Diagnosis> diagnosisList;
+    	Iterator<Diagnosis> diagnosisIterator;
+    	Diagnosis diagnosis;
+        if (record.diagnostics.hasErrors()) {
+            diagnosisList = record.diagnostics.getErrors();
+            if (diagnosisList != null && diagnosisList.size() > 0) {
+                diagnosisIterator = diagnosisList.iterator();
+                while (diagnosisIterator.hasNext()) {
+                	diagnosis = diagnosisIterator.next();
+                	System.out.println( "Error" );
+                    System.out.println( diagnosis.type );
+                    System.out.println( diagnosis.entity );
+                    if (diagnosis.information != null) {
+                    	for (int i=0; i<diagnosis.information.length; ++i) {
+                            System.out.println( diagnosis.information[i] );
+                    	}
+                    }
+                }
+            }
+        }
+        if (record.diagnostics.hasWarnings()) {
+            diagnosisList = record.diagnostics.getWarnings();
+            if (diagnosisList != null && diagnosisList.size() > 0) {
+                diagnosisIterator = diagnosisList.iterator();
+                while (diagnosisIterator.hasNext()) {
+                	diagnosis = diagnosisIterator.next();
+                	System.out.println( "Warning:" );
+                    System.out.println( diagnosis.type );
+                    System.out.println( diagnosis.entity );
+                    if (diagnosis.information != null) {
+                    	for (int i=0; i<diagnosis.information.length; ++i) {
+                            System.out.println( diagnosis.information[i] );
+                    	}
+                    }
                 }
             }
         }

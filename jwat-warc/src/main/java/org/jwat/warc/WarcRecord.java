@@ -39,6 +39,9 @@ import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpResponse;
@@ -68,8 +71,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Is this record compliant ie. error free. */
     protected boolean bIsCompliant;
 
-    /** Validation errors */
-    protected List<WarcValidationError> errors = null;
+    /** Validation errors and warnings. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /** Is Warc-Block-Digest valid. (Null is equal to not tested) */
     public Boolean isValidBlockDigest = null;
@@ -270,17 +273,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             // Preliminary compliance status, will be updated when the
             // payload/record is closed.
-            if (wr.errors == null || wr.errors.isEmpty()) {
-                wr.bIsCompliant = true;
-            } else {
+            if (wr.diagnostics.hasErrors() || wr.diagnostics.hasWarnings()) {
                 wr.bIsCompliant = false;
+            } else {
+                wr.bIsCompliant = true;
             }
-            wr.reader.bIsCompliant &= wr.bIsCompliant;
             wr.consumed = in.getConsumed() - wr.startOffset;
+            wr.reader.bIsCompliant &= wr.bIsCompliant;
         } else {
-            if (wr.errors != null && !wr.errors.isEmpty()) {
+            if (wr.diagnostics.hasErrors() || wr.diagnostics.hasWarnings()) {
+                wr.reader.errors += wr.diagnostics.getErrors().size();
+                wr.reader.warnings += wr.diagnostics.getWarnings().size();
                 wr.reader.bIsCompliant = false;
-                reader.errors += wr.errors.size();
             }
             // EOF
             wr = null;
@@ -299,8 +303,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (payload != null) {
                 // Check for truncated payload.
                 if (payload.getUnavailable() > 0) {
-                    addValidationError(WarcErrorType.INVALID, "Payload truncated",
-                            "Payload length mismatch");
+                	// Payload length mismatch - Payload truncated
+                	addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
                 }
                 /*
                  * Check block digest.
@@ -330,13 +334,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             computedBlockDigest.encoding = warcBlockDigest.encoding;
                         } else {
                             digest = null;
-                            addValidationError(WarcErrorType.INVALID, "Encoding",
-                                    "Unrecognized block digest encoding scheme");
+                            // Encoding - Unrecognized block digest encoding scheme
+                            addErrorDiagnosis(DiagnosisType.UNKNOWN,
+                            		"Block digest encoding scheme",
+                            		warcBlockDigest.digestString);
                         }
                         if (digest != null) {
                             if (!Arrays.equals(computedBlockDigest.digestBytes, digest)) {
-                                addValidationError(WarcErrorType.INVALID, "Block digest",
-                                        "Computed block digest does not match");
+                                // Block digest - Computed block digest does not match
+                            	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                            			"Block digest",
+                            			Base16.encodeArray(digest),
+                            			Base16.encodeArray(computedBlockDigest.digestBytes));
                                 isValidBlockDigest = false;
                             } else {
                                 isValidBlockDigest = true;
@@ -357,8 +366,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         } else if ("base16".equals(reader.blockDigestEncoding)) {
                             computedBlockDigest.encoding = "base16";
                         } else {
-                            addValidationError(WarcErrorType.INVALID, "Encoding",
-                                    "Unknown block digest encoding scheme '" + reader.blockDigestEncoding + "'" );
+                        	// Encoding - Unknown block digest encoding scheme ..
+                        	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                        			"Block digest encoding scheme",
+                        			reader.blockDigestEncoding);
                         }
                     }
                     if (computedBlockDigest.encoding != null) {
@@ -399,13 +410,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 computedPayloadDigest.encoding = warcPayloadDigest.encoding;
                             } else {
                                 digest = null;
-                                addValidationError(WarcErrorType.INVALID, "Encoding",
-                                        "Unrecognized payload digest encoding scheme");
+                                // Encoding - Unrecognized payload digest encoding scheme
+                                addErrorDiagnosis(DiagnosisType.UNKNOWN,
+                                		"Payload digest encoding scheme",
+                                		warcPayloadDigest.digestString);
                             }
                             if (digest != null) {
                                 if (!Arrays.equals(computedPayloadDigest.digestBytes, digest)) {
-                                    addValidationError(WarcErrorType.INVALID, "Payload digest",
-                                            "Computed payload digest does not match");
+                                	// Payload digest - Computed payload digest does not match
+                                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                                			"Payload digest",
+                                			Base16.encodeArray(digest),
+                                			Base16.encodeArray(computedPayloadDigest.digestBytes));
                                     isValidPayloadDigest = false;
                                 } else {
                                     isValidPayloadDigest = true;
@@ -426,8 +442,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             } else if ("base16".equals(reader.payloadDigestEncoding)) {
                                 computedPayloadDigest.encoding = "base16";
                             } else {
-                                addValidationError(WarcErrorType.INVALID, "Encoding",
-                                        "Unknown payload digest encoding scheme '" + reader.payloadDigestEncoding + "'" );
+                            	// Encoding - Unknown payload digest encoding scheme ..
+                            	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                            			"Payload digest encoding scheme",
+                            			reader.payloadDigestEncoding);
                             }
                         }
                         if (computedPayloadDigest.encoding != null) {
@@ -445,14 +463,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
             // Check for trailing newlines.
             int newlines = parseNewLines(in);
             if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
-                addValidationError(WarcErrorType.INVALID, "Trailing newlines", Integer.toString(newlines));
+            	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+            			"Trailing newlines",
+            			Integer.toString(newlines),
+            			"2");
             }
             // isCompliant status update.
-            if (errors == null || errors.isEmpty()) {
-                bIsCompliant = true;
-            } else {
+            if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
                 bIsCompliant = false;
-                reader.errors += errors.size();
+                reader.errors += diagnostics.getErrors().size();
+                reader.warnings += diagnostics.getWarnings().size();
+            } else {
+                bIsCompliant = true;
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
@@ -495,6 +517,32 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public boolean isCompliant() {
         return bIsCompliant;
+    }
+
+    /**
+     * Checks if the WARC record has errors.
+     * @return true/false based on whether the WARC record is valid or not
+     */
+    /*
+    public boolean hasErrors() {
+        return ((errors != null) && (!errors.isEmpty()));
+    }
+    */
+
+    protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
+    	diagnostics.addError(new Diagnosis(type, entity, information));
+    }
+
+    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
+    	diagnostics.addWarning(new Diagnosis(type, entity, information));
+    }
+
+    protected void addEmptyWarning(String entity) {
+    	diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+    }
+
+    protected void addInvalidExpectedError(String entity, String... information) {
+    	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
     /**
@@ -591,10 +639,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
         }
         if (bInvalidDataBeforeVersion) {
-            addValidationError(WarcErrorType.INVALID, "Data", null);
+        	addErrorDiagnosis(DiagnosisType.INVALID, "Data before WARC version");
         }
         if (bEmptyLinesBeforeVersion) {
-            addValidationError(WarcErrorType.INVALID, "Empty lines", null);
+        	addErrorDiagnosis(DiagnosisType.INVALID, "Empty lines before WARC version");
         }
         return bMagicIdentified;
     }
@@ -622,6 +670,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         parseField(headerLine, seen);
                     } else {
                         // Empty field name.
+                    	addWarningDiagnosis(DiagnosisType.EMPTY, "Header line");
                     }
                 } else {
                     if (headerLine.line.length() == 0) {
@@ -629,6 +678,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         bFields = false;
                     } else {
                         // Unknown header line.
+                    	addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
                     }
                 }
             } else {
@@ -774,7 +824,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
             } else {
                 // Duplicate field.
-                addValidationError(WarcErrorType.DUPLICATE, field, value);
+            	addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + field + "' header", value);
             }
         } else {
             // Not a recognized WARC field name.
@@ -804,12 +854,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
         if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
             // Warning: Unknown Warc-Type.
-            addValidationError(WarcErrorType.UNKNOWN, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+        	addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_TYPE + "' value", warcTypeStr);
         }
 
         if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
             // Warning: Unknown Warc-Profile.
-            addValidationError(WarcErrorType.UNKNOWN, WarcConstants.FN_WARC_PROFILE, warcProfileStr);
+        	addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", warcProfileStr);
         }
 
         /*
@@ -818,22 +868,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
         if (warcTypeIdx == null) {
             // Mandatory valid Warc-Type missing.
-            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_TYPE, warcTypeStr);
+        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", warcTypeStr);
             bMandatoryMissing = true;
         }
         if (warcRecordIdUri == null) {
             // Mandatory valid Warc-Record-Id missing.
-            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_RECORD_ID, warcRecordIdStr);
+        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_RECORD_ID + "' header", warcRecordIdStr);
             bMandatoryMissing = true;
         }
         if (warcDate == null) {
             // Mandatory valid Warc-Date missing.
-            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_WARC_DATE, warcDateStr);
+        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_DATE + "' header", warcDateStr);
             bMandatoryMissing = true;
         }
         if (contentLength == null) {
             // Mandatory valid Content-Length missing.
-            addValidationError(WarcErrorType.WANTED, WarcConstants.FN_CONTENT_LENGTH, contentLengthStr);
+        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_CONTENT_LENGTH + "' header", contentLengthStr);
             bMandatoryMissing = true;
         }
 
@@ -845,7 +895,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         if (contentLength != null && contentLength.longValue() > 0L &&
                         (contentTypeStr == null || contentTypeStr.length() == 0)) {
             if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
-                addValidationError(WarcErrorType.RECOMMENDED, WarcConstants.FN_CONTENT_TYPE, contentTypeStr);
+            	addWarningDiagnosis(DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
             }
         }
 
@@ -863,21 +913,28 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 if (contentType != null &&
                         (!contentType.contentType.equals("application")
                         || !contentType.mediaType.equals("warc-fields"))) {
-                    addValidationError(WarcErrorType.RECOMMENDED,
-                                       WarcConstants.FN_CONTENT_TYPE,
-                                       WarcConstants.CT_APP_WARC_FIELDS);
+                	addWarningDiagnosis(DiagnosisType.RECOMMENDED,
+                			"'" + WarcConstants.FN_CONTENT_TYPE + "' value",
+                			WarcConstants.CT_APP_WARC_FIELDS,
+                			contentTypeStr);
                 }
             }
 
             if (warcTypeIdx == WarcConstants.RT_IDX_RESPONSE) {
                 if (warcSegmentNumber != null && warcSegmentNumber != 1) {
-                    addValidationError(WarcErrorType.INVALID, WarcConstants.FN_WARC_SEGMENT_NUMBER, warcSegmentNumber.toString());
+                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                			"'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
+                			warcSegmentNumber.toString(),
+                			"1");
                 }
             }
 
             if (warcTypeIdx == WarcConstants.RT_IDX_CONTINUATION) {
                 if (warcSegmentNumber != null && warcSegmentNumber < 2) {
-                    addValidationError(WarcErrorType.INVALID, WarcConstants.FN_WARC_SEGMENT_NUMBER, warcSegmentNumber.toString());
+                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                			"'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
+                			warcSegmentNumber.toString(),
+                			">1");
                 }
             }
 
@@ -918,28 +975,32 @@ public class WarcRecord implements PayloadOnClosedHandler {
         switch (policy) {
         case WarcConstants.POLICY_MANDATORY:
             if (fieldObj == null) {
-                addValidationError(WarcErrorType.WANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
-                addValidationError(WarcErrorType.WANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_MAY:
             break;
         case WarcConstants.POLICY_MAY_NOT:
             if (fieldObj != null) {
-                addValidationError(WarcErrorType.UNWANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL_NOT:
             if (fieldObj != null) {
-                addValidationError(WarcErrorType.UNWANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_IGNORE:
@@ -963,15 +1024,17 @@ public class WarcRecord implements PayloadOnClosedHandler {
         case WarcConstants.POLICY_MANDATORY:
             if (fieldObj == null) {
                 valueStr = listToStr(valueList);
-                addValidationError(WarcErrorType.WANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
                 valueStr = listToStr(valueList);
-                addValidationError(WarcErrorType.WANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_MAY:
@@ -979,15 +1042,17 @@ public class WarcRecord implements PayloadOnClosedHandler {
         case WarcConstants.POLICY_MAY_NOT:
             if (fieldObj != null) {
                 valueStr = listToStr(valueList);
-                addValidationError(WarcErrorType.UNWANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL_NOT:
             if (fieldObj != null) {
                 valueStr = listToStr(valueList);
-                addValidationError(WarcErrorType.UNWANTED,
-                            WarcConstants.FN_IDX_STRINGS[ftype], valueStr);
+                addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                		valueStr);
             }
             break;
         case WarcConstants.POLICY_IGNORE:
@@ -1018,36 +1083,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Checks if the WARC record has errors.
-     * @return true/false based on whether the WARC record is valid or not
-     */
-    public boolean hasErrors() {
-        return ((errors != null) && (!errors.isEmpty()));
-    }
-
-    /**
-     * Validation errors getter.
-     * @return validation errors list
-     */
-    public Collection<WarcValidationError> getValidationErrors() {
-        return (hasErrors())? Collections.unmodifiableList(errors) : null;
-    }
-
-    /**
-     * Add validation error.
-     * @param errorType the error type {@link WarcErrorType}.
-     * @param field the field name
-     * @param value the error value
-     */
-    protected void addValidationError(WarcErrorType errorType,
-                                      String field, String value) {
-        if (errors == null) {
-            errors = new LinkedList<WarcValidationError>();
-        }
-        errors.add(new WarcValidationError(errorType, field, value));
-    }
-
-    /**
      * Returns an Integer object holding the value of the specified string.
      * @param intStr the value to parse.
      * @param field field name
@@ -1060,11 +1095,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 iVal = Integer.valueOf(intStr);
             } catch (Exception e) {
                 // Invalid integer value.
-                this.addValidationError(WarcErrorType.INVALID, field, intStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		intStr,
+                		"Numeric format");
             }
          } else {
              // Missing integer value.
-             addValidationError(WarcErrorType.EMPTY, field, intStr);
+             addEmptyWarning("'" + field + "' field");
          }
          return iVal;
     }
@@ -1082,11 +1119,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 lVal = Long.valueOf(longStr);
             } catch (Exception e) {
                 // Invalid long value.
-                this.addValidationError(WarcErrorType.INVALID, field, longStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		longStr,
+                		"Numeric format");
             }
          } else {
              // Missing long value.
-             addValidationError(WarcErrorType.EMPTY, field, longStr);
+             addEmptyWarning("'" + field + "' field");
          }
          return lVal;
     }
@@ -1099,7 +1138,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     protected String parseString(String str, String field) {
         if (((str == null) || (str.trim().length() == 0))) {
-            this.addValidationError(WarcErrorType.EMPTY, field, str);
+            addEmptyWarning("'" + field + "' field");
         }
         return str;
     }
@@ -1116,11 +1155,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 date = WarcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addValidationError(WarcErrorType.INVALID, field, dateStr);
+                    addInvalidExpectedError("'" + field + "' value",
+                    		dateStr,
+                    		WarcConstants.WARC_DATE_FORMAT);
                 }
         } else {
             // Missing date.
-            addValidationError(WarcErrorType.EMPTY, field, dateStr);
+            addEmptyWarning("'" + field + "' field");
         }
         return date;
     }
@@ -1137,11 +1178,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid ip address.
-                addValidationError(WarcErrorType.INVALID, field, ipAddress);
+                addInvalidExpectedError("'" + field + "' value",
+                		ipAddress,
+                		"IPv4 or IPv6 format");
             }
         } else {
             // Missing ip address.
-            addValidationError(WarcErrorType.EMPTY, field, ipAddress);
+            addEmptyWarning("'" + field + "' field");
         }
         return inetAddr;
     }
@@ -1162,11 +1205,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 uri = new URI(uriStr);
             } catch (Exception e) {
                 // Invalid URI.
-                addValidationError(WarcErrorType.INVALID, field, uriStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		uriStr,
+                		"URI format");
             }
         } else {
             // Missing URI.
-            addValidationError(WarcErrorType.EMPTY, field, uriStr);
+            addEmptyWarning("'" + field + "' field");
         }
         return uri;
     }
@@ -1183,11 +1228,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
             contentType = ContentType.parseContentType(contentTypeStr);
             if (contentType == null) {
                 // Invalid content-type.
-                addValidationError(WarcErrorType.INVALID, field, contentTypeStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		contentTypeStr,
+                		WarcConstants.CONTENT_TYPE_FORMAT);
             }
         } else {
             // Missing content-type.
-            addValidationError(WarcErrorType.EMPTY, field, contentTypeStr);
+            addEmptyWarning("'" + field + "' field");
         }
         return contentType;
     }
@@ -1204,11 +1251,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 digest = WarcDigest.parseDigest(labelledDigest);
                 if (digest == null) {
                     // Invalid digest.
-                    addValidationError(WarcErrorType.INVALID, field, labelledDigest);
+                    addInvalidExpectedError("'" + field + "' value",
+                    		labelledDigest,
+                    		WarcConstants.WARC_DIGEST_FORMAT);
                 }
         } else {
             // Missing digest.
-            addValidationError(WarcErrorType.EMPTY, field, labelledDigest);
+            addEmptyWarning("'" + field + "' field");
         }
         return digest;
     }

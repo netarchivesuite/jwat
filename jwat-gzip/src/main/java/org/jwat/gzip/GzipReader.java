@@ -230,7 +230,7 @@ public class GzipReader {
                 if ((gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) == GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) {
                 	gzipEntry.diagnostics.addError(
                 			new Diagnosis(
-                					DiagnosisType.INVALID,
+                					DiagnosisType.INVALID_DATA,
                 					"eXtra FLags",
                 					Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION)
                 				)

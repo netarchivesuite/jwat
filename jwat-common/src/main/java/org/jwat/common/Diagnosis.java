@@ -27,7 +27,7 @@ public class Diagnosis {
 
 	public Diagnosis(DiagnosisType type, String entity, String... information) {
 		this.type = type;
-		this. entity = entity;
+		this.entity = entity;
 		this.information = information;
 	}
 

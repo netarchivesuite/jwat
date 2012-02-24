@@ -38,6 +38,12 @@ public class WarcConstants {
     /** WARC date format string as specified by the WARC ISO standard. */
     public static final String WARC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
+    /** WARC digest format string as specified by the WARC ISO standard. */
+    public static final String WARC_DIGEST_FORMAT = "<digest-algorithm>:<digest-encoded>";
+
+    /** Content-type format string as specified in RFC2616.*/
+    public static final String CONTENT_TYPE_FORMAT = "<type>/<sub-type>(; <argument>=<value>)*";
+
     /*
      * WARC content-types (MIME).
      */

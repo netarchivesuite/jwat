@@ -19,15 +19,25 @@ package org.jwat.common;
 
 public enum DiagnosisType {
 
+	DUPLICATE,
+
 	EMPTY,
 
 	INVALID,
+
+	INVALID_DATA,
 
 	INVALID_ENCODING,
 
 	INVALID_EXPECTED,
 
+	RECOMMENDED,
+
+	REQUIRED_INVALID,
+
 	RESERVED,
+
+	UNDESIRED_DATA,
 
 	UNKNOWN;
 

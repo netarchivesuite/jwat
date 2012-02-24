@@ -36,21 +36,23 @@ import org.jwat.warc.WarcRecord;
 public class TestContentTypeRecommended {
 
     private int expected_records;
-    private int expected_recommended;
+    private int expected_errors;
+    private int expected_warnings;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 1, "test-contenttype-warcinfo-recommended.warc"},
-                {7, 1, "test-contenttype-recommended.warc"},
-                {1, 0, "test-contenttype-continuation.warc"}
+                {1, 0, 1, "test-contenttype-warcinfo-recommended.warc"},
+                {7, 0, 1, "test-contenttype-recommended.warc"},
+                {1, 0, 0, "test-contenttype-continuation.warc"}
         });
     }
 
-    public TestContentTypeRecommended(int records, int recommended, String warcFile) {
+    public TestContentTypeRecommended(int records, int recommended, int warnings, String warcFile) {
         this.expected_records = records;
-        this.expected_recommended = recommended;
+        this.expected_errors = recommended;
+        this.expected_warnings = warnings;
         this.warcFile = warcFile;
     }
 
@@ -62,6 +64,7 @@ public class TestContentTypeRecommended {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
@@ -80,18 +83,23 @@ public class TestContentTypeRecommended {
                 ++records;
 
                 errors = 0;
-                if (record.hasErrors()) {
-                    errors = record.getValidationErrors().size();
+                warnings = 0;
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
 
-                Assert.assertEquals(expected_recommended, errors);
+                Assert.assertEquals(expected_errors, errors);
+                Assert.assertEquals(expected_warnings, warnings);
             }
 
             reader.close();
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
         }
         catch (FileNotFoundException e) {
