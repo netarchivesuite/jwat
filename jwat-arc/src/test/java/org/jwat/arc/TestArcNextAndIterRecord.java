@@ -68,9 +68,11 @@ public class TestArcNextAndIterRecord {
 
         int n_records = 0;
         int n_errors = 0;
+        int n_warnings = 0;
 
         int i_records = 0;
         int i_errors = 0;
+        int i_warnings = 0;
 
         try {
             /*
@@ -97,8 +99,11 @@ public class TestArcNextAndIterRecord {
 
                         ++n_records;
 
-                        if (arcRecord.hasErrors()) {
-                            n_errors += arcRecord.getWarnings().size();
+                        if (arcRecord.diagnostics.hasErrors()) {
+                            n_errors += arcRecord.diagnostics.getErrors().size();
+                        }
+                        if (arcRecord.diagnostics.hasWarnings()) {
+                            n_warnings += arcRecord.diagnostics.getWarnings().size();
                         }
                     }
                     else {
@@ -107,7 +112,7 @@ public class TestArcNextAndIterRecord {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(n_records, n_errors);
+                    RecordDebugBase.printStatus(n_records, n_errors, n_warnings);
                 }
             }
 
@@ -140,14 +145,17 @@ public class TestArcNextAndIterRecord {
 
                     ++i_records;
 
-                    if (arcRecord.hasErrors()) {
-                        i_errors += arcRecord.getWarnings().size();
+                    if (arcRecord.diagnostics.hasErrors()) {
+                        i_errors += arcRecord.diagnostics.getErrors().size();
+                    }
+                    if (arcRecord.diagnostics.hasWarnings()) {
+                        i_warnings += arcRecord.diagnostics.getWarnings().size();
                     }
                 }
                 Assert.assertNull(reader.getIteratorExceptionThrown());
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(i_records, i_errors);
+                    RecordDebugBase.printStatus(i_records, i_errors, i_warnings);
                 }
             }
 
@@ -169,6 +177,9 @@ public class TestArcNextAndIterRecord {
 
         Assert.assertEquals(0, n_errors);
         Assert.assertEquals(0, i_errors);
+
+        Assert.assertEquals(0, n_warnings);
+        Assert.assertEquals(0, i_warnings);
     }
 
 }

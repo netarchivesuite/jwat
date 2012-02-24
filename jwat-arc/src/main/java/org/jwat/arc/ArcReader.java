@@ -40,6 +40,9 @@ public abstract class ArcReader {
     /** Aggregated number of errors encountered while parsing. */
     protected int errors = 0;
 
+    /** Aggregate number of warnings encountered while parsing. */
+    protected int warnings = 0;
+
     /** Block Digest enabled/disabled. */
     protected boolean bBlockDigest = false;
 

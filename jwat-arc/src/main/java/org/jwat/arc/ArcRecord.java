@@ -18,9 +18,10 @@
 package org.jwat.arc;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
 import org.jwat.common.HttpResponse;
 import org.jwat.common.Payload;
 
@@ -81,16 +82,17 @@ public class ArcRecord extends ArcRecordBase {
             ar.parseRecord(recordLine);
             // Preliminary compliance status, will be updated when the
             // payload/record is closed.
-            if (ar.errors == null || ar.errors.isEmpty()) {
-                ar.bIsCompliant = true;
-            } else {
+            if (ar.diagnostics.hasErrors() || ar.diagnostics.hasWarnings()) {
                 ar.bIsCompliant = false;
+            } else {
+                ar.bIsCompliant = true;
             }
             ar.reader.bIsCompliant &= ar.bIsCompliant;
         } else {
-            if (ar.errors != null && !ar.errors.isEmpty()) {
+            if (ar.diagnostics.hasErrors() || ar.diagnostics.hasWarnings()) {
                 ar.reader.bIsCompliant = false;
-                reader.errors += ar.errors.size();
+                reader.errors += ar.diagnostics.getErrors().size();
+                reader.warnings += ar.diagnostics.getWarnings().size();
             }
             // EOF
             ar = null;
@@ -133,8 +135,9 @@ public class ArcRecord extends ArcRecordBase {
         } else if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                                     recContentType)) {
-            addValidationError(ArcErrorType.INVALID, ARC_FILE,
-                    "Expected payload not found in the record block");
+        	diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+        			ARC_FILE,
+        			"Expected payload not found in the record block"));
         }
         return;
     }
@@ -143,19 +146,23 @@ public class ArcRecord extends ArcRecordBase {
      * Checks if the ARC record payload has warnings.
      * @return true/false based on whether the ARC record has warnings or not
      */
+    /*
     @Override
     public boolean hasWarnings() {
         return ((httpResponse != null) && (httpResponse.hasWarnings()));
     }
+    */
 
     /**
      * Returns the ARC record payload warnings.
      * @return validation errors list/
      */
+    /*
     @Override
     public Collection<String> getWarnings() {
         return (hasWarnings()) ? httpResponse.getWarnings() : null;
     }
+    */
 
     @Override
     public String toString() {

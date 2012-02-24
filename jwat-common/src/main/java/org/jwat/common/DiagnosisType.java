@@ -23,6 +23,8 @@ public enum DiagnosisType {
 
 	EMPTY,
 
+	ERROR_EXPECTED,
+
 	INVALID,
 
 	INVALID_DATA,

@@ -73,6 +73,7 @@ public class TestArcReaderFactoryCompressed {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             List<ArcEntry> entries = indexArcFile();
@@ -84,6 +85,7 @@ public class TestArcReaderFactoryCompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
             file = new File(url.getFile());
@@ -108,8 +110,11 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.url.compareTo(entry.recordId) != 0) {
@@ -126,11 +131,12 @@ public class TestArcReaderFactoryCompressed {
             ram.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
@@ -138,6 +144,7 @@ public class TestArcReaderFactoryCompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
             file = new File(url.getFile());
@@ -162,8 +169,11 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.url.compareTo(entry.recordId) != 0) {
@@ -179,11 +189,12 @@ public class TestArcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
@@ -191,6 +202,7 @@ public class TestArcReaderFactoryCompressed {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
             file = new File(url.getFile());
@@ -215,8 +227,11 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
-                    if (record.hasErrors()) {
-                        errors += record.getValidationErrors().size();
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
                     }
 
                     if (record.url.compareTo(entry.recordId) != 0) {
@@ -232,11 +247,12 @@ public class TestArcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors);
+                RecordDebugBase.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -257,6 +273,7 @@ public class TestArcReaderFactoryCompressed {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
@@ -302,8 +319,11 @@ public class TestArcReaderFactoryCompressed {
                 //System.out.println(reader.getStartOffset());
                 //System.out.println(reader.getOffset());
 
-                if (record.hasErrors()) {
-                    errors += record.getValidationErrors().size();
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
                 }
             }
 
@@ -322,6 +342,7 @@ public class TestArcReaderFactoryCompressed {
 
         Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
+        Assert.assertEquals(0, warnings);
 
         return arcEntries;
     }

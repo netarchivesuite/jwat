@@ -43,6 +43,12 @@ public final class ArcConstants {
     /** Version block preferred media-type. */
     public static final String VERSION_BLOCK_MEDIA_TYPE = "plain";
 
+    /** Allowed format string. */
+    public static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
+
+    /** Content-type format string as specified in RFC2616.*/
+    public static final String CONTENT_TYPE_FORMAT = "<type>/<sub-type>(; <argument>=<value>)*";
+
     /**
      * Record block fields.
      */

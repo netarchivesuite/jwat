@@ -22,17 +22,16 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.security.MessageDigest;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HttpResponse;
 import org.jwat.common.IPAddressParser;
@@ -82,7 +81,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected long consumed;
 
     /** Validation errors. */
-    protected List<ArcValidationError> errors = null;
+    //protected List<ArcValidationError> errors = null;
+
+    /** Validation errors and warnings. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /** Do the record fields comply in number with the one dictated by its
      *  version. */
@@ -179,9 +181,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             hasCompliantFields = (records.length
                               == versionBlock.descValidator.fieldNames.length);
             if(!hasCompliantFields) {
-                this.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                        "URL record definition and record definition are not "
-                        + "compliant");
+            	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+            			ARC_RECORD,
+            			"URL record definition and record definition are not "
+            					+ "compliant"));
             }
             // Parse
             recUrl = ArcFieldValidator.getArrayValue(records,
@@ -193,13 +196,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             recContentType = ArcFieldValidator.getArrayValue(records,
                     ArcConstants.AF_IDX_CONTENTTYPE);
             // Validate
-            url = this.parseUri(recUrl);
+            url = parseUri(recUrl, ArcConstants.URL_FIELD);
             if (url != null) {
                 protocol = url.getScheme();
             }
-            inetAddress = parseIpAddress(recIpAddress);
-            archiveDate = parseDate(recArchiveDate);
-            contentType = parseContentType(recContentType);
+            inetAddress = parseIpAddress(recIpAddress, ArcConstants.IP_ADDRESS_FIELD);
+            archiveDate = parseDate(recArchiveDate, ArcConstants.DATE_FIELD);
+            contentType = parseContentType(recContentType, ArcConstants.CONTENT_TYPE_FIELD);
             // Version 2
             if (version.equals(ArcVersion.VERSION_2)) {
                 recResultCode = parseInteger(
@@ -230,8 +233,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             // a plain ARC file, not a GZipped ARC.
             if ((recOffset != null) && (startOffset > 0L)
                                 && (recOffset.longValue() != startOffset)) {
-                addValidationError(ArcErrorType.INVALID,
-                        ArcConstants.OFFSET_FIELD, recOffset.toString());
+            	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
+            			"'" + ArcConstants.OFFSET_FIELD + "' value",
+            			recOffset.toString()));
             }
         }
     }
@@ -248,25 +252,31 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * Checks if the ARC record is valid.
      * @return true/false based on whether the ARC record is valid or not
      */
+    /*
     public boolean isValid() {
         return (hasCompliantFields && !hasErrors());
     }
+    */
 
     /**
      * Checks if the ARC record has errors.
      * @return true/false based on whether the ARC record is valid or not
      */
+    /*
     public boolean hasErrors() {
         return ((errors != null) && (!errors.isEmpty()));
     }
+    */
 
     /**
      * Validation errors getter.
      * @return validation errors list
      */
+    /*
     public Collection<ArcValidationError> getValidationErrors() {
         return (hasErrors())? Collections.unmodifiableList(errors) : null;
     }
+    */
 
     /**
      * Add validation error.
@@ -274,6 +284,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param field the field name
      * @param value the error value
      */
+    /*
     protected void addValidationError(ArcErrorType errorType,
                                       String field, String value) {
         if (errors == null) {
@@ -281,22 +292,27 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         }
         errors.add(new ArcValidationError(errorType, field, value));
     }
+    */
 
     /**
      * Checks if the ARC record has warnings.
      * @return true/false based on whether the ARC record has warnings or not
      */
+    /*
     public boolean hasWarnings() {
         return false;
     }
+    */
 
     /**
      * Gets Network doc warnings.
      * @return validation errors list/
      */
+    /*
     public Collection<String> getWarnings() {
         return null;
     }
+    */
 
     /**
      * Called when the payload object is closed and final steps in the
@@ -309,8 +325,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (payload != null) {
                 // Check for truncated payload.
                 if (payload.getUnavailable() > 0) {
-                    addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                            "Payload length mismatch");
+                	// Payload length mismatch - Payload truncated
+                	addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
                 }
                 /*
                  * Check block digest.
@@ -331,8 +347,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                             computedBlockDigest.encoding = "base16";
                             computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
                         } else {
-                            addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                                    "Unsupported block digest encoding scheme '" + reader.blockDigestEncoding + "'" );
+                        	// Encoding - Unknown block digest encoding scheme ..
+                        	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                        			"Block digest encoding scheme",
+                        			reader.blockDigestEncoding);
                         }
                     }
                 }
@@ -356,19 +374,22 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                                 computedPayloadDigest.encoding = "base16";
                                 computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
                             } else {
-                                addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                                        "Unsupported payload digest encoding scheme '" + reader.payloadDigestEncoding + "'" );
+                            	// Encoding - Unknown payload digest encoding scheme ..
+                            	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                            			"Payload digest encoding scheme",
+                            			reader.payloadDigestEncoding);
                             }
                         }
                     }
                 }
             }
             // isCompliant status update.
-            if (errors == null || errors.isEmpty()) {
-                bIsCompliant = true;
-            } else {
+            if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
                 bIsCompliant = false;
-                reader.errors += errors.size();
+                reader.errors += diagnostics.getErrors().size();
+                reader.warnings += diagnostics.getWarnings().size();
+            } else {
+                bIsCompliant = true;
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
@@ -412,6 +433,22 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      */
     public boolean isCompliant() {
         return bIsCompliant;
+    }
+
+    protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
+    	diagnostics.addError(new Diagnosis(type, entity, information));
+    }
+
+    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
+    	diagnostics.addWarning(new Diagnosis(type, entity, information));
+    }
+
+    protected void addEmptyWarning(String entity) {
+    	diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+    }
+
+    protected void addInvalidExpectedError(String entity, String... information) {
+    	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
     /**
@@ -518,8 +555,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             try {
                 iVal = Integer.valueOf(intStr);
             } catch (Exception e) {
-                // Invalid long value.
-                this.addValidationError(ArcErrorType.INVALID, field, intStr);
+                // Invalid integer value.
+                addInvalidExpectedError("'" + field + "' value",
+                		intStr,
+                		"Numeric format");
             }
          }
          return iVal;
@@ -536,8 +575,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                                    boolean optional) {
         Integer result = this.parseInteger(intStr, field);
         if((result == null) && (!optional)){
-            // Missing mandatory value.
-             this.addValidationError(ArcErrorType.MISSING, field, intStr);
+            // Missing integer value.
+            addEmptyWarning("'" + field + "' field");
         }
         return result;
     }
@@ -555,11 +594,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 lVal = Long.valueOf(longStr);
             } catch (Exception e) {
                 // Invalid long value.
-                this.addValidationError(ArcErrorType.INVALID, field, longStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		longStr,
+                		"Numeric format");
             }
          } else {
              // Missing mandatory value.
-             this.addValidationError(ArcErrorType.MISSING, field, longStr);
+             addEmptyWarning("'" + field + "' field");
          }
          return lVal;
     }
@@ -574,7 +615,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected String parseString(String str, String field, boolean optional) {
         if (((str == null) || (str.trim().length() == 0))
             && (!optional)) {
-            this.addValidationError(ArcErrorType.MISSING, field, str);
+            addEmptyWarning("'" + field + "' field");
         }
         return str;
     }
@@ -591,23 +632,23 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /**
      * Returns an URL object holding the value of the specified string.
-     * @param value the URL to parse
+     * @param uriStr the URL to parse
      * @return an URL object holding the value of the specified string
      */
-    protected URI parseUri(String value) {
+    protected URI parseUri(String uriStr, String field) {
         URI uri = null;
-        if ((value != null) && (value.length() != 0)) {
+        if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
-                uri = new URI(value);
+                uri = new URI(uriStr);
             } catch (Exception e) {
                 // Invalid URI.
-                addValidationError(ArcErrorType.INVALID,
-                                   ArcConstants.URL_FIELD, value);
+                addInvalidExpectedError("'" + field + "' value",
+                		uriStr,
+                		"URI format");
             }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING,
-                               ArcConstants.URL_FIELD, value);
+            addEmptyWarning("'" + field + "' field");
         }
         return uri;
     }
@@ -617,19 +658,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param ipAddress the IP address to parse
      * @return the IP address
      */
-    protected InetAddress parseIpAddress(String ipAddress) {
+    protected InetAddress parseIpAddress(String ipAddress, String field) {
         InetAddress inetAddr = null;
         if (ipAddress != null && ipAddress.length() > 0) {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid date.
-                addValidationError(ArcErrorType.INVALID,
-                                   ArcConstants.IP_ADDRESS_FIELD, ipAddress);
+                addInvalidExpectedError("'" + field + "' value",
+                		ipAddress,
+                		"IPv4 or IPv6 format");
             }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING,
-                               ArcConstants.IP_ADDRESS_FIELD, ipAddress);
+            addEmptyWarning("'" + field + "' field");
         }
         return inetAddr;
     }
@@ -639,19 +680,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param dateStr the date to parse.
      * @return the formatted date.
      */
-    protected Date parseDate(String dateStr) {
+    protected Date parseDate(String dateStr, String field) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
                 date = ArcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addValidationError(ArcErrorType.INVALID,
-                                       ArcConstants.DATE_FIELD, dateStr);
+                    addInvalidExpectedError("'" + field + "' value",
+                    		dateStr,
+                    		ArcConstants.ARC_DATE_FORMAT);
                 }
         } else {
             // Missing mandatory value.
-            addValidationError(ArcErrorType.MISSING,
-                               ArcConstants.DATE_FIELD, dateStr);
+            addEmptyWarning("'" + field + "' field");
         }
         return date;
     }
@@ -661,21 +702,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param contentTypeStr ARC record content type
      * @return ARC record content type
      */
-    protected ContentType parseContentType(String contentTypeStr) {
+    protected ContentType parseContentType(String contentTypeStr, String field) {
         ContentType contentType = null;
         if (contentTypeStr != null && contentTypeStr.length() != 0) {
             contentType = ContentType.parseContentType(contentTypeStr);
             if (contentType == null) {
                 // Invalid content-type.
-                addValidationError(ArcErrorType.INVALID,
-                                   ArcConstants.CONTENT_TYPE_FIELD,
-                                   contentTypeStr);
+                addInvalidExpectedError("'" + field + "' value",
+                		contentTypeStr,
+                		ArcConstants.CONTENT_TYPE_FORMAT);
             }
         } else {
             // Missing content-type.
-            addValidationError(ArcErrorType.MISSING,
-                               ArcConstants.CONTENT_TYPE_FIELD,
-                               contentTypeStr);
+            addEmptyWarning("'" + field + "' field");
         }
         return contentType;
     }

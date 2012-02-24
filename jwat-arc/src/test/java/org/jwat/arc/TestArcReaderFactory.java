@@ -64,6 +64,7 @@ public class TestArcReaderFactory {
 
         int records = 0;
         int errors = 0;
+        int warnings = 0;
 
         try {
             /*
@@ -72,6 +73,7 @@ public class TestArcReaderFactory {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
@@ -94,8 +96,11 @@ public class TestArcReaderFactory {
 
                         ++records;
 
-                        if (arcRecord.hasErrors()) {
-                            errors += arcRecord.getWarnings().size();
+                        if (arcRecord.diagnostics.hasErrors()) {
+                            errors += arcRecord.diagnostics.getErrors().size();
+                        }
+                        if (arcRecord.diagnostics.hasWarnings()) {
+                            warnings += arcRecord.diagnostics.getWarnings().size();
                         }
                     }
                     else {
@@ -104,7 +109,7 @@ public class TestArcReaderFactory {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(records, errors);
+                    RecordDebugBase.printStatus(records, errors, warnings);
                 }
             }
 
@@ -113,6 +118,7 @@ public class TestArcReaderFactory {
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
 
             /*
              * Auto detect buffered.
@@ -120,6 +126,7 @@ public class TestArcReaderFactory {
 
             records = 0;
             errors = 0;
+            warnings = 0;
 
             in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
@@ -142,8 +149,11 @@ public class TestArcReaderFactory {
 
                         ++records;
 
-                        if (arcRecord.hasErrors()) {
-                            errors += arcRecord.getWarnings().size();
+                        if (arcRecord.diagnostics.hasErrors()) {
+                            errors += arcRecord.diagnostics.getErrors().size();
+                        }
+                        if (arcRecord.diagnostics.hasWarnings()) {
+                            warnings += arcRecord.diagnostics.getWarnings().size();
                         }
                     }
                     else {
@@ -152,7 +162,7 @@ public class TestArcReaderFactory {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(records, errors);
+                    RecordDebugBase.printStatus(records, errors, warnings);
                 }
             }
 
@@ -161,6 +171,7 @@ public class TestArcReaderFactory {
 
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();

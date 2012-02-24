@@ -29,9 +29,6 @@ import java.util.TimeZone;
  */
 public final class ArcDateParser {
 
-    /** Allowed format string. */
-    private static final String ARC_DATE_FORMAT = "yyyyMMddHHmmss";
-
     /** Allowed <code>DateFormat</code>. */
     private final DateFormat dateFormat;
 
@@ -47,7 +44,7 @@ public final class ArcDateParser {
      * Creates a new <code>DateParser</code>.
      */
     private ArcDateParser() {
-        dateFormat = new SimpleDateFormat(ARC_DATE_FORMAT);
+        dateFormat = new SimpleDateFormat(ArcConstants.ARC_DATE_FORMAT);
         dateFormat.setLenient(false);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -61,7 +58,7 @@ public final class ArcDateParser {
         Date date = null;
         try {
             if ((dateStr != null)
-                            && dateStr.length() == ARC_DATE_FORMAT.length()) {
+                            && dateStr.length() == ArcConstants.ARC_DATE_FORMAT.length()) {
                 date = dateFormat.parse(dateStr);
             }
         } catch (Exception e) { /* Ignore */ }

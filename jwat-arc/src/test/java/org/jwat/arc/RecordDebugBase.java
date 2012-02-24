@@ -52,8 +52,8 @@ public class RecordDebugBase {
         System.out.println( "       magic: " + version.isMagicArcFile );
         System.out.println( "validVersion: " + version.isVersionValid );
         System.out.println( "ValidFldDesc: " + version.isValidFieldDesc );
-        System.out.println( "      errors: " + version.hasErrors() );
-        System.out.println( "    warnings: " + version.hasWarnings() );
+        //System.out.println( "      errors: " + version.hasErrors() );
+        //System.out.println( "    warnings: " + version.hasWarnings() );
     }
 
     public static void printRecord(ArcRecord arcRecord) {
@@ -79,14 +79,15 @@ public class RecordDebugBase {
             System.out.println( " object-size: " + arcRecord.httpResponse.payloadLength );
             //saveHttpResponse( arcRecord.recUrl, arcRecord.httpResponse );
         }
-        System.out.println( "      errors: " + arcRecord.hasErrors() );
-        System.out.println( "    warnings: " + arcRecord.hasWarnings() );
+        //System.out.println( "      errors: " + arcRecord.hasErrors() );
+        //System.out.println( "    warnings: " + arcRecord.hasWarnings() );
     }
 
-    public static void printStatus(int records, int errors) {
+    public static void printStatus(int records, int errors, int warnings) {
         System.out.println("------------");
         System.out.println("     Records: " + records);
         System.out.println("      Errors: " + errors);
+        System.out.println("    Warnings: " + warnings);
     }
 
     public static void saveHttpResponse(String url, HttpResponse httpResponse) {

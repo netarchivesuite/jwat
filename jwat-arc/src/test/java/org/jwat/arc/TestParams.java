@@ -60,10 +60,6 @@ public class TestParams {
         Assert.assertNotNull(warcDate);
 
         /*
-         * WarcErrorType.
-         */
-
-        /*
          * ArcVersion.
          */
 
@@ -85,53 +81,7 @@ public class TestParams {
         Assert.assertNotNull(str);
 
         /*
-         * ArcErrorType.
-         */
-
-        ArcErrorType aet;
-
-        aet = ArcErrorType.INVALID;
-        Assert.assertNotNull(aet);
-        str = aet.toString();
-        Assert.assertNotNull(str);
-
-        aet = ArcErrorType.MISSING;
-        Assert.assertNotNull(aet);
-        str = aet.toString();
-        Assert.assertNotNull(str);
-
-        /*
-         * ArcValidationError.
-         */
-
-        ArcValidationError wve;
-
-        try {
-            new ArcValidationError(null, null, null);
-            Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
-        }
-
-        try {
-            wve = new ArcValidationError(ArcErrorType.INVALID, null, null);
-            Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
-        }
-
-        wve = new ArcValidationError(ArcErrorType.MISSING, "help", null);
-        Assert.assertNotNull(wve);
-        str = wve.toString();
-        Assert.assertNotNull(str);
-
-        wve = new ArcValidationError(ArcErrorType.MISSING, "help", "me");
-        Assert.assertNotNull(wve);
-        str = wve.toString();
-        Assert.assertNotNull(str);
-
-        /*
-         * WarcReaderUncompressed.
+         * ArcReaderUncompressed.
          */
 
         ArcReaderUncompressed readerUncompressed;
