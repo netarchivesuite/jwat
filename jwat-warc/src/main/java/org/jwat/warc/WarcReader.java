@@ -254,10 +254,11 @@ public abstract class WarcReader {
      * side-effects involved in using multiple <code>PushBackInputStream</code>
      * instances.
      * @param in <code>InputStream</code> used to read next record
+     * @param offset offset provided by caller
      * @return the next record
      * @throws IOException io exception in parsing process
      */
-    public abstract WarcRecord getNextRecordFrom(InputStream in)
+    public abstract WarcRecord getNextRecordFrom(InputStream in, long offset)
                                                         throws IOException;
 
     /**
@@ -267,11 +268,12 @@ public abstract class WarcReader {
      * side-effects involved in using multiple <code>PushBackInputStream</code>
      * instances.
      * @param in <code>InputStream</code> used to read next record
+     * @param offset offset provided by caller
      * @param buffer_size buffer size to use
      * @return the next record
      * @throws IOException io exception in parsing process
      */
-    public abstract WarcRecord getNextRecordFrom(InputStream in,
+    public abstract WarcRecord getNextRecordFrom(InputStream in, long offset,
                                         int buffer_size) throws IOException;
 
     /**

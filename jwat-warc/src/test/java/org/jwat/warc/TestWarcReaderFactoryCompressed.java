@@ -107,7 +107,7 @@ public class TestWarcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                if ((record = reader.getNextRecordFrom(in)) != null) {
+                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
                         RecordDebugBase.printRecord(record);
                         RecordDebugBase.printRecordErrors(record);
@@ -177,7 +177,7 @@ public class TestWarcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                if ((record = reader.getNextRecordFrom(in, 8192)) != null) {
+                if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
                         RecordDebugBase.printRecord(record);
                         RecordDebugBase.printRecordErrors(record);
@@ -246,7 +246,7 @@ public class TestWarcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                if ((record = reader.getNextRecordFrom(in)) != null) {
+                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
                         RecordDebugBase.printRecord(record);
                         RecordDebugBase.printRecordErrors(record);

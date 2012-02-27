@@ -93,7 +93,7 @@ public class TestArcReaderFactoryCompressed {
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed();
-            version = reader.getVersionBlock(in);
+            version = reader.getVersionBlockFrom(in, 0);
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -159,7 +159,7 @@ public class TestArcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                if ((record = reader.getNextRecordFrom(in, 8192, entry.offset)) != null) {
+                if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
                         RecordDebugBase.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);

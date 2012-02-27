@@ -246,11 +246,12 @@ public abstract class ArcReader {
      * Parses and gets the version block of an ARC file from the supplied
      * <code>InputStream</code>.
      * @param in input stream from which to read version block
+     * @param offset offset provided by caller
      * @return the version block of the ARC file
      * @throws IOException io exception in reading process
      */
-    public abstract ArcVersionBlock getVersionBlock(InputStream in)
-            throws IOException;
+    public abstract ArcVersionBlock getVersionBlockFrom(InputStream in,
+    										long offset) throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -278,7 +279,7 @@ public abstract class ArcReader {
      * @throws IOException io exception in reading process
      */
     public abstract ArcRecord getNextRecordFrom(InputStream in,
-            int buffer_size, long offset) throws IOException;
+    		long offset, int buffer_size) throws IOException;
 
     /**
      * Gets an exception thrown in the iterator if any or null.

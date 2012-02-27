@@ -146,14 +146,14 @@ public class TestParams {
         }
 
         try {
-            readerUncompressed.getNextRecordFrom(null);
+            readerUncompressed.getNextRecordFrom(null, -2);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
         }
 
         try {
-            readerUncompressed.getNextRecordFrom(null, 42);
+            readerUncompressed.getNextRecordFrom(null, 0, 42);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
@@ -162,14 +162,21 @@ public class TestParams {
         is = new ByteArrayInputStream(new byte[] {42});
 
         try {
-            readerUncompressed.getNextRecordFrom(is, -1);
+            readerUncompressed.getNextRecordFrom(is, -2, 42);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
         }
 
         try {
-            readerUncompressed.getNextRecordFrom(is, 0);
+            readerUncompressed.getNextRecordFrom(is, -1, -1);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+
+        try {
+            readerUncompressed.getNextRecordFrom(is, 0, 0);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
@@ -266,14 +273,14 @@ public class TestParams {
         }
 
         try {
-            readerCompressed.getNextRecordFrom(null);
+            readerCompressed.getNextRecordFrom(null, -2L);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
         }
 
         try {
-            readerCompressed.getNextRecordFrom(null, 42);
+            readerCompressed.getNextRecordFrom(null, 0, 42);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
@@ -282,14 +289,21 @@ public class TestParams {
         is = new ByteArrayInputStream(new byte[] {42});
 
         try {
-            readerCompressed.getNextRecordFrom(is, -1);
+            readerCompressed.getNextRecordFrom(is, -2, 42);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {
         }
 
         try {
-            readerCompressed.getNextRecordFrom(is, 0);
+            readerCompressed.getNextRecordFrom(is, -1, -1);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+
+        try {
+            readerCompressed.getNextRecordFrom(is, 0, 0);
             Assert.fail("Exception expected!");
         }
         catch (IllegalArgumentException e) {

@@ -107,7 +107,7 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
-    public ArcVersionBlock getVersionBlock(InputStream vbin)
+    public ArcVersionBlock getVersionBlockFrom(InputStream vbin, long offset)
             throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
@@ -115,12 +115,17 @@ public class ArcReaderUncompressed extends ArcReader {
         if (vbin == null) {
             throw new IllegalArgumentException("The inputstream 'vbin' is null");
         }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
+        }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(vbin,
                         PUSHBACK_BUFFER_SIZE);
         versionBlock = ArcVersionBlock.parseVersionBlock(pbin, this);
         if (versionBlock != null) {
-        	startOffset = versionBlock.startOffset;
+        	versionBlock.startOffset = offset;
+            startOffset = offset;
         }
         previousRecord = versionBlock;
         return versionBlock;
@@ -152,9 +157,9 @@ public class ArcReaderUncompressed extends ArcReader {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
-        if (offset < 0) {
+        if (offset < -1) {
             throw new IllegalArgumentException(
-                    "The 'offset' is less than zero: " + offset);
+                    "The 'offset' is less than -1: " + offset);
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(rin,
@@ -169,8 +174,8 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, int buffer_size,
-                                            long offset) throws IOException {
+    public ArcRecord getNextRecordFrom(InputStream rin, long offset,
+    									int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }
@@ -178,14 +183,14 @@ public class ArcReaderUncompressed extends ArcReader {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
+        }
         if (buffer_size <= 0) {
             throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than zero: " + offset);
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(

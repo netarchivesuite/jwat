@@ -153,13 +153,18 @@ public class WarcReaderCompressed extends WarcReader {
     }
 
     @Override
-    public WarcRecord getNextRecordFrom(InputStream rin) throws IOException {
+    public WarcRecord getNextRecordFrom(InputStream rin, long offset)
+    													throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
         if (rin == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
+        }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
         }
         warcRecord = null;
         GzipReader reader = new GzipReader(rin);
@@ -171,20 +176,24 @@ public class WarcReaderCompressed extends WarcReader {
                             PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.startOffset = -1L;
+            warcRecord.startOffset = offset;
         }
         return warcRecord;
     }
 
     @Override
-    public WarcRecord getNextRecordFrom(InputStream rin, int buffer_size)
-                                                        throws IOException {
+    public WarcRecord getNextRecordFrom(InputStream rin, long offset,
+    									int buffer_size) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
         if (rin == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
+        }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
         }
         if (buffer_size <= 0) {
             throw new IllegalArgumentException(
@@ -202,7 +211,7 @@ public class WarcReaderCompressed extends WarcReader {
                                     PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.startOffset = -1L;
+            warcRecord.startOffset = offset;
         }
         return warcRecord;
     }

@@ -151,13 +151,17 @@ public class ArcReaderCompressed extends ArcReader {
     }
 
     @Override
-    public ArcVersionBlock getVersionBlock(InputStream vbin)
+    public ArcVersionBlock getVersionBlockFrom(InputStream vbin, long offset)
             throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }
         if (vbin == null) {
             throw new IllegalArgumentException("The inputstream 'vbin' is null");
+        }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
         }
         versionBlock = null;
         GzipReader reader = new GzipReader(vbin);
@@ -177,7 +181,7 @@ public class ArcReaderCompressed extends ArcReader {
             }
         }
         if (versionBlock != null) {
-            versionBlock.startOffset = -1L;
+            versionBlock.startOffset = offset;
         }
         previousRecord = versionBlock;
         return versionBlock;
@@ -222,13 +226,13 @@ public class ArcReaderCompressed extends ArcReader {
         if (previousRecord != null) {
             previousRecord.close();
         }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
+        }
         if (rin == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than zero: " + offset);
         }
         arcRecord = null;
         GzipReader reader = new GzipReader(rin);
@@ -247,8 +251,8 @@ public class ArcReaderCompressed extends ArcReader {
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, int buffer_size,
-                                            long offset) throws IOException {
+    public ArcRecord getNextRecordFrom(InputStream rin, long offset,
+    									int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }
@@ -256,14 +260,14 @@ public class ArcReaderCompressed extends ArcReader {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
+        }
         if (buffer_size <= 0) {
             throw new IllegalArgumentException(
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than zero: " + offset);
         }
         arcRecord = null;
         GzipReader reader = new GzipReader(rin);
