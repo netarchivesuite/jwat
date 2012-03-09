@@ -113,8 +113,7 @@ public class TestParams {
             Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
             readerUncompressed.setPayloadDigestAlgorithm(null);
             Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-        }
-        catch (NoSuchAlgorithmException e1) {
+        } catch (NoSuchAlgorithmException e1) {
             Assert.fail("Unexpected exception!");
         }
 
@@ -122,23 +121,20 @@ public class TestParams {
         try {
             readerUncompressed.getVersionBlockFrom(null, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         readerUncompressed = new ArcReaderUncompressed();
         try {
             readerUncompressed.getVersionBlock();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         readerUncompressed = new ArcReaderUncompressed();
         try {
             readerUncompressed = new ArcReaderUncompressed(null);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerUncompressed = null;
         }
         Assert.assertNull(readerUncompressed);
@@ -147,8 +143,7 @@ public class TestParams {
         try {
             readerUncompressed.getNextRecord();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         is = new ByteArrayInputStream(new byte[] {42});
@@ -156,43 +151,37 @@ public class TestParams {
         try {
             readerUncompressed.getNextRecordFrom(null, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(is, -2);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(is, 0L, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(is, -2L, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(null, -1L, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(null, 0L, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();
@@ -231,8 +220,7 @@ public class TestParams {
             Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
             readerCompressed.setPayloadDigestAlgorithm(null);
             Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-        }
-        catch (NoSuchAlgorithmException e1) {
+        } catch (NoSuchAlgorithmException e1) {
             Assert.fail("Unexpected exception!");
         }
 
@@ -240,23 +228,20 @@ public class TestParams {
         try {
             readerCompressed.getVersionBlockFrom(null, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         readerCompressed = new ArcReaderCompressed();
         try {
             readerCompressed.getVersionBlock();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         readerCompressed = new ArcReaderCompressed();
         try {
             readerCompressed = new ArcReaderCompressed(null);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -264,8 +249,7 @@ public class TestParams {
         readerCompressed = new ArcReaderCompressed();
         try {
             readerCompressed = new ArcReaderCompressed(null, 42);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -275,8 +259,7 @@ public class TestParams {
         readerCompressed = new ArcReaderCompressed();
         try {
             readerCompressed = new ArcReaderCompressed(gzipReader, -1);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -284,8 +267,7 @@ public class TestParams {
         readerCompressed = new ArcReaderCompressed();
         try {
             readerCompressed = new ArcReaderCompressed(gzipReader, 0);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -297,8 +279,7 @@ public class TestParams {
         try {
             readerCompressed.getNextRecord();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         is = new ByteArrayInputStream(new byte[] {42});
@@ -306,43 +287,37 @@ public class TestParams {
         try {
             readerCompressed.getNextRecordFrom(null, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, -2);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, 0L, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, -2L, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(null, -1L, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, 0L, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();
@@ -357,85 +332,73 @@ public class TestParams {
         try {
             ArcReaderFactory.getReader(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReader(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReader(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReader(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderUncompressed(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderUncompressed(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderUncompressed(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderUncompressed(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderCompressed(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderCompressed(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderCompressed(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             ArcReaderFactory.getReaderCompressed(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();

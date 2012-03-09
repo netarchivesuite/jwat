@@ -106,8 +106,7 @@ public class TestGzipWriterCloning {
             reader = new GzipReader(pbin, 8192);
             readEntries(reader);
             pbin.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -138,8 +137,7 @@ public class TestGzipWriterCloning {
                 ++entries;
             }
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -174,8 +172,7 @@ public class TestGzipWriterCloning {
             }
             gzin.close();
             in.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Exception not expected!");
         }
         Assert.assertEquals(822, entries);
@@ -227,8 +224,7 @@ public class TestGzipWriterCloning {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }

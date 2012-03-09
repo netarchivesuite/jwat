@@ -141,9 +141,9 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (versionLine != null && versionLine.length() > 0) {
             String[] versionArr = versionLine.split(" ", -1);
             if (versionArr.length != ArcConstants.VERSION_DESC_FIELDS.length) {
-            	vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-            			ARC_RECORD,
-            			"Invalid version description"));
+                vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                        ARC_RECORD,
+                        "Invalid version description"));
             }
             // Get version and origin
             vb.versionNumber = vb.parseInteger(
@@ -171,8 +171,8 @@ public class ArcVersionBlock extends ArcRecordBase {
                 //Using version-1-block fields in this case
                 vb.descValidator = version1DescValidator;
                 vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                		ARC_FILE,
-                		"Unsupported version block definition -> "
+                        ARC_FILE,
+                        "Unsupported version block definition -> "
                                 + "Using version-1-block definition"));
             }
         }
@@ -199,14 +199,14 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (vb != null) {
             if (vb.recLength == null) {
                 // Missing length.
-            	vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-            			ARC_FILE,
-            			"VersionBlock length missing!"));
+                vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                        ARC_FILE,
+                        "VersionBlock length missing!"));
             } else if (in.getCounter() > vb.recLength) {
                 // Mismatch in consumed and declare length.
-            	vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-            			ARC_FILE,
-            			"VersionBlock length to small!"));
+                vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                        ARC_FILE,
+                        "VersionBlock length to small!"));
             }
             // Process payload = xml config
             vb.processPayload(in, reader);
@@ -241,9 +241,9 @@ public class ArcVersionBlock extends ArcRecordBase {
         }
         if (!isMagicArcFile){
             // Adding validation error
-        	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-        			ARC_FILE,
-        			"Invalid file magic number"));
+            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                    ARC_FILE,
+                    "Invalid file magic number"));
         }
     }
 
@@ -261,9 +261,9 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (!isVersionValid) {
             // Add validation error
             diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-            		ARC_FILE,
-            		"Invalid version : [version number : " + versionNumber
-            		+ ",reserved : " + reserved +']'));
+                    ARC_FILE,
+                    "Invalid version : [version number : " + versionNumber
+                    + ",reserved : " + reserved +']'));
         }
     }
 
@@ -276,18 +276,18 @@ public class ArcVersionBlock extends ArcRecordBase {
         ContentType ct = super.parseContentType(contentTypeStr, ArcConstants.CONTENT_TYPE_FIELD);
         if (ct == null) {
             // Version block content-type is required.
-        	diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-        			ArcConstants.CONTENT_TYPE_FIELD,
-        			ArcConstants.CONTENT_TYPE_FORMAT));
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                    ArcConstants.CONTENT_TYPE_FIELD,
+                    ArcConstants.CONTENT_TYPE_FORMAT));
             ct = null;
         } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equals(
                 ct.contentType) ||
                 !ArcConstants.VERSION_BLOCK_MEDIA_TYPE.equals(ct.mediaType)) {
             // Version block content-type should be equal to "text/plain"
-        	diagnostics.addWarning(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-        			ArcConstants.CONTENT_TYPE_FIELD,
-        			contentTypeStr,
-        			ArcConstants.CONTENT_TYPE_TEXT_PLAIN));
+            diagnostics.addWarning(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
+                    ArcConstants.CONTENT_TYPE_FIELD,
+                    contentTypeStr,
+                    ArcConstants.CONTENT_TYPE_TEXT_PLAIN));
         }
         return ct;
     }
@@ -332,9 +332,9 @@ public class ArcVersionBlock extends ArcRecordBase {
             payload.close();
         }
         if ((payload == null) && ArcVersion.VERSION_1_1.equals(version)) {
-        	diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-        			ARC_FILE,
-        			"Required metadata payload not found in the version block"));
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                    ARC_FILE,
+                    "Required metadata payload not found in the version block"));
         }
     }
 

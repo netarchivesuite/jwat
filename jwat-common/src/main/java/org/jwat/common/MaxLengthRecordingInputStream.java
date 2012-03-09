@@ -110,28 +110,28 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int l = -1;
+        int bytesRead = -1;
         if (available > 0) {
-            l = in.read(b, off, (int) Math.min(len, available));
-            if (l > 0){
-                available -= l;
-                record.write(b, off, l);
+            bytesRead = in.read(b, off, (int) Math.min(len, available));
+            if (bytesRead > 0) {
+                available -= bytesRead;
+                record.write(b, off, bytesRead);
             }
         }
-        return l;
+        return bytesRead;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        long l = 0;
+        long bytesSkipped = 0;
         if (available > 0) {
-            l = read(skip_read_buffer, 0, (int) Math.min(
+            bytesSkipped = read(skip_read_buffer, 0, (int) Math.min(
                             Math.min(n, available), SKIP_READ_BUFFER_SIZE));
-            if (l == -1) {
-                l = 0;
+            if (bytesSkipped == -1) {
+                bytesSkipped = 0;
             }
         }
-        return l;
+        return bytesSkipped;
     }
 
 }

@@ -117,11 +117,9 @@ public class TestNonWarcHeaders {
             if (bDebugOutput) {
                 RecordDebugBase.printStatus(records, errors, warnings);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 

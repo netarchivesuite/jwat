@@ -92,12 +92,10 @@ public class TestDuplicateFields {
                     if (record.warcConcurrentToUriList != null) {
                         Assert.fail("Not expecting any concurrent-to fields");
                     }
-                }
-                else {
+                } else {
                     if (record.warcConcurrentToUriList == null) {
                         Assert.fail("Expecting concurrent-to fields");
-                    }
-                    else {
+                    } else {
                         Assert.assertEquals(record.warcConcurrentToUriList.size(), 3);
                     }
                 }
@@ -109,11 +107,9 @@ public class TestDuplicateFields {
             if (bDebugOutput) {
                 RecordDebugBase.printStatus(records, errors, warnings);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 

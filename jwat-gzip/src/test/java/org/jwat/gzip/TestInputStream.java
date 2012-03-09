@@ -55,8 +55,7 @@ public class TestInputStream {
 
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             readEntriesOld(in);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -81,11 +80,9 @@ public class TestInputStream {
                 try {
                     entryIn.reset();
                     Assert.fail( "Exception expected!" );
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception expected!" );
-                }
-                catch (UnsupportedOperationException e) {
+                } catch (UnsupportedOperationException e) {
                 }
                 Assert.assertEquals(1, entryIn.available());
                 while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
@@ -114,8 +111,7 @@ public class TestInputStream {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -145,8 +141,7 @@ public class TestInputStream {
             }
             gzin.close();
             in.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Exception not expected!");
         }
         Assert.assertEquals(822, entries);

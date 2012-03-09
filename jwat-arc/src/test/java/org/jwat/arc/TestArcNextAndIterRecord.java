@@ -161,11 +161,9 @@ public class TestArcNextAndIterRecord {
 
             reader.close();
             in.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

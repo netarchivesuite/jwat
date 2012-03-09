@@ -17,30 +17,47 @@
  */
 package org.jwat.common;
 
+/**
+ * Class defining different diagnosis types used for reporting problems.
+ *
+ * @author nicl
+ */
 public enum DiagnosisType {
 
-	DUPLICATE,
+    /** An entity has more than one value definition. */
+    DUPLICATE,
 
-	EMPTY,
+    /** Empty entity value. */
+    EMPTY,
 
-	ERROR_EXPECTED,
+    /** Entity is errornious and something else was expected. */
+    ERROR_EXPECTED,
 
-	INVALID,
+    /** Invalid circumstance surrounding entity. */
+    INVALID,
 
-	INVALID_DATA,
+    /** Invalid data encountered. */
+    INVALID_DATA,
 
-	INVALID_ENCODING,
+    /** Invalid encoding encountered. */
+    INVALID_ENCODING,
 
-	INVALID_EXPECTED,
+    /** Invalid data, expected something else. */
+    INVALID_EXPECTED,
 
-	RECOMMENDED,
+    /** Entity value differs from recommended value. */
+    RECOMMENDED,
 
-	REQUIRED_INVALID,
+    /** Required entity has an invalid value. */
+    REQUIRED_INVALID,
 
-	RESERVED,
+    /** Something reserved is being used. */
+    RESERVED,
 
-	UNDESIRED_DATA,
+    /** Entity is undesired. */
+    UNDESIRED_DATA,
 
-	UNKNOWN;
+    /** Entity has an unknown value according to some specification. */
+    UNKNOWN;
 
 }

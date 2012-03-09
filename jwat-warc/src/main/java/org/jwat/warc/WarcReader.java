@@ -24,6 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jwat.common.HeaderLineReader;
+
 /**
  * Base class for WARC reader implementations.
  *
@@ -70,6 +72,21 @@ public abstract class WarcReader {
 
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
+
+    protected HeaderLineReader lineReader;
+    protected HeaderLineReader headerLineReader;
+
+    protected void init() {
+    	lineReader = HeaderLineReader.getReader();
+        lineReader.bNameValue = false;
+    	lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
+    	headerLineReader = HeaderLineReader.getReader();
+        headerLineReader.bNameValue = true;
+    	headerLineReader.encoding = HeaderLineReader.ENC_UTF8;
+        headerLineReader.bLWS = true;
+        headerLineReader.bQuotedText = true;
+        headerLineReader.bEncodedWords = true;
+    }
 
     /**
      * Returns a boolean indicating if all records parsed so far are compliant.

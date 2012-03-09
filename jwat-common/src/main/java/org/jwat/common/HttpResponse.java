@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -46,16 +47,11 @@ public class HttpResponse {
     /** Https scheme. */
     public static final String PROTOCOL_HTTPS = "https";
 
-    /** Line feed constant. */
-    protected static final int LF = '\n';
-    /** Carriage return constant. */
-    protected static final int CR = '\r';
-
     /** Http protocol. */
     protected static final String HTTP = "HTTP";
 
     /** Content-type header name. */
-    protected static final String CONTENT_TYPE = "Content-Type:".toUpperCase();
+    protected static final String CONTENT_TYPE = "Content-Type".toUpperCase();
 
     /** Has record been closed before. */
     protected boolean bClosed;
@@ -87,6 +83,8 @@ public class HttpResponse {
 
     /** Warnings detected when processing HTTP protocol response. */
     protected List<String> warnings = null;
+
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /*
      * Header-Fields.
@@ -154,7 +152,7 @@ public class HttpResponse {
         hr.totalLength = length;
         hr.in_flr = new MaxLengthRecordingInputStream(
                                         hr.in_pb, hr.in_pb.getPushbackSize());
-        hr.payloadLength = hr.readProtocolResponse(hr.in_flr, length);
+        hr.payloadLength = hr.readHttpResponse(hr.in_flr, length);
         /*
          * Block Digest.
          */
@@ -183,68 +181,56 @@ public class HttpResponse {
     }
 
     /**
-     * Checks protocol response validity.
-     * @param line the first line of the HTTP response
-     * @return true/false based on whether the protocol response is valid or not.
-     */
-    protected boolean isProtocolResponseValid(String line) {
-        int idx;
-        int prevIdx;
-        boolean isValid = (line != null) && (line.length() > 0);
-        if (isValid) {
-            idx = line.indexOf(' ');
-            if (idx > 0) {
-                protocolVersion = line.substring(0, idx);
-                if (!protocolVersion.startsWith(HTTP)) {
-                    isValid = false;
-                }
-            } else {
-                isValid = false;
-            }
-            if (isValid) {
-                prevIdx = ++idx;
-                idx = line.indexOf(' ', idx);
-                if (idx == -1) {
-                    idx = line.length();
-                }
-                if (idx > prevIdx) {
-                    resultCodeStr = line.substring(prevIdx, idx);
-                    try {
-                        resultCode = Integer.parseInt(resultCodeStr);
-                        if (resultCode < 100 || resultCode > 999) {
-                            isValid = false;
-                        }
-                    } catch(NumberFormatException e) {
-                        isValid = false;
-                    }
-                } else {
-                    isValid = false;
-                }
-                if (isValid) {
-                    if (idx < line.length()) {
-                        ++idx;
-                        resultMessage = line.substring(idx);
-                    }
-                }
-            }
-        }
-        return isValid;
-    }
-
-    /**
      * Reads the protocol response.
      * @param in the input stream to parse.
-     * @param recordlength the record length.
+     * @param payloadLength the record length.
      * @return the bytes read
      * @throws IOException io exception while reading http headers
      */
-    protected long readProtocolResponse(InputStream in, long recordlength)
+    protected long readHttpResponse(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
-        long remaining = recordlength;
+    	PushbackInputStream pbin = new PushbackInputStream(in, 16);
+    	HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
+    	hlr.encoding = HeaderLineReader.ENC_UTF8;
+        boolean bValidHttpResponse = false;
+    	HeaderLine line = hlr.readLine(pbin);
+    	if (line != null && line.line != null && line.line.length() > 0) {
+            bValidHttpResponse = isHttpStatusLineValid(line.line);
+    	}
+        boolean bLoop = bValidHttpResponse;
+        while (bLoop) {
+        	line = hlr.readLine(pbin);
+        	if (line != null) {
+                if (line.line != null) {
+                	if (line.line.length() == 0) {
+                        bLoop = false;
+                	} else {
+                		// TODO invalid header
+                	}
+                } else {
+                	System.out.println(line.name);
+                	System.out.println(line.value);
+                    if (CONTENT_TYPE.equals(line.name.toUpperCase())) {
+                        contentType = line.value;
+                    }
+                    // Uses a list because there can be multiple occurrences.
+                    // TODO concat multiple identical headers separated by ,
+                    headerMap.put(line.name.toLowerCase(), line);
+                    headerList.add(line);
+                }
+        	} else {
+        		System.out.println("Epic fail!");
+        		bValidHttpResponse = false;
+                bLoop = false;
+        	}
+        }
+        if (bValidHttpResponse) {
+        }
+        long remaining = payloadLength - in.record.size();
+        /*
         boolean firstLineMatched = false;
         boolean invalidProtocolResponse = false;
-        int linesWithoutCrEnding = 0;
-        int linesWithoutLfEnding = 0;
+
         //mark the current position. An exception is thrown if the input
         //stream does not support mark operation
         in.mark(4096);
@@ -252,7 +238,7 @@ public class HttpResponse {
             if (remaining == 0L) {
                 break;
             }
-            LineToken token = readStringUntilCRLF(in, remaining);
+            LineToken token = readLine(in);
             remaining -= token.consumed;
             String line = token.line;
             if (token.missingCr) {
@@ -262,7 +248,7 @@ public class HttpResponse {
                 linesWithoutLfEnding++;
             }
             if (!firstLineMatched && (line.length() != 0)) {
-                if (!isProtocolResponseValid(line)){
+                if (!isHttpStatusLineValid(line)){
                     this.addWarning("Invalid HTTP response header: " + line);
                     invalidProtocolResponse = true;
                     break;
@@ -283,7 +269,7 @@ public class HttpResponse {
                 headerLine.value = line.substring(idx + 1).trim();
                 // Uses a map for fast lookup of single header.
                 headerMap.put(headerLine.name.toLowerCase(), headerLine);
-           }
+            }
             else {
                 headerLine.line = line;
             }
@@ -304,55 +290,126 @@ public class HttpResponse {
                     this.addWarning("" + linesWithoutLfEnding +
                         " CR-only line ending(s) found in HTTP response header");
         }
+        */
         return remaining;
     }
 
     /**
-     * Read a CRLF terminated string in the stream (keep track of the position).
-     * @param in the input stream to parse
-     * @param max the max length
-     * @return a CRLF terminated string
-     * @throws IOException io exception while reading line
+     * Checks a Http Response Status-Line for validity.
+     * @param statusLine the Status-Line of the HTTP Response
+     * @return true/false based on whether the Status-Line is valid or not.
      */
-    protected LineToken readStringUntilCRLF(InputStream in, long max)
-                                                        throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(256);
-        int b;
-        long pos = 0;
-        boolean bCRFound = false;
-        int sizeEnd = 1;
-        while (true) {
-            b = in.read();
-            if (b == -1) {
-                //Unexpected end of file
+    protected boolean isHttpStatusLineValid(String statusLine) {
+        int idx;
+        int prevIdx;
+        boolean isValid = (statusLine != null) && (statusLine.length() > 0);
+        if (isValid) {
+            idx = statusLine.indexOf(' ');
+            if (idx > 0) {
+                protocolVersion = statusLine.substring(0, idx);
+                if (!protocolVersion.startsWith(HTTP)) {
+                    isValid = false;
+                }
+            } else {
+                isValid = false;
+            }
+            if (isValid) {
+                prevIdx = ++idx;
+                idx = statusLine.indexOf(' ', idx);
+                if (idx == -1) {
+                    idx = statusLine.length();
+                }
+                if (idx > prevIdx) {
+                    resultCodeStr = statusLine.substring(prevIdx, idx);
+                    try {
+                        resultCode = Integer.parseInt(resultCodeStr);
+                        if (resultCode < 100 || resultCode > 999) {
+                            isValid = false;
+                        }
+                    } catch(NumberFormatException e) {
+                        isValid = false;
+                    }
+                } else {
+                    isValid = false;
+                }
+                if (isValid) {
+                    if (idx < statusLine.length()) {
+                        ++idx;
+                        resultMessage = statusLine.substring(idx);
+                    }
+                }
+            }
+        }
+        return isValid;
+    }
+
+    /*
+    private static final int S_START = 0;
+    private static final int S_CR = 1;
+
+    protected int missingCr = 0;
+    protected int misplacedCr = 0;
+    protected int invalidISO8859_1Chars = 0;
+    */
+
+    /**
+     * Read a CRLF terminated string in the stream.
+     * @param in the input stream to parse
+     * @return a CRLF terminated string
+     * @throws IOException if an io error occurs while reading line
+     */
+    /*
+    protected String readLine(InputStream in) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        int c;
+        int state = S_START;
+        boolean bLoop = true;
+        while (bLoop) {
+            c = in.read();
+            if (c == -1) {
+                // EOF.
                 throw new EOFException();
             }
-            if (b == CR) {
-                bCRFound = true;
-                continue;
-            }
-            if (b == LF) {
-                if (bCRFound) {
-                    sizeEnd = 2;
+            switch (state) {
+            case S_START:
+                switch (c) {
+                case '\r':
+                    state = S_CR;
+                    break;
+                case '\n':
+                    ++missingCr;
+                    bLoop = false;
+                    break;
+                default:
+                    if (c < 32) {
+                        ++invalidISO8859_1Chars;
+                    } else {
+                        sb.append((char) c);
+                    }
+                }
+                break;
+            case S_CR:
+                switch (c) {
+                case '\r':
+                    ++misplacedCr;
+                    break;
+                case '\n':
+                    bLoop = false;
+                    break;
+                default:
+                    if (c < 32) {
+                        ++invalidISO8859_1Chars;
+                    } else {
+                        sb.append((char) c);
+                    }
                     break;
                 }
                 break;
             }
-            if (bCRFound) {
-                bos.write(b);
-                break;
-            }
-            bos.write(b);
-            pos++;
-            if (pos >= max) {
-                sizeEnd = 0;
-                break;
-            }
         }
-        String line = bos.toString();
-        return new LineToken(line, line.length() + sizeEnd,
-                             (bCRFound && sizeEnd != 2), (! bCRFound));
+        return sb.toString();
     }
+    */
 
     /**
      * Warnings getter.
@@ -552,21 +609,6 @@ public class HttpResponse {
         }
         builder.append("]\n");
         return builder.toString();
-    }
-
-    private static final class LineToken {
-        public final String line;
-        public final int consumed;
-        public final boolean missingLf;
-        public final boolean missingCr;
-
-        public LineToken(String line, int consumed, boolean missingLf,
-                                                    boolean missingCr) {
-            this.line      = line;
-            this.consumed  = consumed;
-            this.missingLf = missingLf;
-            this.missingCr = missingCr;
-        }
     }
 
 }

@@ -30,32 +30,32 @@ import java.util.List;
  */
 public class Diagnostics<T> {
 
-	protected List<T> errors = new LinkedList<T>();
+    protected List<T> errors = new LinkedList<T>();
 
-	protected List<T> warnings = new LinkedList<T>();
+    protected List<T> warnings = new LinkedList<T>();
 
-	public boolean hasErrors() {
-		return !errors.isEmpty();
-	}
+    public boolean hasErrors() {
+        return !errors.isEmpty();
+    }
 
-	public boolean hasWarnings() {
-		return !warnings.isEmpty();
-	}
+    public boolean hasWarnings() {
+        return !warnings.isEmpty();
+    }
 
-	public void addError(T d) {
-		errors.add(d);
-	}
+    public void addError(T d) {
+        errors.add(d);
+    }
 
-	public void addWarning(T d) {
-		warnings.add(d);
-	}
+    public void addWarning(T d) {
+        warnings.add(d);
+    }
 
-	public List<T> getErrors() {
-		return Collections.unmodifiableList(errors);
-	}
+    public List<T> getErrors() {
+        return Collections.unmodifiableList(errors);
+    }
 
-	public List<T> getWarnings() {
-		return Collections.unmodifiableList(warnings);
-	}
+    public List<T> getWarnings() {
+        return Collections.unmodifiableList(warnings);
+    }
 
 }

@@ -74,12 +74,10 @@ public class TestGzipWriter {
             out.flush();
             out.close();
             raf.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }

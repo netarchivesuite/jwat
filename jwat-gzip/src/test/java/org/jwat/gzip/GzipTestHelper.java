@@ -26,27 +26,27 @@ import org.jwat.common.Diagnostics;
 public class GzipTestHelper {
 
     public static boolean containsError(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
-    	Iterator<Diagnosis> iter = diagnostics.getErrors().iterator();
-    	Diagnosis diagnosis;
-    	while (iter.hasNext()) {
-    		diagnosis = iter.next();
-    		if (diagnosis.type == type && diagnosis.entity.equals(entity) && diagnosis.information.length == infos) {
-    			return true;
-    		}
-    	}
-    	return false;
+        Iterator<Diagnosis> iter = diagnostics.getErrors().iterator();
+        Diagnosis diagnosis;
+        while (iter.hasNext()) {
+            diagnosis = iter.next();
+            if (diagnosis.type == type && diagnosis.entity.equals(entity) && diagnosis.information.length == infos) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean containsWarning(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
-    	Iterator<Diagnosis> iter = diagnostics.getWarnings().iterator();
-    	Diagnosis diagnosis;
-    	while (iter.hasNext()) {
-    		diagnosis = iter.next();
-    		if (diagnosis.type == type && diagnosis.entity.equals(entity) && diagnosis.information.length == infos) {
-    			return true;
-    		}
-    	}
-    	return false;
+        Iterator<Diagnosis> iter = diagnostics.getWarnings().iterator();
+        Diagnosis diagnosis;
+        while (iter.hasNext()) {
+            diagnosis = iter.next();
+            if (diagnosis.type == type && diagnosis.entity.equals(entity) && diagnosis.information.length == infos) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

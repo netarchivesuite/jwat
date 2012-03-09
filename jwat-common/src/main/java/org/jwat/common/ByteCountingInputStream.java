@@ -98,20 +98,20 @@ public class ByteCountingInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int n = in.read(b, off, len);
-        if (n > 0) {
-            consumed += n;
-            counter += n;
+        int bytesRead = in.read(b, off, len);
+        if (bytesRead > 0) {
+            consumed += bytesRead;
+            counter += bytesRead;
         }
-        return n;
+        return bytesRead;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        n = in.skip(n);
-        consumed += n;
-        counter += n;
-        return n;
+        long bytesSkipped = in.skip(n);
+        consumed += bytesSkipped;
+        counter += bytesSkipped;
+        return bytesSkipped;
     }
 
 }

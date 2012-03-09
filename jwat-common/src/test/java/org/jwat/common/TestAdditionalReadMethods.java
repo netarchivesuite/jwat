@@ -80,8 +80,7 @@ public class TestAdditionalReadMethods {
                 Assert.assertEquals(lines, lineCnt);
                 Assert.assertEquals(srcArr.length, bcin.consumed);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -134,8 +133,7 @@ public class TestAdditionalReadMethods {
                 Assert.assertEquals(lines, lineCnt);
                 Assert.assertEquals(linesSb.length(), ccsr.consumed);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -200,8 +198,7 @@ public class TestAdditionalReadMethods {
                 Assert.assertEquals(srcArr.length, pbin.consumed);
                 Assert.assertArrayEquals(srcArr, dstArr);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }

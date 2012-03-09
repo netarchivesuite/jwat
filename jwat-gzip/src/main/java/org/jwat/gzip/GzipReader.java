@@ -85,14 +85,16 @@ public class GzipReader {
 
     /**
      * Check head of <code>PushBackInputStream</code> for a GZip magic number.
+     * The state of the <code>PushBackInputStream</code> is the same after the
+     * call as before the call.
      * @param pbin <code>PushBackInputStream</code> with GZip entries
      * @return boolean indicating presence of a GZip magic number
      * @throws IOException if an io error occurs while examining head of stream
      */
     public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
-    	if (pbin == null) {
-    		throw new IllegalArgumentException("'pbin'is null!");
-    	}
+        if (pbin == null) {
+            throw new IllegalArgumentException("'pbin'is null!");
+        }
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
         // Look for the leading 2 magic bytes in front of every valid GZip entry.
@@ -107,7 +109,8 @@ public class GzipReader {
     }
 
     /**
-     * Construct a GZip reader with a default input buffer size of 1024.
+     * Construct a GZip reader with a default input buffer size of
+     * DEFAULT_INPUT_BUFFER_SIZE.
      * @param in input stream of GZip file
      */
     public GzipReader(InputStream in) {
@@ -128,7 +131,8 @@ public class GzipReader {
             throw new IllegalArgumentException("in is null!");
         }
         if (buffer_size <= 0) {
-            throw new IllegalArgumentException("buffer_size is less or equals to zero!");
+            throw new IllegalArgumentException(
+                    "buffer_size is less or equals to zero: " + buffer_size);
         }
         pbin = new ByteCountingPushBackInputStream(in, buffer_size);
         inputBytes = new byte[buffer_size];
@@ -141,7 +145,7 @@ public class GzipReader {
     public void close() throws IOException {
         if (gzipEntry != null) {
             gzipEntry.close();
-        	startOffset = pbin.getConsumed();
+            startOffset = pbin.getConsumed();
             gzipEntry = null;
         }
         if (inf != null) {
@@ -157,7 +161,7 @@ public class GzipReader {
      * @return offset of current or next entry
      */
     public long getStartOffset() {
-    	return startOffset;
+        return startOffset;
     }
 
     /**
@@ -166,7 +170,7 @@ public class GzipReader {
      * @return
      */
     public long getOffset() {
-    	return pbin.getConsumed();
+        return pbin.getConsumed();
     }
 
     /**
@@ -177,8 +181,8 @@ public class GzipReader {
      */
     public GzipEntry getNextEntry() throws IOException {
         if (gzipEntry != null) {
-        	gzipEntry.close();
-        	startOffset = pbin.getConsumed();
+            gzipEntry.close();
+            startOffset = pbin.getConsumed();
             gzipEntry = null;
         }
         int read = pbin.readFully(headerBytes);
@@ -199,61 +203,61 @@ public class GzipReader {
             gzipEntry.os = (short)(headerBytes[9] & 255);
             crc.update(headerBytes);
             if (gzipEntry.magic != GzipConstants.GZIP_MAGIC) {
-            	gzipEntry.diagnostics.addError(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_EXPECTED,
-            					"Magic Value",
-            					Integer.toHexString(gzipEntry.magic),
-            					Integer.toHexString(GzipConstants.GZIP_MAGIC)
-            				)
-            			);
+                gzipEntry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_EXPECTED,
+                                "Magic Value",
+                                Integer.toHexString(gzipEntry.magic),
+                                Integer.toHexString(GzipConstants.GZIP_MAGIC)
+                            )
+                        );
             }
             if (gzipEntry.cm != GzipConstants.CM_DEFLATE) {
-            	gzipEntry.diagnostics.addError(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_EXPECTED,
-            					"Compression Method",
-            					Integer.toHexString(gzipEntry.cm),
-            					Integer.toHexString(GzipConstants.CM_DEFLATE)
-            				)
-            			);
+                gzipEntry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_EXPECTED,
+                                "Compression Method",
+                                Integer.toHexString(gzipEntry.cm),
+                                Integer.toHexString(GzipConstants.CM_DEFLATE)
+                            )
+                        );
             } else {
                 if ((gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED) != 0) {
-                	gzipEntry.diagnostics.addWarning(
-                			new Diagnosis(
-                					DiagnosisType.RESERVED,
-                					"eXtra FLags",
-                					Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED)
-                				)
-                			);
+                    gzipEntry.diagnostics.addWarning(
+                            new Diagnosis(
+                                    DiagnosisType.RESERVED,
+                                    "eXtra FLags",
+                                    Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED)
+                                )
+                            );
                 }
                 if ((gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) == GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) {
-                	gzipEntry.diagnostics.addError(
-                			new Diagnosis(
-                					DiagnosisType.INVALID_DATA,
-                					"eXtra FLags",
-                					Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION)
-                				)
-                			);
+                    gzipEntry.diagnostics.addError(
+                            new Diagnosis(
+                                    DiagnosisType.INVALID_DATA,
+                                    "eXtra FLags",
+                                    Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION)
+                                )
+                            );
                 }
             }
             if ((gzipEntry.flg & GzipConstants.FLG_FRESERVED) != 0) {
-            	gzipEntry.diagnostics.addWarning(
-            			new Diagnosis(
-            					DiagnosisType.RESERVED,
-            					"FLaGs",
-            					Integer.toHexString(gzipEntry.flg & GzipConstants.FLG_FRESERVED)
-            				)
-            			);
+                gzipEntry.diagnostics.addWarning(
+                        new Diagnosis(
+                                DiagnosisType.RESERVED,
+                                "FLaGs",
+                                Integer.toHexString(gzipEntry.flg & GzipConstants.FLG_FRESERVED)
+                            )
+                        );
             }
             if (!GzipConstants.osIdxStr.containsKey((int)gzipEntry.os)) {
-            	gzipEntry.diagnostics.addWarning(
-            			new Diagnosis(
-            					DiagnosisType.UNKNOWN,
-            					"Operating System",
-            					Integer.toString(gzipEntry.os)
-    				)
-    			);
+                gzipEntry.diagnostics.addWarning(
+                        new Diagnosis(
+                                DiagnosisType.UNKNOWN,
+                                "Operating System",
+                                Integer.toString(gzipEntry.os)
+                    )
+                );
             }
             /*
              * FTEXT.
@@ -292,14 +296,14 @@ public class GzipReader {
                     throw new EOFException("Unexpected EOF!");
                 }
                 if (!iso8859_1.decode(fnameBytes, "")) {
-                	gzipEntry.diagnostics.addWarning(
-                			new Diagnosis(
-                					DiagnosisType.INVALID_ENCODING,
-                					"FName",
-                					iso8859_1.decoded,
-                					"ISO-8859-1"
-                				)
-                			);
+                    gzipEntry.diagnostics.addWarning(
+                            new Diagnosis(
+                                    DiagnosisType.INVALID_ENCODING,
+                                    "FName",
+                                    iso8859_1.decoded,
+                                    "ISO-8859-1"
+                                )
+                            );
                 }
                 gzipEntry.fname = iso8859_1.decoded;
                 crc.update(fnameBytes);
@@ -314,14 +318,14 @@ public class GzipReader {
                     throw new EOFException("Unexpected EOF!");
                 }
                 if (!iso8859_1.decode(fcommentBytes, "\n")) {
-                	gzipEntry.diagnostics.addWarning(
-                			new Diagnosis(
-                					DiagnosisType.INVALID_ENCODING,
-                					"FComment",
-                					iso8859_1.decoded,
-                					"ISO-8859-1"
-                				)
-                			);
+                    gzipEntry.diagnostics.addWarning(
+                            new Diagnosis(
+                                    DiagnosisType.INVALID_ENCODING,
+                                    "FComment",
+                                    iso8859_1.decoded,
+                                    "ISO-8859-1"
+                                )
+                            );
                 }
                 gzipEntry.fcomment = iso8859_1.decoded;
                 crc.update(fcommentBytes);
@@ -345,14 +349,14 @@ public class GzipReader {
             gzipEntry.comp_crc16 = ((int)crc.getValue()) & 0x0000ffff;
             crc.reset();
             if (gzipEntry.crc16 != null && gzipEntry.crc16 != gzipEntry.comp_crc16) {
-            	gzipEntry.diagnostics.addError(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_EXPECTED,
-            					"CRC16",
-            					Integer.toHexString(gzipEntry.crc16),
-            					Integer.toHexString(gzipEntry.comp_crc16)
-            				)
-            			);
+                gzipEntry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_EXPECTED,
+                                "CRC16",
+                                Integer.toHexString(gzipEntry.crc16),
+                                Integer.toHexString(gzipEntry.comp_crc16)
+                            )
+                        );
             }
             /*
              * Prepare Entry InputStream.
@@ -394,24 +398,24 @@ public class GzipReader {
             entry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
             entry.comp_isize = inf.getBytesWritten() & 0xffffffff;
             if (entry.comp_crc32 != entry.crc32) {
-            	entry.diagnostics.addError(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_EXPECTED,
-            					"CRC32",
-            					Integer.toHexString(entry.crc32),
-            					Integer.toHexString(entry.comp_crc32)
-            				)
-            			);
+                entry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_EXPECTED,
+                                "CRC32",
+                                Integer.toHexString(entry.crc32),
+                                Integer.toHexString(entry.comp_crc32)
+                            )
+                        );
             }
             if (entry.comp_isize != entry.isize) {
-            	entry.diagnostics.addError(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_EXPECTED,
-            					"ISize",
-            					Long.toString(entry.isize),
-            					Long.toString(entry.comp_isize)
-            				)
-            			);
+                entry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_EXPECTED,
+                                "ISize",
+                                Long.toString(entry.isize),
+                                Long.toString(entry.comp_isize)
+                            )
+                        );
             }
         } else {
             throw new EOFException("Unexpected EOF!");

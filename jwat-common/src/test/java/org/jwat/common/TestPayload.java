@@ -73,48 +73,39 @@ public class TestPayload implements PayloadOnClosedHandler {
         try {
             payload = Payload.processPayload( null, 0, 16, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), -1, 16, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), 0, -1, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), 0, 0, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), 0, 16, "shit1" );
             Assert.assertNull( payload.getMessageDigest() );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -126,8 +117,7 @@ public class TestPayload implements PayloadOnClosedHandler {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance( "SHA1" );
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
@@ -190,12 +180,10 @@ public class TestPayload implements PayloadOnClosedHandler {
                         byte[] digest2 = md.digest( srcArr );
 
                         Assert.assertArrayEquals( digest1, digest2 );
-                    }
-                    else {
+                    } else {
                         Assert.assertNull( payload.getMessageDigest() );
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

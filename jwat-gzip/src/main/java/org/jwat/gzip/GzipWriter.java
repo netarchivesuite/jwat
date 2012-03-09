@@ -124,16 +124,17 @@ public class GzipWriter {
      * Set compression level used by deflater. Only changed in deflater prior
      * to writing an entry header.
      * @param compressionLevel compression level
+     * @throws IllegalArgumentException If CompressionLevel is invalid
      */
     public void setCompressionLevel(int compressionLevel) {
-    	if (compressionLevel == Deflater.DEFAULT_COMPRESSION
-    			|| compressionLevel == Deflater.NO_COMPRESSION
-    			|| (compressionLevel >= 1 && compressionLevel <= 9)) {
-        	this.compressionLevel = compressionLevel;
-    	}
-    	else {
-    		throw new IllegalArgumentException("Invalid compression level: " + compressionLevel);
-    	}
+        if (compressionLevel == Deflater.DEFAULT_COMPRESSION
+                || compressionLevel == Deflater.NO_COMPRESSION
+                || (compressionLevel >= 1 && compressionLevel <= 9)) {
+            this.compressionLevel = compressionLevel;
+        }
+        else {
+            throw new IllegalArgumentException("Invalid compression level: " + compressionLevel);
+        }
     }
 
     /**
@@ -141,7 +142,7 @@ public class GzipWriter {
      * @return current compression level
      */
     public int getCompressionLevel() {
-    	return compressionLevel;
+        return compressionLevel;
     }
 
     /**
@@ -163,25 +164,24 @@ public class GzipWriter {
         entry.magic = GzipConstants.GZIP_MAGIC;
         if (entry.date != null) {
             entry.mtime = entry.date.getTime() / 1000;
-        }
-        else if (entry.mtime != 0) {
+        } else if (entry.mtime != 0) {
             entry.date = new Date(entry.mtime * 1000);
         }
         entry.xfl = 0;
         if (compressionLevel == 1) {
-        	entry.xfl |= GzipConstants.DEFLATE_XFL_FASTEST_COMPRESSION;
+            entry.xfl |= GzipConstants.DEFLATE_XFL_FASTEST_COMPRESSION;
         } else if (compressionLevel == 9) {
-        	entry.xfl |= GzipConstants.DEFLATE_XFL_MAXIMUM_COMPRESSION;
+            entry.xfl |= GzipConstants.DEFLATE_XFL_MAXIMUM_COMPRESSION;
         }
         entry.flg = 0;
         if (!GzipConstants.osIdxStr.containsKey((int)entry.os)) {
-        	entry.diagnostics.addWarning(
-        			new Diagnosis(
-        					DiagnosisType.UNKNOWN,
-        					"Operating System",
-        					Integer.toString(entry.os)
-				)
-			);
+            entry.diagnostics.addWarning(
+                    new Diagnosis(
+                            DiagnosisType.UNKNOWN,
+                            "Operating System",
+                            Integer.toString(entry.os)
+                )
+            );
         }
         /*
          * FTEXT.
@@ -204,14 +204,14 @@ public class GzipWriter {
         if (entry.fname != null) {
             entry.flg |= GzipConstants.FLG_FNAME;
             if (!iso8859_1.encode(entry.fname, "")) {
-            	entry.diagnostics.addWarning(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_ENCODING,
-            					"FName",
-            					entry.fname,
-            					"ISO-8859-1"
-            				)
-            			);
+                entry.diagnostics.addWarning(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_ENCODING,
+                                "FName",
+                                entry.fname,
+                                "ISO-8859-1"
+                            )
+                        );
             }
             entry.fname = iso8859_1.decoded;
             fnameBytes = iso8859_1.encoded;
@@ -222,14 +222,14 @@ public class GzipWriter {
         if (entry.fcomment != null) {
             entry.flg |= GzipConstants.FLG_FCOMMENT;
             if (!iso8859_1.encode(entry.fcomment, "\n")) {
-            	entry.diagnostics.addWarning(
-            			new Diagnosis(
-            					DiagnosisType.INVALID_ENCODING,
-            					"FComment",
-            					entry.fcomment,
-            					"ISO-8859-1"
-            				)
-            			);
+                entry.diagnostics.addWarning(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_ENCODING,
+                                "FComment",
+                                entry.fcomment,
+                                "ISO-8859-1"
+                            )
+                        );
             }
             entry.fcomment = iso8859_1.decoded;
             fcommentBytes = iso8859_1.encoded;

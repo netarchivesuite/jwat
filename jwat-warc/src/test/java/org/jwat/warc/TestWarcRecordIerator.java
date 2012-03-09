@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -140,6 +141,8 @@ public class TestWarcRecordIerator {
 
             recordIterator = reader.iterator();
             while (recordIterator.hasNext()) {
+                Assert.assertTrue(recordIterator.hasNext());
+
                 Assert.assertNull(reader.getIteratorExceptionThrown());
                 record = recordIterator.next();
                 Assert.assertNull(reader.getIteratorExceptionThrown());
@@ -169,20 +172,31 @@ public class TestWarcRecordIerator {
             }
             Assert.assertNull(reader.getIteratorExceptionThrown());
 
+            Assert.assertFalse(recordIterator.hasNext());
+
+            try {
+                recordIterator.next();
+                Assert.fail("Exception expected!");
+            } catch (NoSuchElementException e) {
+            }
+
+            try {
+                recordIterator.remove();
+                Assert.fail("Exception expected!");
+            } catch (UnsupportedOperationException e) {
+            }
+
             reader.close();
             in.close();
 
             if (bDebugOutput) {
                 RecordDebugBase.printStatus(i_records, i_errors, i_warnings);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             Assert.fail("Unexpected algorithm exception");
         }
 

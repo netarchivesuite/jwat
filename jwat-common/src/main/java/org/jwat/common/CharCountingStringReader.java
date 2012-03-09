@@ -94,20 +94,20 @@ public class CharCountingStringReader extends StringReader {
 
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
-        int n = super.read(cbuf, off, len);
-        if (n > 0) {
-            consumed += n;
-            counter += n;
+        int bytesRead = super.read(cbuf, off, len);
+        if (bytesRead > 0) {
+            consumed += bytesRead;
+            counter += bytesRead;
         }
-        return n;
+        return bytesRead;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        n = super.skip(n);
-        consumed += n;
-        counter += n;
-        return n;
+        long bytesSkipped = super.skip(n);
+        consumed += bytesSkipped;
+        counter += bytesSkipped;
+        return bytesSkipped;
     }
 
     /**

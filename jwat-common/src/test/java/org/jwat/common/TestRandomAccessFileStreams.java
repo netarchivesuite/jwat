@@ -76,8 +76,7 @@ public class TestRandomAccessFileStreams {
                 testSequentialReads();
                 testRandomReads();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -140,14 +139,12 @@ public class TestRandomAccessFileStreams {
         try {
             fis.reset();
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
         fis.mark( 1 );
         try {
             fis.reset();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail( "Exception not expected!" );
         }
         while (index < srcArr.length) {

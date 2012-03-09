@@ -111,11 +111,9 @@ public class TestMissingHeadersAll {
             if (bDebugOutput) {
                 RecordDebugBase.printStatus(records, errors, warnings);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 
@@ -127,13 +125,13 @@ public class TestMissingHeadersAll {
     public List<String> filter(List<Diagnosis> errors) {
         List<String> fields = new ArrayList<String>();
         for (Diagnosis error : errors) {
-        	int idx = error.entity.indexOf('\'');
-        	if (idx != 0) {
-        		idx = error.entity.indexOf('\'', 1);
-        		if (idx != -1) {
+            int idx = error.entity.indexOf('\'');
+            if (idx != 0) {
+                idx = error.entity.indexOf('\'', 1);
+                if (idx != -1) {
                     fields.add(error.entity.substring(1, idx));
-        		}
-        	}
+                }
+            }
         }
         return fields;
     }

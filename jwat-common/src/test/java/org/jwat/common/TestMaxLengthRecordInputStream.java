@@ -65,19 +65,16 @@ public class TestMaxLengthRecordInputStream {
         try {
             in.reset();
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail( "Exception expected!" );
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
         }
 
         in = new MaxLengthRecordingInputStream( new ByteArrayInputStream( srcArr ), Integer.MAX_VALUE + 1L );
         try {
             Assert.assertEquals( Integer.MAX_VALUE, in.available() );
             in.close();
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             Assert.fail( "Exception not expected!" );
         }
 
@@ -85,8 +82,7 @@ public class TestMaxLengthRecordInputStream {
         try {
             Assert.assertEquals( Integer.MAX_VALUE - 1, in.available() );
             in.close();
-        }
-        catch (IOException e1) {
+        } catch (IOException e1) {
             Assert.fail( "Exception not expected!" );
         }
 
@@ -212,8 +208,7 @@ public class TestMaxLengthRecordInputStream {
                     Assert.assertArrayEquals( srcArr, in.getRecording() );
 
                     in.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

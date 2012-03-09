@@ -123,16 +123,34 @@ public class TestParams {
             Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
             readerUncompressed.setPayloadDigestAlgorithm(null);
             Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-        }
-        catch (NoSuchAlgorithmException e1) {
+        } catch (NoSuchAlgorithmException e1) {
             Assert.fail("Unexpected exception!");
         }
+
+        Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+
+        Assert.assertEquals("base32", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
 
         readerUncompressed = new WarcReaderUncompressed();
         try {
             readerUncompressed = new WarcReaderUncompressed(null);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerUncompressed = null;
         }
         Assert.assertNull(readerUncompressed);
@@ -141,45 +159,45 @@ public class TestParams {
         try {
             readerUncompressed.getNextRecord();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(null, -2);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(null, 0, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is = new ByteArrayInputStream(new byte[] {42});
 
         try {
+            readerUncompressed.getNextRecordFrom(is, -2);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
             readerUncompressed.getNextRecordFrom(is, -2, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(is, -1, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerUncompressed.getNextRecordFrom(is, 0, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();
@@ -218,16 +236,34 @@ public class TestParams {
             Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
             readerCompressed.setPayloadDigestAlgorithm(null);
             Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-        }
-        catch (NoSuchAlgorithmException e1) {
+        } catch (NoSuchAlgorithmException e1) {
             Assert.fail("Unexpected exception!");
         }
+
+        Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+
+        Assert.assertEquals("base32", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
 
         readerCompressed = new WarcReaderCompressed();
         try {
             readerCompressed = new WarcReaderCompressed(null);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -235,8 +271,7 @@ public class TestParams {
         readerCompressed = new WarcReaderCompressed();
         try {
             readerCompressed = new WarcReaderCompressed(null, 42);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -246,8 +281,7 @@ public class TestParams {
         readerCompressed = new WarcReaderCompressed();
         try {
             readerCompressed = new WarcReaderCompressed(gzipReader, -1);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -255,8 +289,7 @@ public class TestParams {
         readerCompressed = new WarcReaderCompressed();
         try {
             readerCompressed = new WarcReaderCompressed(gzipReader, 0);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             readerCompressed = null;
         }
         Assert.assertNull(readerCompressed);
@@ -268,45 +301,45 @@ public class TestParams {
         try {
             readerCompressed.getNextRecord();
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(null, -2L);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(null, 0, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is = new ByteArrayInputStream(new byte[] {42});
 
         try {
+            readerCompressed.getNextRecordFrom(is, -2L);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
             readerCompressed.getNextRecordFrom(is, -2, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, -1, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             readerCompressed.getNextRecordFrom(is, 0, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();
@@ -321,85 +354,73 @@ public class TestParams {
         try {
             WarcReaderFactory.getReader(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReader(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReader(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReader(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderUncompressed(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderUncompressed(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderUncompressed(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderUncompressed(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderCompressed(null, 42);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderCompressed(is, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderCompressed(is, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             WarcReaderFactory.getReaderCompressed(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         is.close();

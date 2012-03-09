@@ -19,16 +19,16 @@ package org.jwat.common;
 
 public class Diagnosis {
 
-	public final DiagnosisType type;
+    public final DiagnosisType type;
 
-	public final String entity;
+    public final String entity;
 
-	public final String[] information;
+    public final String[] information;
 
-	public Diagnosis(DiagnosisType type, String entity, String... information) {
-		this.type = type;
-		this.entity = entity;
-		this.information = information;
-	}
+    public Diagnosis(DiagnosisType type, String entity, String... information) {
+        this.type = type;
+        this.entity = entity;
+        this.information = information;
+    }
 
 }

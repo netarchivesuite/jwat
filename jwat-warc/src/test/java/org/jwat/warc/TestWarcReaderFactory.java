@@ -183,14 +183,11 @@ public class TestWarcReaderFactory {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             Assert.fail("Unexpected algorithm exception");
         }
     }

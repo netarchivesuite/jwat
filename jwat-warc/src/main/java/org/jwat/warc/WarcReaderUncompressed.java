@@ -45,6 +45,7 @@ public class WarcReaderUncompressed extends WarcReader {
      * using a supplied input stream for each record.
      */
     WarcReaderUncompressed() {
+    	init();
     }
 
     /**
@@ -58,6 +59,7 @@ public class WarcReaderUncompressed extends WarcReader {
                     "The inputstream 'in' is null");
         }
         this.in = in;
+    	init();
     }
 
     @Override
@@ -102,14 +104,14 @@ public class WarcReaderUncompressed extends WarcReader {
         }
         warcRecord = WarcRecord.parseRecord(in, this);
         if (warcRecord != null) {
-        	startOffset = warcRecord.getStartOffset();
+            startOffset = warcRecord.getStartOffset();
         }
         return warcRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset)
-    													throws IOException {
+                                                        throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -126,14 +128,14 @@ public class WarcReaderUncompressed extends WarcReader {
                 this);
         if (warcRecord != null) {
             warcRecord.startOffset = offset;
-        	startOffset = offset;
+            startOffset = offset;
         }
         return warcRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset,
-    									int buffer_size) throws IOException {
+                                        int buffer_size) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -156,7 +158,7 @@ public class WarcReaderUncompressed extends WarcReader {
                         PUSHBACK_BUFFER_SIZE), this);
         if (warcRecord != null) {
             warcRecord.startOffset = offset;
-        	startOffset = offset;
+            startOffset = offset;
         }
         return warcRecord;
     }

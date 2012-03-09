@@ -252,7 +252,7 @@ public class ArcReaderCompressed extends ArcReader {
 
     @Override
     public ArcRecord getNextRecordFrom(InputStream rin, long offset,
-    									int buffer_size) throws IOException {
+                                        int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }

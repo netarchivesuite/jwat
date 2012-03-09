@@ -134,8 +134,7 @@ public class TestWarcReaderFactoryCompressed {
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -204,8 +203,7 @@ public class TestWarcReaderFactoryCompressed {
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -273,8 +271,7 @@ public class TestWarcReaderFactoryCompressed {
                     if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -289,11 +286,9 @@ public class TestWarcReaderFactoryCompressed {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             Assert.fail("Unexpected algorithm exception");
         }
     }
@@ -368,11 +363,9 @@ public class TestWarcReaderFactoryCompressed {
 
             reader.close();
             in.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             Assert.fail("Unexpected algorithm exception");
         }
 

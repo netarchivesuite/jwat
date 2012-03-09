@@ -47,8 +47,7 @@ public class TestSkip {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance( "sha1" );
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 

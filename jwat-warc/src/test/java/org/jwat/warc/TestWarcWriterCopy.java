@@ -175,11 +175,9 @@ public class TestWarcWriterCopy {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
         finally {

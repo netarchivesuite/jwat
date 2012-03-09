@@ -44,7 +44,8 @@ public class GzipConstants {
 
     public static final int DEFLATE_XFL_MAXIMUM_COMPRESSION = 2;
     public static final int DEFLATE_XFL_FASTEST_COMPRESSION = 4;
-    public static final int DEFLATE_XFL_MAXIEST_COMPRESSION = DEFLATE_XFL_MAXIMUM_COMPRESSION + DEFLATE_XFL_FASTEST_COMPRESSION;
+    public static final int DEFLATE_XFL_MAXIEST_COMPRESSION =
+    		DEFLATE_XFL_MAXIMUM_COMPRESSION + DEFLATE_XFL_FASTEST_COMPRESSION;
     public static final int DEFLATE_XLF_RESERVED = 1 + 8 + 16 + 32 + 64 + 128;
 
     /** File header flags. */

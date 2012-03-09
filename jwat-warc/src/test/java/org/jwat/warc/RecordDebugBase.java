@@ -61,21 +61,21 @@ public class RecordDebugBase {
 
     public static void printRecordErrors(WarcRecord record) {
         List<Diagnosis> diagnosisList;
-    	Iterator<Diagnosis> diagnosisIterator;
-    	Diagnosis diagnosis;
+        Iterator<Diagnosis> diagnosisIterator;
+        Diagnosis diagnosis;
         if (record.diagnostics.hasErrors()) {
             diagnosisList = record.diagnostics.getErrors();
             if (diagnosisList != null && diagnosisList.size() > 0) {
                 diagnosisIterator = diagnosisList.iterator();
                 while (diagnosisIterator.hasNext()) {
-                	diagnosis = diagnosisIterator.next();
-                	System.out.println( "Error" );
+                    diagnosis = diagnosisIterator.next();
+                    System.out.println( "Error" );
                     System.out.println( diagnosis.type );
                     System.out.println( diagnosis.entity );
                     if (diagnosis.information != null) {
-                    	for (int i=0; i<diagnosis.information.length; ++i) {
+                        for (int i=0; i<diagnosis.information.length; ++i) {
                             System.out.println( diagnosis.information[i] );
-                    	}
+                        }
                     }
                 }
             }
@@ -85,14 +85,14 @@ public class RecordDebugBase {
             if (diagnosisList != null && diagnosisList.size() > 0) {
                 diagnosisIterator = diagnosisList.iterator();
                 while (diagnosisIterator.hasNext()) {
-                	diagnosis = diagnosisIterator.next();
-                	System.out.println( "Warning:" );
+                    diagnosis = diagnosisIterator.next();
+                    System.out.println( "Warning:" );
                     System.out.println( diagnosis.type );
                     System.out.println( diagnosis.entity );
                     if (diagnosis.information != null) {
-                    	for (int i=0; i<diagnosis.information.length; ++i) {
+                        for (int i=0; i<diagnosis.information.length; ++i) {
                             System.out.println( diagnosis.information[i] );
-                    	}
+                        }
                     }
                 }
             }

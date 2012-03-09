@@ -120,8 +120,7 @@ public class TestArcReaderFactoryUncompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -179,8 +178,7 @@ public class TestArcReaderFactoryUncompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -237,8 +235,7 @@ public class TestArcReaderFactoryUncompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -253,8 +250,7 @@ public class TestArcReaderFactoryUncompressed {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
     }
@@ -332,8 +328,7 @@ public class TestArcReaderFactoryUncompressed {
 
             reader.close();
             in.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 

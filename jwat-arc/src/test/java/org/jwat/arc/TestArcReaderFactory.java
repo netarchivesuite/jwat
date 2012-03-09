@@ -102,8 +102,7 @@ public class TestArcReaderFactory {
                         if (arcRecord.diagnostics.hasWarnings()) {
                             warnings += arcRecord.diagnostics.getWarnings().size();
                         }
-                    }
-                    else {
+                    } else {
                         b = false;
                     }
                 }
@@ -155,8 +154,7 @@ public class TestArcReaderFactory {
                         if (arcRecord.diagnostics.hasWarnings()) {
                             warnings += arcRecord.diagnostics.getWarnings().size();
                         }
-                    }
-                    else {
+                    } else {
                         b = false;
                     }
                 }
@@ -172,11 +170,9 @@ public class TestArcReaderFactory {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

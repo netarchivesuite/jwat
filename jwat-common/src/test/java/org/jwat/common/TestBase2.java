@@ -152,8 +152,7 @@ public class TestBase2 {
                     if ( limited.charAt( l ) != '.' ) {
                         Assert.fail( "Delimiter expected!" );
                     }
-                }
-                else {
+                } else {
                     destSb.append( limited.charAt( l ) );
                 }
             }

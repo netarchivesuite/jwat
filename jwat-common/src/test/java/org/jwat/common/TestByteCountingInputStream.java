@@ -65,11 +65,9 @@ public class TestByteCountingInputStream {
         try {
             in.reset();
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail( "Exception expected!" );
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
         }
 
         long remaining;
@@ -207,8 +205,7 @@ public class TestByteCountingInputStream {
                     Assert.assertEquals( srcArr.length, dstArr.length + skipped );
 
                     in.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

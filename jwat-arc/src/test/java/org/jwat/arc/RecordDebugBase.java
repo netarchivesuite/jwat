@@ -111,8 +111,7 @@ public class RecordDebugBase {
                 String filename;
                 if ( lidx == fidx ) {
                     filename = "_index.html";
-                }
-                else {
+                } else {
                     filename = url.substring( fidx, lidx ).replace( '/', '_' );
                 }
                 try {

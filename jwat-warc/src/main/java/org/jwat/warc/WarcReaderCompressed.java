@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipReader;
 import org.jwat.gzip.GzipEntry;
+import org.jwat.gzip.GzipReader;
 
 /**
  * WARC Reader used on GZip compressed files.
@@ -47,6 +47,7 @@ public class WarcReaderCompressed extends WarcReader {
      * using a supplied input stream for each record.
      */
     WarcReaderCompressed() {
+    	init();
     }
 
     /**
@@ -60,6 +61,7 @@ public class WarcReaderCompressed extends WarcReader {
                     "'reader' is null");
         }
         this.reader = reader;
+    	init();
     }
 
     /**
@@ -80,6 +82,7 @@ public class WarcReaderCompressed extends WarcReader {
         }
         this.reader = reader;
         this.bufferSize = buffer_size;
+    	init();
     }
 
     @Override
@@ -154,7 +157,7 @@ public class WarcReaderCompressed extends WarcReader {
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset)
-    													throws IOException {
+                                                        throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }
@@ -183,7 +186,7 @@ public class WarcReaderCompressed extends WarcReader {
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset,
-    									int buffer_size) throws IOException {
+                                        int buffer_size) throws IOException {
         if (warcRecord != null) {
             warcRecord.close();
         }

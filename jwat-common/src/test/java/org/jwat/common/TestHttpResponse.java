@@ -101,30 +101,25 @@ public class TestHttpResponse {
         try {
             httpResponse = HttpResponse.processPayload( null, 0, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
             httpResponse = HttpResponse.processPayload( pbin, -1, null );
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             pbin = new  ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
             httpResponse = HttpResponse.processPayload( pbin, 0, "shit1" );
             Assert.assertNull( httpResponse.getMessageDigest() );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -136,8 +131,7 @@ public class TestHttpResponse {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance( "SHA1" );
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
@@ -206,8 +200,7 @@ public class TestHttpResponse {
                         byte[] digest2 = httpResponse.getMessageDigest().digest();
 
                         Assert.assertArrayEquals( digest1, digest2 );
-                    }
-                    else {
+                    } else {
                         Assert.assertNull( httpResponse.getMessageDigest() );
                     }
                     /*
@@ -265,12 +258,10 @@ public class TestHttpResponse {
                         byte[] digest2 = httpResponse.getMessageDigest().digest();
 
                         Assert.assertArrayEquals( digest1, digest2 );
-                    }
-                    else {
+                    } else {
                         Assert.assertNull( httpResponse.getMessageDigest() );
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }
@@ -283,42 +274,42 @@ public class TestHttpResponse {
         HttpResponse hr = new HttpResponse();
         boolean isValid;
 
-        isValid = hr.isProtocolResponseValid( null );
+        isValid = hr.isHttpStatusLineValid( null );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "" );
+        isValid = hr.isHttpStatusLineValid( "" );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( " " );
+        isValid = hr.isHttpStatusLineValid( " " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "  " );
+        isValid = hr.isHttpStatusLineValid( "  " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( " HTTP/1.1 OK " );
+        isValid = hr.isHttpStatusLineValid( " HTTP/1.1 OK " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "MONKEY/1.1 OK " );
+        isValid = hr.isHttpStatusLineValid( "MONKEY/1.1 OK " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1" );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 " );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1  " );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1  100" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  100" );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1  100 " );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  100 " );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 001" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 001" );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 1000" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 1000" );
         Assert.assertFalse( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 MONKEY!" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 MONKEY!" );
         Assert.assertFalse( isValid );
 
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100" );
         Assert.assertTrue( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100 " );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100 " );
         Assert.assertTrue( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100  " );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100  " );
         Assert.assertTrue( isValid );
-        isValid = hr.isProtocolResponseValid( "HTTP/1.1 100 Monkeys are OK" );
+        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100 Monkeys are OK" );
         Assert.assertTrue( isValid );
     }
 

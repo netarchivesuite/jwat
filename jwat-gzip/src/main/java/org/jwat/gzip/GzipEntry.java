@@ -32,11 +32,11 @@ import org.jwat.common.Diagnostics;
  */
 public class GzipEntry {
 
-	/** Starting offset of this entry in the input stream from whence it came.
-	 */
-	public long startOffset = -1L;
+    /** Starting offset of this entry in the input stream from whence it came.
+     */
+    public long startOffset = -1L;
 
-	/** Leading magic. */
+    /** Leading magic. */
     public int magic;
     /** Compression mode. */
     public short cm;
@@ -77,7 +77,7 @@ public class GzipEntry {
     public int comp_crc16;
     /** Computed CRC32. */
     public int comp_crc32;
-    /** Computed CRC32. */
+    /** Computed ISize. */
     public long comp_isize;
 
     /** Input stream to read uncompressed data. */
@@ -105,8 +105,12 @@ public class GzipEntry {
         }
     }
 
+    /**
+     * Returns this entry's offset relative to the start of the input stream.
+     * @return this entry's offset relative to the start of the input stream
+     */
     public long getStartOffset() {
-    	return startOffset;
+        return startOffset;
     }
 
     /**

@@ -120,8 +120,7 @@ public class TestArcReaderFactoryCompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -179,8 +178,7 @@ public class TestArcReaderFactoryCompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -237,8 +235,7 @@ public class TestArcReaderFactoryCompressed {
                     if (record.url.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
-                }
-                else {
+                } else {
                     Assert.fail("Location incorrect");
                 }
             }
@@ -253,8 +250,7 @@ public class TestArcReaderFactoryCompressed {
             Assert.assertEquals(expected_records, records);
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected io exception");
         }
@@ -328,14 +324,13 @@ public class TestArcReaderFactoryCompressed {
             }
 
             if (reader.getIteratorExceptionThrown() != null) {
-            	reader.getIteratorExceptionThrown().printStackTrace();
-            	Assert.fail("Unexpected exception!");
+                reader.getIteratorExceptionThrown().printStackTrace();
+                Assert.fail("Unexpected exception!");
             }
 
             reader.close();
             in.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception");
         }

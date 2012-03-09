@@ -46,11 +46,10 @@ public class TestEncoding {
         for (int i=1; i<256; ++i) {
             sb.append((char)i);
             if (ISO8859_1.validBytes[i] != 0) {
-            	sbFname.append((char)i);
-            	sbFcomment.append((char)i);
-            }
-            else if (i == 10) {
-            	sbFcomment.append((char)i);
+                sbFname.append((char)i);
+                sbFcomment.append((char)i);
+            } else if (i == 10) {
+                sbFcomment.append((char)i);
             }
         }
 
@@ -70,8 +69,7 @@ public class TestEncoding {
         byte[] data = null;
         try {
             data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -150,8 +148,7 @@ public class TestEncoding {
                 Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
                 Assert.assertEquals(wEntry.toString(), rEntry.toString());
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (reader.getNextEntry() != null) {
@@ -188,8 +185,7 @@ public class TestEncoding {
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
                 Assert.assertEquals(rEntry.crc32 & 0xffffffffL, entry.readCrc32 & 0xffffffffL);
                 Assert.assertEquals(rEntry.isize, entry.readISize);
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (gzin.getNextEntry() != null) {
@@ -197,12 +193,10 @@ public class TestEncoding {
             }
             gzin.close();
             in.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }

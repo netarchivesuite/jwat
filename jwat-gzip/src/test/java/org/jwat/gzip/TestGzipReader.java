@@ -62,8 +62,7 @@ public class TestGzipReader {
             reader = new GzipReader(pbin);
             readEntries(reader, 1);
             pbin.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -102,8 +101,7 @@ public class TestGzipReader {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }

@@ -251,7 +251,7 @@ public abstract class ArcReader {
      * @throws IOException io exception in reading process
      */
     public abstract ArcVersionBlock getVersionBlockFrom(InputStream in,
-    										long offset) throws IOException;
+                                            long offset) throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -279,7 +279,7 @@ public abstract class ArcReader {
      * @throws IOException io exception in reading process
      */
     public abstract ArcRecord getNextRecordFrom(InputStream in,
-    		long offset, int buffer_size) throws IOException;
+            long offset, int buffer_size) throws IOException;
 
     /**
      * Gets an exception thrown in the iterator if any or null.

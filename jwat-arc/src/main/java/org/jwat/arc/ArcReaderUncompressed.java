@@ -100,7 +100,7 @@ public class ArcReaderUncompressed extends ArcReader {
         }
         versionBlock = ArcVersionBlock.parseVersionBlock(in, this);
         if (versionBlock != null) {
-        	startOffset = versionBlock.startOffset;
+            startOffset = versionBlock.startOffset;
         }
         previousRecord = versionBlock;
         return versionBlock;
@@ -124,7 +124,7 @@ public class ArcReaderUncompressed extends ArcReader {
                         PUSHBACK_BUFFER_SIZE);
         versionBlock = ArcVersionBlock.parseVersionBlock(pbin, this);
         if (versionBlock != null) {
-        	versionBlock.startOffset = offset;
+            versionBlock.startOffset = offset;
             startOffset = offset;
         }
         previousRecord = versionBlock;
@@ -141,7 +141,7 @@ public class ArcReaderUncompressed extends ArcReader {
         }
         arcRecord = ArcRecord.parseArcRecord(in, versionBlock, this);
         if (arcRecord != null) {
-        	startOffset = arcRecord.startOffset;
+            startOffset = arcRecord.startOffset;
         }
         previousRecord = arcRecord;
         return arcRecord;
@@ -175,7 +175,7 @@ public class ArcReaderUncompressed extends ArcReader {
 
     @Override
     public ArcRecord getNextRecordFrom(InputStream rin, long offset,
-    									int buffer_size) throws IOException {
+                                        int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }

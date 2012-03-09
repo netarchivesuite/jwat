@@ -135,9 +135,9 @@ public class ArcRecord extends ArcRecordBase {
         } else if (HttpResponse.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                                     recContentType)) {
-        	diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-        			ARC_FILE,
-        			"Expected payload not found in the record block"));
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                    ARC_FILE,
+                    "Expected payload not found in the record block"));
         }
         return;
     }

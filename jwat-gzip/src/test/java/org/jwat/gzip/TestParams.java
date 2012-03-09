@@ -40,26 +40,22 @@ public class TestParams {
         try {
             reader = new GzipReader(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             reader = new GzipReader(null, 1024);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             reader = new GzipReader(in, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             reader = new GzipReader(in, -0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         reader = new GzipReader(in, 1024);
 
@@ -70,26 +66,22 @@ public class TestParams {
         try {
         writer = new GzipWriter(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             writer = new GzipWriter(null, 1024);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             writer = new GzipWriter(out, -1);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
             writer = new GzipWriter(out, 0);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         writer = new GzipWriter(out, 1024);
 
@@ -127,30 +119,26 @@ public class TestParams {
         try {
             writer.setCompressionLevel(-2);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         Assert.assertEquals(9, writer.getCompressionLevel());
         try {
             writer.setCompressionLevel(10);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
         Assert.assertEquals(9, writer.getCompressionLevel());
 
         try {
             writer.writeEntryHeader(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         try {
             entry.writeFrom(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         writer.writeEntryHeader(entry);
@@ -158,8 +146,7 @@ public class TestParams {
         try {
             entry.writeFrom(null);
             Assert.fail("Exception expected!");
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
 
         entry.writeFrom(in);

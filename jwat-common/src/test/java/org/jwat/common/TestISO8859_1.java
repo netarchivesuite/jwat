@@ -27,206 +27,206 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestISO8859_1 {
 
-	@Test
-	public void test_iso8859_1_encode() {
-		ISO8859_1 iso = new ISO8859_1();
-		StringBuffer srcSb = new StringBuffer();
-		String srcStr;
-		ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
-		byte[] dstArr;
+    @Test
+    public void test_iso8859_1_encode() {
+        ISO8859_1 iso = new ISO8859_1();
+        StringBuffer srcSb = new StringBuffer();
+        String srcStr;
+        ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
+        byte[] dstArr;
 
-		StringBuffer dstSb = new StringBuffer();
-		String dstStr;
+        StringBuffer dstSb = new StringBuffer();
+        String dstStr;
 
-		Assert.assertTrue(iso.encode("Fudge", ""));
-		Assert.assertArrayEquals("Fudge".getBytes(), iso.encoded);
-		Assert.assertFalse(iso.encode("Fudge\n", ""));
-		Assert.assertArrayEquals("Fudge".getBytes(), iso.encoded);
-		Assert.assertTrue(iso.encode("Fudge\n", "\n"));
-		Assert.assertArrayEquals("Fudge\n".getBytes(), iso.encoded);
-		Assert.assertFalse(iso.encode("Fudge\r\n", "\n"));
-		Assert.assertArrayEquals("Fudge\n".getBytes(), iso.encoded);
+        Assert.assertTrue(iso.encode("Fudge", ""));
+        Assert.assertArrayEquals("Fudge".getBytes(), iso.encoded);
+        Assert.assertFalse(iso.encode("Fudge\n", ""));
+        Assert.assertArrayEquals("Fudge".getBytes(), iso.encoded);
+        Assert.assertTrue(iso.encode("Fudge\n", "\n"));
+        Assert.assertArrayEquals("Fudge\n".getBytes(), iso.encoded);
+        Assert.assertFalse(iso.encode("Fudge\r\n", "\n"));
+        Assert.assertArrayEquals("Fudge\n".getBytes(), iso.encoded);
 
-		/*
-		 * 1.
-		 */
+        /*
+         * 1.
+         */
 
-		srcSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			srcSb.append((char)i);
-		}
-		srcStr = srcSb.toString();
+        srcSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            srcSb.append((char)i);
+        }
+        srcStr = srcSb.toString();
 
-		dstOut.reset();
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0) {
-				dstOut.write(i);
-			}
-		}
-		dstArr = dstOut.toByteArray();
+        dstOut.reset();
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0) {
+                dstOut.write(i);
+            }
+        }
+        dstArr = dstOut.toByteArray();
 
-		Assert.assertFalse(iso.encode(srcStr, ""));
-		Assert.assertArrayEquals(dstArr, iso.encoded);
+        Assert.assertFalse(iso.encode(srcStr, ""));
+        Assert.assertArrayEquals(dstArr, iso.encoded);
 
-		dstSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0) {
-				dstSb.append((char)i);
-			}
-		}
-		dstStr = dstSb.toString();
+        dstSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0) {
+                dstSb.append((char)i);
+            }
+        }
+        dstStr = dstSb.toString();
 
-		Assert.assertTrue(iso.decode(iso.encoded, ""));
-		Assert.assertEquals(dstStr, iso.decoded);
+        Assert.assertTrue(iso.decode(iso.encoded, ""));
+        Assert.assertEquals(dstStr, iso.decoded);
 
-		/*
-		 * 2.
-		 */
+        /*
+         * 2.
+         */
 
-		srcSb.setLength(0);
-		for (int i=0; i<65536; ++i) {
-			srcSb.append((char)i);
-		}
-		srcStr = srcSb.toString();
+        srcSb.setLength(0);
+        for (int i=0; i<65536; ++i) {
+            srcSb.append((char)i);
+        }
+        srcStr = srcSb.toString();
 
-		Assert.assertFalse(iso.encode(srcStr, ""));
-		Assert.assertArrayEquals(dstArr, iso.encoded);
+        Assert.assertFalse(iso.encode(srcStr, ""));
+        Assert.assertArrayEquals(dstArr, iso.encoded);
 
-		Assert.assertTrue(iso.decode(iso.encoded, ""));
-		Assert.assertEquals(dstStr, iso.decoded);
+        Assert.assertTrue(iso.decode(iso.encoded, ""));
+        Assert.assertEquals(dstStr, iso.decoded);
 
-		/*
-		 * 3.
-		 */
+        /*
+         * 3.
+         */
 
-		srcSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			srcSb.append((char)i);
-		}
-		srcStr = srcSb.toString();
+        srcSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            srcSb.append((char)i);
+        }
+        srcStr = srcSb.toString();
 
-		dstOut.reset();
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
-				dstOut.write(i);
-			}
-		}
-		byte[] dst2Arr = dstOut.toByteArray();
+        dstOut.reset();
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
+                dstOut.write(i);
+            }
+        }
+        byte[] dst2Arr = dstOut.toByteArray();
 
-		Assert.assertFalse(iso.encode(srcStr, "\n"));
-		Assert.assertArrayEquals(dst2Arr, iso.encoded);
+        Assert.assertFalse(iso.encode(srcStr, "\n"));
+        Assert.assertArrayEquals(dst2Arr, iso.encoded);
 
-		dstSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
-				dstSb.append((char)i);
-			}
-		}
-		String dst2Str = dstSb.toString();
+        dstSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
+                dstSb.append((char)i);
+            }
+        }
+        String dst2Str = dstSb.toString();
 
-		Assert.assertTrue(iso.decode(iso.encoded, "\n"));
-		Assert.assertEquals(dst2Str, iso.decoded);
+        Assert.assertTrue(iso.decode(iso.encoded, "\n"));
+        Assert.assertEquals(dst2Str, iso.decoded);
 
-		/*
-		 * 4.
-		 */
+        /*
+         * 4.
+         */
 
-		srcSb.setLength(0);
-		for (int i=0; i<65536; ++i) {
-			srcSb.append((char)i);
-		}
-		srcStr = srcSb.toString();
+        srcSb.setLength(0);
+        for (int i=0; i<65536; ++i) {
+            srcSb.append((char)i);
+        }
+        srcStr = srcSb.toString();
 
-		Assert.assertFalse(iso.encode(srcStr, "\n"));
-		Assert.assertArrayEquals(dst2Arr, iso.encoded);
+        Assert.assertFalse(iso.encode(srcStr, "\n"));
+        Assert.assertArrayEquals(dst2Arr, iso.encoded);
 
-		Assert.assertTrue(iso.decode(iso.encoded, "\n"));
-		Assert.assertEquals(dst2Str, iso.decoded);
-	}
+        Assert.assertTrue(iso.decode(iso.encoded, "\n"));
+        Assert.assertEquals(dst2Str, iso.decoded);
+    }
 
-	@Test
-	public void test_iso8859_1_decode() {
-		ISO8859_1 iso = new ISO8859_1();
-		ByteArrayOutputStream srcOut = new ByteArrayOutputStream();
-		byte[] srcArr;
-		StringBuffer dstSb = new StringBuffer();
-		String dstStr;
+    @Test
+    public void test_iso8859_1_decode() {
+        ISO8859_1 iso = new ISO8859_1();
+        ByteArrayOutputStream srcOut = new ByteArrayOutputStream();
+        byte[] srcArr;
+        StringBuffer dstSb = new StringBuffer();
+        String dstStr;
 
-		ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
-		byte[] dstArr;
+        ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
+        byte[] dstArr;
 
-		Assert.assertTrue(iso.decode("Fudge".getBytes(), ""));
-		Assert.assertEquals("Fudge", iso.decoded);
-		Assert.assertFalse(iso.decode("Fudge\n".getBytes(), ""));
-		Assert.assertEquals("Fudge", iso.decoded);
-		Assert.assertTrue(iso.decode("Fudge\n".getBytes(), "\n"));
-		Assert.assertEquals("Fudge\n", iso.decoded);
-		Assert.assertFalse(iso.decode("Fudge\r\n".getBytes(), "\n"));
-		Assert.assertEquals("Fudge\n", iso.decoded);
+        Assert.assertTrue(iso.decode("Fudge".getBytes(), ""));
+        Assert.assertEquals("Fudge", iso.decoded);
+        Assert.assertFalse(iso.decode("Fudge\n".getBytes(), ""));
+        Assert.assertEquals("Fudge", iso.decoded);
+        Assert.assertTrue(iso.decode("Fudge\n".getBytes(), "\n"));
+        Assert.assertEquals("Fudge\n", iso.decoded);
+        Assert.assertFalse(iso.decode("Fudge\r\n".getBytes(), "\n"));
+        Assert.assertEquals("Fudge\n", iso.decoded);
 
-		/*
-		 * 1.
-		 */
+        /*
+         * 1.
+         */
 
-		srcOut.reset();
-		for (int i=0; i<256; ++i) {
-			srcOut.write(i);
-		}
-		srcArr = srcOut.toByteArray();
+        srcOut.reset();
+        for (int i=0; i<256; ++i) {
+            srcOut.write(i);
+        }
+        srcArr = srcOut.toByteArray();
 
-		dstSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0) {
-				dstSb.append((char)i);
-			}
-		}
-		dstStr = dstSb.toString();
+        dstSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0) {
+                dstSb.append((char)i);
+            }
+        }
+        dstStr = dstSb.toString();
 
-		Assert.assertFalse(iso.decode(srcArr, ""));
-		Assert.assertEquals(dstStr, iso.decoded);
+        Assert.assertFalse(iso.decode(srcArr, ""));
+        Assert.assertEquals(dstStr, iso.decoded);
 
-		dstOut.reset();
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0) {
-				dstOut.write(i);
-			}
-		}
-		dstArr = dstOut.toByteArray();
+        dstOut.reset();
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0) {
+                dstOut.write(i);
+            }
+        }
+        dstArr = dstOut.toByteArray();
 
-		Assert.assertTrue(iso.encode(iso.decoded, ""));
-		Assert.assertArrayEquals(dstArr, iso.encoded);
+        Assert.assertTrue(iso.encode(iso.decoded, ""));
+        Assert.assertArrayEquals(dstArr, iso.encoded);
 
-		/*
-		 * 2.
-		 */
+        /*
+         * 2.
+         */
 
-		srcOut.reset();
-		for (int i=0; i<256; ++i) {
-			srcOut.write(i);
-		}
-		srcArr = srcOut.toByteArray();
+        srcOut.reset();
+        for (int i=0; i<256; ++i) {
+            srcOut.write(i);
+        }
+        srcArr = srcOut.toByteArray();
 
-		dstSb.setLength(0);
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
-				dstSb.append((char)i);
-			}
-		}
-		String dst2Str = dstSb.toString();
+        dstSb.setLength(0);
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
+                dstSb.append((char)i);
+            }
+        }
+        String dst2Str = dstSb.toString();
 
-		Assert.assertFalse(iso.decode(srcArr, "\n"));
-		Assert.assertEquals(dst2Str, iso.decoded);
+        Assert.assertFalse(iso.decode(srcArr, "\n"));
+        Assert.assertEquals(dst2Str, iso.decoded);
 
-		dstOut.reset();
-		for (int i=0; i<256; ++i) {
-			if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
-				dstOut.write(i);
-			}
-		}
-		byte[] dst2Arr = dstOut.toByteArray();
+        dstOut.reset();
+        for (int i=0; i<256; ++i) {
+            if (ISO8859_1.validBytes[i] != 0 || i == '\n') {
+                dstOut.write(i);
+            }
+        }
+        byte[] dst2Arr = dstOut.toByteArray();
 
-		Assert.assertTrue(iso.encode(iso.decoded, "\n"));
-		Assert.assertArrayEquals(dst2Arr, iso.encoded);
-	}
+        Assert.assertTrue(iso.encode(iso.decoded, "\n"));
+        Assert.assertArrayEquals(dst2Arr, iso.encoded);
+    }
 
 }

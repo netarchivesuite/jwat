@@ -55,8 +55,7 @@ public class TestFlagged {
         byte[] data = null;
         try {
             data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -127,8 +126,7 @@ public class TestFlagged {
                 Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
                 Assert.assertEquals(wEntry.toString(), rEntry.toString());
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (reader.getNextEntry() != null) {
@@ -165,8 +163,7 @@ public class TestFlagged {
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
                 Assert.assertEquals(rEntry.crc32 & 0xffffffffL, entry.readCrc32 & 0xffffffffL);
                 Assert.assertEquals(rEntry.isize, entry.readISize);
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (gzin.getNextEntry() != null) {
@@ -174,12 +171,10 @@ public class TestFlagged {
             }
             gzin.close();
             in.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -190,8 +185,7 @@ public class TestFlagged {
             try {
                 tryread(partialFile);
                 Assert.fail("Exception expected!");
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
             }
         }
     }
@@ -212,8 +206,7 @@ public class TestFlagged {
             rEntry.close();
             out.close();
             out.reset();
-        }
-        else {
+        } else {
             Assert.fail("Expected an entry!");
         }
         if (reader.getNextEntry() != null) {
@@ -240,8 +233,7 @@ public class TestFlagged {
         byte[] data = null;
         try {
             data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -311,20 +303,17 @@ public class TestFlagged {
                 Assert.assertEquals(wEntry.isize, rEntry.isize);
                 Assert.assertEquals(rEntry.crc16.intValue(), rEntry.comp_crc16);
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (reader.getNextEntry() != null) {
                 Assert.fail("Did not expect more entries!");
             }
             reader.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }

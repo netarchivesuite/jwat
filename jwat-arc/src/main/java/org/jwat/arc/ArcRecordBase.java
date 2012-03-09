@@ -181,10 +181,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             hasCompliantFields = (records.length
                               == versionBlock.descValidator.fieldNames.length);
             if(!hasCompliantFields) {
-            	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-            			ARC_RECORD,
-            			"URL record definition and record definition are not "
-            					+ "compliant"));
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                        ARC_RECORD,
+                        "URL record definition and record definition are not "
+                                + "compliant"));
             }
             // Parse
             recUrl = ArcFieldValidator.getArrayValue(records,
@@ -233,9 +233,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             // a plain ARC file, not a GZipped ARC.
             if ((recOffset != null) && (startOffset > 0L)
                                 && (recOffset.longValue() != startOffset)) {
-            	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
-            			"'" + ArcConstants.OFFSET_FIELD + "' value",
-            			recOffset.toString()));
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
+                        "'" + ArcConstants.OFFSET_FIELD + "' value",
+                        recOffset.toString()));
             }
         }
     }
@@ -325,8 +325,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (payload != null) {
                 // Check for truncated payload.
                 if (payload.getUnavailable() > 0) {
-                	// Payload length mismatch - Payload truncated
-                	addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
+                    // Payload length mismatch - Payload truncated
+                    addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
                 }
                 /*
                  * Check block digest.
@@ -347,10 +347,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                             computedBlockDigest.encoding = "base16";
                             computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
                         } else {
-                        	// Encoding - Unknown block digest encoding scheme ..
-                        	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                        			"Block digest encoding scheme",
-                        			reader.blockDigestEncoding);
+                            // Encoding - Unknown block digest encoding scheme ..
+                            addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                                    "Block digest encoding scheme",
+                                    reader.blockDigestEncoding);
                         }
                     }
                 }
@@ -374,10 +374,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                                 computedPayloadDigest.encoding = "base16";
                                 computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
                             } else {
-                            	// Encoding - Unknown payload digest encoding scheme ..
-                            	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                            			"Payload digest encoding scheme",
-                            			reader.payloadDigestEncoding);
+                                // Encoding - Unknown payload digest encoding scheme ..
+                                addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                                        "Payload digest encoding scheme",
+                                        reader.payloadDigestEncoding);
                             }
                         }
                     }
@@ -435,20 +435,47 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         return bIsCompliant;
     }
 
+    /**
+     * Add an error diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
-    	diagnostics.addError(new Diagnosis(type, entity, information));
+        diagnostics.addError(new Diagnosis(type, entity, information));
     }
 
+    /**
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
-    	diagnostics.addWarning(new Diagnosis(type, entity, information));
+        diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
 
+    /**
+     * Add a warning diagnosis on the given entity stating that it is empty.
+     * @param entity entity examined
+     */
     protected void addEmptyWarning(String entity) {
-    	diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
     }
 
+    /**
+     * Add an error diagnosis on the given entity stating that it is invalid
+     * and something else was expected. The optional information should provide
+     * more details and/or format information.
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addInvalidExpectedError(String entity, String... information) {
-    	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
+        diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
     /**
@@ -557,8 +584,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid integer value.
                 addInvalidExpectedError("'" + field + "' value",
-                		intStr,
-                		"Numeric format");
+                        intStr,
+                        "Numeric format");
             }
          }
          return iVal;
@@ -595,8 +622,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid long value.
                 addInvalidExpectedError("'" + field + "' value",
-                		longStr,
-                		"Numeric format");
+                        longStr,
+                        "Numeric format");
             }
          } else {
              // Missing mandatory value.
@@ -633,6 +660,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Returns an URL object holding the value of the specified string.
      * @param uriStr the URL to parse
+     * @param field field name
      * @return an URL object holding the value of the specified string
      */
     protected URI parseUri(String uriStr, String field) {
@@ -643,8 +671,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",
-                		uriStr,
-                		"URI format");
+                        uriStr,
+                        "URI format");
             }
         } else {
             // Missing mandatory value.
@@ -656,6 +684,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Parses ARC record IP address.
      * @param ipAddress the IP address to parse
+     * @param field field name
      * @return the IP address
      */
     protected InetAddress parseIpAddress(String ipAddress, String field) {
@@ -665,8 +694,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (inetAddr == null) {
                 // Invalid date.
                 addInvalidExpectedError("'" + field + "' value",
-                		ipAddress,
-                		"IPv4 or IPv6 format");
+                        ipAddress,
+                        "IPv4 or IPv6 format");
             }
         } else {
             // Missing mandatory value.
@@ -678,6 +707,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Parses ARC record date.
      * @param dateStr the date to parse.
+     * @param field field name
      * @return the formatted date.
      */
     protected Date parseDate(String dateStr, String field) {
@@ -687,8 +717,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 if (date == null) {
                     // Invalid date.
                     addInvalidExpectedError("'" + field + "' value",
-                    		dateStr,
-                    		ArcConstants.ARC_DATE_FORMAT);
+                            dateStr,
+                            ArcConstants.ARC_DATE_FORMAT);
                 }
         } else {
             // Missing mandatory value.
@@ -700,6 +730,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Parses ARC record content type.
      * @param contentTypeStr ARC record content type
+     * @param field field name
      * @return ARC record content type
      */
     protected ContentType parseContentType(String contentTypeStr, String field) {
@@ -709,8 +740,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (contentType == null) {
                 // Invalid content-type.
                 addInvalidExpectedError("'" + field + "' value",
-                		contentTypeStr,
-                		ArcConstants.CONTENT_TYPE_FORMAT);
+                        contentTypeStr,
+                        ArcConstants.CONTENT_TYPE_FORMAT);
             }
         } else {
             // Missing content-type.

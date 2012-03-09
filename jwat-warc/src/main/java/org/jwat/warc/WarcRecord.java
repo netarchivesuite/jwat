@@ -17,10 +17,8 @@
  */
 package org.jwat.warc;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PushbackInputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.security.MessageDigest;
@@ -301,8 +299,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (payload != null) {
                 // Check for truncated payload.
                 if (payload.getUnavailable() > 0) {
-                	// Payload length mismatch - Payload truncated
-                	addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
+                    // Payload length mismatch - Payload truncated
+                    addErrorDiagnosis(DiagnosisType.INVALID_DATA, "Payload length mismatch", "Payload truncated");
                 }
                 /*
                  * Check block digest.
@@ -334,16 +332,16 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             digest = null;
                             // Encoding - Unrecognized block digest encoding scheme
                             addErrorDiagnosis(DiagnosisType.UNKNOWN,
-                            		"Block digest encoding scheme",
-                            		warcBlockDigest.digestString);
+                                    "Block digest encoding scheme",
+                                    warcBlockDigest.digestString);
                         }
                         if (digest != null) {
                             if (!Arrays.equals(computedBlockDigest.digestBytes, digest)) {
                                 // Block digest - Computed block digest does not match
-                            	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                            			"Block digest",
-                            			Base16.encodeArray(digest),
-                            			Base16.encodeArray(computedBlockDigest.digestBytes));
+                                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                                        "Block digest",
+                                        Base16.encodeArray(digest),
+                                        Base16.encodeArray(computedBlockDigest.digestBytes));
                                 isValidBlockDigest = false;
                             } else {
                                 isValidBlockDigest = true;
@@ -364,10 +362,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         } else if ("base16".equals(reader.blockDigestEncoding)) {
                             computedBlockDigest.encoding = "base16";
                         } else {
-                        	// Encoding - Unknown block digest encoding scheme ..
-                        	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                        			"Block digest encoding scheme",
-                        			reader.blockDigestEncoding);
+                            // Encoding - Unknown block digest encoding scheme ..
+                            addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                                    "Block digest encoding scheme",
+                                    reader.blockDigestEncoding);
                         }
                     }
                     if (computedBlockDigest.encoding != null) {
@@ -410,16 +408,16 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 digest = null;
                                 // Encoding - Unrecognized payload digest encoding scheme
                                 addErrorDiagnosis(DiagnosisType.UNKNOWN,
-                                		"Payload digest encoding scheme",
-                                		warcPayloadDigest.digestString);
+                                        "Payload digest encoding scheme",
+                                        warcPayloadDigest.digestString);
                             }
                             if (digest != null) {
                                 if (!Arrays.equals(computedPayloadDigest.digestBytes, digest)) {
-                                	// Payload digest - Computed payload digest does not match
-                                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                                			"Payload digest",
-                                			Base16.encodeArray(digest),
-                                			Base16.encodeArray(computedPayloadDigest.digestBytes));
+                                    // Payload digest - Computed payload digest does not match
+                                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                                            "Payload digest",
+                                            Base16.encodeArray(digest),
+                                            Base16.encodeArray(computedPayloadDigest.digestBytes));
                                     isValidPayloadDigest = false;
                                 } else {
                                     isValidPayloadDigest = true;
@@ -440,10 +438,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
                             } else if ("base16".equals(reader.payloadDigestEncoding)) {
                                 computedPayloadDigest.encoding = "base16";
                             } else {
-                            	// Encoding - Unknown payload digest encoding scheme ..
-                            	addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                            			"Payload digest encoding scheme",
-                            			reader.payloadDigestEncoding);
+                                // Encoding - Unknown payload digest encoding scheme ..
+                                addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                                        "Payload digest encoding scheme",
+                                        reader.payloadDigestEncoding);
                             }
                         }
                         if (computedPayloadDigest.encoding != null) {
@@ -461,10 +459,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
             // Check for trailing newlines.
             int newlines = parseNewLines(in);
             if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
-            	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-            			"Trailing newlines",
-            			Integer.toString(newlines),
-            			"2");
+                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "Trailing newlines",
+                        Integer.toString(newlines),
+                        "2");
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -510,6 +508,74 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
+     * Get the record offset relative to the start of the WARC file
+     * <code>InputStream</code>.
+     * @return the record offset relative to the start of the WARC file
+     */
+    public long getStartOffset() {
+        return startOffset;
+    }
+
+    /**
+     * Return number of bytes consumed validating this record.
+     * @return number of bytes consumed validating this record
+     */
+    public Long getConsumed() {
+        return consumed;
+    }
+
+    /**
+     * Get a <code>List</code> of all the non-standard WARC headers found
+     * during parsing.
+     * @return <code>List</code> of <code>HeaderLine</code>
+     */
+    public List<HeaderLine> getHeaderList() {
+        if (headerList != null) {
+            return Collections.unmodifiableList(headerList);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get a non-standard WARC header or null, if nothing is stored for this
+     * header name.
+     * @param field header name
+     * @return WARC header line structure or null
+     */
+    public HeaderLine getHeader(String field) {
+        if (headerMap != null && field != null) {
+            return headerMap.get(field.toLowerCase());
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Specifies whether this record has a payload or not.
+     * @return true/false whether the ARC record has a payload
+     */
+    public boolean hasPayload() {
+        return (payload != null);
+    }
+
+    /**
+     * Return Payload object.
+     * @return payload or <code>null</code>
+     */
+    public Payload getPayload() {
+        return payload;
+    }
+
+    /**
+     * Payload content <code>InputStream</code> getter.
+     * @return Payload content <code>InputStream</code>
+     */
+    public InputStream getPayloadContent() {
+        return (payload != null) ? payload.getInputStream() : null;
+    }
+
+    /**
      * Returns a boolean indicating the ISO compliance status of this record.
      * @return a boolean indicating the ISO compliance status of this record
      */
@@ -527,20 +593,47 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
     */
 
+    /**
+     * Add an error diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
-    	diagnostics.addError(new Diagnosis(type, entity, information));
+        diagnostics.addError(new Diagnosis(type, entity, information));
     }
 
+    /**
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
-    	diagnostics.addWarning(new Diagnosis(type, entity, information));
+        diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
 
+    /**
+     * Add a warning diagnosis on the given entity stating that it is empty.
+     * @param entity entity examined
+     */
     protected void addEmptyWarning(String entity) {
-    	diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
     }
 
+    /**
+     * Add an error diagnosis on the given entity stating that it is invalid
+     * and something else was expected. The optional information should provide
+     * more details and/or format information.
+     * @param entity entity examined
+     * @param information optional extra information
+     */
     protected void addInvalidExpectedError(String entity, String... information) {
-    	diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
+        diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
     /**
@@ -595,41 +688,47 @@ public class WarcRecord implements PayloadOnClosedHandler {
         bVersionParsed = false;
         boolean bInvalidDataBeforeVersion = false;
         boolean bEmptyLinesBeforeVersion = false;
+        HeaderLine line;
         String tmpStr;
         boolean bSeekMagic = true;
         while (bSeekMagic) {
             startOffset = in.getConsumed();
-            tmpStr = readLine(in);
-            if (tmpStr != null) {
-                // debug
-                //System.out.println(tmpStr);
-                if (tmpStr.length() > 0) {
-                    if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
-                        bMagicIdentified = true;
-                        String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
-                        String[] tmpArr = versionStr.split("\\.", -1);        // Not optimal
-                        if (tmpArr.length >= 2 && tmpArr.length <= 4) {
-                            bVersionParsed = true;
-                            int[] versionArr = new int[tmpArr.length];
-                            for (int i=0; i<tmpArr.length; ++i) {
-                                try {
-                                    versionArr[i] = Integer.parseInt(tmpArr[i]);
-                                } catch (NumberFormatException e) {
-                                    versionArr[i] = -1;
+            line = reader.lineReader.readLine(in);
+            if (line != null) {
+            	tmpStr = line.line;
+                if (tmpStr != null) {
+                    // debug
+                    //System.out.println(tmpStr);
+                    if (tmpStr.length() > 0) {
+                        if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
+                            bMagicIdentified = true;
+                            String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
+                            String[] tmpArr = versionStr.split("\\.", -1);        // Not optimal
+                            if (tmpArr.length >= 2 && tmpArr.length <= 4) {
+                                bVersionParsed = true;
+                                int[] versionArr = new int[tmpArr.length];
+                                for (int i=0; i<tmpArr.length; ++i) {
+                                    try {
+                                        versionArr[i] = Integer.parseInt(tmpArr[i]);
+                                    } catch (NumberFormatException e) {
+                                        versionArr[i] = -1;
+                                    }
                                 }
+                                major = versionArr[0];
+                                minor = versionArr[1];
                             }
-                            major = versionArr[0];
-                            minor = versionArr[1];
+                            bSeekMagic = false;
+                        } else {
+                            // Invalid data aka Gibberish.
+                            bInvalidDataBeforeVersion = true;
                         }
-                        bSeekMagic = false;
                     } else {
-                        // Invalid data aka Gibberish.
-                        bInvalidDataBeforeVersion = true;
+                        // Empty line.
+                        bEmptyLinesBeforeVersion = true;
+
                     }
                 } else {
-                    // Empty line.
-                    bEmptyLinesBeforeVersion = true;
-
+                	// Headerline.
                 }
             } else {
                 // EOF.
@@ -637,10 +736,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
         }
         if (bInvalidDataBeforeVersion) {
-        	addErrorDiagnosis(DiagnosisType.INVALID, "Data before WARC version");
+            addErrorDiagnosis(DiagnosisType.INVALID, "Data before WARC version");
         }
         if (bEmptyLinesBeforeVersion) {
-        	addErrorDiagnosis(DiagnosisType.INVALID, "Empty lines before WARC version");
+            addErrorDiagnosis(DiagnosisType.INVALID, "Empty lines before WARC version");
         }
         return bMagicIdentified;
     }
@@ -656,7 +755,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
         boolean bFields = true;
         while (bFields) {
-            headerLine = readHeaderLine(in);
+            headerLine = reader.headerLineReader.readLine(in);
             if (headerLine != null) {
                 // An empty line means the name/value pair was used.
                 if (headerLine.line == null) {
@@ -668,7 +767,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         parseField(headerLine, seen);
                     } else {
                         // Empty field name.
-                    	addWarningDiagnosis(DiagnosisType.EMPTY, "Header line");
+                        addWarningDiagnosis(DiagnosisType.EMPTY, "Header line");
                     }
                 } else {
                     if (headerLine.line.length() == 0) {
@@ -676,7 +775,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         bFields = false;
                     } else {
                         // Unknown header line.
-                    	addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
+                        addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
                     }
                 }
             } else {
@@ -822,7 +921,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
             } else {
                 // Duplicate field.
-            	addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + field + "' header", value);
+                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + field + "' header", value);
             }
         } else {
             // Not a recognized WARC field name.
@@ -852,12 +951,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
         if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
             // Warning: Unknown Warc-Type.
-        	addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_TYPE + "' value", warcTypeStr);
+            addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_TYPE + "' value", warcTypeStr);
         }
 
         if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
             // Warning: Unknown Warc-Profile.
-        	addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", warcProfileStr);
+            addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", warcProfileStr);
         }
 
         /*
@@ -866,22 +965,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
         if (warcTypeIdx == null) {
             // Mandatory valid Warc-Type missing.
-        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", warcTypeStr);
+            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", warcTypeStr);
             bMandatoryMissing = true;
         }
         if (warcRecordIdUri == null) {
             // Mandatory valid Warc-Record-Id missing.
-        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_RECORD_ID + "' header", warcRecordIdStr);
+            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_RECORD_ID + "' header", warcRecordIdStr);
             bMandatoryMissing = true;
         }
         if (warcDate == null) {
             // Mandatory valid Warc-Date missing.
-        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_DATE + "' header", warcDateStr);
+            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_DATE + "' header", warcDateStr);
             bMandatoryMissing = true;
         }
         if (contentLength == null) {
             // Mandatory valid Content-Length missing.
-        	addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_CONTENT_LENGTH + "' header", contentLengthStr);
+            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_CONTENT_LENGTH + "' header", contentLengthStr);
             bMandatoryMissing = true;
         }
 
@@ -893,7 +992,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         if (contentLength != null && contentLength.longValue() > 0L &&
                         (contentTypeStr == null || contentTypeStr.length() == 0)) {
             if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
-            	addWarningDiagnosis(DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
+                addWarningDiagnosis(DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
             }
         }
 
@@ -911,28 +1010,28 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 if (contentType != null &&
                         (!contentType.contentType.equals("application")
                         || !contentType.mediaType.equals("warc-fields"))) {
-                	addWarningDiagnosis(DiagnosisType.RECOMMENDED,
-                			"'" + WarcConstants.FN_CONTENT_TYPE + "' value",
-                			WarcConstants.CT_APP_WARC_FIELDS,
-                			contentTypeStr);
+                    addWarningDiagnosis(DiagnosisType.RECOMMENDED,
+                            "'" + WarcConstants.FN_CONTENT_TYPE + "' value",
+                            WarcConstants.CT_APP_WARC_FIELDS,
+                            contentTypeStr);
                 }
             }
 
             if (warcTypeIdx == WarcConstants.RT_IDX_RESPONSE) {
                 if (warcSegmentNumber != null && warcSegmentNumber != 1) {
-                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                			"'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
-                			warcSegmentNumber.toString(),
-                			"1");
+                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
+                            warcSegmentNumber.toString(),
+                            "1");
                 }
             }
 
             if (warcTypeIdx == WarcConstants.RT_IDX_CONTINUATION) {
                 if (warcSegmentNumber != null && warcSegmentNumber < 2) {
-                	addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                			"'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
-                			warcSegmentNumber.toString(),
-                			">1");
+                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
+                            warcSegmentNumber.toString(),
+                            ">1");
                 }
             }
 
@@ -974,15 +1073,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
         case WarcConstants.POLICY_MANDATORY:
             if (fieldObj == null) {
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_MAY:
@@ -990,15 +1089,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
         case WarcConstants.POLICY_MAY_NOT:
             if (fieldObj != null) {
                 addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL_NOT:
             if (fieldObj != null) {
                 addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_IGNORE:
@@ -1023,16 +1122,16 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (fieldObj == null) {
                 valueStr = listToStr(valueList);
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
                 valueStr = listToStr(valueList);
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_MAY:
@@ -1041,16 +1140,16 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (fieldObj != null) {
                 valueStr = listToStr(valueList);
                 addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL_NOT:
             if (fieldObj != null) {
                 valueStr = listToStr(valueList);
                 addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                		"'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                		valueStr);
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
             }
             break;
         case WarcConstants.POLICY_IGNORE:
@@ -1094,8 +1193,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid integer value.
                 addInvalidExpectedError("'" + field + "' value",
-                		intStr,
-                		"Numeric format");
+                        intStr,
+                        "Numeric format");
             }
          } else {
              // Missing integer value.
@@ -1118,8 +1217,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid long value.
                 addInvalidExpectedError("'" + field + "' value",
-                		longStr,
-                		"Numeric format");
+                        longStr,
+                        "Numeric format");
             }
          } else {
              // Missing long value.
@@ -1154,8 +1253,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 if (date == null) {
                     // Invalid date.
                     addInvalidExpectedError("'" + field + "' value",
-                    		dateStr,
-                    		WarcConstants.WARC_DATE_FORMAT);
+                            dateStr,
+                            WarcConstants.WARC_DATE_FORMAT);
                 }
         } else {
             // Missing date.
@@ -1177,8 +1276,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (inetAddr == null) {
                 // Invalid ip address.
                 addInvalidExpectedError("'" + field + "' value",
-                		ipAddress,
-                		"IPv4 or IPv6 format");
+                        ipAddress,
+                        "IPv4 or IPv6 format");
             }
         } else {
             // Missing ip address.
@@ -1204,8 +1303,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",
-                		uriStr,
-                		"URI format");
+                        uriStr,
+                        "URI format");
             }
         } else {
             // Missing URI.
@@ -1227,8 +1326,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             if (contentType == null) {
                 // Invalid content-type.
                 addInvalidExpectedError("'" + field + "' value",
-                		contentTypeStr,
-                		WarcConstants.CONTENT_TYPE_FORMAT);
+                        contentTypeStr,
+                        WarcConstants.CONTENT_TYPE_FORMAT);
             }
         } else {
             // Missing content-type.
@@ -1250,8 +1349,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 if (digest == null) {
                     // Invalid digest.
                     addInvalidExpectedError("'" + field + "' value",
-                    		labelledDigest,
-                    		WarcConstants.WARC_DIGEST_FORMAT);
+                            labelledDigest,
+                            WarcConstants.WARC_DIGEST_FORMAT);
                 }
         } else {
             // Missing digest.
@@ -1260,6 +1359,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         return digest;
     }
 
+    /*
     protected String readLine(PushbackInputStream in) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
         int b;
@@ -1277,376 +1377,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
         }
         return bos.toString("US-ASCII");
     }
-
-    private static final int S_START = 0;
-    private static final int S_LINE = 1;
-    private static final int S_NAME = 2;
-    private static final int S_VALUE = 3;
-    private static final int S_LWS = 4;
-    private static final int S_QUOTED_TEXT = 5;
-    private static final int S_QUOTED_PAIR = 6;
-    private static final int S_QUOTED_LWS = 7;
-
-    /** Table of separator characters. */
-    protected static final boolean[] separatorsWsTab = new boolean[256];
-
-    /** rfc2616 separator characters. */
-    protected static final String separatorsWs = "()<>@,;:\\\"/[]?={} \t";
-
-    /**
-     * Populate table of separators.
-     */
-    static {
-        for (int i=0; i<separatorsWs.length(); ++i) {
-            separatorsWsTab[separatorsWs.charAt(i)] = true;
-        }
-    }
-
-    protected HeaderLine readHeaderLine(PushbackInputStream in) throws IOException {
-        HeaderLine headerLine = null;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(32);
-        StringBuilder sb = new StringBuilder(128);
-        int state = S_START;
-        int c;
-        int utf8_c;
-        byte utf8_read;
-        byte utf8_octets;
-        boolean bCr = false;
-        boolean bLoop = true;
-        boolean bOctets;
-        while (bLoop) {
-            c = in.read();
-            if (c == -1) {
-                // EOF.
-                return null;
-            }
-            switch (state) {
-            case S_START:
-                switch (c) {
-                case '\r':
-                    bCr = true;
-                    break;
-                case '\n':
-                    headerLine = new HeaderLine();
-                    headerLine.line = bos.toString();
-                    if (!bCr) {
-                        // Missing CR.
-                        bCr = false;
-                    }
-                    bLoop = false;
-                    break;
-                default:
-                    if (!bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    if (!Character.isWhitespace(c)) {
-                        in.unread(c);
-                        state = S_NAME;
-                    } else {
-                        bos.write(c);
-                        state = S_LINE;
-                    }
-                    break;
-                }
-                break;
-            case S_LINE:
-                switch (c) {
-                case '\r':
-                    bCr = true;
-                    break;
-                case '\n':
-                    headerLine = new HeaderLine();
-                    headerLine.line = bos.toString();
-                    if (!bCr) {
-                        // Missing CR.
-                        bCr = false;
-                    }
-                    bLoop = false;
-                    break;
-                default:
-                    if (!bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                       bos.write(c);
-                    break;
-                }
-                break;
-            case S_NAME:
-                switch (c) {
-                case '\r':
-                    bCr = true;
-                    break;
-                case '\n':
-                    headerLine = new HeaderLine();
-                    headerLine.line = bos.toString();
-                    if (!bCr) {
-                        // Missing CR.
-                        bCr = false;
-                    }
-                    bLoop = false;
-                    break;
-                case ':':
-                    headerLine = new HeaderLine();
-                    headerLine.name = bos.toString("US-ASCII");
-                    if (bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    state = S_VALUE;
-                    break;
-                default:
-                    if (bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    if (c < 32 && c>126) {
-                        // Controls.
-                    } else {
-                        if (!separatorsWsTab[c]) {
-                               bos.write(c);
-                        } else {
-                            // Separator.
-                        }
-                    }
-                    break;
-                }
-                break;
-            case S_VALUE:
-                switch (c) {
-                case '\r':
-                    bCr = true;
-                    break;
-                case '\n':
-                    if (!bCr) {
-                        // Missing CR.
-                        bCr = false;
-                    }
-                    state = S_LWS;
-                    break;
-                   default:
-                    if (bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    if ((c & 0x80) == 0x00) {
-                        // US-ASCII/UTF-8: 0000 0000-0000 007F | 0xxxxxxx
-                        if (c < 32 && c>126) {
-                            // Controls.
-                        } else {
-                            switch (c) {
-                            case '\"':
-                                state = S_QUOTED_TEXT;
-                                break;
-                            case '=':
-                                sb.append((char)c);
-                                break;
-                            default:
-                                sb.append((char)c);
-                                break;
-                            }
-                        }
-                    } else {
-                        // UTF-8
-                        utf8_read = 1;
-                        bOctets = true;
-                        if ((c & 0xE0) == 0xC0) {
-                            // UTF-8: 0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-                            utf8_c = c & 0x1F;
-                            utf8_octets = 2;
-                        } else if ((c & 0xF0) == 0xE0) {
-                            // UTF-8: 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-                            utf8_c = c & 0x0F;
-                            utf8_octets = 3;
-                        } else if ((c & 0xF8) == 0xF0) {
-                            // UTF-8: 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-                            utf8_c = c & 0x07;
-                            utf8_octets = 4;
-                        } else {
-                            // Invalid UTF-8 octet.
-                            utf8_c = 0;
-                            utf8_read = 0;
-                            utf8_octets = 0;
-                            bOctets = false;
-                        }
-                        // Read the remaning octets.
-                        while (bOctets) {
-                            if (utf8_read < utf8_octets) {
-                                c = in.read();
-                                if (c == -1) {
-                                    // EOF.
-                                    bOctets = false;
-                                    bLoop = false;
-                                } else if ((c & 0xC0) == 0x80) {
-                                    utf8_c = (utf8_c << 6) | (c & 0x3F);
-                                    ++utf8_read;
-                                } else {
-                                    // Invalid UTF-8 octet.
-                                    bOctets = false;
-                                }
-                            } else {
-                                bOctets = false;
-                            }
-                        }
-                        // Correctly encoded.
-                        if (utf8_read == utf8_octets) {
-                            switch (utf8_octets) {
-                            case 2:
-                                if (utf8_c < 0x00000080 || utf8_c > 0x000007FF) {
-                                    // Incorrectly encoded value.
-                                }
-                                break;
-                            case 3:
-                                if (utf8_c < 0x00000800 || utf8_c > 0x0000FFFF) {
-                                    // Incorrectly encoded value.
-                                }
-                                break;
-                            case 4:
-                                if (utf8_c < 0x00010000 || utf8_c > 0x0010FFFF) {
-                                    // Incorrectly encoded value.
-                                }
-                                break;
-                            }
-                            sb.append((char) utf8_c);
-                        }
-                    }
-                    /*
-                    Char. number range  |        UTF-8 octet sequence
-                          (hexadecimal)    |              (binary)
-                       --------------------+---------------------------------------------
-                       0000 0000-0000 007F | 0xxxxxxx
-                       0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-                       0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-                       0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-                    */
-                       break;
-                }
-                break;
-            case S_LWS:
-                if (c == ' ' || c == '\t') {
-                    sb.append(" ");
-                    state = S_VALUE;
-                } else {
-                    in.unread(c);
-                    headerLine.value = sb.toString().trim();
-                    bLoop = false;
-                }
-                break;
-            case S_QUOTED_TEXT:
-                switch (c) {
-                case '\"':
-                    if (bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    state = S_VALUE;
-                    break;
-                case '\\':
-                    if (bCr) {
-                        // Misplaced CR.
-                        bCr = false;
-                    }
-                    state = S_QUOTED_PAIR;
-                    break;
-                case '\r':
-                    bCr = true;
-                    break;
-                case '\n':
-                    if (!bCr) {
-                        // Missing CR.
-                        bCr = false;
-                    }
-                    state = S_LWS;
-                    break;
-                default:
-                    break;
-                }
-                break;
-            case S_QUOTED_PAIR:
-                break;
-            case S_QUOTED_LWS:
-                if (c == ' ' || c == '\t') {
-                    sb.append(" ");
-                    state = S_QUOTED_TEXT;
-                } else {
-                    // Non LWS force end of quoted text parsing and header line.
-                    in.unread(c);
-                    headerLine.value = sb.toString().trim();
-                    bLoop = false;
-                }
-                break;
-            }
-        }
-        return headerLine;
-    }
-
-    /**
-     * Get a <code>List</code> of all the non-standard WARC headers found
-     * during parsing.
-     * @return <code>List</code> of <code>HeaderLine</code>
-     */
-    public List<HeaderLine> getHeaderList() {
-        if (headerList != null) {
-            return Collections.unmodifiableList(headerList);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Get a non-standard WARC header or null, if nothing is stored for this
-     * header name.
-     * @param field header name
-     * @return WARC header line structure or null
-     */
-    public HeaderLine getHeader(String field) {
-        if (headerMap != null && field != null) {
-            return headerMap.get(field.toLowerCase());
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Specifies whether this record has a payload or not.
-     * @return true/false whether the ARC record has a payload
-     */
-    public boolean hasPayload() {
-        return (payload != null);
-    }
-
-    /**
-     * Return Payload object.
-     * @return payload or <code>null</code>
-     */
-    public Payload getPayload() {
-        return payload;
-    }
-
-    /**
-     * Payload content <code>InputStream</code> getter.
-     * @return Payload content <code>InputStream</code>
-     */
-    public InputStream getPayloadContent() {
-        return (payload != null) ? payload.getInputStream() : null;
-    }
-
-    /**
-     * Get the record offset relative to the start of the WARC file
-     * <code>InputStream</code>.
-     * @return the record offset relative to the start of the WARC file
-     */
-    public long getStartOffset() {
-        return startOffset;
-    }
-
-    /**
-     * Return number of bytes consumed validating this record.
-     * @return number of bytes consumed validating this record
-     */
-    public Long getConsumed() {
-        return consumed;
-    }
+    */
 
 }

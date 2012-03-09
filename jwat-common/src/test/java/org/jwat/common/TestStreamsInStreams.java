@@ -1,3 +1,20 @@
+/**
+ * Java Web Archive Toolkit - Software to read and validate ARC, WARC
+ * and GZip files. (http://jwat.org/)
+ * Copyright 2011-2012 Netarkivet.dk (http://netarkivet.dk/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jwat.common;
 
 import java.io.ByteArrayInputStream;
@@ -43,24 +60,23 @@ public class TestStreamsInStreams {
         try {
             md = MessageDigest.getInstance( "sha1" );
             md2 = MessageDigest.getInstance( "sha1" );
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
         InputStream in;
 
         ByteCountingInputStream bcin1;
-    	ByteCountingPushBackInputStream pbin1;
-    	DigestInputStreamNoSkip disns1;
-    	FixedLengthInputStream flin1;
-    	MaxLengthRecordingInputStream mlrin1;
+        ByteCountingPushBackInputStream pbin1;
+        DigestInputStreamNoSkip disns1;
+        FixedLengthInputStream flin1;
+        MaxLengthRecordingInputStream mlrin1;
 
-    	ByteCountingInputStream bcin2;
-    	ByteCountingPushBackInputStream pbin2;
-    	DigestInputStreamNoSkip disns2;
-    	FixedLengthInputStream flin2;
-    	MaxLengthRecordingInputStream mlrin2;
+        ByteCountingInputStream bcin2;
+        ByteCountingPushBackInputStream pbin2;
+        DigestInputStreamNoSkip disns2;
+        FixedLengthInputStream flin2;
+        MaxLengthRecordingInputStream mlrin2;
 
         SecureRandom random = new SecureRandom();
 
@@ -87,16 +103,16 @@ public class TestStreamsInStreams {
                      * Read.
                      */
                     in = new ByteArrayInputStream( srcArr );
-                	bcin1 = new ByteCountingInputStream(in);
-                	pbin1 = new ByteCountingPushBackInputStream(bcin1, 16);
-                	disns1 = new DigestInputStreamNoSkip(pbin1, md);
-                	flin1 = new FixedLengthInputStream(disns1, srcArr.length);
-                	mlrin1 = new MaxLengthRecordingInputStream(flin1, srcArr.length);
-                	disns2 = new DigestInputStreamNoSkip(mlrin1, md2);
-                	mlrin2 = new MaxLengthRecordingInputStream(disns2, srcArr.length);
-                	bcin2 = new ByteCountingInputStream(mlrin2);
-                	pbin2 = new ByteCountingPushBackInputStream(bcin2, 16);
-                	flin2 = new FixedLengthInputStream(pbin2, srcArr.length);
+                    bcin1 = new ByteCountingInputStream(in);
+                    pbin1 = new ByteCountingPushBackInputStream(bcin1, 16);
+                    disns1 = new DigestInputStreamNoSkip(pbin1, md);
+                    flin1 = new FixedLengthInputStream(disns1, srcArr.length);
+                    mlrin1 = new MaxLengthRecordingInputStream(flin1, srcArr.length);
+                    disns2 = new DigestInputStreamNoSkip(mlrin1, md2);
+                    mlrin2 = new MaxLengthRecordingInputStream(disns2, srcArr.length);
+                    bcin2 = new ByteCountingInputStream(mlrin2);
+                    pbin2 = new ByteCountingPushBackInputStream(bcin2, 16);
+                    flin2 = new FixedLengthInputStream(pbin2, srcArr.length);
 
                     dstOut.reset();
 
@@ -199,16 +215,16 @@ public class TestStreamsInStreams {
                      * Skip.
                      */
                     in = new ByteArrayInputStream( srcArr );
-                	bcin1 = new ByteCountingInputStream(in);
-                	pbin1 = new ByteCountingPushBackInputStream(bcin1, 16);
-                	disns1 = new DigestInputStreamNoSkip(pbin1, md);
-                	flin1 = new FixedLengthInputStream(disns1, srcArr.length);
-                	mlrin1 = new MaxLengthRecordingInputStream(flin1, srcArr.length);
-                	disns2 = new DigestInputStreamNoSkip(mlrin1, md2);
-                	mlrin2 = new MaxLengthRecordingInputStream(disns2, srcArr.length);
-                	bcin2 = new ByteCountingInputStream(mlrin2);
-                	pbin2 = new ByteCountingPushBackInputStream(bcin2, 16);
-                	flin2 = new FixedLengthInputStream(pbin2, srcArr.length);
+                    bcin1 = new ByteCountingInputStream(in);
+                    pbin1 = new ByteCountingPushBackInputStream(bcin1, 16);
+                    disns1 = new DigestInputStreamNoSkip(pbin1, md);
+                    flin1 = new FixedLengthInputStream(disns1, srcArr.length);
+                    mlrin1 = new MaxLengthRecordingInputStream(flin1, srcArr.length);
+                    disns2 = new DigestInputStreamNoSkip(mlrin1, md2);
+                    mlrin2 = new MaxLengthRecordingInputStream(disns2, srcArr.length);
+                    bcin2 = new ByteCountingInputStream(mlrin2);
+                    pbin2 = new ByteCountingPushBackInputStream(bcin2, 16);
+                    flin2 = new FixedLengthInputStream(pbin2, srcArr.length);
 
                     dstOut.reset();
 
@@ -308,8 +324,7 @@ public class TestStreamsInStreams {
                     Assert.assertArrayEquals( srcArr, mlrin2.getRecording() );
 
                     flin2.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

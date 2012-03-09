@@ -65,11 +65,9 @@ public class TestByteCountingPushbackInputStream {
         try {
             in.reset();
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail( "Exception expected!" );
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
         }
 
         long remaining;
@@ -242,8 +240,7 @@ public class TestByteCountingPushbackInputStream {
                                 Assert.assertEquals( consumed - read, in.consumed );
                                 in.skip( read );
                                 Assert.assertEquals( consumed, in.consumed );
-                            }
-                            else {
+                            } else {
                                 in.unread( tmpBuf, 0, read );
                                 Assert.assertEquals( consumed - read, in.consumed );
                                 in.skip( read );
@@ -279,8 +276,7 @@ public class TestByteCountingPushbackInputStream {
                     Assert.assertArrayEquals( srcArr, dstArr );
 
                     in.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

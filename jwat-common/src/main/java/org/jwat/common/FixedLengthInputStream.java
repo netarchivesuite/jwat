@@ -98,24 +98,24 @@ public final class FixedLengthInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int l = -1;
+        int bytesRead = -1;
         if (remaining > 0) {
-            l = in.read(b, off, (int) Math.min(len, remaining));
-            if (l > 0){
-                remaining -= l;
+            bytesRead = in.read(b, off, (int) Math.min(len, remaining));
+            if (bytesRead > 0){
+                remaining -= bytesRead;
             }
         }
-        return l;
+        return bytesRead;
     }
 
     @Override
     public long skip(long n) throws IOException {
-        long l = 0;
+        long bytesSkipped = 0;
         if (remaining > 0) {
-            l = in.skip(Math.min(n, remaining));
-            remaining -= l;
+            bytesSkipped = in.skip(Math.min(n, remaining));
+            remaining -= bytesSkipped;
         }
-        return l;
+        return bytesSkipped;
     }
 
 }

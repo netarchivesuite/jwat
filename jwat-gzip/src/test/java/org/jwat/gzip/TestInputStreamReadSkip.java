@@ -79,8 +79,7 @@ public class TestInputStreamReadSkip {
             reader = new GzipReader(pbin, 8192);
             readEntryTotalTripleTroubleSkip(reader);
             pbin.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -129,8 +128,7 @@ public class TestInputStreamReadSkip {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -199,8 +197,7 @@ public class TestInputStreamReadSkip {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
@@ -281,8 +278,7 @@ public class TestInputStreamReadSkip {
             }
             reader.close();
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }

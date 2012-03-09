@@ -65,8 +65,7 @@ public class TestDigestInputStream {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance( digestAlgorithm );
-        }
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
@@ -89,11 +88,9 @@ public class TestDigestInputStream {
         try {
             in.reset();
             Assert.fail( "Exception expected!" );
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail( "Exception expected!" );
-        }
-        catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException e) {
         }
 
         long remaining;
@@ -225,8 +222,7 @@ public class TestDigestInputStream {
                     byte[] digest4 = md.digest();
 
                     Assert.assertArrayEquals( digest1, digest4 );
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
                 }

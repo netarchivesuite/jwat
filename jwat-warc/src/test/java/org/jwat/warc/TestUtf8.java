@@ -134,11 +134,9 @@ public class TestUtf8 {
             if (bDebugOutput) {
                 RecordDebugBase.printStatus(records, errors, warnings);
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 
@@ -186,11 +184,9 @@ public class TestUtf8 {
                 ram.write( bytes, 0,  read );
             }
             ram.close();
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

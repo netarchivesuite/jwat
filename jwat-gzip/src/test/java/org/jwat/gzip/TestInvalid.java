@@ -49,8 +49,7 @@ public class TestInvalid {
             }
             gzin.close();
             Assert.fail("Exception expected!");
-        }
-        catch (ZipException e) {
+        } catch (ZipException e) {
         }
         in.close();
 
@@ -70,8 +69,7 @@ public class TestInvalid {
             }
             gzin.close();
             Assert.fail("Exception expected!");
-        }
-        catch (ZipException e) {
+        } catch (ZipException e) {
         }
         in.close();
     }
@@ -86,7 +84,7 @@ public class TestInvalid {
         in = this.getClass().getClassLoader().getResourceAsStream("invalid-compression.gz");
         reader = new GzipReader(in);
         try {
-        	entries = 0;
+            entries = 0;
             while ((entry = reader.getNextEntry()) != null) {
                 entry.close();
                 Assert.assertTrue(entry.diagnostics.hasErrors());
@@ -97,8 +95,7 @@ public class TestInvalid {
             }
             reader.close();
             Assert.assertEquals(1, entries);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected exception!");
         }
         in.close();
@@ -106,7 +103,7 @@ public class TestInvalid {
         in = this.getClass().getClassLoader().getResourceAsStream("invalid-entries.gz");
         reader = new GzipReader(in);
         try {
-        	entries = 0;
+            entries = 0;
             while ((entry = reader.getNextEntry()) != null) {
                 entry.close();
                 ++entries;
@@ -115,15 +112,13 @@ public class TestInvalid {
                     Assert.assertTrue(entry.diagnostics.hasWarnings());
                     Assert.assertEquals(1, entry.diagnostics.getWarnings().size());
                     Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.RESERVED, "eXtra FLags", 1));
-                }
-                else if (entries == 2) {
+                } else if (entries == 2) {
                     Assert.assertFalse(entry.diagnostics.hasErrors());
                     Assert.assertTrue(entry.diagnostics.hasWarnings());
                     Assert.assertEquals(2, entry.diagnostics.getWarnings().size());
                     Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.RESERVED, "FLaGs", 1));
                     Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
-                }
-                else if (entries == 3) {
+                } else if (entries == 3) {
                     Assert.assertTrue(entry.diagnostics.hasErrors());
                     Assert.assertFalse(entry.diagnostics.hasWarnings());
                     Assert.assertEquals(2, entry.diagnostics.getErrors().size());
@@ -133,8 +128,7 @@ public class TestInvalid {
             }
             reader.close();
             Assert.assertEquals(3, entries);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected exception!");
         }
         in.close();
@@ -142,7 +136,7 @@ public class TestInvalid {
         in = this.getClass().getClassLoader().getResourceAsStream("invalid-magic.gz");
         reader = new GzipReader(in);
         try {
-        	entries = 0;
+            entries = 0;
             while ((entry = reader.getNextEntry()) != null) {
                 entry.close();
                 Assert.assertTrue(entry.diagnostics.hasErrors());
@@ -153,8 +147,7 @@ public class TestInvalid {
             }
             reader.close();
             Assert.assertEquals(1, entries);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             Assert.fail("Unexpected exception!");
         }
         in.close();
@@ -180,8 +173,7 @@ public class TestInvalid {
         byte[] data = null;
         try {
             data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -210,8 +202,7 @@ public class TestInvalid {
 
             Assert.assertEquals("hello dolly", wEntry.fname);
             Assert.assertEquals("This is my gzip'ed sheep\nDolly!\n", wEntry.fcomment);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
@@ -279,10 +270,10 @@ public class TestInvalid {
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "CRC32", 2));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "ISize", 2));
         Assert.assertEquals(4, rEntry.diagnostics.getWarnings().size());
-		Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.RESERVED, "eXtra FLags", 1));
-		Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.RESERVED, "FLaGs", 1));
-		Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FName", 2));
-		Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FComment", 2));
+        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.RESERVED, "eXtra FLags", 1));
+        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.RESERVED, "FLaGs", 1));
+        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FName", 2));
+        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FComment", 2));
     }
 
     protected byte[] tmpBuf = new byte[768];
@@ -335,16 +326,14 @@ public class TestInvalid {
                 Assert.assertEquals(rEntry.crc32, rEntry.comp_crc32);
                 Assert.assertEquals(wEntry.toString(), rEntry.toString());
                 */
-            }
-            else {
+            } else {
                 Assert.fail("Expected an entry!");
             }
             if (reader.getNextEntry() != null) {
                 Assert.fail("Did not expect more entries!");
             }
             reader.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }

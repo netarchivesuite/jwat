@@ -74,9 +74,9 @@ public class GzipInputStream extends InflaterInputStream
      * @throws IOException if an io error occurs while examining head of stream
      */
     public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
-    	if (pbin == null) {
-    		throw new IllegalArgumentException("'pbin'is null!");
-    	}
+        if (pbin == null) {
+            throw new IllegalArgumentException("'pbin'is null!");
+        }
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
         // Look for the leading 2 magic bytes in front of every valid GZip entry.
