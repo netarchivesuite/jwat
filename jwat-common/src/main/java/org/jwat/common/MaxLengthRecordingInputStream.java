@@ -63,7 +63,8 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
     }
 
     /**
-     * Closing will only closes the recording.
+     * Closing will only close the recording and not call the parent's close
+     * method.
      */
     @Override
     public void close() throws IOException {

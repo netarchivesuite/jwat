@@ -695,7 +695,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
             startOffset = in.getConsumed();
             line = reader.lineReader.readLine(in);
             if (line != null) {
-            	tmpStr = line.line;
+                tmpStr = line.line;
                 if (tmpStr != null) {
                     // debug
                     //System.out.println(tmpStr);
@@ -728,7 +728,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
                     }
                 } else {
-                	// Headerline.
+                    // Headerline.
                 }
             } else {
                 // EOF.

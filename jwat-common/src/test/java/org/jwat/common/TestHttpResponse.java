@@ -32,8 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.common.HttpResponse;
 
 @RunWith(Parameterized.class)
 public class TestHttpResponse {
@@ -152,6 +150,7 @@ public class TestHttpResponse {
                     httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
 
                     in = httpResponse.getPayloadInputStream();
+                    Assert.assertEquals(in, httpResponse.getPayloadInputStream());
                     Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
 
                     dstOut.reset();
@@ -162,10 +161,6 @@ public class TestHttpResponse {
                         dstOut.write(tmpBuf, 0, read);
                         remaining -= read;
 
-                        // This wont work with buffered streams...
-                        //Assert.assertEquals( remaining, payload.getUnavailable() );
-                        //Assert.assertEquals( remaining, payload.getRemaining() );
-
                         read = random.nextInt( 15 ) + 1;
                         read = in.read(tmpBuf, 0, read);
                     }
@@ -173,6 +168,8 @@ public class TestHttpResponse {
                     Assert.assertEquals( 0, remaining );
                     Assert.assertEquals( 0, httpResponse.getUnavailable() );
                     Assert.assertEquals( 0, httpResponse.getRemaining() );
+
+                    Assert.assertArrayEquals(headerArr, httpResponse.getHeader());
 
                     dstArr = dstOut.toByteArray();
                     Assert.assertEquals( payloadArr.length, dstArr.length );
@@ -182,6 +179,7 @@ public class TestHttpResponse {
 
                     Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
                     Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
+                    Assert.assertEquals( new Integer(200), httpResponse.getProtocolResultCode() );
                     Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
                     Assert.assertEquals( n, httpResponse.getPayloadLength() );
 
@@ -210,6 +208,7 @@ public class TestHttpResponse {
                     httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
 
                     in = httpResponse.getInputStreamComplete();
+                    Assert.assertEquals(in, httpResponse.getInputStreamComplete());
                     Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
 
                     dstOut.reset();
@@ -220,10 +219,6 @@ public class TestHttpResponse {
                         dstOut.write(tmpBuf, 0, read);
                         remaining -= read;
 
-                        // This wont work with buffered streams...
-                        //Assert.assertEquals( remaining, payload.getUnavailable() );
-                        //Assert.assertEquals( remaining, payload.getRemaining() );
-
                         read = random.nextInt( 15 ) + 1;
                         read = in.read(tmpBuf, 0, read);
                     }
@@ -232,20 +227,29 @@ public class TestHttpResponse {
                     Assert.assertEquals( 0, httpResponse.getUnavailable() );
                     Assert.assertEquals( 0, httpResponse.getRemaining() );
 
+                    Assert.assertArrayEquals(headerArr, httpResponse.getHeader());
+
                     dstArr = dstOut.toByteArray();
                     Assert.assertEquals( srcArr.length, dstArr.length );
                     Assert.assertArrayEquals( srcArr, dstArr );
 
+                    Assert.assertFalse(httpResponse.isClosed());
                     in.close();
+                    Assert.assertFalse(httpResponse.isClosed());
 
                     Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
                     Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
+                    Assert.assertEquals( new Integer(200), httpResponse.getProtocolResultCode() );
                     Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
                     Assert.assertEquals( n, httpResponse.getPayloadLength() );
 
                     httpResponse.close();
+                    Assert.assertTrue(httpResponse.isClosed());
 
                     Assert.assertNotNull( httpResponse.toString() );
+
+                    in.close();
+                    httpResponse.close();
                     /*
                      * HttpResponse Payload Digest.
                      */
@@ -267,50 +271,6 @@ public class TestHttpResponse {
                 }
             }
         }
-    }
-
-    @Test
-    public void test_httpresponse_isprotocolvalid() {
-        HttpResponse hr = new HttpResponse();
-        boolean isValid;
-
-        isValid = hr.isHttpStatusLineValid( null );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "" );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( " " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "  " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( " HTTP/1.1 OK " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "MONKEY/1.1 OK " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1" );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  100" );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1  100 " );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 001" );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 1000" );
-        Assert.assertFalse( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 MONKEY!" );
-        Assert.assertFalse( isValid );
-
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100" );
-        Assert.assertTrue( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100 " );
-        Assert.assertTrue( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100  " );
-        Assert.assertTrue( isValid );
-        isValid = hr.isHttpStatusLineValid( "HTTP/1.1 100 Monkeys are OK" );
-        Assert.assertTrue( isValid );
     }
 
 }

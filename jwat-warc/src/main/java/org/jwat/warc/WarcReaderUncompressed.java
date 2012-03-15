@@ -45,7 +45,7 @@ public class WarcReaderUncompressed extends WarcReader {
      * using a supplied input stream for each record.
      */
     WarcReaderUncompressed() {
-    	init();
+        init();
     }
 
     /**
@@ -59,7 +59,7 @@ public class WarcReaderUncompressed extends WarcReader {
                     "The inputstream 'in' is null");
         }
         this.in = in;
-    	init();
+        init();
     }
 
     @Override

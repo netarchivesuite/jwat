@@ -18,8 +18,6 @@
 package org.jwat.common;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,6 +76,8 @@ public class HttpResponse {
     /** Http payload stream returned to user. */
     protected InputStream in_payload;
 
+    protected SequenceInputStream in_complete;
+
     /** Object size, in bytes. */
     public long payloadLength = 0L;
 
@@ -130,6 +130,8 @@ public class HttpResponse {
 
     /**
      * Reads the HTTP protocol response and return it as an object.
+     * It is important to understand that the maximum size of a parsed header
+     * is equals to the size of the PushbackInputStream's buffer!
      * @param pbin payload input stream
      * @param length payload length
      * @param digestAlgorithm digest algorithm to use on payload or null if we
@@ -177,6 +179,7 @@ public class HttpResponse {
             public void close() throws IOException {
             }
         };
+        hr.in_complete = new SequenceInputStream(new ByteArrayInputStream(hr.in_flr.getRecording()), hr.in_payload);
         return hr;
     }
 
@@ -189,27 +192,27 @@ public class HttpResponse {
      */
     protected long readHttpResponse(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
-    	PushbackInputStream pbin = new PushbackInputStream(in, 16);
-    	HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
-    	hlr.encoding = HeaderLineReader.ENC_UTF8;
+        PushbackInputStream pbin = new PushbackInputStream(in, 16);
+        HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
+        hlr.encoding = HeaderLineReader.ENC_UTF8;
         boolean bValidHttpResponse = false;
-    	HeaderLine line = hlr.readLine(pbin);
-    	if (line != null && line.line != null && line.line.length() > 0) {
+        HeaderLine line = hlr.readLine(pbin);
+        if (line != null && line.line != null && line.line.length() > 0) {
             bValidHttpResponse = isHttpStatusLineValid(line.line);
-    	}
+        }
         boolean bLoop = bValidHttpResponse;
         while (bLoop) {
-        	line = hlr.readLine(pbin);
-        	if (line != null) {
+            line = hlr.readLine(pbin);
+            if (line != null) {
                 if (line.line != null) {
-                	if (line.line.length() == 0) {
+                    if (line.line.length() == 0) {
                         bLoop = false;
-                	} else {
-                		// TODO invalid header
-                	}
+                    } else {
+                        // TODO invalid header
+                    }
                 } else {
-                	System.out.println(line.name);
-                	System.out.println(line.value);
+                    //System.out.println(line.name);
+                    //System.out.println(line.value);
                     if (CONTENT_TYPE.equals(line.name.toUpperCase())) {
                         contentType = line.value;
                     }
@@ -218,11 +221,11 @@ public class HttpResponse {
                     headerMap.put(line.name.toLowerCase(), line);
                     headerList.add(line);
                 }
-        	} else {
-        		System.out.println("Epic fail!");
-        		bValidHttpResponse = false;
+            } else {
+                System.out.println("Epic fail!");
+                bValidHttpResponse = false;
                 bLoop = false;
-        	}
+            }
         }
         if (bValidHttpResponse) {
         }
@@ -542,7 +545,7 @@ public class HttpResponse {
      * payload.
      */
     public InputStream getInputStreamComplete() {
-        return new SequenceInputStream(new ByteArrayInputStream(in_flr.getRecording()), in_payload);
+        return in_complete;
     }
 
     /**

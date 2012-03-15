@@ -22,38 +22,65 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * TODO
+ * Class used to keep track of a collection of error and warning diagnosis
+ * objects.
  *
- * @param <T>
+ * @param <T> diagnosis class stored in this diagnostics instance.
  *
  * @author nicl
  */
 public class Diagnostics<T> {
 
+    /** List of error diagnoses. */
     protected List<T> errors = new LinkedList<T>();
 
+    /** List of warning diagnoses. */
     protected List<T> warnings = new LinkedList<T>();
 
+    /**
+     * Does collection have an error diagnosis.
+     * @return boolean indicating the presence of an error diagnosis
+     */
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
 
+    /**
+     * Does collection have a warning diagnosis.
+     * @return boolean indicating the presence of a warning diagnosis
+     */
     public boolean hasWarnings() {
         return !warnings.isEmpty();
     }
 
+    /**
+     * Add errors diagnosis to the collection.
+     * @param d error diagnosis
+     */
     public void addError(T d) {
         errors.add(d);
     }
 
+    /**
+     * Add warning diagnosis to the collection.
+     * @param d warning diagnosis
+     */
     public void addWarning(T d) {
         warnings.add(d);
     }
 
+    /**
+     * Returns unmodifiable list of error diagnoses.
+     * @return unmodifiable list of error diagnoses
+     */
     public List<T> getErrors() {
         return Collections.unmodifiableList(errors);
     }
 
+    /**
+     * Returns unmodifiable list of warning diagnoses.
+     * @return unmodifiable list of warning diagnoses
+     */
     public List<T> getWarnings() {
         return Collections.unmodifiableList(warnings);
     }

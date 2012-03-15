@@ -70,6 +70,8 @@ public class TestContentType {
         Assert.assertNull(ct);
         ct = ContentType.parseContentType("  text/  ");
         Assert.assertNull(ct);
+        ct = ContentType.parseContentType("  text/\t");
+        Assert.assertNull(ct);
         ct = ContentType.parseContentType("text/;");
         Assert.assertNull(ct);
         ct = ContentType.parseContentType(" text/;");
@@ -129,6 +131,13 @@ public class TestContentType {
         Assert.assertEquals("text", ct.contentType);
         Assert.assertEquals("plain", ct.mediaType);
 
+        ct = ContentType.parseContentType(" text/plain \t");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("text", ct.contentType);
+        Assert.assertEquals("plain", ct.mediaType);
+
         ct = ContentType.parseContentType("text/plain;");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
@@ -137,6 +146,13 @@ public class TestContentType {
         Assert.assertEquals("plain", ct.mediaType);
 
         ct = ContentType.parseContentType(" text/plain; ");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("text", ct.contentType);
+        Assert.assertEquals("plain", ct.mediaType);
+
+        ct = ContentType.parseContentType(" text/plain;\t");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
         //System.out.println(ct.mediaType);
@@ -191,6 +207,16 @@ public class TestContentType {
         Assert.assertNotNull(value);
         Assert.assertEquals("request", value);
 
+        ct = ContentType.parseContentType("\tapplication/http; msgtype=request ");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("application", ct.contentType);
+        Assert.assertEquals("http", ct.mediaType);
+        value = ct.getParameter("msgtype");
+        Assert.assertNotNull(value);
+        Assert.assertEquals("request", value);
+
         ct = ContentType.parseContentType("  application/http;  msgtype=request  ");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
@@ -231,6 +257,16 @@ public class TestContentType {
         Assert.assertNotNull(value);
         Assert.assertEquals("request", value);
 
+        ct = ContentType.parseContentType(" application/http; msgtype=\"request\"\t");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("application", ct.contentType);
+        Assert.assertEquals("http", ct.mediaType);
+        value = ct.getParameter("msgtype");
+        Assert.assertNotNull(value);
+        Assert.assertEquals("request", value);
+
         ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8 ");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
@@ -245,6 +281,19 @@ public class TestContentType {
         Assert.assertEquals("utf8", value);
 
         ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8 ; ");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("application", ct.contentType);
+        Assert.assertEquals("http", ct.mediaType);
+        value = ct.getParameter("msgtype");
+        Assert.assertNotNull(value);
+        Assert.assertEquals("request", value);
+        value = ct.getParameter("charset");
+        Assert.assertNotNull(value);
+        Assert.assertEquals("utf8", value);
+
+        ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8\t; ");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
         //System.out.println(ct.mediaType);
@@ -272,8 +321,10 @@ public class TestContentType {
 
         str = ct.toString();
         Assert.assertEquals("application/http; msgtype=request; charset=utf8", str);
+        str = ct.toStringShort();
+        Assert.assertEquals("application/http", str);
 
-        ct = ContentType.parseContentType("application/warc-fields");
+        ct = ContentType.parseContentType("Application/Warc-Fields");
         Assert.assertNotNull(ct);
         //System.out.println(ct.contentType);
         //System.out.println(ct.mediaType);
@@ -283,10 +334,72 @@ public class TestContentType {
         str = ct.toString();
         Assert.assertEquals("application/warc-fields", str);
 
-        ct.setParameter("quote", ".oOo. \t .oOo.");
+        ct.setParameter("Quote", ".oOo. \t .oOo.");
+
+        str = ct.getParameter("qUOTE");
+        Assert.assertEquals(".oOo. \t .oOo.", str);
 
         str = ct.toString();
         Assert.assertEquals("application/warc-fields; quote=\".oOo. \t .oOo.\"", str);
+
+        str = ct.toStringShort();
+        Assert.assertEquals("application/warc-fields", str);
+
+        ct.setParameter(null, "utf-8");
+        ct.setParameter("", "utf-8");
+        ct.setParameter("charset", null);
+
+        str = ct.getParameter(null);
+        Assert.assertNull(str);
+        str = ct.getParameter("");
+        Assert.assertNull(str);
+        str = ct.getParameter("charset");
+        Assert.assertNull(str);
+
+        ct.setParameter("one", "One");
+        ct.setParameter("two", "Two");
+        str = ct.getParameter("one");
+        Assert.assertEquals("One", str);
+        str = ct.getParameter("two");
+        Assert.assertEquals("Two", str);
+
+        StringBuffer sb = new StringBuffer();
+
+        for (int i=0; i<256; ++i) {
+            if (i < 32 || ContentType.separators.indexOf(i) != -1) {
+                Assert.assertFalse(ContentType.isTokenCharacter(i));
+            } else {
+                Assert.assertTrue(ContentType.isTokenCharacter(i));
+                if (i != ' ' && i != '\t' && i != '"') {
+                    sb.append((char) i);
+                }
+            }
+        }
+        Assert.assertTrue(ContentType.isTokenCharacter(256));
+
+        Assert.assertFalse(ContentType.quote(null));
+        Assert.assertFalse(ContentType.quote(""));
+        Assert.assertFalse(ContentType.quote(sb.toString()));
+        Assert.assertFalse(ContentType.quote(sb.toString() + "\u0100"));
+        Assert.assertTrue(ContentType.quote(sb.toString() + " "));
+        Assert.assertTrue(ContentType.quote(sb.toString() + "\t"));
+        Assert.assertTrue(ContentType.quote(sb.toString() + "\""));
+
+        ct = ContentType.parseContentType(" application/http; msgtype=req\\uest");
+        Assert.assertNull(ct);
+
+        ct = ContentType.parseContentType(" application/http; msgtype=\"req\\\"uest\"");
+        Assert.assertNotNull(ct);
+        //System.out.println(ct.contentType);
+        //System.out.println(ct.mediaType);
+        Assert.assertEquals("application", ct.contentType);
+        Assert.assertEquals("http", ct.mediaType);
+        value = ct.getParameter("msgtype");
+        Assert.assertNotNull(value);
+        Assert.assertEquals("req\"uest", value);
+
+        ct = ContentType.parseContentType(" application/http; msgtype=\"request\\");
+        Assert.assertNull(ct);
     }
 
 }

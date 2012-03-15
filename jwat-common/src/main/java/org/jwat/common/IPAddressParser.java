@@ -32,7 +32,7 @@ public final class IPAddressParser {
     private static final String IP_ADDRESS_REG_EXP =
         "([0-9a-fA-F]{0,4}:){0,6}("                 // Optional IPv6 start
         + "([0-9a-fA-F]{0,4}:[0-9a-fA-F]{1,4})|"    // True IPv6 address or
-        + "(([0-9]{1,3}\\.){3}[0-9]{1,3}))"; // Standalone or mixed IPv4 address
+        + "(([0-9]{1,3}\\.){3}[0-9]{1,3}))";        // Standalone or mixed IPv4 address
 
     /** IpAddress compiled regex pattern. */
     private static final Pattern IP_ADDRESS_PATTERN

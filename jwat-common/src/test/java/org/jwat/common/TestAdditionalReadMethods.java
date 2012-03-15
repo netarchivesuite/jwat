@@ -146,7 +146,6 @@ public class TestAdditionalReadMethods {
         byte[] srcArr;
         ByteArrayInputStream srcIn;
         ByteCountingPushBackInputStream pbin;
-        byte[] tmpArr;
         int read;
         ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
         byte[] dstArr;

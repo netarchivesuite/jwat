@@ -77,12 +77,12 @@ public abstract class WarcReader {
     protected HeaderLineReader headerLineReader;
 
     protected void init() {
-    	lineReader = HeaderLineReader.getReader();
+        lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
-    	lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
-    	headerLineReader = HeaderLineReader.getReader();
+        lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
+        headerLineReader = HeaderLineReader.getReader();
         headerLineReader.bNameValue = true;
-    	headerLineReader.encoding = HeaderLineReader.ENC_UTF8;
+        headerLineReader.encoding = HeaderLineReader.ENC_UTF8;
         headerLineReader.bLWS = true;
         headerLineReader.bQuotedText = true;
         headerLineReader.bEncodedWords = true;

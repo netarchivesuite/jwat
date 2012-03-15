@@ -17,18 +17,54 @@
  */
 package org.jwat.common;
 
+/**
+ * Class representing a diagnosis which was found while validating an entity.
+ *
+ * @author nicl
+ */
 public class Diagnosis {
 
+    /** Diagnosis type. */
     public final DiagnosisType type;
 
+    /** Source entity on which the diagnosis is relevant. */
     public final String entity;
 
+    /** Any optional information which may be relevant for the specific
+     * diagnosis. */
     public final String[] information;
 
+    /**
+     * Construct a diagnosis instance given the type, entity and optional
+     * information.
+     * @param type diagnosis type
+     * @param entity entity relevant for this diagnosis
+     * @param information optional information relevant for this diagnosis
+     */
     public Diagnosis(DiagnosisType type, String entity, String... information) {
+        if (type == null) {
+            throw new IllegalArgumentException("'type' is null!");
+        }
+        if (entity == null) {
+            throw new IllegalArgumentException("'entity' is null!");
+        }
         this.type = type;
         this.entity = entity;
         this.information = information;
+    }
+
+    /**
+     * Returns an array comprising of the entity followed by the information
+     * array elements.
+     * @return array with the entity followed by the information array elements
+     */
+    public Object[] getMessageArgs() {
+        Object[] messageArgs = new Object[information.length + 1];
+        messageArgs[0] = entity;
+        if (information.length > 0) {
+            System.arraycopy(information, 0, messageArgs, 1, information.length);
+        }
+        return messageArgs;
     }
 
 }

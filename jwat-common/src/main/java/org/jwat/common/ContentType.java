@@ -27,6 +27,7 @@ import java.util.Map.Entry;
  * into its separate components. It's based on the rfc2616 text and accordingly
  * fairly strict concerning whitespaces. Whitespace is only permissible after
  * a ';' and before and after the whole content-type string.
+ * ContentType, MediaType and parameter names are all converted to lower case.
  *
  * @author nicl
  */
@@ -50,8 +51,13 @@ public class ContentType {
     public static final int S_PARAM_VALUE = 7;
     /** Parsing a quote parameter value state. */
     public static final int S_PARAM_QUOTED_VALUE = 8;
+    /** Parsing a quoted pair character state. */
+    public static final int S_PARAM_QUOTED_PAIR = 9;
     /** Lenient parsing of trailing whitespace after argument value state. */
-    public static final int S_PARAM_VALUE_WHITESPACE = 9;
+    public static final int S_PARAM_VALUE_WHITESPACE = 10;
+
+    protected static final int CC_CONTROL = 1;
+    protected static final int CC_SEPARATOR_WS = 2;
 
     /** Parsed Content-type. */
     public String contentType;
@@ -62,22 +68,22 @@ public class ContentType {
     /** Optional <code>Map</code> of parameters. */
     public Map<String, String> parameters;
 
-    /** Table of separator and control characters. */
-    protected static final boolean[] separatorsCtlsTab = new boolean[256];
-
     /** rfc2616 separator minus space and tab. */
     protected static final String separators = "()<>@,;:\\\"/[]?={} \t";
+
+    /** Table of separator and control characters. */
+    protected static final byte[] charCharacteristicsTab = new byte[256];
 
     /*
      * Populate table with separator and control characters.
      */
     static {
         for (int i=0; i<separators.length(); ++i) {
-            separatorsCtlsTab[separators.charAt(i)] = true;
+            charCharacteristicsTab[separators.charAt(i)] = CC_SEPARATOR_WS;
         }
         for (int i=0; i<32; ++i) {
             if (i != '\t') {
-                separatorsCtlsTab[i] = true;
+                charCharacteristicsTab[i] = CC_CONTROL;
             }
         }
     }
@@ -88,7 +94,7 @@ public class ContentType {
      * @return boolean indicating whether character is a valid token
      */
     public static boolean isTokenCharacter(int c) {
-        return (c >= 0 && c < 256 && !separatorsCtlsTab[c]) || c >= 256;
+        return (c >= 0 && c < 256 && charCharacteristicsTab[c] == 0) || c >= 256;
     }
 
     /**
@@ -252,9 +258,22 @@ public class ContentType {
                             valueSb.toString());
                     ++idx;
                     state = S_PARAM_VALUE_WHITESPACE;
+                } else if (c == '\\') {
+                    ++idx;
+                    state = S_PARAM_QUOTED_PAIR;
                 } else if (c != -1) {
                     valueSb.append((char) c);
                     ++idx;
+                } else {
+                    // (-1)
+                    return null;
+                }
+                break;
+            case S_PARAM_QUOTED_PAIR:
+                if (c != -1) {
+                    valueSb.append((char) c);
+                    ++idx;
+                    state = S_PARAM_QUOTED_VALUE;
                 } else {
                     // (-1)
                     return null;
@@ -297,7 +316,7 @@ public class ContentType {
             if (parameters == null) {
                 parameters = new HashMap<String, String>();
             }
-            parameters.put(name, value);
+            parameters.put(name.toLowerCase(), value);
         }
     }
 
@@ -307,19 +326,31 @@ public class ContentType {
      * @param str input string
      * @return boolean indicating if the string should be quoted
      */
-    public boolean quote(String str) {
+    public static boolean quote(String str) {
         boolean quote = false;
         if (str != null && str.length() > 0) {
             int idx = 0;
             char c;
             while (idx<str.length() && !quote) {
                 c = str.charAt(idx++);
-                if (c == ' ' || c == '\t') {
+                if (c < 256 && (charCharacteristicsTab[c] & CC_SEPARATOR_WS) != 0) {
                     quote = true;
                 }
             }
         }
         return quote;
+    }
+
+    /**
+     * Returns the content-type omitting any parameters present.
+     * @return content-type without any parameters included
+     */
+    public String toStringShort() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(contentType);
+        sb.append('/');
+        sb.append(mediaType);
+        return sb.toString();
     }
 
     @Override

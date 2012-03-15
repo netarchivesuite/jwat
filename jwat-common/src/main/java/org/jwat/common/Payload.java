@@ -84,7 +84,7 @@ public class Payload {
      * @param in the input stream to parse.
      * @param length payload length.
      * @param digestAlgorithm digest algorithm to use on payload or null
-     * @throws IOException if an error occurs while initializing
+     * @throws IOException if an io error occurs while initializing
      */
     public static Payload processPayload(InputStream in, long length,
             int pushback_size, String digestAlgorithm) throws IOException {
@@ -160,7 +160,7 @@ public class Payload {
      * Get the number of unavailable bytes missing due to unexpected EOF.
      * This method always returns <code>0</code> as long as the stream is open.
      * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException if errors occur calling available method on stream
+     * @throws IOException if an io error occurs calling available method on stream
      */
     public long getUnavailable() throws IOException {
         return in_fl.available();
@@ -191,8 +191,9 @@ public class Payload {
     }
 
     /**
-     * Get <code>InputStream</code> to read payload data.
-     * @return <code>InputStream</code> to read payload data.
+     * Get <code>InputStream</code> to read the complete payload even though
+     * a http response header may have been read.
+     * @return <code>InputStream</code> to read payload data (in)directly.
      */
     public InputStream getInputStreamComplete() {
         if (httpResponse != null) {
@@ -203,7 +204,10 @@ public class Payload {
     }
 
     /**
-     * Get <code>InputStream</code> to read payload data.
+     * Get <code>InputStream</code> to read the payload directly from the
+     * source bypassing any existing <code>HttpResponse</code> object.
+     * A parsed http response header will not be accessible through this
+     * stream.
      * @return <code>InputStream</code> to read payload data.
      */
     public ByteCountingPushBackInputStream getInputStream() {
@@ -213,7 +217,7 @@ public class Payload {
     /**
      * Get payload remaining length.
      * @return payload remaining length
-     * @throws IOException if errors occur calling available method on stream
+     * @throws IOException if an io error occurs calling available method on stream
      */
     public long getRemaining() throws IOException {
         if (httpResponse != null) {
@@ -233,7 +237,7 @@ public class Payload {
 
     /**
      * Closes the this payload stream, skipping unread bytes in the process.
-     * @throws IOException io exception in closing process
+     * @throws IOException if an io error occurs in the closing process
      */
     public void close() throws IOException {
         if (!bClosed) {

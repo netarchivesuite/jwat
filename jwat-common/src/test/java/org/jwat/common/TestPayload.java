@@ -134,7 +134,13 @@ public class TestPayload implements PayloadOnClosedHandler {
                      * Payload.
                      */
                     payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), srcArr.length, 16, digestAlgorithm );
+                    Assert.assertNull(payload.onClosedHandler);
                     payload.setOnClosedHandler( this );
+                    Assert.assertEquals(this, payload.onClosedHandler);
+                    payload.setOnClosedHandler( null );
+                    Assert.assertNull(payload.onClosedHandler);
+                    payload.setOnClosedHandler( this );
+                    Assert.assertEquals(this, payload.onClosedHandler);
 
                     Assert.assertNull( payload.getHttpResponse() );
                     payload.setHttpResponse( null );
@@ -166,8 +172,15 @@ public class TestPayload implements PayloadOnClosedHandler {
                     Assert.assertEquals( srcArr.length, dstArr.length );
                     Assert.assertArrayEquals( srcArr, dstArr );
 
+                    Assert.assertFalse(payload.isClosed());
+                    in.close();
+                    Assert.assertFalse(payload.isClosed());
                     payload.close();
                     Assert.assertEquals( n, closed );
+                    Assert.assertTrue(payload.isClosed());
+
+                    in.close();
+                    payload.close();
                     /*
                      * Digest.
                      */

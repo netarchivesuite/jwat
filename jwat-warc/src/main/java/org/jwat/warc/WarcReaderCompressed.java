@@ -47,7 +47,7 @@ public class WarcReaderCompressed extends WarcReader {
      * using a supplied input stream for each record.
      */
     WarcReaderCompressed() {
-    	init();
+        init();
     }
 
     /**
@@ -61,7 +61,7 @@ public class WarcReaderCompressed extends WarcReader {
                     "'reader' is null");
         }
         this.reader = reader;
-    	init();
+        init();
     }
 
     /**
@@ -82,7 +82,7 @@ public class WarcReaderCompressed extends WarcReader {
         }
         this.reader = reader;
         this.bufferSize = buffer_size;
-    	init();
+        init();
     }
 
     @Override

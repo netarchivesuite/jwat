@@ -88,30 +88,121 @@ public class TestDiagnosis {
          * Diagnosis.
          */
 
+        Diagnosis d;
+        Object[] messageArgs;
+
+        try {
+            new Diagnosis(null, null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            new Diagnosis(DiagnosisType.INVALID, null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        d = new Diagnosis(DiagnosisType.UNKNOWN, "Void");
+        Assert.assertNotNull(d);
+        str = d.toString();
+        Assert.assertNotNull(str);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
+        Assert.assertEquals("Void", d.entity);
+        Assert.assertEquals(0, d.information.length);
+
+        messageArgs = d.getMessageArgs();
+        Assert.assertEquals(1, messageArgs.length);
+        Assert.assertEquals("Void", messageArgs[0]);
+
+        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me");
+        Assert.assertNotNull(d);
+        str = d.toString();
+        Assert.assertNotNull(str);
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("help", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("me", d.information[0]);
+
+        messageArgs = d.getMessageArgs();
+        Assert.assertEquals(2, messageArgs.length);
+        Assert.assertEquals("help", messageArgs[0]);
+        Assert.assertEquals("me", messageArgs[1]);
+
+        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me", "NOW!");
+        Assert.assertNotNull(d);
+        str = d.toString();
+        Assert.assertNotNull(str);
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("help", d.entity);
+        Assert.assertEquals(2, d.information.length);
+        Assert.assertEquals("me", d.information[0]);
+        Assert.assertEquals("NOW!", d.information[1]);
+
+        messageArgs = d.getMessageArgs();
+        Assert.assertEquals(3, messageArgs.length);
+        Assert.assertEquals("help", messageArgs[0]);
+        Assert.assertEquals("me", messageArgs[1]);
+        Assert.assertEquals("NOW!", messageArgs[2]);
+
         /*
-        WarcValidationError wve;
+         * Diagnostics.
+         */
 
-        try {
-            new WarcValidationError(null, null, null);
-            Assert.fail("Exception expected!");
-        } catch (IllegalArgumentException e) {
-        }
+        Diagnostics<Diagnosis> ds;
 
-        try {
-            wve = new WarcValidationError(WarcErrorType.INVALID, null, null);
-            Assert.fail("Exception expected!");
-        } catch (IllegalArgumentException e) {
-        }
+        ds = new Diagnostics<Diagnosis>();
+        Assert.assertFalse(ds.hasErrors());
+        Assert.assertFalse(ds.hasWarnings());
+        Assert.assertEquals(0, ds.getErrors().size());
+        Assert.assertEquals(0, ds.getWarnings().size());
 
-        wve = new WarcValidationError(WarcErrorType.WANTED, "help", null);
-        Assert.assertNotNull(wve);
-        str = wve.toString();
+        d = new Diagnosis(DiagnosisType.UNKNOWN, "Void");
+        Assert.assertNotNull(d);
+        ds.addError(d);
+        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me");
+        Assert.assertNotNull(d);
+        ds.addWarning(d);
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(1, ds.getErrors().size());
+        Assert.assertEquals(1, ds.getWarnings().size());
+
+        d = ds.getErrors().get(0);
+        Assert.assertNotNull(d);
+        str = d.toString();
         Assert.assertNotNull(str);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
+        Assert.assertEquals("Void", d.entity);
+        Assert.assertEquals(0, d.information.length);
 
-        wve = new WarcValidationError(WarcErrorType.WANTED, "help", "me");
-        Assert.assertNotNull(wve);
-        str = wve.toString();
+        d = ds.getWarnings().get(0);
+        Assert.assertNotNull(d);
+        str = d.toString();
         Assert.assertNotNull(str);
-        */
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("help", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("me", d.information[0]);
+
+        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me", "NOW!");
+        Assert.assertNotNull(d);
+        ds.addWarning(d);
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(1, ds.getErrors().size());
+        Assert.assertEquals(2, ds.getWarnings().size());
+
+        d = ds.getWarnings().get(1);
+        Assert.assertNotNull(d);
+        str = d.toString();
+        Assert.assertNotNull(str);
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("help", d.entity);
+        Assert.assertEquals(2, d.information.length);
+        Assert.assertEquals("me", d.information[0]);
+        Assert.assertEquals("NOW!", d.information[1]);
     }
 }

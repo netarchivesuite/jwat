@@ -33,10 +33,10 @@ public class HeaderLineReader {
     private static final int CC_CONTROL = 1;
     private static final int CC_SEPARATOR_WS = 2;
 
-	public static final int ENC_RAW = 0;
-	public static final int ENC_US_ASCII = 1;
-	public static final int ENC_ISO8859_1 = 2;
-	public static final int ENC_UTF8 = 3;
+    public static final int ENC_RAW = 0;
+    public static final int ENC_US_ASCII = 1;
+    public static final int ENC_ISO8859_1 = 2;
+    public static final int ENC_UTF8 = 3;
 
     private final UTF8 utf8 = new UTF8();
 
@@ -59,14 +59,14 @@ public class HeaderLineReader {
      * Populate table of separators.
      */
     static {
-    	for (int i=0; i<32; ++i) {
-    		if (i != '\t') {
-            	charCharacteristicsTab[i] |= CC_CONTROL;
-    		}
-    	}
-    	charCharacteristicsTab[127] |= CC_CONTROL;
+        for (int i=0; i<32; ++i) {
+            if (i != '\t') {
+                charCharacteristicsTab[i] |= CC_CONTROL;
+            }
+        }
+        charCharacteristicsTab[127] |= CC_CONTROL;
         for (int i=0; i<separatorsWs.length(); ++i) {
-        	charCharacteristicsTab[separatorsWs.charAt(i)] |= CC_SEPARATOR_WS;
+            charCharacteristicsTab[separatorsWs.charAt(i)] |= CC_SEPARATOR_WS;
         }
     }
 
@@ -98,9 +98,9 @@ public class HeaderLineReader {
         HeaderLine headerLine = null;
         int state;
         if (!bNameValue) {
-        	state = S_LINE;
+            state = S_LINE;
         } else {
-        	state = S_NAME;
+            state = S_NAME;
         }
         lineSb.setLength(0);
         nvSb.setLength(0);
@@ -119,7 +119,7 @@ public class HeaderLineReader {
                     bCr = true;
                     break;
                 case '\n':
-                	// TODO what types of encoding have we seen to far?
+                    // TODO what types of encoding have we seen to far?
                     headerLine = new HeaderLine();
                     headerLine.line = lineSb.toString();
                     if (!bCr) {
@@ -143,29 +143,29 @@ public class HeaderLineReader {
                         }
                         bValidChar = utf8.bValidChar;
                         if (!bValidChar) {
-                        	// TODO invalid UTF-8 char
+                            // TODO invalid UTF-8 char
                         }
-                    	break;
+                        break;
                     case ENC_US_ASCII:
-                		bValidChar = (c <= 127);
+                        bValidChar = (c <= 127);
                         if (!bValidChar) {
-                        	// TODO invalid US-ASCII char
+                            // TODO invalid US-ASCII char
                         }
-                    	break;
+                        break;
                     case ENC_ISO8859_1:
                     case ENC_RAW:
                     default:
-                     	bValidChar = true;
-                    	break;
+                         bValidChar = true;
+                        break;
                     }
                     if (encoding != ENC_RAW) {
-                    	if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
-                    		bValidChar = false;
-                    		// TODO invalid control char
-                    	}
+                        if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
+                            bValidChar = false;
+                            // TODO invalid control char
+                        }
                     }
                     if (bValidChar) {
-                    	lineSb.append((char) c);
+                        lineSb.append((char) c);
                     }
                     break;
                 }
@@ -179,7 +179,7 @@ public class HeaderLineReader {
                     bCr = true;
                     break;
                 case '\n':
-                	// TODO what types of encoding have we seen to far?
+                    // TODO what types of encoding have we seen to far?
                     headerLine = new HeaderLine();
                     headerLine.line = lineSb.toString();
                     if (!bCr) {
@@ -189,7 +189,7 @@ public class HeaderLineReader {
                     bLoop = false;
                     break;
                 case ':':
-                	// TODO what types of encoding have we seen to far?
+                    // TODO what types of encoding have we seen to far?
                     headerLine = new HeaderLine();
                     headerLine.name = nvSb.toString();
                     nvSb.setLength(0);
@@ -214,31 +214,31 @@ public class HeaderLineReader {
                         }
                         bValidChar = utf8.bValidChar;
                         if (!bValidChar) {
-                        	// TODO invalid UTF-8 char
+                            // TODO invalid UTF-8 char
                         }
-                    	break;
+                        break;
                     case ENC_US_ASCII:
-                		bValidChar = (c <= 127);
+                        bValidChar = (c <= 127);
                         if (!bValidChar) {
-                        	// TODO invalid US-ASCII char
+                            // TODO invalid US-ASCII char
                         }
-                    	break;
+                        break;
                     case ENC_ISO8859_1:
                     case ENC_RAW:
                     default:
-                     	bValidChar = true;
-                    	break;
+                         bValidChar = true;
+                        break;
                     }
                     if (encoding != ENC_RAW) {
-                    	if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
-                    		bValidChar = false;
-                    		// TODO invalid control char
-                    	}
+                        if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
+                            bValidChar = false;
+                            // TODO invalid control char
+                        }
                     }
                     if (bValidChar) {
-                    	lineSb.append((char) c);
+                        lineSb.append((char) c);
                         if (c < 256 && ((charCharacteristicsTab[c] & CC_SEPARATOR_WS) == CC_SEPARATOR_WS)) {
-                    		bValidChar = false;
+                            bValidChar = false;
                             // TODO invalid separator in name
                         }
                     }
@@ -261,7 +261,13 @@ public class HeaderLineReader {
                         // Missing CR.
                         bCr = false;
                     }
-                    state = S_LWS;
+                    if (bLWS) {
+                        state = S_LWS;
+                    } else {
+                        // TODO what types of encoding etc. have we seen so far
+                        headerLine.value = nvSb.toString().trim();
+                        bLoop = false;
+                    }
                     break;
                 default:
                     if (bCr) {
@@ -278,30 +284,31 @@ public class HeaderLineReader {
                         }
                         bValidChar = utf8.bValidChar;
                         if (!bValidChar) {
-                        	// TODO invalid UTF-8 char
+                            // TODO invalid UTF-8 char
                         }
-                    	break;
+                        break;
                     case ENC_US_ASCII:
-                		bValidChar = (c <= 127);
+                        bValidChar = (c <= 127);
                         if (!bValidChar) {
-                        	// TODO invalid US-ASCII char
+                            // TODO invalid US-ASCII char
                         }
-                    	break;
+                        break;
                     case ENC_ISO8859_1:
                     case ENC_RAW:
                     default:
-                     	bValidChar = true;
-                    	break;
+                         bValidChar = true;
+                        break;
                     }
                     if (encoding != ENC_RAW) {
-                    	if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
-                    		bValidChar = false;
-                    		// TODO invalid control char
-                    	}
+                        if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
+                            bValidChar = false;
+                            // TODO invalid control char
+                        }
                     }
                     if (bValidChar) {
                         switch (c) {
                         case '\"':
+                            nvSb.append((char)c);
                             state = S_QUOTED_TEXT;
                             break;
                         case '=':
@@ -316,25 +323,25 @@ public class HeaderLineReader {
                 }
                 break;
             case S_LWS:
-            	switch (c) {
+                switch (c) {
                 case -1:
                     // EOF.
-                	// TODO what types of encoding etc. have we seen so far
-                	headerLine.value = nvSb.toString().trim();
-                	bLoop = false;
-                	break;
+                    // TODO what types of encoding etc. have we seen so far
+                    headerLine.value = nvSb.toString().trim();
+                    bLoop = false;
+                    break;
                 case ' ':
                 case '\t':
-                	nvSb.append(" ");
-                	state = S_VALUE;
-                	break;
+                    nvSb.append(" ");
+                    state = S_VALUE;
+                    break;
                 default:
-                	in.unread(c);
-                	// TODO what types of encoding etc. have we seen so far
-                	headerLine.value = nvSb.toString().trim();
-                	bLoop = false;
-                	break;
-            	}
+                    in.unread(c);
+                    // TODO what types of encoding etc. have we seen so far
+                    headerLine.value = nvSb.toString().trim();
+                    bLoop = false;
+                    break;
+                }
                 break;
             case S_QUOTED_TEXT:
                 switch (c) {
@@ -343,6 +350,7 @@ public class HeaderLineReader {
                         // Misplaced CR.
                         bCr = false;
                     }
+                    nvSb.append((char)c);
                     state = S_VALUE;
                     break;
                 case '\\':
@@ -350,6 +358,7 @@ public class HeaderLineReader {
                         // Misplaced CR.
                         bCr = false;
                     }
+                    nvSb.append((char)c);
                     state = S_QUOTED_PAIR;
                     break;
                 case '\r':
@@ -360,20 +369,60 @@ public class HeaderLineReader {
                         // Missing CR.
                         bCr = false;
                     }
-                    state = S_LWS;
+                    state = S_QUOTED_LWS;
                     break;
                 default:
+                    if (bCr) {
+                        // Misplaced CR.
+                        bCr = false;
+                    }
+                    boolean bValidChar;
+                    switch (encoding) {
+                    case ENC_UTF8:
+                        c = utf8.readUtf8(c, in);
+                        if (c == -1) {
+                            // EOF.
+                            return null;
+                        }
+                        bValidChar = utf8.bValidChar;
+                        if (!bValidChar) {
+                            // TODO invalid UTF-8 char
+                        }
+                        break;
+                    case ENC_US_ASCII:
+                        bValidChar = (c <= 127);
+                        if (!bValidChar) {
+                            // TODO invalid US-ASCII char
+                        }
+                        break;
+                    case ENC_ISO8859_1:
+                    case ENC_RAW:
+                    default:
+                         bValidChar = true;
+                        break;
+                    }
+                    if (encoding != ENC_RAW) {
+                        if (c < 256 && ((charCharacteristicsTab[c] & CC_CONTROL) == CC_CONTROL)) {
+                            bValidChar = false;
+                            // TODO invalid control char
+                        }
+                    }
+                    if (bValidChar) {
+                        nvSb.append((char)c);
+                    }
                     break;
                 }
                 break;
             case S_QUOTED_PAIR:
+                nvSb.append((char)c);
+                state = S_QUOTED_TEXT;
                 break;
             case S_QUOTED_LWS:
                 if (c == ' ' || c == '\t') {
                     nvSb.append(" ");
                     state = S_QUOTED_TEXT;
                 } else {
-                    // Non LWS force end of quoted text parsing and header line.
+                    // TODO Non LWS force end of quoted text parsing and header line.
                     in.unread(c);
                     headerLine.value = nvSb.toString().trim();
                     bLoop = false;
