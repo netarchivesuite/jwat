@@ -26,7 +26,17 @@ package org.jwat.common;
  */
 public class HeaderLine {
 
-    /** Header name. */
+	/** Invalid line, for reporting the raw data read. */
+	public static final int HLT_RAW = 0;
+	/** Normal line parsed. */
+	public static final int HLT_LINE = 1;
+	/** Header line parsed. */
+	public static final int HLT_HEADERLINE = 2;
+
+	/** Type of the parsed line. */
+	public byte type = HLT_RAW;;
+
+	/** Header name. */
     public String name;
 
     /** Header value. */
@@ -34,5 +44,8 @@ public class HeaderLine {
 
     /** The raw line if no colon is present. */
     public String line;
+
+    /** The original byte stream. */
+    public byte[] raw;
 
 }

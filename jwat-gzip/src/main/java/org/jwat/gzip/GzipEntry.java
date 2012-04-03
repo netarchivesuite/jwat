@@ -19,6 +19,7 @@ package org.jwat.gzip;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.zip.DataFormatException;
 
@@ -83,12 +84,16 @@ public class GzipEntry {
     /** Input stream to read uncompressed data. */
     protected InputStream in;
 
+    /** Output stream to write compressed data. */
+    protected OutputStream out;
+
     /** GZip writer responsible for writing this entry. */
     protected GzipWriter writer;
 
     /** End of uncompressed file status. */
     protected boolean bEof = false;
 
+    /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /**
@@ -96,13 +101,20 @@ public class GzipEntry {
      * @throws IOException
      */
     public void close() throws IOException {
-        if (in != null) {
-            in.close();
-            in = null;
-        }
-        if (writer != null) {
-            writer = null;
-        }
+    	if (!bEof) {
+            bEof = true;
+            if (in != null) {
+                in.close();
+                in = null;
+            }
+            if (out != null) {
+            	out.close();
+            	out = null;
+            }
+            if (writer != null) {
+                writer = null;
+            }
+    	}
     }
 
     /**
@@ -114,8 +126,8 @@ public class GzipEntry {
     }
 
     /**
-     * Returns an input stream which must be used to read the compressed data
-     * after it has been uncompressed.
+     * Returns an input stream which must be used to read compressed data
+     * after it has been uncompressed. Null is entry is being written.
      * @return input stream to read uncompressed data
      */
     public InputStream getInputStream() {
@@ -123,7 +135,18 @@ public class GzipEntry {
     }
 
     /**
+     * Returns an output stream which can be used to compress data.
+     * Null uf the entry is being read.
+     * @return output stream to write uncompressed data
+     */
+    public OutputStream getOutputStream() {
+    	return out;
+    }
+
+    /**
      * Read from input stream and write compressed data on output stream.
+     * This method writes the compressed data read from the input stream
+     * and closes the entry. Use @see(#getOutputStream) for more control.
      * @param in input stream with uncompressed data
      * @throws IOException if an io error occurs while transferring
      */
@@ -144,12 +167,9 @@ public class GzipEntry {
         catch (DataFormatException e) {
             throw new IOException(e);
         }
-        comp_crc32 = ((int)writer.crc.getValue()) & 0xffffffff;
-        crc32 = comp_crc32;
-        comp_isize = writer.def.getBytesRead();
-        isize = comp_isize;
         writer.writeTrailer(this);
-        bEof = true;
+        // Unusable with OutputStream.
+        out = null;
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.jwat.warc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -161,6 +162,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Header-Fields.
      */
 
+    public ByteArrayOutputStream headerBytesOut = new ByteArrayOutputStream();
+
+    public byte[] headerBytes;
+
     /** List of parsed header fields. */
     protected List<HeaderLine> headerList;
 
@@ -190,6 +195,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
     public Digest computedPayloadDigest;
 
     /**
+     * Non public constructor to allow unit testing.
+     */
+    protected WarcRecord() {
+    }
+
+    /**
      * Given an <code>InputStream</code> it tries to read and validate a WARC
      * header block.
      * @param in <code>InputStream</code> containing WARC record data
@@ -212,6 +223,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
             wr.parseFields(in);
             wr.checkFields();
+
+            wr.headerBytes = wr.headerBytesOut.toByteArray();
 
             /*
              * Payload processing.
@@ -717,6 +730,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 major = versionArr[0];
                                 minor = versionArr[1];
                             }
+                            // TODO valid version
+                            headerBytesOut.write(line.raw);
                             bSeekMagic = false;
                         } else {
                             // Invalid data aka Gibberish.
@@ -757,6 +772,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         while (bFields) {
             headerLine = reader.headerLineReader.readLine(in);
             if (headerLine != null) {
+                headerBytesOut.write(headerLine.raw);
                 // An empty line means the name/value pair was used.
                 if (headerLine.line == null) {
                     if (headerLine.name != null && headerLine.name.length() > 0) {

@@ -34,29 +34,31 @@ import java.util.Map.Entry;
 public class ContentType {
 
     /** Beginning state. */
-    public static final int S_START = 0;
+	protected static final int S_START = 0;
     /** Parsing content-type state. */
-    public static final int S_CONTENTTYPE = 1;
+	protected static final int S_CONTENTTYPE = 1;
     /** Parsing media-type state. */
-    public static final int S_MEDIATYPE = 2;
+	protected static final int S_MEDIATYPE = 2;
     /** Lenient parsing of trailing whitespace after media-type state. */
-    public static final int S_MEDIATYPE_WHITESPACE = 3;
+	protected static final int S_MEDIATYPE_WHITESPACE = 3;
     /** Parsing after a ';' character state. */
-    public static final int S_SEMICOLON = 4;
+	protected static final int S_SEMICOLON = 4;
     /** Parsing the parameter name state. */
-    public static final int S_PARAM_NAME = 5;
+	protected static final int S_PARAM_NAME = 5;
     /** Parsing after a '=' character state. */
-    public static final int S_PARAM_EQ = 6;
+	protected static final int S_PARAM_EQ = 6;
     /** Parsing a parameter value token state. */
-    public static final int S_PARAM_VALUE = 7;
+	protected static final int S_PARAM_VALUE = 7;
     /** Parsing a quote parameter value state. */
-    public static final int S_PARAM_QUOTED_VALUE = 8;
+	protected static final int S_PARAM_QUOTED_VALUE = 8;
     /** Parsing a quoted pair character state. */
-    public static final int S_PARAM_QUOTED_PAIR = 9;
+	protected static final int S_PARAM_QUOTED_PAIR = 9;
     /** Lenient parsing of trailing whitespace after argument value state. */
-    public static final int S_PARAM_VALUE_WHITESPACE = 10;
+	protected static final int S_PARAM_VALUE_WHITESPACE = 10;
 
+    /** Control character characteristic. */
     protected static final int CC_CONTROL = 1;
+    /** Separator character characteristic. */
     protected static final int CC_SEPARATOR_WS = 2;
 
     /** Parsed Content-type. */

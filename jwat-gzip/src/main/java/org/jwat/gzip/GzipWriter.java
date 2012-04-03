@@ -21,6 +21,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
@@ -113,7 +114,10 @@ public class GzipWriter {
             gzipEntry.close();
             gzipEntry = null;
         }
-        out = null;
+        if (out != null) {
+            out.flush();
+            out = null;
+        }
         if (def != null) {
             def.end();
             def = null;
@@ -151,6 +155,10 @@ public class GzipWriter {
      * @throws IOException if an io error occurs while writing header
      */
     public void writeEntryHeader(GzipEntry entry) throws IOException {
+        if (gzipEntry != null) {
+            gzipEntry.close();
+            gzipEntry = null;
+        }
         if (entry == null) {
             throw new IllegalArgumentException("entry is null!");
         }
@@ -287,14 +295,19 @@ public class GzipWriter {
         entry.isize = 0;
         entry.writer = this;
         entry.bEof = false;
+        entry.out = new GzipEntryOutputStream(this, gzipEntry);
     }
 
     /**
-     * Write the GZip entry trailer.
+     * Computes the CRC32 and iSize values and Writes the GZip entry trailer.
      * @param entry GZip entry object
      * @throws IOException if an io error occurs while writing trailer
      */
     protected void writeTrailer(GzipEntry entry) throws IOException {
+        entry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
+        entry.crc32 = entry.comp_crc32;
+        entry.comp_isize = def.getBytesRead();
+        entry.isize = entry.comp_isize;
         trailerBytes[0] = (byte)(entry.crc32 & 255);
         trailerBytes[1] = (byte)((entry.crc32 >> 8) & 255);
         trailerBytes[2] = (byte)((entry.crc32 >> 16) & 255);
@@ -308,8 +321,8 @@ public class GzipWriter {
     }
 
     /**
-     *
-     * @param in uncompressed data input stream
+     * Read data from input stream and fill buffer with compressed data.
+     * @param in input stream with uncompressed data
      * @param b compressed data buffer
      * @param off offset in compressed data buffer
      * @param len length of compressed data to read
@@ -335,6 +348,157 @@ public class GzipWriter {
             }
         }
         return deflated;
+    }
+
+    /**
+     * Read data from <code>ByteBuffer</code> and fill buffer with compressed
+     * data.
+     * @param bb <code>ByteBuffer</code> with uncompressed data
+     * @param b compressed data buffer
+     * @param off offset in compressed data buffer
+     * @param len length of compressed data to read
+     * @param bFinish boolean indicating that there is no more data to compress
+     * @return number of compressed bytes read
+     * @throws DataFormatException if an error occurs in deflater
+     * @throws IOException if an error occurs while compressing
+     */
+    protected int readCompressed(ByteBuffer bb, byte[] b, int off, int len, boolean bFinish) throws DataFormatException, IOException {
+    	int deflated = 0;
+    	while ((deflated = def.deflate(b, off, len)) == 0) {
+    		if (def.finished()) {
+    			return -1;
+    		} else if (def.needsInput()) {
+    			int lastInput = bb.remaining();
+    			if (lastInput > 0) {
+    				bb.get(inputBytes, 0, lastInput);
+    				def.setInput(inputBytes, 0, lastInput);
+    				crc.update(inputBytes, 0, lastInput);
+    			} else {
+    				if (bFinish) {
+    					def.finish();
+    				} else {
+    					// Deflater needs more input.
+    					return 0;
+    				}
+    			}
+    		} else {
+                throw new DataFormatException("Deflater malfunction!");
+    		}
+    	}
+    	return deflated;
+    }
+
+    /**
+     * <code>OutputStream</code> to GZip compress data in a controlled fashion.
+     *
+     * @author nicl
+     */
+    protected static class GzipEntryOutputStream extends OutputStream {
+
+        /** GZip reader used to inflate. */
+        GzipWriter writer;
+
+        /** Associated GZip entry. */
+        GzipEntry gzipEntry;
+
+        /** End of compressed file status. */
+        boolean bEof = false;
+
+        /** Small buffer used by the read() method. */
+        byte[] singleByteArray = new byte[1];
+
+        /** Buffer for feeding the deflater. */
+    	ByteBuffer bb = ByteBuffer.allocate(1024);
+
+    	/** Buffer used for compressed data. */
+    	byte[] compressedBytes = new byte[1024];
+
+    	/**
+         * Construct ouput stream bound to a specific reader and entry.
+         * @param reader GZip reader
+         * @param gzipEntry GZip entry
+         */
+        public GzipEntryOutputStream(GzipWriter writer,
+                                    GzipEntry gzipEntry) {
+            this.writer = writer;
+            this.gzipEntry = gzipEntry;
+        }
+
+    	@Override
+		public void close() throws IOException {
+    		if (!bEof) {
+                bEof = true;
+        		try {
+            		int deflated = 0;
+    	    		while (deflated != -1) {
+    					bb.flip();
+    					deflated = writer.readCompressed(bb, compressedBytes, 0, compressedBytes.length, true);
+    					bb.compact();
+    					if (deflated > 0) {
+    						writer.out.write(compressedBytes, 0, deflated);
+    					}
+    	            }
+    	    		writer.writeTrailer(gzipEntry);
+        		} catch (DataFormatException e) {
+    				throw new IOException("Deflater malfunction!", e);
+    			} finally {
+                    writer = null;
+                    gzipEntry = null;
+                    singleByteArray = null;
+    			}
+    		}
+		}
+
+		@Override
+		public void flush() throws IOException {
+			/*
+			if (bb.remaining() < bb.limit()) {
+				try {
+					int compressed = writer.readCompressed(bb, compressedBytes, 0, compressedBytes.length, false);
+					if (compressed > 0) {
+						writer.out.write(compressedBytes, 0, compressed);
+					}
+				} catch (DataFormatException e) {
+					throw new IOException("Deflater malfunction!", e);
+				}
+			}
+			*/
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			singleByteArray[0] = (byte)b;
+			write(singleByteArray, 0, 1);
+		}
+
+		@Override
+		public void write(byte[] b) throws IOException {
+			write(b, 0, b.length);
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			int pLen;
+			try {
+				while (off < len) {
+					if (bb.remaining() > 0) {
+						pLen = Math.min(bb.remaining(), len - off);
+						bb.put(b, off, pLen);
+						off += pLen;
+					} else {
+						bb.flip();
+						int compressed = writer.readCompressed(bb, compressedBytes, 0, compressedBytes.length, false);
+	    				bb.compact();
+						if (compressed > 0) {
+							writer.out.write(compressedBytes, 0, compressed);
+						}
+					}
+				}
+			} catch (DataFormatException e) {
+				throw new IOException("Deflater malfunction!", e);
+			}
+		}
+
     }
 
 }

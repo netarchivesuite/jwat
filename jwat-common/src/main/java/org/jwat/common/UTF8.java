@@ -17,6 +17,7 @@
  */
 package org.jwat.common;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,6 +42,8 @@ public class UTF8 {
     /** Complete or partial UTF-8 character, depending on conversion errors. */
     public int utf8_c;
 
+    public byte[] chars;
+
     /** UTF-8 validity status on last read character. */
     public boolean bValidChar = false;
 
@@ -56,7 +59,8 @@ public class UTF8 {
      * @throws IOException if an io error occurs while reading
      */
     public int readUtf8(int c, InputStream in) throws IOException {
-        byte utf8_read;
+    	ByteArrayOutputStream charsOut = new ByteArrayOutputStream(4);
+    	byte utf8_read;
         byte utf8_octets;
         utf8_c = 0;
         bValidChar = false;
@@ -92,13 +96,17 @@ public class UTF8 {
                 if (c == -1) {
                     // EOF.
                     bValidChar = false;
+                    chars = charsOut.toByteArray();
                     return -1;
-                } else if ((c & 0xC0) == 0x80) {
-                    utf8_c = (utf8_c << 6) | (c & 0x3F);
-                    ++utf8_read;
                 } else {
-                    // Invalid UTF-8 octet.
-                    bValidChar = false;
+                    charsOut.write(c);
+                    if ((c & 0xC0) == 0x80) {
+                        utf8_c = (utf8_c << 6) | (c & 0x3F);
+                        ++utf8_read;
+                    } else {
+                        // Invalid UTF-8 octet.
+                        bValidChar = false;
+                    }
                 }
             }
             // Correctly encoded.
@@ -126,6 +134,7 @@ public class UTF8 {
             }
             c = utf8_c;
         }
+        chars = charsOut.toByteArray();
         return c;
     }
 

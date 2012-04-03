@@ -37,7 +37,7 @@ import org.jwat.common.RandomAccessFileOutputStream;
 public class TestGzipWriterCloning {
 
     @Test
-    public void test_gzip_writer_cloning() {
+    public void test_gzipwriter_cloning() {
         InputStream in;
         ByteCountingPushBackInputStream pbin;
         GzipReader reader;
@@ -49,8 +49,8 @@ public class TestGzipWriterCloning {
         RandomAccessFileOutputStream out;
 
         try {
-            File out_file1 = File.createTempFile("jwat-testwrite2-", ".gz");
-            File out_file2 = File.createTempFile("jwat-testwrite3-", ".gz");
+            File out_file1 = File.createTempFile("jwat-testwrite3-", ".gz");
+            File out_file2 = File.createTempFile("jwat-testwrite4-", ".gz");
             out_file1.deleteOnExit();
             out_file2.deleteOnExit();
 

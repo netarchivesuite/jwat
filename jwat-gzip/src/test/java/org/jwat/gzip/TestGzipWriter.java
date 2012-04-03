@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 import org.junit.Assert;
@@ -33,13 +34,14 @@ import org.jwat.common.RandomAccessFileOutputStream;
 public class TestGzipWriter {
 
     @Test
-    public void test_gzip_writer() {
+    public void test_gzipwriter_file_compress() {
         String in_file = "IAH-20080430204825-00000-blackbook.warc";
 
         RandomAccessFile raf;
         RandomAccessFileOutputStream out;
         InputStream in;
 
+        GzipWriter writer;
         GzipEntry entry = new GzipEntry();
         entry.magic = GzipConstants.GZIP_MAGIC;
         entry.cm = GzipConstants.CM_DEFLATE;
@@ -49,15 +51,18 @@ public class TestGzipWriter {
         entry.os = GzipConstants.OS_AMIGA;
 
         try {
-            File out_file = File.createTempFile("jwat-testwrite", ".gz");
-            out_file.deleteOnExit();
+        	/*
+        	 * writeFrom().
+        	 */
+            File out_file1 = File.createTempFile("jwat-testwrite1-", ".gz");
+            //out_file1.deleteOnExit();
 
-            raf = new RandomAccessFile(out_file, "rw");
+            raf = new RandomAccessFile(out_file1, "rw");
             raf.seek(0);
             raf.setLength(0);
             out = new RandomAccessFileOutputStream(raf);
 
-            GzipWriter writer = new GzipWriter(out);
+            writer = new GzipWriter(out);
             writer.writeEntryHeader(entry);
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
@@ -74,6 +79,43 @@ public class TestGzipWriter {
             out.flush();
             out.close();
             raf.close();
+
+            //System.out.println(out_file1.length());
+            /*
+             * GzipEntryOutputStream.
+             */
+            File out_file2 = File.createTempFile("jwat-testwrite2-", ".gz");
+            //out_file2.deleteOnExit();
+
+            raf = new RandomAccessFile(out_file2, "rw");
+            raf.seek(0);
+            raf.setLength(0);
+            out = new RandomAccessFileOutputStream(raf);
+
+            writer = new GzipWriter(out);
+            writer.writeEntryHeader(entry);
+            OutputStream cout = entry.getOutputStream();
+
+            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            byte[] buffer = new byte[16384];
+            int read;
+            while ((read = in.read(buffer, 0, 16384)) != -1) {
+            	cout.write(buffer, 0, read);
+            }
+            cout.close();
+            in.close();
+
+            Assert.assertFalse(entry.diagnostics.hasErrors());
+            Assert.assertFalse(entry.diagnostics.hasWarnings());
+
+            writer.close();
+            writer.close();
+
+            out.flush();
+            out.close();
+            raf.close();
+
+            //System.out.println(out_file2.length());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
