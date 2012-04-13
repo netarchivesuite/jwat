@@ -79,6 +79,9 @@ public class TestBase16 {
         }
         */
 
+        Base16 b16 = new Base16();
+        Assert.assertNotNull(b16);
+
         base16a = Base16.encodeArray( null );
         Assert.assertNull( base16a );
         base16a = Base16.encodeArray( new byte[ 0 ] );

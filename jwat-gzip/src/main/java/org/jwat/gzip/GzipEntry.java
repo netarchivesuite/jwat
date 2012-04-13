@@ -101,20 +101,20 @@ public class GzipEntry {
      * @throws IOException
      */
     public void close() throws IOException {
-    	if (!bEof) {
+        if (!bEof) {
             bEof = true;
             if (in != null) {
                 in.close();
                 in = null;
             }
             if (out != null) {
-            	out.close();
-            	out = null;
+                out.close();
+                out = null;
             }
             if (writer != null) {
                 writer = null;
             }
-    	}
+        }
     }
 
     /**
@@ -140,7 +140,7 @@ public class GzipEntry {
      * @return output stream to write uncompressed data
      */
     public OutputStream getOutputStream() {
-    	return out;
+        return out;
     }
 
     /**

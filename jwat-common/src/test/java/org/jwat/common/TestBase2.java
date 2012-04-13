@@ -75,6 +75,9 @@ public class TestBase2 {
         }
         */
 
+        Base2 b2 = new Base2();
+        Assert.assertNotNull(b2);
+
         base2a = Base2.encodeArray( null );
         Assert.assertNull( base2a );
         base2a = Base2.encodeArray( new byte[ 0 ] );

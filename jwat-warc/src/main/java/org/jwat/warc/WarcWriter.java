@@ -29,10 +29,10 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
-	/** WARC magic header byte array. */
+    /** WARC magic header byte array. */
     protected byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + "1.0\r\n").getBytes();
 
-	/** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
+    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat = WarcDateParser.getWarcDateFormat();
 
     protected byte[] endMark = "\r\n\r\n".getBytes();
@@ -80,7 +80,7 @@ public abstract class WarcWriter {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
         }
-    	out.write(header_bytes);
+        out.write(header_bytes);
     }
 
     /**
@@ -90,7 +90,7 @@ public abstract class WarcWriter {
      */
     public abstract void writeHeader(WarcRecord record) throws IOException;
 
-   	/**
+    /**
      * Write a WARC header to the WARC output stream.
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data

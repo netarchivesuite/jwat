@@ -61,7 +61,7 @@ public class TestPayload implements PayloadOnClosedHandler {
     public int closed = 0;
 
     @Test
-    public void test_payload() {
+    public void test_payload_reading() {
         SecureRandom random = new SecureRandom();
 
         byte[] srcArr = new byte[ 0 ];
@@ -181,6 +181,10 @@ public class TestPayload implements PayloadOnClosedHandler {
 
                     in.close();
                     payload.close();
+
+                    // Only possible in test, because of access to protected fields.
+                    payload.bClosed = false;
+                    payload.close();
                     /*
                      * Digest.
                      */
@@ -207,6 +211,119 @@ public class TestPayload implements PayloadOnClosedHandler {
     @Override
     public void payloadClosed() throws IOException {
         ++closed;
+    }
+
+    @Test
+    public void test_payload_close_skip() {
+        SecureRandom random = new SecureRandom();
+
+        byte[] srcArr = new byte[ 0 ];
+        //ByteArrayOutputStream out = new ByteArrayOutputStream();
+        //byte[] dstArr;
+
+        Payload payload;
+
+        //InputStream in;
+        //long remaining;
+        //byte[] tmpBuf = new byte[ 256 ];
+        //int read;
+
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance( "SHA1" );
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        for ( int r=0; r<runs; ++r) {
+            closed = 0;
+            for ( int n=min; n<max; ++n ) {
+                srcArr = new byte[ n ];
+                random.nextBytes( srcArr );
+
+                //out.reset();
+
+                try {
+                    /*
+                     * Payload.
+                     */
+                    payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), srcArr.length, 16, digestAlgorithm );
+                    Assert.assertNull(payload.onClosedHandler);
+                    payload.setOnClosedHandler( this );
+                    Assert.assertEquals(this, payload.onClosedHandler);
+                    payload.setOnClosedHandler( null );
+                    Assert.assertNull(payload.onClosedHandler);
+                    payload.setOnClosedHandler( this );
+                    Assert.assertEquals(this, payload.onClosedHandler);
+
+                    Assert.assertNull( payload.getHttpResponse() );
+                    payload.setHttpResponse( null );
+                    Assert.assertNull( payload.getHttpResponse() );
+
+                    //in = payload.getInputStream();
+                    Assert.assertEquals( payload.getInputStreamComplete(), payload.getInputStream() );
+                    Assert.assertEquals( srcArr.length, payload.getTotalLength() );
+                    Assert.assertEquals( 16, payload.getPushbackSize() );
+
+                    /*
+                    remaining = payload.getTotalLength();
+                    read = 0;
+                    while ( remaining > 0 && read != -1 ) {
+                        out.write(tmpBuf, 0, read);
+                        remaining -= read;
+
+                        // This wont work with buffered streams...
+                        //Assert.assertEquals( remaining, payload.getUnavailable() );
+                        //Assert.assertEquals( remaining, payload.getRemaining() );
+
+                        read = random.nextInt( 15 ) + 1;
+                        read = in.read(tmpBuf, 0, read);
+                    }
+                    Assert.assertEquals( 0, remaining );
+                    */
+
+                    Assert.assertFalse(payload.isClosed());
+                    //in.close();
+                    Assert.assertFalse(payload.isClosed());
+                    payload.close();
+                    Assert.assertEquals( n, closed );
+                    Assert.assertTrue(payload.isClosed());
+
+                    Assert.assertEquals( 0, payload.getUnavailable() );
+                    // Stream closed exception.
+                    //Assert.assertEquals( 0, payload.getRemaining() );
+
+                    //dstArr = out.toByteArray();
+                    //Assert.assertEquals( srcArr.length, dstArr.length );
+                    //Assert.assertArrayEquals( srcArr, dstArr );
+
+                    //in.close();
+                    payload.close();
+
+                    // Only possible in test, because of access to protected fields.
+                    payload.bClosed = false;
+                    payload.close();
+                    /*
+                     * Digest.
+                     */
+                    if ( digestAlgorithm != null ) {
+                        Assert.assertNotNull( payload.getMessageDigest() );
+
+                        byte[] digest1 = payload.getMessageDigest().digest();
+
+                        md.reset();
+                        byte[] digest2 = md.digest( srcArr );
+
+                        Assert.assertArrayEquals( digest1, digest2 );
+                    } else {
+                        Assert.assertNull( payload.getMessageDigest() );
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Assert.fail( "Exception not expected!" );
+                }
+            }
+        }
     }
 
 }

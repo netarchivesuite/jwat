@@ -75,12 +75,21 @@ public class TestRandomAccessFileStreams {
                 testRandomWrites();
                 testSequentialReads();
                 testRandomReads();
+
+                RandomAccessFileInputStream fis = new RandomAccessFileInputStream(ram);
+                ram.setLength(0);
+                fis.mark(16);
+                ram.close();
+                try {
+                    fis.mark(16);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
-
     }
 
     /*

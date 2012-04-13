@@ -61,7 +61,7 @@ public final class IPAddressParser {
     /**
      * No constructor for this utility class, static access only.
      */
-    private IPAddressParser() {
+    protected IPAddressParser() {
     }
 
 }

@@ -58,7 +58,7 @@ public class WarcWriterCompressed extends WarcWriter {
                     "The 'buffer_size' parameter is less than or equal to zero!");
         }
         writer = new GzipWriter(new BufferedOutputStream(out, buffer_size));
-        
+
     }
 
     @Override
@@ -78,9 +78,9 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public void writeHeader(byte[] header_bytes) throws IOException {
-    	if (entry != null) {
-    		closeRecord();
-    	}
+        if (entry != null) {
+            closeRecord();
+        }
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
@@ -99,9 +99,9 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public void writeHeader(WarcRecord record) throws IOException {
-    	if (entry != null) {
-    		closeRecord();
-    	}
+        if (entry != null) {
+            closeRecord();
+        }
         if (record == null) {
             throw new IllegalArgumentException(
                     "The 'record' parameter is null!");
@@ -120,22 +120,22 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public long transferPayload(InputStream in, long length) throws IOException {
-    	if (entry == null) {
-    		throw new IllegalStateException();
-    	}
-    	ByteCountingInputStream bcin = new ByteCountingInputStream(in);
-    	entry.writeFrom(bcin);
-    	//bcin.close();
-    	return bcin.getConsumed();
+        if (entry == null) {
+            throw new IllegalStateException();
+        }
+        ByteCountingInputStream bcin = new ByteCountingInputStream(in);
+        entry.writeFrom(bcin);
+        //bcin.close();
+        return bcin.getConsumed();
     }
 
     @Override
     public void closeRecord() throws IOException {
-    	if (entry != null) {
-    		out.write(endMark);
-    		entry.close();
-    		entry = null;
-    	}
+        if (entry != null) {
+            out.write(endMark);
+            entry.close();
+            entry = null;
+        }
     }
 
 }

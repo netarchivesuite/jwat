@@ -59,8 +59,8 @@ public class UTF8 {
      * @throws IOException if an io error occurs while reading
      */
     public int readUtf8(int c, InputStream in) throws IOException {
-    	ByteArrayOutputStream charsOut = new ByteArrayOutputStream(4);
-    	byte utf8_read;
+        ByteArrayOutputStream charsOut = new ByteArrayOutputStream(4);
+        byte utf8_read;
         byte utf8_octets;
         utf8_c = 0;
         bValidChar = false;

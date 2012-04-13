@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestMaxLengthRecordInputStream {
+public class TestMaxLengthRecordingInputStream {
 
     private int min;
     private int max;
@@ -44,7 +44,7 @@ public class TestMaxLengthRecordInputStream {
         });
     }
 
-    public TestMaxLengthRecordInputStream(int min, int max, int runs) {
+    public TestMaxLengthRecordingInputStream(int min, int max, int runs) {
         this.min = min;
         this.max = max;
         this.runs = runs;

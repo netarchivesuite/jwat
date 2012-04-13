@@ -32,17 +32,17 @@ import java.nio.charset.UnsupportedCharsetException;
 
 public class EncodedWords {
 
-	protected static final int S_START_EQ_ = 0;
-	protected static final int S_START_QM = 1;
-	protected static final int S_CHARSET = 2;
-	protected static final int S_ENCODING = 3;
-	protected static final int S_ENCODED_WORDS = 4;
-	protected static final int S_END_EQ = 5;
+    protected static final int S_START_EQ_ = 0;
+    protected static final int S_START_QM = 1;
+    protected static final int S_CHARSET = 2;
+    protected static final int S_ENCODING = 3;
+    protected static final int S_ENCODED_WORDS = 4;
+    protected static final int S_END_EQ = 5;
 
-	public static final int ENC_BASE64 = 1;
-	public static final int ENC_QUOTEDPRINTABLE = 2;
+    public static final int ENC_BASE64 = 1;
+    public static final int ENC_QUOTEDPRINTABLE = 2;
 
-	/** Control character characteristic. */
+    /** Control character characteristic. */
     protected static final int CC_CONTROL = 1;
     /** Separator character characteristic. */
     protected static final int CC_SEPARATOR_WS = 2;
@@ -73,176 +73,178 @@ public class EncodedWords {
 
     public String encodingStr;
 
-	public String encoded_text;
+    public String encoded_text;
 
-	public boolean bConversionError;
+    public boolean bConversionError;
 
-	public String decoded_text;
+    public String decoded_text;
 
-	public byte[] line;
+    public byte[] line;
 
-	public boolean bIsValid = false;
+    public boolean bIsValid = false;
 
-	public static EncodedWords parseEncodedWords(InputStream in, boolean bParseEqQm) throws IOException {
-		EncodedWords ew = new EncodedWords();
-		ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
-		StringBuffer sb = new StringBuffer();
-		Charset charset = null;
-		int state;
-		if (bParseEqQm) {
-			state = S_START_EQ_;
-		} else {
-			state = S_CHARSET;
-		}
+    public static EncodedWords parseEncodedWords(InputStream in, boolean bParseEqQm) throws IOException {
+        EncodedWords ew = new EncodedWords();
+        ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
+        StringBuffer sb = new StringBuffer();
+        Charset charset = null;
+        int state;
+        if (bParseEqQm) {
+            state = S_START_EQ_;
+        } else {
+            state = S_CHARSET;
+        }
         int c;
         boolean bLoop = true;
         while (bLoop) {
             c = in.read();
             if (c != -1) {
-        		lineOut.write(c);
+                lineOut.write(c);
             }
             switch (state) {
             case S_START_EQ_:
-            	if (c == '=') {
-            		state = S_START_QM;
-            	} else {
-            		// -1 etc.
-            		bLoop = false;
-            	}
-            	break;
+                if (c == '=') {
+                    state = S_START_QM;
+                } else {
+                    // -1 etc.
+                    bLoop = false;
+                }
+                break;
             case S_START_QM:
-            	if (c == '?') {
-            		state = S_CHARSET;
-            	} else {
-            		// -1 etc.
-            		bLoop = false;
-            	}
-            	break;
+                if (c == '?') {
+                    state = S_CHARSET;
+                } else {
+                    // -1 etc.
+                    bLoop = false;
+                }
+                break;
             case S_CHARSET:
-            	switch (c) {
-            	case -1:
-            	case '\r':
-            	case '\n':
-            		bLoop = false;
-            		break;
-            	case '?':
-        			ew.charsetStr = sb.toString().toUpperCase();
-        			sb.setLength(0);
-            		if (ew.charsetStr.length() > 0) {
-        				try {
-                			charset = Charset.forName(ew.charsetStr);
-                			ew.bValidCharset = true;
-        				} catch (IllegalCharsetNameException e) {
-        				} catch (UnsupportedCharsetException e) {
-        				}
-                		state = S_ENCODING;
-            		} else {
-            			bLoop = false;
-            		}
-            		break;
-            	default:
-            		if (charCharacteristicsTab[c] == 0 && c < 127) {
-            			sb.append((char) c);
-            		} else {
-            			bLoop = false;
-            		}
-            		break;
-            	}
-            	break;
+                switch (c) {
+                case -1:
+                case '\r':
+                case '\n':
+                    bLoop = false;
+                    break;
+                case '?':
+                    ew.charsetStr = sb.toString().toUpperCase();
+                    sb.setLength(0);
+                    if (ew.charsetStr.length() > 0) {
+                        try {
+                            charset = Charset.forName(ew.charsetStr);
+                            ew.bValidCharset = true;
+                        } catch (IllegalCharsetNameException e) {
+                        } catch (UnsupportedCharsetException e) {
+                        }
+                        state = S_ENCODING;
+                    } else {
+                        bLoop = false;
+                    }
+                    break;
+                default:
+                    if (charCharacteristicsTab[c] == 0 && c < 127) {
+                        sb.append((char) c);
+                    } else {
+                        bLoop = false;
+                    }
+                    break;
+                }
+                break;
             case S_ENCODING:
-            	switch (c) {
-            	case -1:
-            	case '\r':
-            	case '\n':
-            		bLoop = false;
-            		break;
-            	case '?':
-        			ew.encodingStr = sb.toString().toUpperCase();
-        			sb.setLength(0);
-            		if (ew.encodingStr.length() > 0) {
-        				if ("b".equalsIgnoreCase(ew.encodingStr)) {
-        					ew.encoding = ENC_BASE64;
-        				} else if ("q".equalsIgnoreCase(ew.encodingStr)) {
-        					ew.encoding = ENC_QUOTEDPRINTABLE;
-        				}
-                		state = S_ENCODED_WORDS;
-            		} else {
-            			bLoop = false;
-            		}
-            		break;
-            	default:
-            		if (charCharacteristicsTab[c] == 0 && c < 127) {
-            			sb.append((char) c);
-            		} else {
-            			bLoop = false;
-            		}
-            		break;
-            	}
-            	break;
+                switch (c) {
+                case -1:
+                case '\r':
+                case '\n':
+                    bLoop = false;
+                    break;
+                case '?':
+                    ew.encodingStr = sb.toString().toUpperCase();
+                    sb.setLength(0);
+                    if (ew.encodingStr.length() > 0) {
+                        if ("b".equalsIgnoreCase(ew.encodingStr)) {
+                            ew.encoding = ENC_BASE64;
+                        } else if ("q".equalsIgnoreCase(ew.encodingStr)) {
+                            ew.encoding = ENC_QUOTEDPRINTABLE;
+                        }
+                        state = S_ENCODED_WORDS;
+                    } else {
+                        bLoop = false;
+                    }
+                    break;
+                default:
+                    if (charCharacteristicsTab[c] == 0 && c < 127) {
+                        sb.append((char) c);
+                    } else {
+                        bLoop = false;
+                    }
+                    break;
+                }
+                break;
             case S_ENCODED_WORDS:
-            	switch (c) {
-            	case -1:
-            	case '\r':
-            	case '\n':
-            		bLoop = false;
-            		break;
-            	case '?':
-            		ew.encoded_text = sb.toString();
-            		sb.setLength(0);
-        			byte[] decoded = null;
-            		if (ew.encoding == ENC_BASE64) {
-            			decoded = Base64.decodeToArray(ew.encoded_text);
-            		} else if (ew.encoding == ENC_QUOTEDPRINTABLE) {
-            			decoded = QuotedPrintable.decode(ew.encoded_text);
-            		}
-            		if (decoded != null) {
-            			ByteBuffer bb = ByteBuffer.wrap(decoded);
-            			CharBuffer cb = CharBuffer.allocate(bb.capacity());
-            			CharsetDecoder decoder = charset.newDecoder();
-            	        decoder.onMalformedInput(CodingErrorAction.REPORT);   
-            	        decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-            	        try {
-            	        	boolean bDecodeLoop = true;
-            	        	while (bDecodeLoop) {
-                    	        CoderResult result = decoder.decode(bb, cb, true);
-                	        	sb.append(cb.array(), cb.arrayOffset(), cb.position());
-                	        	cb.clear();
-                    	        if (result == CoderResult.UNDERFLOW) {
-                   	        		bDecodeLoop = false;
-                    	        } else if (result.isError()) {
-                    	        	bb.position(Math.min(bb.position() + result.length(), bb.limit()));
-                    	        	sb.append('?');
-                    	        	ew.bConversionError = true;
-                    	        }
-            	        	}
-            	        } catch (CoderMalfunctionError e) {
-            	        }
-            	        ew.decoded_text = sb.toString();
-            		}
-            		state = S_END_EQ;
-            		break;
-            	default:
-            		if (c > 32 && c < 127) {
-            			sb.append((char) c);
-            		} else {
-            			bLoop = false;
-            		}
-            		break;
-            	}
-            	break;
+                switch (c) {
+                case -1:
+                case '\r':
+                case '\n':
+                    bLoop = false;
+                    break;
+                case '?':
+                    ew.encoded_text = sb.toString();
+                    sb.setLength(0);
+                    byte[] decoded = null;
+                    if (ew.encoding == ENC_BASE64) {
+                        decoded = Base64.decodeToArray(ew.encoded_text, true);
+                    } else if (ew.encoding == ENC_QUOTEDPRINTABLE) {
+                        decoded = QuotedPrintable.decode(ew.encoded_text);
+                    } else {
+                        System.out.println("Encoding: " + ew.encodingStr);
+                    }
+                    if (decoded != null) {
+                        ByteBuffer bb = ByteBuffer.wrap(decoded);
+                        CharBuffer cb = CharBuffer.allocate(bb.capacity());
+                        CharsetDecoder decoder = charset.newDecoder();
+                        decoder.onMalformedInput(CodingErrorAction.REPORT);
+                        decoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+                        try {
+                            boolean bDecodeLoop = true;
+                            while (bDecodeLoop) {
+                                CoderResult result = decoder.decode(bb, cb, true);
+                                sb.append(cb.array(), cb.arrayOffset(), cb.position());
+                                cb.clear();
+                                if (result == CoderResult.UNDERFLOW) {
+                                       bDecodeLoop = false;
+                                } else if (result.isError()) {
+                                    bb.position(Math.min(bb.position() + result.length(), bb.limit()));
+                                    sb.append('?');
+                                    ew.bConversionError = true;
+                                }
+                            }
+                        } catch (CoderMalfunctionError e) {
+                        }
+                        ew.decoded_text = sb.toString();
+                    }
+                    state = S_END_EQ;
+                    break;
+                default:
+                    if (c > 32 && c < 127) {
+                        sb.append((char) c);
+                    } else {
+                        bLoop = false;
+                    }
+                    break;
+                }
+                break;
             case S_END_EQ:
-            	if (c == -1) {
-            		bLoop = false;
-            	} else if (c == '=') {
-            		ew.bIsValid = true;
-            		bLoop = false;
-            	}
-            	break;
+                if (c == -1) {
+                    bLoop = false;
+                } else if (c == '=') {
+                    ew.bIsValid = true;
+                    bLoop = false;
+                }
+                break;
             }
         }
         ew.line = lineOut.toByteArray();
         ew.bIsValid = ew.bIsValid & ew.bValidCharset & ew.encoding != 0 && ew.decoded_text != null;
-		return ew;
-	}
+        return ew;
+    }
 
 }

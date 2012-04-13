@@ -37,274 +37,147 @@ public class TestContentType {
 
     @Test
     public void test_contenttype() throws IOException {
+        Object[][] cases;
         ContentType ct;
         String value;
         String str;
 
-        ct = ContentType.parseContentType(null);
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" ");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  ");
-        Assert.assertNull(ct);
-
-        ct = ContentType.parseContentType("text");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" text");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" text;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text/");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" text/");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/  ");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/\t");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text/;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" text/;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  -");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text-");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/:");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/:;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("  text/plain ;");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType(" text/plain a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("   text/plain   a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text/plain;a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text/plain; a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("text/plain;  a");
-        Assert.assertNull(ct);
-
         /*
-         * Content-type/Media-type.
+         * Test invalid Content-type/Media-type.
          */
 
-        ct = ContentType.parseContentType("text/plain");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        value = ct.getParameter(null);
-        Assert.assertNull(value);
-        value = ct.getParameter("");
-        Assert.assertNull(value);
-        value = ct.getParameter("msgtype");
-        Assert.assertNull(value);
-
-        ct = ContentType.parseContentType(" text/plain ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        ct = ContentType.parseContentType("   text/plain   ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        ct = ContentType.parseContentType(" text/plain \t");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        ct = ContentType.parseContentType("text/plain;");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        ct = ContentType.parseContentType(" text/plain; ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
-
-        ct = ContentType.parseContentType(" text/plain;\t");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("text", ct.contentType);
-        Assert.assertEquals("plain", ct.mediaType);
+        cases = new Object[][] {
+                {false, null},
+                {false, ""},
+                {false, " "},
+                {false, "  "},
+                {false, "text"},
+                {false, " text"},
+                {false, "  text"},
+                {false, "text;"},
+                {false, " text;"},
+                {false, "  text;"},
+                {false, "text/"},
+                {false, " text/"},
+                {false, "  text/"},
+                {false, "  text/  "},
+                {false, "  text/\t"},
+                {false, "text/;"},
+                {false, " text/;"},
+                {false, "  text/;"},
+                {false, "  -"},
+                {false, "  text-"},
+                {false, "  text/:"},
+                {false, "  text/:;"},
+                {false, "  text/plain ;"},
+                {false, " text/plain a"},
+                {false, "   text/plain   a"},
+                {false, "text/plain;a"},
+                {false, "text/plain; a"},
+                {false, "text/plain;  a"}
+        };
+        test_cases(cases);
 
         /*
-         * Parameters.
+         * Test simple Content-type/Media-type.
          */
 
-        ct = ContentType.parseContentType("application/http;=request");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;= request");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;=  request");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype =request");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype= request");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype=request a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype=request  a");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype=request:");
-        Assert.assertNull(ct);
-        ct = ContentType.parseContentType("application/http;msgtype=\"request");
-        Assert.assertNull(ct);
+        cases = new Object[][] {
+                {true, "text/plain",
+                    "text", "plain", null
+                },
+                {true, " text/plain ",
+                    "text", "plain", null
+                },
+                {true, "   text/plain   ",
+                    "text", "plain", null
+                },
+                {true, " text/plain \t",
+                    "text", "plain", null
+                },
+                {true, "text/plain;",
+                    "text", "plain", null
+                },
+                {true, " text/plain; ",
+                    "text", "plain", null
+                },
+                {true, " text/plain;\t",
+                    "text", "plain", null
+                }
+        };
+        test_cases(cases);
 
-        ct = ContentType.parseContentType("application/http;msgtype=request");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
+        /*
+         * Test invalid Parameters.
+         */
 
-        value = ct.getParameter(null);
-        Assert.assertNull(value);
-        value = ct.getParameter("");
-        Assert.assertNull(value);
+        cases = new Object[][] {
+                {false, "application/http;=request"},
+                {false, "application/http;= request"},
+                {false, "application/http;=  request"},
+                {false, "application/http;msgtype =request"},
+                {false, "application/http;msgtype= request"},
+                {false, "application/http;msgtype=request a"},
+                {false, "application/http;msgtype=request  a"},
+                {false, "application/http;msgtype=request:"},
+                {false, "application/http;msgtype=\"request"}
+        };
+        test_cases(cases);
 
-        ct = ContentType.parseContentType(" application/http; msgtype=request ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
+        /*
+         * Test Parameters.
+         */
 
-        ct = ContentType.parseContentType("\tapplication/http; msgtype=request ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType("  application/http;  msgtype=request  ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType("application/http;msgtype=\"request\"");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType(" application/http; msgtype=\"request\" ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType("  application/http;  msgtype=\"request\"  ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType(" application/http; msgtype=\"request\"\t");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-
-        ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8 ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-        value = ct.getParameter("charset");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("utf8", value);
-
-        ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8 ; ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-        value = ct.getParameter("charset");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("utf8", value);
-
-        ct = ContentType.parseContentType("application/http;msgtype=request;charset=utf8\t; ");
-        Assert.assertNotNull(ct);
-        //System.out.println(ct.contentType);
-        //System.out.println(ct.mediaType);
-        Assert.assertEquals("application", ct.contentType);
-        Assert.assertEquals("http", ct.mediaType);
-        value = ct.getParameter("msgtype");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("request", value);
-        value = ct.getParameter("charset");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("utf8", value);
+        cases = new Object[][] {
+                {true, "application/http;msgtype=request",
+                "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, " application/http; msgtype=request ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, "\tapplication/http; msgtype=request ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, "  application/http;  msgtype=request  ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, "application/http;msgtype=\"request\"",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, " application/http; msgtype=\"request\" ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, "  application/http;  msgtype=\"request\"  ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, " application/http; msgtype=\"request\"\t",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"}
+                }},
+                {true, "application/http;msgtype=request;charset=utf8 ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"},
+                        {"charset", "utf8"}
+                }},
+                {true, "application/http;msgtype=request;charset=utf8 ; ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"},
+                        {"charset", "utf8"}
+                }},
+                {true, "application/http;msgtype=request;charset=utf8\t; ",
+                    "application", "http", new Object[][] {
+                        {"msgtype", "request"},
+                        {"charset", "utf8"}
+                }}
+        };
+        test_cases(cases);
 
         ct = ContentType.parseContentType("application/http; msgtype=request; charset=utf8");
         Assert.assertNotNull(ct);
@@ -363,28 +236,6 @@ public class TestContentType {
         str = ct.getParameter("two");
         Assert.assertEquals("Two", str);
 
-        StringBuffer sb = new StringBuffer();
-
-        for (int i=0; i<256; ++i) {
-            if (i < 32 || ContentType.separators.indexOf(i) != -1) {
-                Assert.assertFalse(ContentType.isTokenCharacter(i));
-            } else {
-                Assert.assertTrue(ContentType.isTokenCharacter(i));
-                if (i != ' ' && i != '\t' && i != '"') {
-                    sb.append((char) i);
-                }
-            }
-        }
-        Assert.assertTrue(ContentType.isTokenCharacter(256));
-
-        Assert.assertFalse(ContentType.quote(null));
-        Assert.assertFalse(ContentType.quote(""));
-        Assert.assertFalse(ContentType.quote(sb.toString()));
-        Assert.assertFalse(ContentType.quote(sb.toString() + "\u0100"));
-        Assert.assertTrue(ContentType.quote(sb.toString() + " "));
-        Assert.assertTrue(ContentType.quote(sb.toString() + "\t"));
-        Assert.assertTrue(ContentType.quote(sb.toString() + "\""));
-
         ct = ContentType.parseContentType(" application/http; msgtype=req\\uest");
         Assert.assertNull(ct);
 
@@ -400,6 +251,75 @@ public class TestContentType {
 
         ct = ContentType.parseContentType(" application/http; msgtype=\"request\\");
         Assert.assertNull(ct);
+
+        /*
+         * isTokenCharacter.
+         */
+
+        StringBuffer sb = new StringBuffer();
+
+        for (int i=0; i<256; ++i) {
+            if (i < 32 || ContentType.separators.indexOf(i) != -1) {
+                Assert.assertFalse(ContentType.isTokenCharacter(i));
+            } else {
+                Assert.assertTrue(ContentType.isTokenCharacter(i));
+                if (i != ' ' && i != '\t' && i != '"') {
+                    sb.append((char) i);
+                }
+            }
+        }
+        Assert.assertTrue(ContentType.isTokenCharacter(256));
+
+        /*
+         * Quote.
+         */
+
+        Assert.assertFalse(ContentType.quote(null));
+        Assert.assertFalse(ContentType.quote(""));
+        Assert.assertFalse(ContentType.quote(sb.toString()));
+        Assert.assertFalse(ContentType.quote(sb.toString() + "\u0100"));
+        Assert.assertTrue(ContentType.quote(sb.toString() + " "));
+        Assert.assertTrue(ContentType.quote(sb.toString() + "\t"));
+        Assert.assertTrue(ContentType.quote(sb.toString() + "\""));
+    }
+
+    public void test_cases(Object[][] cases) {
+        boolean bIsValid;
+        String inStr;
+        ContentType ct;
+        Object[][] parameters;
+        String name;
+        String value;
+        for (int i=0; i<cases.length; ++i) {
+            bIsValid = (Boolean)cases[i][0];
+            inStr = (String)cases[i][1];
+            ct = ContentType.parseContentType(inStr);
+            if (!bIsValid) {
+                Assert.assertNull(ct);
+            } else {
+                Assert.assertNotNull(ct);
+                //System.out.println(ct.contentType);
+                //System.out.println(ct.mediaType);
+                Assert.assertEquals(cases[i][2], ct.contentType);
+                Assert.assertEquals(cases[i][3], ct.mediaType);
+                parameters = (Object[][])cases[i][4];
+                if (parameters != null) {
+                    for (int j=0; j<parameters.length; ++j) {
+                        name = (String)parameters[j][0];
+                        value = ct.getParameter(name);
+                        Assert.assertNotNull(value);
+                        Assert.assertEquals(parameters[j][1], value);
+                    }
+                } else {
+                    value = ct.getParameter("msgtype");
+                    Assert.assertNull(value);
+                }
+                value = ct.getParameter(null);
+                Assert.assertNull(value);
+                value = ct.getParameter("");
+                Assert.assertNull(value);
+            }
+        }
     }
 
 }

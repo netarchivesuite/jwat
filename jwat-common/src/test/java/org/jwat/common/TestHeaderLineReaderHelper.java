@@ -26,71 +26,71 @@ import org.junit.Assert;
 
 public class TestHeaderLineReaderHelper {
 
-	Object[][] commonCases;
+    Object[][] commonCases;
     Object[][] cases;
     byte[] bytes;
     ByteArrayInputStream in;
     PushbackInputStream pbin;
     HeaderLineReader hlr;
     HeaderLine line;
+    byte expectedType;
     String expected;
 
     public void test_line_cases(Object[][] cases) throws IOException {
         for (int i=0; i<cases.length; ++i) {
             bytes = (byte[])cases[i][0];
-            expected = (String)cases[i][1];
+            expectedType = (Byte)cases[i][1];
+            expected = (String)cases[i][2];
             in = new ByteArrayInputStream(bytes);
             pbin = new PushbackInputStream(in, 16);
             line = hlr.readLine(new PushbackInputStream(in, 16));
             //System.out.println(expected);
-            if (expected == null) {
-                Assert.assertNull(line);
-            } else {
+            Assert.assertNotNull(line);
+            Assert.assertEquals(expectedType, line.type);
+            Assert.assertArrayEquals(bytes, line.raw);
+            if (line.type == HeaderLine.HLT_LINE) {
                 //System.out.println(Base2.delimit(Base2.encodeArray(bytes), 8, '.'));
                 //System.out.println(Base16.encodeArray(bytes));
                 //System.out.println(Base2.delimit(Base2.encodeString(line.line), 8, '.'));
                 //System.out.println(Base16.encodeString(line.line));
-            	Assert.assertArrayEquals(bytes, line.raw);
                 Assert.assertEquals(expected, line.line);
             }
         }
     }
 
     public void test_headerline_cases(Object[][] cases) throws IOException {
-    	ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         for (int i=0; i<cases.length; ++i) {
             bytes = (byte[])cases[i][0];
-            bytesOut.reset();
+            System.out.println("org: " + new String(bytes));
             Object[][] expectedLines = (Object[][])cases[i][1];
+            bytesOut.reset();
             in = new ByteArrayInputStream(bytes);
             pbin = new PushbackInputStream(in, 16);
-            if (expectedLines == null) {
+            for (int j=0; j<expectedLines.length; ++j) {
                 line = hlr.readLine(pbin);
-                Assert.assertNull(line);
-            } else {
-                for (int j=0; j<expectedLines.length; ++j) {
-                    line = hlr.readLine(pbin);
-                    if (expectedLines[j][0] == null) {
-                        Assert.assertNull(line.line);
-                    } else {
-                        Assert.assertEquals(expectedLines[j][0], line.line);
-                    }
-                    if (expectedLines[j][1] == null) {
-                        Assert.assertNull(line.name);
-                    } else {
-                        Assert.assertEquals(expectedLines[j][1], line.name);
-                    }
-                    if (expectedLines[j][2] == null) {
-                        Assert.assertNull(line.value);
-                    } else {
-                        Assert.assertEquals(expectedLines[j][2], line.value);
-                    }
-                    bytesOut.write(line.raw);
+                Assert.assertNotNull(line);
+                expectedType = (Byte)expectedLines[j][0];
+                Assert.assertEquals(expectedType, line.type);
+                if (expectedLines[j][1] == null) {
+                    Assert.assertNull(line.line);
+                } else {
+                    Assert.assertEquals(expectedLines[j][1], line.line);
                 }
-            	System.out.println("org: " + new String(bytes));
-            	System.out.println("dst: " + new String(bytesOut.toByteArray()));
-            	//Assert.assertArrayEquals(bytes, bytesOut.toByteArray());
+                if (expectedLines[j][2] == null) {
+                    Assert.assertNull(line.name);
+                } else {
+                    Assert.assertEquals(expectedLines[j][2], line.name);
+                }
+                if (expectedLines[j][3] == null) {
+                    Assert.assertNull(line.value);
+                } else {
+                    Assert.assertEquals(expectedLines[j][3], line.value);
+                }
+                bytesOut.write(line.raw);
             }
+            System.out.println("dst: " + new String(bytesOut.toByteArray()));
+            Assert.assertArrayEquals(bytes, bytesOut.toByteArray());
         }
     }
 

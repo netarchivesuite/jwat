@@ -34,7 +34,7 @@ import java.security.NoSuchAlgorithmException;
 public class Payload {
 
     /** Payload content. */
-    private static final int BUFFER_SIZE = 4096;
+    private static final int BUFFER_SIZE = 8192;
 
     /** Has record been closed before. */
     protected boolean bClosed;

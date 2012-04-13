@@ -26,17 +26,17 @@ package org.jwat.common;
  */
 public class HeaderLine {
 
-	/** Invalid line, for reporting the raw data read. */
-	public static final int HLT_RAW = 0;
-	/** Normal line parsed. */
-	public static final int HLT_LINE = 1;
-	/** Header line parsed. */
-	public static final int HLT_HEADERLINE = 2;
+    /** Invalid line, for reporting the raw data read. */
+    public static final byte HLT_RAW = 0;
+    /** Normal line parsed. */
+    public static final byte HLT_LINE = 1;
+    /** Header line parsed. */
+    public static final byte HLT_HEADERLINE = 2;
 
-	/** Type of the parsed line. */
-	public byte type = HLT_RAW;;
+    /** Type of the parsed line. */
+    public byte type = HLT_RAW;;
 
-	/** Header name. */
+    /** Header name. */
     public String name;
 
     /** Header value. */

@@ -41,18 +41,21 @@ public class TestBase32 {
     private int min;
     private int max;
     private int runs;
+    private boolean bStrict;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 256, 10}
+                {1, 256, 10, false},
+                {1, 256, 10, true}
         });
     }
 
-    public TestBase32(int min, int max, int runs) {
+    public TestBase32(int min, int max, int runs, boolean bStrict) {
         this.min = min;
         this.max = max;
         this.runs = runs;
+        this.bStrict = bStrict;
     }
 
     @Test
@@ -77,6 +80,9 @@ public class TestBase32 {
         String base16da;
         String base16ds;
 
+        Base32 b32 = new Base32();
+        Assert.assertNotNull(b32);
+
         base32a = Base32.encodeArray( null );
         Assert.assertNull( base32a );
         base32a = Base32.encodeArray( new byte[ 0 ] );
@@ -87,14 +93,14 @@ public class TestBase32 {
         base32s = Base32.encodeString( "" );
         Assert.assertEquals( "", base32s );
 
-        dstArr = Base32.decodeToArray( null );
+        dstArr = Base32.decodeToArray( null, bStrict );
         Assert.assertNull( dstArr );
-        dstArr = Base32.decodeToArray( "" );
+        dstArr = Base32.decodeToArray( "", bStrict );
         Assert.assertArrayEquals( new byte[0], dstArr );
 
-        dstStr = Base32.decodeToString( null );
+        dstStr = Base32.decodeToString( null, bStrict );
         Assert.assertNull( dstStr );
-        dstStr = Base32.decodeToString( "" );
+        dstStr = Base32.decodeToString( "", bStrict );
         Assert.assertEquals( "", dstStr );
 
         for ( int r=0; r<runs; ++r ) {
@@ -111,11 +117,11 @@ public class TestBase32 {
                 base32a = Base32.encodeArray( srcArr );
                 base32s = Base32.encodeString( srcStr );
 
-                dstArr = Base32.decodeToArray( base32a );
-                dstStr = Base32.decodeToString( base32s );
+                dstArr = Base32.decodeToArray( base32a, bStrict );
+                dstStr = Base32.decodeToString( base32s, bStrict );
 
-                dstArrLc = Base32.decodeToArray( base32a.toLowerCase() );
-                dstStrLc = Base32.decodeToString( base32s.toLowerCase() );
+                dstArrLc = Base32.decodeToArray( base32a.toLowerCase(), bStrict );
+                dstStrLc = Base32.decodeToString( base32s.toLowerCase(), bStrict );
 
                 base16sa = Base16.encodeArray( srcArr );
                 base16ss = Base16.encodeString( srcStr );
@@ -156,105 +162,339 @@ public class TestBase32 {
          * decodeToArray
          */
 
-        dstArr = Base32.decodeToArray( "aaaaaaaa" );
-        Assert.assertNotNull( dstArr );
+        boolean bValid;
+        String base32;
+        boolean bStrict;
+        Object[][] cases;
+        cases = new Object[][] {
+                {true, "aaaaaaaa", true},
+                {true, "aaaaaaa=", true},
+                {false, "aaaaaa==", true},
+                {true, "aaaaa===", true},
+                {true, "aaaa====", true},
+                {false, "aaa=====", true},
+                {true, "aa======", true},
+                {false, "a=======", true},
+                {false, "########", true},
+                {false, "#######=", true},
+                {false, "######==", true},
+                {false, "#####===", true},
+                {false, "####====", true},
+                {false, "###=====", true},
+                {false, "##======", true},
+                {false, "#=======", true},
 
-        dstArr = Base32.decodeToArray( "aaaaaaa=" );
-        Assert.assertNotNull( dstArr );
+                {true, "aaaaaaaa", false},
+                {true, "aaaaaaa=", false},
+                {false, "aaaaaa==", false},
+                {true, "aaaaa===", false},
+                {true, "aaaa====", false},
+                {false, "aaa=====", false},
+                {true, "aa======", false},
+                {false, "a=======", false},
+                {false, "########", false},
+                {false, "#######=", false},
+                {false, "######==", false},
+                {false, "#####===", false},
+                {false, "####====", false},
+                {false, "###=====", false},
+                {false, "##======", false},
+                {false, "#=======", false},
 
-        dstArr = Base32.decodeToArray( "aaaaaa==" );
-        Assert.assertNull( dstArr );
+                {false, "aaaaaaa", true},
+                {false, "aaaaaa", true},
+                {false, "aaaaa", true},
+                {false, "aaaa", true},
+                {false, "aaa", true},
+                {false, "aa", true},
+                {false, "a", true},
+                {false, "aaaaaa=", true},
+                {false, "aaaaa==", true},
+                {false, "aaaaa=", true},
+                {false, "aaaa===", true},
+                {false, "aaaa==", true},
+                {false, "aaaa=", true},
+                {false, "aaa====", true},
+                {false, "aaa===", true},
+                {false, "aaa==", true},
+                {false, "aaa=", true},
+                {false, "aa=====", true},
+                {false, "aa====", true},
+                {false, "aa===", true},
+                {false, "aa==", true},
+                {false, "aa=", true},
+                {false, "a======", true},
+                {false, "a=====", true},
+                {false, "a====", true},
+                {false, "a===", true},
+                {false, "a==", true},
+                {false, "a=", true},
+                {false, "#######", true},
+                {false, "######", true},
+                {false, "#####", true},
+                {false, "####", true},
+                {false, "###", true},
+                {false, "##", true},
+                {false, "#", true},
+                {false, "######=", true},
+                {false, "#####==", true},
+                {false, "#####=", true},
+                {false, "####===", true},
+                {false, "####==", true},
+                {false, "####=", true},
+                {false, "###====", true},
+                {false, "###===", true},
+                {false, "###==", true},
+                {false, "###=", true},
+                {false, "##=====", true},
+                {false, "##====", true},
+                {false, "##===", true},
+                {false, "##==", true},
+                {false, "##=", true},
+                {false, "#======", true},
+                {false, "#=====", true},
+                {false, "#====", true},
+                {false, "#===", true},
+                {false, "#==", true},
+                {false, "#=", true},
 
-        dstArr = Base32.decodeToArray( "aaaaa===" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "aaaa====" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "aaa=====" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "aa======" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "a=======" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "########" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "#######=" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "######==" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "#####===" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "####====" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "###=====" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "##======" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base32.decodeToArray( "#=======" );
-        Assert.assertNull( dstArr );
+                {true, "aaaaaaa", false},
+                {false, "aaaaaa", false},
+                {true, "aaaaa", false},
+                {true, "aaaa", false},
+                {false, "aaa", false},
+                {true, "aa", false},
+                {false, "a", false},
+                {false, "aaaaaa=", false},
+                {true, "aaaaa==", false},
+                {true, "aaaaa=", false},
+                {true, "aaaa===", false},
+                {true, "aaaa==", false},
+                {true, "aaaa=", false},
+                {false, "aaa====", false},
+                {false, "aaa===", false},
+                {false, "aaa==", false},
+                {false, "aaa=", false},
+                {true, "aa=====", false},
+                {true, "aa====", false},
+                {true, "aa===", false},
+                {true, "aa==", false},
+                {true, "aa=", false},
+                {false, "a======", false},
+                {false, "a=====", false},
+                {false, "a====", false},
+                {false, "a===", false},
+                {false, "a==", false},
+                {false, "a=", false},
+                {false, "#######", false},
+                {false, "######", false},
+                {false, "#####", false},
+                {false, "####", false},
+                {false, "###", false},
+                {false, "##", false},
+                {false, "#", false},
+                {false, "######=", false},
+                {false, "#####==", false},
+                {false, "#####=", false},
+                {false, "####===", false},
+                {false, "####==", false},
+                {false, "####=", false},
+                {false, "###====", false},
+                {false, "###===", false},
+                {false, "###==", false},
+                {false, "###=", false},
+                {false, "##=====", false},
+                {false, "##====", false},
+                {false, "##===", false},
+                {false, "##==", false},
+                {false, "##=", false},
+                {false, "#======", false},
+                {false, "#=====", false},
+                {false, "#====", false},
+                {false, "#===", false},
+                {false, "#==", false},
+                {false, "#=", false}
+        };
+        for (int i=0; i<cases.length; ++i) {
+            bValid = (Boolean)cases[i][0];
+            base32 = (String)cases[i][1];
+            bStrict = (Boolean)cases[i][2];
+            dstArr = Base32.decodeToArray( base32, bStrict );
+            // debug
+            //System.out.println((dstArr != null) + " - " + base32 + " - " +  bStrict);
+            if (bValid) {
+                Assert.assertNotNull( dstArr );
+            } else {
+                Assert.assertNull( dstArr );
+            }
+        }
 
         /*
          * decodeToArray
          */
 
-        dstStr = Base32.decodeToString( "aaaaaaaa" );
-        Assert.assertNotNull( dstStr );
+        cases = new Object[][] {
+                {true, "aaaaaaaa", true},
+                {true, "aaaaaaa=", true},
+                {false, "aaaaaa==", true},
+                {true, "aaaaa===", true},
+                {true, "aaaa====", true},
+                {false, "aaa=====", true},
+                {true, "aa======", true},
+                {false, "a=======", true},
+                {false, "########", true},
+                {false, "#######=", true},
+                {false, "######==", true},
+                {false, "#####===", true},
+                {false, "####====", true},
+                {false, "###=====", true},
+                {false, "##======", true},
+                {false, "#=======", true},
 
-        dstStr = Base32.decodeToString( "aaaaaaa=" );
-        Assert.assertNotNull( dstStr );
+                {true, "aaaaaaaa", false},
+                {true, "aaaaaaa=", false},
+                {false, "aaaaaa==", false},
+                {true, "aaaaa===", false},
+                {true, "aaaa====", false},
+                {false, "aaa=====", false},
+                {true, "aa======", false},
+                {false, "a=======", false},
+                {false, "########", false},
+                {false, "#######=", false},
+                {false, "######==", false},
+                {false, "#####===", false},
+                {false, "####====", false},
+                {false, "###=====", false},
+                {false, "##======", false},
+                {false, "#=======", false},
 
-        dstStr = Base32.decodeToString( "aaaaaa==" );
-        Assert.assertNull( dstStr );
+                {false, "aaaaaaa", true},
+                {false, "aaaaaa", true},
+                {false, "aaaaa", true},
+                {false, "aaaa", true},
+                {false, "aaa", true},
+                {false, "aa", true},
+                {false, "a", true},
+                {false, "aaaaaa=", true},
+                {false, "aaaaa==", true},
+                {false, "aaaaa=", true},
+                {false, "aaaa===", true},
+                {false, "aaaa==", true},
+                {false, "aaaa=", true},
+                {false, "aaa====", true},
+                {false, "aaa===", true},
+                {false, "aaa==", true},
+                {false, "aaa=", true},
+                {false, "aa=====", true},
+                {false, "aa====", true},
+                {false, "aa===", true},
+                {false, "aa==", true},
+                {false, "aa=", true},
+                {false, "a======", true},
+                {false, "a=====", true},
+                {false, "a====", true},
+                {false, "a===", true},
+                {false, "a==", true},
+                {false, "a=", true},
+                {false, "#######", true},
+                {false, "######", true},
+                {false, "#####", true},
+                {false, "####", true},
+                {false, "###", true},
+                {false, "##", true},
+                {false, "#", true},
+                {false, "######=", true},
+                {false, "#####==", true},
+                {false, "#####=", true},
+                {false, "####===", true},
+                {false, "####==", true},
+                {false, "####=", true},
+                {false, "###====", true},
+                {false, "###===", true},
+                {false, "###==", true},
+                {false, "###=", true},
+                {false, "##=====", true},
+                {false, "##====", true},
+                {false, "##===", true},
+                {false, "##==", true},
+                {false, "##=", true},
+                {false, "#======", true},
+                {false, "#=====", true},
+                {false, "#====", true},
+                {false, "#===", true},
+                {false, "#==", true},
+                {false, "#=", true},
 
-        dstStr = Base32.decodeToString( "aaaaa===" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base32.decodeToString( "aaaa====" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base32.decodeToString( "aaa=====" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "aa======" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base32.decodeToString( "a=======" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "########" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "#######=" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "######==" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "#####===" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "####====" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "###=====" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "##======" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base32.decodeToString( "#=======" );
-        Assert.assertNull( dstStr );
+                {true, "aaaaaaa", false},
+                {false, "aaaaaa", false},
+                {true, "aaaaa", false},
+                {true, "aaaa", false},
+                {false, "aaa", false},
+                {true, "aa", false},
+                {false, "a", false},
+                {false, "aaaaaa=", false},
+                {true, "aaaaa==", false},
+                {true, "aaaaa=", false},
+                {true, "aaaa===", false},
+                {true, "aaaa==", false},
+                {true, "aaaa=", false},
+                {false, "aaa====", false},
+                {false, "aaa===", false},
+                {false, "aaa==", false},
+                {false, "aaa=", false},
+                {true, "aa=====", false},
+                {true, "aa====", false},
+                {true, "aa===", false},
+                {true, "aa==", false},
+                {true, "aa=", false},
+                {false, "a======", false},
+                {false, "a=====", false},
+                {false, "a====", false},
+                {false, "a===", false},
+                {false, "a==", false},
+                {false, "a=", false},
+                {false, "#######", false},
+                {false, "######", false},
+                {false, "#####", false},
+                {false, "####", false},
+                {false, "###", false},
+                {false, "##", false},
+                {false, "#", false},
+                {false, "######=", false},
+                {false, "#####==", false},
+                {false, "#####=", false},
+                {false, "####===", false},
+                {false, "####==", false},
+                {false, "####=", false},
+                {false, "###====", false},
+                {false, "###===", false},
+                {false, "###==", false},
+                {false, "###=", false},
+                {false, "##=====", false},
+                {false, "##====", false},
+                {false, "##===", false},
+                {false, "##==", false},
+                {false, "##=", false},
+                {false, "#======", false},
+                {false, "#=====", false},
+                {false, "#====", false},
+                {false, "#===", false},
+                {false, "#==", false},
+                {false, "#=", false}
+        };
+        for (int i=0; i<cases.length; ++i) {
+            bValid = (Boolean)cases[i][0];
+            base32 = (String)cases[i][1];
+            bStrict =  (Boolean)cases[i][2];
+            dstStr = Base32.decodeToString( base32, bStrict );
+            // debug
+            // System.out.println((dstStr != null) + " - " + base32 + " - " + bStrict);
+            if (bValid) {
+                Assert.assertNotNull( dstStr );
+            } else {
+                Assert.assertNull( dstStr );
+            }
+        }
     }
 
 }

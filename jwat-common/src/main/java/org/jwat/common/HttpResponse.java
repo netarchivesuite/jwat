@@ -26,7 +26,6 @@ import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -103,7 +102,7 @@ public class HttpResponse {
     public String resultMessage;
 
     /** List of parsed header fields. */
-    protected List<HeaderLine> headerList = new ArrayList<HeaderLine>();
+    protected List<HeaderLine> headerList = new LinkedList<HeaderLine>();
 
     /** Map of parsed header fields. */
     protected Map<String, HeaderLine> headerMap = new HashMap<String, HeaderLine>();
@@ -197,20 +196,15 @@ public class HttpResponse {
         hlr.encoding = HeaderLineReader.ENC_UTF8;
         boolean bValidHttpResponse = false;
         HeaderLine line = hlr.readLine(pbin);
-        if (line != null && line.line != null && line.line.length() > 0) {
+        if (!hlr.bEof && line.type == HeaderLine.HLT_LINE && line.line != null && line.line.length() > 0) {
             bValidHttpResponse = isHttpStatusLineValid(line.line);
         }
         boolean bLoop = bValidHttpResponse;
         while (bLoop) {
             line = hlr.readLine(pbin);
-            if (line != null) {
-                if (line.line != null) {
-                    if (line.line.length() == 0) {
-                        bLoop = false;
-                    } else {
-                        // TODO invalid header
-                    }
-                } else {
+            if (!hlr.bEof) {
+                switch (line.type) {
+                case HeaderLine.HLT_HEADERLINE:
                     //System.out.println(line.name);
                     //System.out.println(line.value);
                     if (CONTENT_TYPE.equals(line.name.toUpperCase())) {
@@ -220,6 +214,19 @@ public class HttpResponse {
                     // TODO concat multiple identical headers separated by ,
                     headerMap.put(line.name.toLowerCase(), line);
                     headerList.add(line);
+                    break;
+                case HeaderLine.HLT_LINE:
+                    if (line.line.length() == 0) {
+                        bLoop = false;
+                    } else {
+                        // TODO invalid header
+                    }
+                    break;
+                case HeaderLine.HLT_RAW:
+                    System.out.println("Epic fail!");
+                    bValidHttpResponse = false;
+                    bLoop = false;
+                    break;
                 }
             } else {
                 System.out.println("Epic fail!");

@@ -43,6 +43,9 @@ public class TestParams {
 
         InetAddress ia;
 
+        IPAddressParser iap = new IPAddressParser();
+        Assert.assertNotNull(iap);
+
         ia = IPAddressParser.getAddress(null);
         Assert.assertNull(ia);
 

@@ -21,42 +21,42 @@ import java.io.ByteArrayOutputStream;
 
 public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
 
-	public UnreadableByteArrayOutputStream() {
-		super();
-	}
+    public UnreadableByteArrayOutputStream() {
+        super();
+    }
 
-	public UnreadableByteArrayOutputStream(int size)  {
-		super(size);
-	}
+    public UnreadableByteArrayOutputStream(int size)  {
+        super(size);
+    }
 
-	public void unread(int c) {
-		--count;
-		if (count < 0) {
-			System.out.println(new String(buf));
-			System.out.println(1);
-			System.out.println(count);
-			throw new IllegalStateException("Can not unread more that buffered!");
-		}
-	}
+    public void unread(int c) {
+        --count;
+        if (count < 0) {
+            System.out.println(new String(buf));
+            System.out.println(1);
+            System.out.println(count);
+            throw new IllegalStateException("Can not unread more that buffered!");
+        }
+    }
 
-	public void unread(byte[] b) {
-		count -= b.length;
-		if (count < 0) {
-			System.out.println(new String(buf));
-			System.out.println(b.length);
-			System.out.println(count);
-			throw new IllegalStateException("Can not unread more that buffered!");
-		}
-	}
+    public void unread(byte[] b) {
+        count -= b.length;
+        if (count < 0) {
+            System.out.println(new String(buf));
+            System.out.println(b.length);
+            System.out.println(count);
+            throw new IllegalStateException("Can not unread more that buffered!");
+        }
+    }
 
-	public void unread(byte[] b, int off, int len) {
-		count -= len;
-		if (count < 0) {
-			System.out.println(new String(buf));
-			System.out.println(len);
-			System.out.println(count);
-			throw new IllegalStateException("Can not unread more that buffered!");
-		}
-	}
+    public void unread(byte[] b, int off, int len) {
+        count -= len;
+        if (count < 0) {
+            System.out.println(new String(buf));
+            System.out.println(len);
+            System.out.println(count);
+            throw new IllegalStateException("Can not unread more that buffered!");
+        }
+    }
 
 }

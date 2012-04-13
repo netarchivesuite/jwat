@@ -24,44 +24,45 @@ public class QuotedPrintable {
     /**
      * Static class.
      */
-    private QuotedPrintable() {
+    protected QuotedPrintable() {
     }
 
-	public static byte[] decode(String encoded_text) {
-		ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-		int idx = 0;
-		int c, cout;
-		while (idx < encoded_text.length()) {
-			c = encoded_text.charAt(idx++);
-			if (c == '_') {
-				bytesOut.write(' ');
-			} else if (c == '=') {
-				if ((idx + 2) <= encoded_text.length()) {
-					c = encoded_text.charAt(idx++);
-					c = Base16.decodeTab[c];
-					if (c != -1) {
-						cout = c << 4;
-						c = encoded_text.charAt(idx++);
-						c = Base16.decodeTab[c];
-						if (c != -1) {
-							cout |= c;
-							bytesOut.write(cout);
-						} else {
-							return null;
-						}
-					} else {
-						return null;
-					}
-				} else {
-					return null;
-				}
-			} else if (c > 32 && c < 127) {
-				bytesOut.write(c);
-			} else {
-				return null;
-			}
-		}
-		return bytesOut.toByteArray();
-	}
+    public static byte[] decode(String encoded_text) {
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        int idx = 0;
+        int c;
+        int cout;
+        while (idx < encoded_text.length()) {
+            c = encoded_text.charAt(idx++);
+            if (c == '_') {
+                bytesOut.write(' ');
+            } else if (c == '=') {
+                if ((idx + 2) <= encoded_text.length()) {
+                    c = encoded_text.charAt(idx++);
+                    c = Base16.decodeTab[c];
+                    if (c != -1) {
+                        cout = c << 4;
+                        c = encoded_text.charAt(idx++);
+                        c = Base16.decodeTab[c];
+                        if (c != -1) {
+                            cout |= c;
+                            bytesOut.write(cout);
+                        } else {
+                            return null;
+                        }
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+            } else if (c > 32 && c < 127) {
+                bytesOut.write(c);
+            } else {
+                return null;
+            }
+        }
+        return bytesOut.toByteArray();
+    }
 
 }

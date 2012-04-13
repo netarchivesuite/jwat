@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,6 +84,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     boolean bMagicIdentified;
     boolean bVersionParsed;
+    boolean bValidVersion;
+
+    String versionStr;
+    int[] versionArr;
 
     int major = -1;
     int minor = -1;
@@ -162,8 +167,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Header-Fields.
      */
 
-    public ByteArrayOutputStream headerBytesOut = new ByteArrayOutputStream();
+    /** Raw WARC header output stream. */
+    protected ByteArrayOutputStream headerBytesOut = new ByteArrayOutputStream();
 
+    /** Raw WARC header byte array. */
     public byte[] headerBytes;
 
     /** List of parsed header fields. */
@@ -220,6 +227,35 @@ public class WarcRecord implements PayloadOnClosedHandler {
             //System.out.println(wr.bMagicIdentified);
             //System.out.println(wr.bVersionParsed);
             //System.out.println(wr.major + "." + wr.minor);
+
+            if (wr.bVersionParsed && wr.versionArr.length == 2) {
+                switch (wr.major) {
+                case 1:
+                    if (wr.minor == 0) {
+                        wr.bValidVersion = true;
+                    }
+                    break;
+                case 0:
+                    switch (wr.minor) {
+                    case 17:
+                    case 18:
+                        wr.bValidVersion = true;
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+                }
+                if (!wr.bValidVersion) {
+                    wr.diagnostics.addError(
+                            new Diagnosis(DiagnosisType.UNKNOWN,
+                                    "Magic version number", wr.versionStr));
+                }
+            } else {
+                wr.diagnostics.addError(
+                        new Diagnosis(DiagnosisType.INVALID_DATA,
+                                "Magic Version string", wr.versionStr));
+            }
 
             wr.parseFields(in);
             wr.checkFields();
@@ -330,11 +366,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     if (computedBlockDigest != null) {
                         computedBlockDigest.algorithm = warcBlockDigest.algorithm;
                         if ((computedBlockDigest.digestBytes.length + 2) / 3 * 4 == warcBlockDigest.digestString.length()) {
-                            digest = Base64.decodeToArray(warcBlockDigest.digestString);
+                            digest = Base64.decodeToArray(warcBlockDigest.digestString, true);
                             warcBlockDigest.encoding = "base64";
                             computedBlockDigest.encoding = warcBlockDigest.encoding;
                         } else if ((computedBlockDigest.digestBytes.length + 4) / 5 * 8 == warcBlockDigest.digestString.length()) {
-                            digest = Base32.decodeToArray(warcBlockDigest.digestString);
+                            digest = Base32.decodeToArray(warcBlockDigest.digestString, true);
                             warcBlockDigest.encoding = "base32";
                             computedBlockDigest.encoding = warcBlockDigest.encoding;
                         } else if (computedBlockDigest.digestBytes.length * 2 == warcBlockDigest.digestString.length()) {
@@ -406,11 +442,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         if (computedPayloadDigest != null) {
                             computedPayloadDigest.algorithm = warcPayloadDigest.algorithm;
                             if ((computedPayloadDigest.digestBytes.length + 2) / 3 * 4 == warcPayloadDigest.digestString.length()) {
-                                digest = Base64.decodeToArray(warcPayloadDigest.digestString);
+                                digest = Base64.decodeToArray(warcPayloadDigest.digestString, true);
                                 warcPayloadDigest.encoding = "base64";
                                 computedPayloadDigest.encoding = warcPayloadDigest.encoding;
                             } else if ((computedPayloadDigest.digestBytes.length + 4) / 5 * 8 == warcPayloadDigest.digestString.length()) {
-                                digest = Base32.decodeToArray(warcPayloadDigest.digestString);
+                                digest = Base32.decodeToArray(warcPayloadDigest.digestString, true);
                                 warcPayloadDigest.encoding = "base32";
                                 computedPayloadDigest.encoding = warcPayloadDigest.encoding;
                             } else if (computedPayloadDigest.digestBytes.length * 2 == warcPayloadDigest.digestString.length()) {
@@ -707,19 +743,20 @@ public class WarcRecord implements PayloadOnClosedHandler {
         while (bSeekMagic) {
             startOffset = in.getConsumed();
             line = reader.lineReader.readLine(in);
-            if (line != null) {
-                tmpStr = line.line;
-                if (tmpStr != null) {
+            if (!reader.lineReader.bEof) {
+                switch (line.type) {
+                case HeaderLine.HLT_LINE:
+                    tmpStr = line.line;
                     // debug
                     //System.out.println(tmpStr);
                     if (tmpStr.length() > 0) {
                         if (tmpStr.toUpperCase().startsWith(WarcConstants.WARC_MAGIC_HEADER)) {
                             bMagicIdentified = true;
-                            String versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
+                            versionStr = tmpStr.substring(WarcConstants.WARC_MAGIC_HEADER.length());
                             String[] tmpArr = versionStr.split("\\.", -1);        // Not optimal
                             if (tmpArr.length >= 2 && tmpArr.length <= 4) {
                                 bVersionParsed = true;
-                                int[] versionArr = new int[tmpArr.length];
+                                versionArr = new int[tmpArr.length];
                                 for (int i=0; i<tmpArr.length; ++i) {
                                     try {
                                         versionArr[i] = Integer.parseInt(tmpArr[i]);
@@ -730,7 +767,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 major = versionArr[0];
                                 minor = versionArr[1];
                             }
-                            // TODO valid version
                             headerBytesOut.write(line.raw);
                             bSeekMagic = false;
                         } else {
@@ -742,8 +778,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         bEmptyLinesBeforeVersion = true;
 
                     }
-                } else {
-                    // Headerline.
+                    break;
+                case HeaderLine.HLT_HEADERLINE:
+                case HeaderLine.HLT_RAW:
+                    // Invalid data - header or binary.
+                    bInvalidDataBeforeVersion = true;
+                    break;
                 }
             } else {
                 // EOF.
@@ -771,10 +811,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
         boolean bFields = true;
         while (bFields) {
             headerLine = reader.headerLineReader.readLine(in);
-            if (headerLine != null) {
+            if (!reader.headerLineReader.bEof) {
                 headerBytesOut.write(headerLine.raw);
-                // An empty line means the name/value pair was used.
-                if (headerLine.line == null) {
+                switch (headerLine.type) {
+                case HeaderLine.HLT_HEADERLINE:
                     if (headerLine.name != null && headerLine.name.length() > 0) {
                         // debug
                         //System.out.println(headerLine.name);
@@ -785,7 +825,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         // Empty field name.
                         addWarningDiagnosis(DiagnosisType.EMPTY, "Header line");
                     }
-                } else {
+                    break;
+                case HeaderLine.HLT_LINE:
                     if (headerLine.line.length() == 0) {
                         // Empty line.
                         bFields = false;
@@ -793,6 +834,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         // Unknown header line.
                         addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
                     }
+                    break;
+                case HeaderLine.HLT_RAW:
+                    bFields = false;
+                    // Unknown header line.
+                    addWarningDiagnosis(DiagnosisType.INVALID, "Header line");
+                    break;
                 }
             } else {
                 // EOF.
@@ -942,7 +989,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         } else {
             // Not a recognized WARC field name.
             if (headerList == null) {
-                headerList = new ArrayList<HeaderLine>();
+                headerList = new LinkedList<HeaderLine>();
             }
             if (headerMap == null) {
                 headerMap = new HashMap<String, HeaderLine>();

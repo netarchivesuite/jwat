@@ -45,7 +45,7 @@ public class Base64 {
     /**
      * Static class.
      */
-    private Base64() {
+    protected Base64() {
     }
 
     /**
@@ -53,7 +53,7 @@ public class Base64 {
      * @param in encoded string.
      * @return decoded string or null
      */
-    public static String decodeToString(String in) {
+    public static String decodeToString(String in, boolean bStrict) {
         if (in == null) {
             return null;
         }
@@ -76,11 +76,12 @@ public class Base64 {
 
         while ( b ) {
             if ( idx < in.length() ) {
-                cin = in.charAt( idx++ );
+                cin = in.charAt( idx );
                 if ( cin == '=' ) {
                     b = false;
                 }
                 else {
+                    ++idx;
                     cIdx = decodeTab[ cin ];
                     if ( cIdx != -1 ) {
                         switch ( mod ) {
@@ -118,13 +119,20 @@ public class Base64 {
          * Padding.
          */
 
-        if ( mod != 1 ) {
-            return out.toString();
-        }
-        else {
+        if ( mod == 1 ) {
             // In state 1 only 6 bits of the next 24 bit has been decoded.
             return null;
         }
+        if ( bStrict ) {
+            while ( mod != 0 && idx < in.length() && in.charAt( idx ) == '=' ) {
+                ++idx;
+                mod = ( mod + 1 ) % 4;
+            }
+            if (mod != 0 || idx < in.length() ) {
+                return null;
+            }
+        }
+        return out.toString();
     }
 
     /**
@@ -132,7 +140,7 @@ public class Base64 {
      * @param in encoded string.
      * @return decoded byte array or null
      */
-    public static byte[] decodeToArray(String in) {
+    public static byte[] decodeToArray(String in, boolean bStrict) {
         if (in == null) {
             return null;
         }
@@ -155,11 +163,12 @@ public class Base64 {
 
         while ( b ) {
             if ( idx < in.length() ) {
-                cin = in.charAt( idx++ );
+                cin = in.charAt( idx );
                 if ( cin == '=' ) {
                     b = false;
                 }
                 else {
+                    ++idx;
                     cIdx = decodeTab[ cin ];
                     if ( cIdx != -1 ) {
                         switch ( mod ) {
@@ -197,13 +206,20 @@ public class Base64 {
          * Padding.
          */
 
-        if ( mod != 1 ) {
-            return out.toByteArray();
-        }
-        else {
+        if ( mod == 1 ) {
             // In state 1 only 6 bits of the next 24 bit has been decoded.
             return null;
         }
+        if ( bStrict ) {
+            while ( mod != 0 && idx < in.length() && in.charAt( idx ) == '=' ) {
+                ++idx;
+                mod = ( mod + 1 ) % 4;
+            }
+            if (mod != 0 || idx < in.length() ) {
+                return null;
+            }
+        }
+        return out.toByteArray();
     }
 
     /**

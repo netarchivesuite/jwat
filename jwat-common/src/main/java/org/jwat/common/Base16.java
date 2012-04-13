@@ -46,7 +46,7 @@ public class Base16 {
     /**
      * Static class.
      */
-    private Base16() {
+    protected Base16() {
     }
 
     /**

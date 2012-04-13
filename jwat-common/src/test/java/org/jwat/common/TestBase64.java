@@ -41,18 +41,21 @@ public class TestBase64 {
     private int min;
     private int max;
     private int runs;
+    private boolean bStrict;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 256, 10}
+                {1, 256, 10, false},
+                {1, 256, 10, true}
         });
     }
 
-    public TestBase64(int min, int max, int runs) {
+    public TestBase64(int min, int max, int runs, boolean bStrict) {
         this.min = min;
         this.max = max;
         this.runs = runs;
+        this.bStrict = bStrict;
     }
 
     @Test
@@ -74,6 +77,9 @@ public class TestBase64 {
         String base16da;
         String base16ds;
 
+        Base64 b64 = new Base64();
+        Assert.assertNotNull(b64);
+
         base64a = Base64.encodeArray( null );
         Assert.assertNull( base64a );
         base64a = Base64.encodeArray( new byte[ 0 ] );
@@ -84,14 +90,14 @@ public class TestBase64 {
         base64s = Base64.encodeString( "" );
         Assert.assertEquals( "", base64s );
 
-        dstArr = Base64.decodeToArray( null );
+        dstArr = Base64.decodeToArray( null, bStrict );
         Assert.assertNull( dstArr );
-        dstArr = Base64.decodeToArray( "" );
+        dstArr = Base64.decodeToArray( "", bStrict );
         Assert.assertArrayEquals( new byte[0], dstArr );
 
-        dstStr = Base64.decodeToString( null );
+        dstStr = Base64.decodeToString( null, bStrict );
         Assert.assertNull( dstStr );
-        dstStr = Base64.decodeToString( "" );
+        dstStr = Base64.decodeToString( "", bStrict );
         Assert.assertEquals( "", dstStr );
 
         for ( int r=0; r<runs; ++r) {
@@ -108,8 +114,8 @@ public class TestBase64 {
                 base64a = Base64.encodeArray( srcArr );
                 base64s = Base64.encodeString( srcStr );
 
-                dstArr = Base64.decodeToArray( base64a );
-                dstStr = Base64.decodeToString( base64s );
+                dstArr = Base64.decodeToArray( base64a, bStrict );
+                dstStr = Base64.decodeToString( base64s, bStrict );
 
                 base16sa = Base16.encodeArray( srcArr );
                 base16ss = Base16.encodeString( srcStr );
@@ -148,57 +154,122 @@ public class TestBase64 {
          * decodeToArray
          */
 
-        dstArr = Base64.decodeToArray( "aaaa" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "aaa=" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "aa==" );
-        Assert.assertNotNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "a===" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "####" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "###=" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "##==" );
-        Assert.assertNull( dstArr );
-
-        dstArr = Base64.decodeToArray( "#===" );
-        Assert.assertNull( dstArr );
+        boolean bValid;
+        String base64;
+        boolean bStrict;
+        Object[][] cases;
+        cases = new Object[][] {
+                {true, "aaaa", true},
+                {true, "aaa=", true},
+                {true, "aa==", true},
+                {false, "a===", true},
+                {false, "####", true},
+                {false, "###=", true},
+                {false, "##==", true},
+                {false, "#===", true},
+                {true, "aaaa", false},
+                {true, "aaa=", false},
+                {true, "aa==", false},
+                {false, "a===", false},
+                {false, "####", false},
+                {false, "###=", false},
+                {false, "##==", false},
+                {false, "#===", false},
+                {false, "aaa", true},
+                {false, "aa", true},
+                {false, "a", true},
+                {false, "aa=", true},
+                {false, "a==", true},
+                {false, "a=", true},
+                {false, "###", true},
+                {false, "##", true},
+                {false, "#", true},
+                {false, "##=", true},
+                {false, "#==", true},
+                {false, "#=", true},
+                {true, "aaa", false},
+                {true, "aa", false},
+                {false, "a", false},
+                {true, "aa=", false},
+                {false, "a==", false},
+                {false, "a=", false},
+                {false, "###", false},
+                {false, "##", false},
+                {false, "#", false},
+                {false, "##=", false},
+                {false, "#==", false},
+                {false, "#=", false}
+        };
+        for (int i=0; i<cases.length; ++i) {
+            bValid = (Boolean)cases[i][0];
+            base64 = (String)cases[i][1];
+            bStrict = (Boolean)cases[i][2];
+            dstArr = Base64.decodeToArray(base64, bStrict);
+            //System.out.println((dstArr != null) + " - " + base64 + " - " +  bStrict);
+            if (bValid) {
+                Assert.assertNotNull( dstArr );
+            } else {
+                Assert.assertNull( dstArr );
+            }
+        }
 
         /*
          * decodeToArray
          */
-
-        dstStr = Base64.decodeToString( "aaaa" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base64.decodeToString( "aaa=" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base64.decodeToString( "aa==" );
-        Assert.assertNotNull( dstStr );
-
-        dstStr = Base64.decodeToString( "a===" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base64.decodeToString( "####" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base64.decodeToString( "###=" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base64.decodeToString( "##==" );
-        Assert.assertNull( dstStr );
-
-        dstStr = Base64.decodeToString( "#===" );
-        Assert.assertNull( dstStr );
+        cases = new Object[][] {
+                {true, "aaaa", true},
+                {true, "aaa=", true},
+                {true, "aa==", true},
+                {false, "a===", true},
+                {false, "####", true},
+                {false, "###=", true},
+                {false, "##==", true},
+                {false, "#===", true},
+                {true, "aaaa", false},
+                {true, "aaa=", false},
+                {true, "aa==", false},
+                {false, "a===", false},
+                {false, "####", false},
+                {false, "###=", false},
+                {false, "##==", false},
+                {false, "#===", false},
+                {false, "aaa", true},
+                {false, "aa", true},
+                {false, "a", true},
+                {false, "aa=", true},
+                {false, "a==", true},
+                {false, "a=", true},
+                {false, "###", true},
+                {false, "##", true},
+                {false, "#", true},
+                {false, "##=", true},
+                {false, "#==", true},
+                {false, "#=", true},
+                {true, "aaa", false},
+                {true, "aa", false},
+                {false, "a", false},
+                {true, "aa=", false},
+                {false, "a==", false},
+                {false, "a=", false},
+                {false, "###", false},
+                {false, "##", false},
+                {false, "#", false},
+                {false, "##=", false},
+                {false, "#==", false},
+                {false, "#=", false}
+        };
+        for (int i=0; i<cases.length; ++i) {
+            bValid = (Boolean)cases[i][0];
+            base64 = (String)cases[i][1];
+            bStrict =  (Boolean)cases[i][2];
+            dstStr = Base64.decodeToString(base64, bStrict);
+            //System.out.println((dstStr != null) + " - " + base64 + " - " + bStrict);
+            if (bValid) {
+                Assert.assertNotNull( dstStr );
+            } else {
+                Assert.assertNull( dstStr );
+            }
+        }
     }
 
 }

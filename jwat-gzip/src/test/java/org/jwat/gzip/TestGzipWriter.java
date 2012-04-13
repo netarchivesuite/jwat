@@ -51,9 +51,9 @@ public class TestGzipWriter {
         entry.os = GzipConstants.OS_AMIGA;
 
         try {
-        	/*
-        	 * writeFrom().
-        	 */
+            /*
+             * writeFrom().
+             */
             File out_file1 = File.createTempFile("jwat-testwrite1-", ".gz");
             //out_file1.deleteOnExit();
 
@@ -100,8 +100,9 @@ public class TestGzipWriter {
             byte[] buffer = new byte[16384];
             int read;
             while ((read = in.read(buffer, 0, 16384)) != -1) {
-            	cout.write(buffer, 0, read);
+                cout.write(buffer, 0, read);
             }
+            cout.flush();
             cout.close();
             in.close();
 

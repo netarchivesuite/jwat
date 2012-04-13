@@ -46,7 +46,7 @@ public class Base32 {
     /**
      * Static class.
      */
-    private Base32() {
+    protected Base32() {
     }
 
     /**
@@ -54,7 +54,7 @@ public class Base32 {
      * @param in encoded string.
      * @return decoded string or null
      */
-    public static String decodeToString(String in) {
+    public static String decodeToString(String in, boolean bStrict) {
         if (in == null) {
             return null;
         }
@@ -77,11 +77,12 @@ public class Base32 {
 
         while ( b ) {
             if ( idx < in.length() ) {
-                cin = in.charAt( idx++ );
+                cin = in.charAt( idx );
                 if ( cin == '=' ) {
                     b = false;
                 }
                 else {
+                    ++idx;
                     cIdx = decodeTab[ cin ];
                     if ( cIdx != -1 ) {
                         switch ( mod ) {
@@ -135,15 +136,27 @@ public class Base32 {
          * Padding.
          */
 
-        if ( mod != 1 && mod != 3 && mod != 6 ) {
-            return out.toString();
-        }
-        else {
-            // In state 1 only 5 bits of the next 40 bit has been decoded.
+        switch ( mod ) {
+        case 1:
+               // In state 1 only 5 bits of the next 40 bit has been decoded.
+        case 3:
             // In state 3 1 bit must have also been written in the next byte.
+        case 6:
             // In state 6 2 bit must have also been written in the next byte.
             return null;
+        default:
+            if ( bStrict ) {
+                while ( mod != 0 && idx < in.length() && in.charAt( idx ) == '=' ) {
+                    ++idx;
+                    mod = ( mod + 1 ) % 8;
+                }
+                if (mod != 0 || idx < in.length() ) {
+                    return null;
+                }
+            }
+            break;
         }
+        return out.toString();
     }
 
     /**
@@ -151,7 +164,7 @@ public class Base32 {
      * @param in encoded string.
      * @return decoded byte array or null
      */
-    public static byte[] decodeToArray(String in) {
+    public static byte[] decodeToArray(String in, boolean bStrict) {
         if (in == null) {
             return null;
         }
@@ -174,11 +187,12 @@ public class Base32 {
 
         while ( b ) {
             if ( idx < in.length() ) {
-                cin = in.charAt( idx++ );
+                cin = in.charAt( idx );
                 if ( cin == '=' ) {
                     b = false;
                 }
                 else {
+                    ++idx;
                     cIdx = decodeTab[ cin ];
                     if ( cIdx != -1 ) {
                         switch ( mod ) {
@@ -232,15 +246,27 @@ public class Base32 {
          * Padding.
          */
 
-        if ( mod != 1 && mod != 3 && mod != 6 ) {
-            return out.toByteArray();
-        }
-        else {
+        switch ( mod ) {
+        case 1:
             // In state 1 only 5 bits of the next 40 bit has been decoded.
+        case 3:
             // In state 3 1 bit must have also been written in the next byte.
+        case 6:
             // In state 6 2 bit must have also been written in the next byte.
             return null;
+        default:
+            if ( bStrict ) {
+                while ( mod != 0 && idx < in.length() && in.charAt( idx ) == '=' ) {
+                    ++idx;
+                    mod = ( mod + 1 ) % 8;
+                }
+                if (mod != 0 || idx < in.length() ) {
+                    return null;
+                }
+            }
+            break;
         }
+        return out.toByteArray();
     }
 
     /**

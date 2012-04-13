@@ -42,13 +42,13 @@ import org.jwat.common.ISO8859_1;
 public class GzipReader {
 
     /** Buffer size to use when read skipping. */
-    public static final int SKIP_READ_BUFFER_SIZE = 1024;
+    public static final int SKIP_READ_BUFFER_SIZE = 8192;
 
     /** Read buffer used by the skip method. */
     protected byte[] skip_read_buffer = new byte[SKIP_READ_BUFFER_SIZE];
 
     /** Default input buffer size. */
-    public static final int DEFAULT_INPUT_BUFFER_SIZE = 1024;
+    public static final int DEFAULT_INPUT_BUFFER_SIZE = 8192;
 
     /** Input stream of GZip (multi-part) file. */
     protected ByteCountingPushBackInputStream pbin;

@@ -192,7 +192,7 @@ public class TestWarcWriterCopy {
                 }
             }
             if ( out_file != null ) {
-            	out_file.delete();
+                out_file.delete();
             }
         }
     }
@@ -336,8 +336,8 @@ public class TestWarcWriterCopy {
                 }
             }
             if ( out_file != null ) {
-            	//System.out.println(out_file.getName());
-            	out_file.delete();
+                //System.out.println(out_file.getName());
+                out_file.delete();
             }
         }
     }

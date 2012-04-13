@@ -60,7 +60,7 @@ public class Base2 {
     /**
      * Static class.
      */
-    private Base2() {
+    protected Base2() {
     }
 
     /**
