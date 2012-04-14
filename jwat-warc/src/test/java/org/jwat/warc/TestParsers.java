@@ -88,32 +88,32 @@ public class TestParsers {
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
 
-                Assert.assertNull(record.parseInteger(null, null));
-                Assert.assertNull(record.parseLong(null, null));
-                Assert.assertNull(record.parseString(null, null));
-                Assert.assertNull(record.parseDate(null, null));
-                Assert.assertNull(record.parseIpAddress(null, null));
-                Assert.assertNull(record.parseUri(null, null));
-                Assert.assertNull(record.parseContentType(null, null));
-                Assert.assertNull(record.parseDigest(null, null));
+                Assert.assertNull(reader.fieldParser.parseInteger(null, null));
+                Assert.assertNull(reader.fieldParser.parseLong(null, null));
+                Assert.assertNull(reader.fieldParser.parseString(null, null));
+                Assert.assertNull(reader.fieldParser.parseDate(null, null));
+                Assert.assertNull(reader.fieldParser.parseIpAddress(null, null));
+                Assert.assertNull(reader.fieldParser.parseUri(null, null));
+                Assert.assertNull(reader.fieldParser.parseContentType(null, null));
+                Assert.assertNull(reader.fieldParser.parseDigest(null, null));
 
-                Assert.assertNull(record.parseInteger("", null));
-                Assert.assertNull(record.parseLong("", null));
-                Assert.assertEquals(record.parseString("", null), "");
-                Assert.assertNull(record.parseDate("", null));
-                Assert.assertNull(record.parseIpAddress("", null));
-                Assert.assertNull(record.parseUri("", null));
-                Assert.assertNull(record.parseContentType("", null));
-                Assert.assertNull(record.parseDigest("", null));
+                Assert.assertNull(reader.fieldParser.parseInteger("", null));
+                Assert.assertNull(reader.fieldParser.parseLong("", null));
+                Assert.assertEquals(reader.fieldParser.parseString("", null), "");
+                Assert.assertNull(reader.fieldParser.parseDate("", null));
+                Assert.assertNull(reader.fieldParser.parseIpAddress("", null));
+                Assert.assertNull(reader.fieldParser.parseUri("", null));
+                Assert.assertNull(reader.fieldParser.parseContentType("", null));
+                Assert.assertNull(reader.fieldParser.parseDigest("", null));
 
-                Assert.assertNull(record.parseInteger("one", null));
-                Assert.assertNull(record.parseLong("very lengthy", null));
-                Assert.assertNull(record.parseDate("blue monday", null));
-                Assert.assertNull(record.parseIpAddress("a.b.c.d", null));
-                //Assert.assertNull(record.parseUri("bad_uri", null));
-                //Assert.assertNull(record.parseUri("<zaphod>", null));
-                Assert.assertNull(record.parseContentType("gif\\image", null));
-                Assert.assertNull(record.parseDigest("sharif-1; omar", null));
+                Assert.assertNull(reader.fieldParser.parseInteger("one", null));
+                Assert.assertNull(reader.fieldParser.parseLong("very lengthy", null));
+                Assert.assertNull(reader.fieldParser.parseDate("blue monday", null));
+                Assert.assertNull(reader.fieldParser.parseIpAddress("a.b.c.d", null));
+                //Assert.assertNull(reader.fieldParser.parseUri("bad_uri", null));
+                //Assert.assertNull(reader.fieldParser.parseUri("<zaphod>", null));
+                Assert.assertNull(reader.fieldParser.parseContentType("gif\\image", null));
+                Assert.assertNull(reader.fieldParser.parseDigest("sharif-1; omar", null));
 
                 if (bDebugOutput) {
                     RecordDebugBase.printRecord(record);

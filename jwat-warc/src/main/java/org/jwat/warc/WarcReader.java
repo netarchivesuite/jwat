@@ -76,6 +76,8 @@ public abstract class WarcReader {
     protected HeaderLineReader lineReader;
     protected HeaderLineReader headerLineReader;
 
+    protected WarcFieldParser fieldParser;
+
     protected void init() {
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
@@ -86,6 +88,7 @@ public abstract class WarcReader {
         headerLineReader.bLWS = true;
         headerLineReader.bQuotedText = true;
         headerLineReader.bEncodedWords = true;
+        fieldParser = new WarcFieldParser();
     }
 
     /**

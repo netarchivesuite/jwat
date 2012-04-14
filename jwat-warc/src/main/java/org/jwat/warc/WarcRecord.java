@@ -43,7 +43,6 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpResponse;
-import org.jwat.common.IPAddressParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 
@@ -222,6 +221,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
         wr.in = in;
         wr.reader = reader;
         wr.startOffset = in.getConsumed();
+        // Initialize WarcFieldParser to report diagnoses here.
+        reader.fieldParser.diagnostics = wr.diagnostics;
         if (wr.parseVersion(in)) {
             // debug
             //System.out.println(wr.bMagicIdentified);
@@ -667,25 +668,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Add a warning diagnosis on the given entity stating that it is empty.
-     * @param entity entity examined
-     */
-    protected void addEmptyWarning(String entity) {
-        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
-    }
-
-    /**
-     * Add an error diagnosis on the given entity stating that it is invalid
-     * and something else was expected. The optional information should provide
-     * more details and/or format information.
-     * @param entity entity examined
-     * @param information optional extra information
-     */
-    protected void addInvalidExpectedError(String entity, String... information) {
-        diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
-    }
-
-    /**
      * Looks forward in the inputstream and counts the number of newlines
      * found. Non newlines characters are pushed back onto the inputstream.
      * @param in data inputstream
@@ -862,7 +844,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
                 case WarcConstants.FN_IDX_WARC_TYPE:
-                    warcTypeStr = parseString(value,
+                    warcTypeStr = reader.fieldParser.parseString(value,
                             WarcConstants.FN_WARC_TYPE);
                     if (warcTypeStr != null) {
                         warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
@@ -873,22 +855,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = value;
-                    warcRecordIdUri = parseUri(value,
+                    warcRecordIdUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = value;
-                    warcDate = parseDate(value,
+                    warcDate = reader.fieldParser.parseDate(value,
                             WarcConstants.FN_WARC_DATE);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_LENGTH:
                     contentLengthStr = value;
-                    contentLength = parseLong(value,
+                    contentLength = reader.fieldParser.parseLong(value,
                             WarcConstants.FN_CONTENT_LENGTH);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_TYPE:
                     contentTypeStr = value;
-                    contentType = parseContentType(value,
+                    contentType = reader.fieldParser.parseContentType(value,
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
@@ -898,7 +880,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         }
                         warcConcurrentToStrList.add( value );
                     }
-                    URI tmpUri = parseUri(value,
+                    URI tmpUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (tmpUri != null) {
                         if (warcConcurrentToUriList == null) {
@@ -909,31 +891,31 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     break;
                 case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
                     warcBlockDigestStr = value;
-                    warcBlockDigest = parseDigest(value,
+                    warcBlockDigest = reader.fieldParser.parseDigest(value,
                             WarcConstants.FN_WARC_BLOCK_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
                     warcPayloadDigestStr = value;
-                    warcPayloadDigest = parseDigest(value,
+                    warcPayloadDigest = reader.fieldParser.parseDigest(value,
                             WarcConstants.FN_WARC_PAYLOAD_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
                     warcIpAddress = value;
-                    warcInetAddress = parseIpAddress(value,
+                    warcInetAddress = reader.fieldParser.parseIpAddress(value,
                             WarcConstants.FN_WARC_IP_ADDRESS);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = value;
-                    warcRefersToUri = parseUri(value,
+                    warcRefersToUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = value;
-                    warcTargetUriUri = parseUri(value,
+                    warcTargetUriUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
-                    warcTruncatedStr = parseString(value,
+                    warcTruncatedStr = reader.fieldParser.parseString(value,
                             WarcConstants.FN_WARC_TRUNCATED);
                     if (warcTruncatedStr != null) {
                         warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
@@ -944,15 +926,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = value;
-                    warcWarcInfoIdUri = parseUri(value,
+                    warcWarcInfoIdUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
-                    warcFilename = parseString(value,
+                    warcFilename = reader.fieldParser.parseString(value,
                             WarcConstants.FN_WARC_FILENAME);
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
-                    warcProfileStr = parseString(value,
+                    warcProfileStr = reader.fieldParser.parseString(value,
                             WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
@@ -963,22 +945,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     break;
                 case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
                     warcIdentifiedPayloadTypeStr = value;
-                    warcIdentifiedPayloadType = parseContentType(value,
+                    warcIdentifiedPayloadType = reader.fieldParser.parseContentType(value,
                             WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = value;
-                    warcSegmentOriginIdUrl = parseUri(value,
+                    warcSegmentOriginIdUrl = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
                     warcSegmentNumberStr = value;
-                    warcSegmentNumber = parseInteger(value,
+                    warcSegmentNumber = reader.fieldParser.parseInteger(value,
                             WarcConstants.FN_WARC_SEGMENT_NUMBER);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
                     warcSegmentTotalLengthStr = value;
-                    warcSegmentTotalLength = parseLong(value,
+                    warcSegmentTotalLength = reader.fieldParser.parseLong(value,
                             WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
                     break;
                 }
@@ -1241,205 +1223,5 @@ public class WarcRecord implements PayloadOnClosedHandler {
         }
         return str;
     }
-
-    /**
-     * Returns an Integer object holding the value of the specified string.
-     * @param intStr the value to parse.
-     * @param field field name
-     * @return an integer object holding the value of the specified string
-     */
-    protected Integer parseInteger(String intStr, String field) {
-         Integer iVal = null;
-         if (intStr != null && intStr.length() > 0) {
-            try {
-                iVal = Integer.valueOf(intStr);
-            } catch (Exception e) {
-                // Invalid integer value.
-                addInvalidExpectedError("'" + field + "' value",
-                        intStr,
-                        "Numeric format");
-            }
-         } else {
-             // Missing integer value.
-             addEmptyWarning("'" + field + "' field");
-         }
-         return iVal;
-    }
-
-    /**
-     * Returns a Long object holding the value of the specified string.
-     * @param longStr the value to parse.
-     * @param field field name
-     * @return a long object holding the value of the specified string
-     */
-    protected Long parseLong(String longStr, String field) {
-        Long lVal = null;
-         if (longStr != null && longStr.length() > 0) {
-            try {
-                lVal = Long.valueOf(longStr);
-            } catch (Exception e) {
-                // Invalid long value.
-                addInvalidExpectedError("'" + field + "' value",
-                        longStr,
-                        "Numeric format");
-            }
-         } else {
-             // Missing long value.
-             addEmptyWarning("'" + field + "' field");
-         }
-         return lVal;
-    }
-
-    /**
-     * Parses a string.
-     * @param str the value to parse
-     * @param field field name
-     * @return the parsed value
-     */
-    protected String parseString(String str, String field) {
-        if (((str == null) || (str.trim().length() == 0))) {
-            addEmptyWarning("'" + field + "' field");
-        }
-        return str;
-    }
-
-    /**
-     * Parses WARC record date.
-     * @param dateStr the date to parse.
-     * @param field field name
-     * @return the formatted date.
-     */
-    protected Date parseDate(String dateStr, String field) {
-        Date date = null;
-        if (dateStr != null && dateStr.length() > 0) {
-                date = WarcDateParser.getDate(dateStr);
-                if (date == null) {
-                    // Invalid date.
-                    addInvalidExpectedError("'" + field + "' value",
-                            dateStr,
-                            WarcConstants.WARC_DATE_FORMAT);
-                }
-        } else {
-            // Missing date.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return date;
-    }
-
-    /**
-     * Parses WARC record IP address.
-     * @param ipAddress the IP address to parse
-     * @param field field name
-     * @return the IP address
-     */
-    protected InetAddress parseIpAddress(String ipAddress, String field) {
-        InetAddress inetAddr = null;
-        if (ipAddress != null && ipAddress.length() > 0) {
-            inetAddr = IPAddressParser.getAddress(ipAddress);
-            if (inetAddr == null) {
-                // Invalid ip address.
-                addInvalidExpectedError("'" + field + "' value",
-                        ipAddress,
-                        "IPv4 or IPv6 format");
-            }
-        } else {
-            // Missing ip address.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return inetAddr;
-    }
-
-    /**
-     * Returns an URL object holding the value of the specified string.
-     * @param uriStr the URL to parse
-     * @param field field name
-     * @return an URL object holding the value of the specified string
-     */
-    protected URI parseUri(String uriStr, String field) {
-        URI uri = null;
-        if (uriStr != null && uriStr.length() != 0) {
-            if (uriStr.startsWith("<") && uriStr.endsWith(">")) {
-                uriStr = uriStr.substring(1, uriStr.length() - 1);
-            }
-            try {
-                uri = new URI(uriStr);
-            } catch (Exception e) {
-                // Invalid URI.
-                addInvalidExpectedError("'" + field + "' value",
-                        uriStr,
-                        "URI format");
-            }
-        } else {
-            // Missing URI.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return uri;
-    }
-
-    /**
-     * Parse and validate content-type string with optional parameters.
-     * @param contentTypeStr content-type string to parse
-     * @param field field name
-     * @return content-type wrapper object or null
-     */
-    protected ContentType parseContentType(String contentTypeStr, String field) {
-        ContentType contentType = null;
-        if (contentTypeStr != null && contentTypeStr.length() != 0) {
-            contentType = ContentType.parseContentType(contentTypeStr);
-            if (contentType == null) {
-                // Invalid content-type.
-                addInvalidExpectedError("'" + field + "' value",
-                        contentTypeStr,
-                        WarcConstants.CONTENT_TYPE_FORMAT);
-            }
-        } else {
-            // Missing content-type.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return contentType;
-    }
-
-    /**
-     * Parse and validate WARC digest string.
-     * @param labelledDigest WARC digest string to parse
-     * @param field field name
-     * @return digest wrapper object or null
-     */
-    protected Digest parseDigest(String labelledDigest, String field) {
-        Digest digest = null;
-        if (labelledDigest != null && labelledDigest.length() > 0) {
-                digest = WarcDigest.parseDigest(labelledDigest);
-                if (digest == null) {
-                    // Invalid digest.
-                    addInvalidExpectedError("'" + field + "' value",
-                            labelledDigest,
-                            WarcConstants.WARC_DIGEST_FORMAT);
-                }
-        } else {
-            // Missing digest.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return digest;
-    }
-
-    /*
-    protected String readLine(PushbackInputStream in) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(128);
-        int b;
-        while (true) {
-            b = in.read();
-            if (b == -1) {
-                return null;    //Unexpected EOF
-            }
-            if (b == '\n') {
-                break;
-            }
-            if (b != '\r') {
-                bos.write(b);
-            }
-        }
-        return bos.toString("US-ASCII");
-    }
-    */
 
 }
