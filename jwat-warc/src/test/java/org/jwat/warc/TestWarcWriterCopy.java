@@ -250,7 +250,7 @@ public class TestWarcWriterCopy {
                     warnings += record.diagnostics.getWarnings().size();
                 }
 
-                writer.writeHeader(record.headerBytes);
+                writer.writeHeader(record.header.headerBytes);
 
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();

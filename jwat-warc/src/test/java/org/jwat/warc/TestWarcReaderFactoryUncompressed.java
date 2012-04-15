@@ -141,7 +141,7 @@ public class TestWarcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -210,7 +210,7 @@ public class TestWarcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -278,7 +278,7 @@ public class TestWarcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -335,7 +335,7 @@ public class TestWarcReaderFactoryUncompressed {
                 record = recordIterator.next();
                 ++records;
 
-                if (record.warcRecordIdUri == null) {
+                if (record.header.warcRecordIdUri == null) {
                     Assert.fail("Invalid warc-record-id");
                 }
 
@@ -343,8 +343,8 @@ public class TestWarcReaderFactoryUncompressed {
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
                 warcEntry = new WarcEntry();
-                warcEntry.recordId = record.warcRecordIdUri;
-                warcEntry.offset = record.startOffset;
+                warcEntry.recordId = record.header.warcRecordIdUri;
+                warcEntry.offset = record.getStartOffset();
                 warcEntries.add(warcEntry);
 
                 record.close();

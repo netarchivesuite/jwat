@@ -28,9 +28,18 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.IPAddressParser;
 
+/**
+ * Separate class containing all the different types of field parser.
+ * Including validating parsers for strings, integers, longs,
+ * content-types, URI's, WARC dates, and WARC digests.
+ *
+ * @author nicl
+ */
 public class WarcFieldParser {
 
-    public Diagnostics<Diagnosis> diagnostics;
+    /** Diagnostics used to report diagnoses.
+     * Must be set prior to calling the various methods. */
+    protected Diagnostics<Diagnosis> diagnostics;
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid

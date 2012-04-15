@@ -28,28 +28,29 @@ public class RecordDebugBase {
     }
 
     public static void printRecord(WarcRecord record) {
+    	WarcHeader header = record.header;
         System.out.println("--------------");
-        System.out.println("       Version: " + record.bMagicIdentified + " " + record.bVersionParsed + " " + record.major + "." + record.minor);
-        System.out.println("       TypeIdx: " + record.warcTypeIdx);
-        System.out.println("          Type: " + record.warcTypeStr);
-        System.out.println("      Filename: " + record.warcFilename);
-        System.out.println("     Record-ID: " + record.warcRecordIdUri);
-        System.out.println("          Date: " + record.warcDate);
-        System.out.println("Content-Length: " + record.contentLength);
-        System.out.println("  Content-Type: " + record.contentType);
-        System.out.println("     Truncated: " + record.warcTruncatedStr);
-        System.out.println("   InetAddress: " + record.warcInetAddress);
-        System.out.println("  ConcurrentTo: " + record.warcConcurrentToUriList);
-        System.out.println("      RefersTo: " + record.warcRefersToUri);
-        System.out.println("     TargetUri: " + record.warcTargetUriUri);
-        System.out.println("   WarcInfo-Id: " + record.warcWarcInfoIdUri);
-        System.out.println("   BlockDigest: " + record.warcBlockDigest);
-        System.out.println(" PayloadDigest: " + record.warcPayloadDigest);
-        System.out.println("IdentPloadType: " + record.warcIdentifiedPayloadType);
-        System.out.println("       Profile: " + record.warcProfileStr);
-        System.out.println("      Segment#: " + record.warcSegmentNumber);
-        System.out.println(" SegmentOrg-Id: " + record.warcSegmentOriginIdUrl);
-        System.out.println("SegmentTLength: " + record.warcSegmentTotalLength);
+        System.out.println("       Version: " + header.bMagicIdentified + " " + header.bVersionParsed + " " + header.major + "." + header.minor);
+        System.out.println("       TypeIdx: " + header.warcTypeIdx);
+        System.out.println("          Type: " + header.warcTypeStr);
+        System.out.println("      Filename: " + header.warcFilename);
+        System.out.println("     Record-ID: " + header.warcRecordIdUri);
+        System.out.println("          Date: " + header.warcDate);
+        System.out.println("Content-Length: " + header.contentLength);
+        System.out.println("  Content-Type: " + header.contentType);
+        System.out.println("     Truncated: " + header.warcTruncatedStr);
+        System.out.println("   InetAddress: " + header.warcInetAddress);
+        System.out.println("  ConcurrentTo: " + header.warcConcurrentToUriList);
+        System.out.println("      RefersTo: " + header.warcRefersToUri);
+        System.out.println("     TargetUri: " + header.warcTargetUriUri);
+        System.out.println("   WarcInfo-Id: " + header.warcWarcInfoIdUri);
+        System.out.println("   BlockDigest: " + header.warcBlockDigest);
+        System.out.println(" PayloadDigest: " + header.warcPayloadDigest);
+        System.out.println("IdentPloadType: " + header.warcIdentifiedPayloadType);
+        System.out.println("       Profile: " + header.warcProfileStr);
+        System.out.println("      Segment#: " + header.warcSegmentNumber);
+        System.out.println(" SegmentOrg-Id: " + header.warcSegmentOriginIdUrl);
+        System.out.println("SegmentTLength: " + header.warcSegmentTotalLength);
     }
 
     public static void printStatus(int records, int errors, int warnings) {

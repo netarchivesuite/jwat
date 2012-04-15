@@ -127,7 +127,7 @@ public class WarcReaderUncompressed extends WarcReader {
                 new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE),
                 this);
         if (warcRecord != null) {
-            warcRecord.startOffset = offset;
+            warcRecord.header.startOffset = offset;
             startOffset = offset;
         }
         return warcRecord;
@@ -157,7 +157,7 @@ public class WarcReaderUncompressed extends WarcReader {
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE), this);
         if (warcRecord != null) {
-            warcRecord.startOffset = offset;
+            warcRecord.header.startOffset = offset;
             startOffset = offset;
         }
         return warcRecord;

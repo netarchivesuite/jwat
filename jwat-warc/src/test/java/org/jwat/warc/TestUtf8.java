@@ -96,8 +96,8 @@ public class TestUtf8 {
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
-                    if (record.warcFilename != null) {
-                        saveUtf8(record.warcFilename);
+                    if (record.header.warcFilename != null) {
+                        saveUtf8(record.header.warcFilename);
                     }
 
                     Payload payload = record.getPayload();

@@ -150,7 +150,7 @@ public class WarcReaderCompressed extends WarcReader {
             }
         }
         if (warcRecord != null) {
-            warcRecord.startOffset = entry.getStartOffset();
+            warcRecord.header.startOffset = entry.getStartOffset();
         }
         return warcRecord;
     }
@@ -179,7 +179,7 @@ public class WarcReaderCompressed extends WarcReader {
                             PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.startOffset = offset;
+            warcRecord.header.startOffset = offset;
         }
         return warcRecord;
     }
@@ -214,7 +214,7 @@ public class WarcReaderCompressed extends WarcReader {
                                     PUSHBACK_BUFFER_SIZE), this);
         }
         if (warcRecord != null) {
-            warcRecord.startOffset = offset;
+            warcRecord.header.startOffset = offset;
         }
         return warcRecord;
     }
