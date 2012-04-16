@@ -19,17 +19,33 @@ package org.jwat.common;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * A ByteArrayOutputStream with unread capability.
+ *
+ * @author nicl
+ */
 public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
 
+	/**
+	 * Construct an object without specifying an buffer size.
+	 */
     public UnreadableByteArrayOutputStream() {
         super();
     }
 
+    /**
+	 * Construct an object with the specifying buffer size.
+     * @param size buffer size
+     */
     public UnreadableByteArrayOutputStream(int size)  {
         super(size);
     }
 
-    public void unread(int c) {
+    /**
+     * Unread a byte by removing it from the buffer.
+     * @param b the int value whose low-order byte is to be unread.
+     */
+    public void unread(int b) {
         --count;
         if (count < 0) {
             System.out.println(new String(buf));
@@ -39,6 +55,10 @@ public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
         }
     }
 
+    /**
+     * Unread an array of bytes by removing them from the  buffer.
+     * @param b the byte array to push back
+     */
     public void unread(byte[] b) {
         count -= b.length;
         if (count < 0) {
@@ -49,6 +69,12 @@ public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
         }
     }
 
+    /**
+     * Unread a portion of an array of bytes by removing them from the buffer.
+     * @param b the byte array to unread.
+     * @param off the start offset of the data.
+     * @param len the number of bytes to unread.
+     */
     public void unread(byte[] b, int off, int len) {
         count -= len;
         if (count < 0) {

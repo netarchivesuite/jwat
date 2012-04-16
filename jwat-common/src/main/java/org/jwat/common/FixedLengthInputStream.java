@@ -47,6 +47,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
     /**
      * Closing will only skip to the end of this fixed length input stream and
      * not call the parent's close method.
+     * @throws IOException if an io error occurs while closing stream
      */
     @Override
     public void close() throws IOException {

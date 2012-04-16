@@ -231,12 +231,12 @@ public class GzipReader {
                                 )
                             );
                 }
-                if ((gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) == GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION) {
+                if ((gzipEntry.xfl & GzipConstants.DEFLATE_XFL_COMPRESSION_MASK) == GzipConstants.DEFLATE_XFL_COMPRESSION_MASK) {
                     gzipEntry.diagnostics.addError(
                             new Diagnosis(
                                     DiagnosisType.INVALID_DATA,
                                     "eXtra FLags",
-                                    Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_MAXIEST_COMPRESSION)
+                                    Integer.toHexString(gzipEntry.xfl & GzipConstants.DEFLATE_XFL_COMPRESSION_MASK)
                                 )
                             );
                 }

@@ -98,7 +98,7 @@ public class GzipEntry {
 
     /**
      * Release resources associated with this record.
-     * @throws IOException
+     * @throws IOException if an io error occurs while closing entry
      */
     public void close() throws IOException {
         if (!bEof) {

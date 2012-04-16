@@ -73,11 +73,18 @@ public abstract class WarcReader {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
+    /** Line reader used to read version lines. */
     protected HeaderLineReader lineReader;
+
+    /** Header line reader used to read the WARC headers. */
     protected HeaderLineReader headerLineReader;
 
+    /** WARC field parser used. */
     protected WarcFieldParser fieldParser;
 
+    /**
+     * Method used to initialize a readers internal state.
+     */
     protected void init() {
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;

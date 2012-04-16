@@ -36,56 +36,103 @@ public class GzipConstants {
     /** GZip header magic number. */
     public static final int GZIP_MAGIC = 0x8b1f;
 
+    /*
+     * Compression.
+     */
+
     /** Friendly name for the deflate compression method. */
     public static final String CM_STRING_DEFLATE = "deflate";
 
     /** Deflate compression method. */
     public static final int CM_DEFLATE = 8;
 
+    /** Maximum compression flag bit. */
     public static final int DEFLATE_XFL_MAXIMUM_COMPRESSION = 2;
+    /** Fastest compression flag bit. */
     public static final int DEFLATE_XFL_FASTEST_COMPRESSION = 4;
-    public static final int DEFLATE_XFL_MAXIEST_COMPRESSION =
+    /** Compression flag bit mask. */
+    public static final int DEFLATE_XFL_COMPRESSION_MASK =
             DEFLATE_XFL_MAXIMUM_COMPRESSION + DEFLATE_XFL_FASTEST_COMPRESSION;
+    /** Reserved compression bits mask. */
     public static final int DEFLATE_XLF_RESERVED = 1 + 8 + 16 + 32 + 64 + 128;
 
-    /** File header flags. */
-    public static final int FLG_FTEXT = 1;          // Extra text
-    public static final int FLG_FHCRC = 2;          // Header CRC
-    public static final int FLG_FEXTRA = 4;         // Extra field
-    public static final int FLG_FNAME = 8;          // File name
-    public static final int FLG_FCOMMENT = 16;      // File comment
-    public static final int FLG_FRESERVED = 224;    // Reserved flags
+    /*
+     * File header flags.
+     */
 
+    /** Extra text flag. */
+    public static final int FLG_FTEXT = 1;
+    /** Header CRC flag. */
+    public static final int FLG_FHCRC = 2;
+    /** Extra field flag. */
+    public static final int FLG_FEXTRA = 4;
+    /** File name flag. */
+    public static final int FLG_FNAME = 8;
+    /** File comment flag. */
+    public static final int FLG_FCOMMENT = 16;
+    /** Reserved flag bits mask. */
+    public static final int FLG_FRESERVED = 224;
+
+    /** FAT filesystem OS name. */
     public static final String OS_STRING_FAT_FS = "FAT filesystem (MS-DOS, OS/2, NT/Win32)";
+    /** Amiga OS name. */
     public static final String OS_STRING_AMIGA = "Amiga";
+    /** VMS OS name. */
     public static final String OS_STRING_VMS = "VMS (or OpenVMS)";
+    /** Unix OS name. */
     public static final String OS_STRING_UNIX = "Unix";
+    /** VM/CMS OS name. */
     public static final String OS_STRING_VM = "VM/CMS";
+    /** Atari TOS OS name. */
     public static final String OS_STRING_ATARI = "Atari TOS";
+    /** HPFS filesystem OS name. */
     public static final String OS_STRING_HPFS_FS = "HPFS filesystem (OS/2, NT)";
+    /** Macintosh OS name. */
     public static final String OS_STRING_MACINTOSH = "Macintosh";
+    /** Z-System OS name. */
     public static final String OS_STRING_Z_SYSTEM = "Z-System";
+    /** CP/M OS name. */
     public static final String OS_STRING_CPM = "CP/M";
+    /** TOPS-20 OS name. */
     public static final String OS_STRING_TOPS_20 = "TOPS-20";
+    /** NTFS filesystem OS name. */
     public static final String OS_STRING_NTFS_FS = "NTFS filesystem (NT)";
+    /** QDOS OS name. */
     public static final String OS_STRING_QDOS = "QDOS";
+    /** Acorn OS name. */
     public static final String OS_STRING_ACORN = "Acorn RISCOS";
+    /** Unknown OS name. */
     public static final String OS_STRING_UNKNOWN = "unknown";
 
+    /** FAT filesystem OS value. */
     public static final int OS_FAT_FS = 0;
+    /** Amiga OS value. */
     public static final int OS_AMIGA = 1;
+    /** VMS OS value. */
     public static final int OS_VMS = 2;
+    /** Unix OS value. */
     public static final int OS_UNIX = 3;
+    /** VM/CMS OS value. */
     public static final int OS_VM = 4;
+    /** Atari TOS OS value. */
     public static final int OS_ATARI = 5;
+    /** HPFS filesystem OS value. */
     public static final int OS_HPFS_FS = 6;
+    /** Macintosh OS value. */
     public static final int OS_MACINTOSH = 7;
+    /** Z-System OS value. */
     public static final int OS_Z_SYSTEM = 8;
+    /** CP/M OS value. */
     public static final int OS_CPM = 9;
+    /** TOPS-20 OS value. */
     public static final int OS_TOPS_20 = 10;
+    /** NTFS filesystem OS value. */
     public static final int OS_NTFS_FS = 11;
+    /** QDOS OS value. */
     public static final int OS_QDOS = 12;
+    /** Acorn OS value. */
     public static final int OS_ACORN = 13;
+    /** Unknown OS value. */
     public static final int OS_UNKNOWN = 255;
 
     /** Operating Systems lookup map used to identify OS values. */

@@ -19,6 +19,11 @@ package org.jwat.common;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * Class used to decode a Quoted-Printable string as specified in RFC 822.
+ *
+ * @author nicl
+ */
 public class QuotedPrintable {
 
     /**
@@ -27,6 +32,11 @@ public class QuotedPrintable {
     protected QuotedPrintable() {
     }
 
+    /**
+     * Returns a decoded Quoted-Printable string or null if it is not valid.
+     * @param encoded_text Quoted-Printable string
+     * @return decoded string or null
+     */
     public static byte[] decode(String encoded_text) {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         int idx = 0;

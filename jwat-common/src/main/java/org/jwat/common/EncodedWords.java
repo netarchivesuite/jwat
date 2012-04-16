@@ -30,6 +30,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
+// http://www.ietf.org/rfc/rfc2047.txt
 public class EncodedWords {
 
     protected static final int S_START_EQ_ = 0;
@@ -39,7 +40,9 @@ public class EncodedWords {
     protected static final int S_ENCODED_WORDS = 4;
     protected static final int S_END_EQ = 5;
 
+    /** Base64 encoding id. */
     public static final int ENC_BASE64 = 1;
+    /** Quoted-Printable encoding id. */
     public static final int ENC_QUOTEDPRINTABLE = 2;
 
     /** Control character characteristic. */

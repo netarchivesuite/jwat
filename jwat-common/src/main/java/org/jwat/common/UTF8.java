@@ -42,6 +42,7 @@ public class UTF8 {
     /** Complete or partial UTF-8 character, depending on conversion errors. */
     public int utf8_c;
 
+    /** Bytes read in the decoding process. */
     public byte[] chars;
 
     /** UTF-8 validity status on last read character. */
