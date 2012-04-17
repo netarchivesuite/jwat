@@ -20,7 +20,8 @@ package org.jwat.common;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Class used to decode a Quoted-Printable string as specified in RFC 822.
+ * Class used to decode and validate a Quoted-Printable string as specified
+ * in RFC 822.
  *
  * @author nicl
  */

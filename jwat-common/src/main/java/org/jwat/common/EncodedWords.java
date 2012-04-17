@@ -30,14 +30,32 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 
-// http://www.ietf.org/rfc/rfc2047.txt
+/**
+ * Class used to decode and validate an Encoded-Word string as specified
+ * in RFC 2047.
+ *
+ * Examples:
+ * =?US-ASCII?Q?Keith_Moore?=
+ * =?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?=
+ * =?ISO-8859-1?Q?Andr=E9?=
+ * =?ISO-8859-1?B?SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=?=
+ * =?ISO-8859-2?B?dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==?=
+ *
+ * @author nicl
+ */
 public class EncodedWords {
 
-    protected static final int S_START_EQ_ = 0;
+    /** Looking for an equal sign state. */
+    protected static final int S_START_EQ = 0;
+    /** Looking for a question mark state. */
     protected static final int S_START_QM = 1;
+    /** Reading the charset state. */
     protected static final int S_CHARSET = 2;
+    /** Reading the encoding state. */
     protected static final int S_ENCODING = 3;
+    /** Reding the encoded words state. */
     protected static final int S_ENCODED_WORDS = 4;
+    /** Looking for the last equal sign state. */
     protected static final int S_END_EQ = 5;
 
     /** Base64 encoding id. */
@@ -68,24 +86,42 @@ public class EncodedWords {
         }
     }
 
+    /** Indicates whether the charset is valid or not. */
     public boolean bValidCharset;
 
+    /** Raw charset name. */
     public String charsetStr;
 
+    /** Identified encoding, 0 indicates an unknown encoding. */
     public int encoding;
 
+    /** Raw encoding name. */
     public String encodingStr;
 
+    /** Raw encoded text string */
     public String encoded_text;
 
+    /** Indicates whether there were errors during character conversion. */
     public boolean bConversionError;
 
+    /** Decoded text, after decoding and character conversion. */
     public String decoded_text;
 
+    /** Raw bytes parsed, usable to re-insert original string after validation. */
     public byte[] line;
 
+    /** Indicates where the encoded words could be validated and decoded. */
     public boolean bIsValid = false;
 
+    /**
+     * Attempt to validate and decode an encoded-word from the input stream.
+     * In case of failure the already parsed raw data is available for further
+     * processing.
+     * @param in input stream containing a possible encoded-word
+     * @param bParseEqQm true if we should look for leading "=?", false if not
+     * @return result of the validation and decoding
+     * @throws IOException if an io error occurs during parsing
+     */
     public static EncodedWords parseEncodedWords(InputStream in, boolean bParseEqQm) throws IOException {
         EncodedWords ew = new EncodedWords();
         ByteArrayOutputStream lineOut = new ByteArrayOutputStream();
@@ -93,7 +129,7 @@ public class EncodedWords {
         Charset charset = null;
         int state;
         if (bParseEqQm) {
-            state = S_START_EQ_;
+            state = S_START_EQ;
         } else {
             state = S_CHARSET;
         }
@@ -105,7 +141,7 @@ public class EncodedWords {
                 lineOut.write(c);
             }
             switch (state) {
-            case S_START_EQ_:
+            case S_START_EQ:
                 if (c == '=') {
                     state = S_START_QM;
                 } else {

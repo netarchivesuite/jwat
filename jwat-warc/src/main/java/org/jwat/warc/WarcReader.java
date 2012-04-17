@@ -80,7 +80,7 @@ public abstract class WarcReader {
     protected HeaderLineReader headerLineReader;
 
     /** WARC field parser used. */
-    protected WarcFieldParser fieldParser;
+    protected WarcFieldParsers fieldParser;
 
     /**
      * Method used to initialize a readers internal state.
@@ -95,7 +95,7 @@ public abstract class WarcReader {
         headerLineReader.bLWS = true;
         headerLineReader.bQuotedText = true;
         headerLineReader.bEncodedWords = true;
-        fieldParser = new WarcFieldParser();
+        fieldParser = new WarcFieldParsers();
     }
 
     /**

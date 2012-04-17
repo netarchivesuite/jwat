@@ -496,30 +496,6 @@ public class WarcConstants {
         field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
     }
 
-    /*
-    WARC-Type
-    WARC-Record-ID
-    WARC-Date
-    Content-Length
-    Content-Type
-    WARC-Concurrent-To
-    WARC-Block-Digest
-    WARC-Payload-Digest
-    WARC-IP-Address
-    WARC-Refers-To
-    WARC-Target-URI
-    WARC-Truncated
-    WARC-Warcinfo-ID
-    WARC-Filename
-    WARC-Profile
-    WARC-Identified-Payload-Type
-    WARC-Segment-Origin-ID
-    WARC-Segment-Number
-    WARC-Segment-Total-Length
-    */
-
-    //'warcinfo', 'response', 'resource', 'request', 'metadata', 'revisit', 'conversion', 'continuation'
-
     /**
      * This utility class does not require instantiation.
      */

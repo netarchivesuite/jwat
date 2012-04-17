@@ -120,6 +120,8 @@ public class ArcVersionBlock extends ArcRecordBase {
         vb.in = in;
         vb.reader = reader;
         vb.startOffset = in.getConsumed();
+        // Initialize WarcFieldParser to report diagnoses here.
+        reader.fieldParser.diagnostics = vb.diagnostics;
 
         vb.isMagicArcFile = false;
         vb.isVersionValid = false;
@@ -146,13 +148,13 @@ public class ArcVersionBlock extends ArcRecordBase {
                         "Invalid version description"));
             }
             // Get version and origin
-            vb.versionNumber = vb.parseInteger(
+            vb.versionNumber = reader.fieldParser.parseInteger(
                         ArcFieldValidator.getArrayValue(versionArr, 0),
                         ArcConstants.VERSION_FIELD, false);
-            vb.reserved = vb.parseInteger(
+            vb.reserved = reader.fieldParser.parseInteger(
                         ArcFieldValidator.getArrayValue(versionArr, 1),
                         ArcConstants.RESERVED_FIELD, false);
-            vb.originCode = vb.parseString(
+            vb.originCode = reader.fieldParser.parseString(
                         ArcFieldValidator.getArrayValue(versionArr, 2),
                         ArcConstants.ORIGIN_FIELD, false);
             vb.checkVersion();
@@ -273,7 +275,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @return the version block content type
      */
     public ContentType parseContentType(String contentTypeStr) {
-        ContentType ct = super.parseContentType(contentTypeStr, ArcConstants.CONTENT_TYPE_FIELD);
+        ContentType ct = reader.fieldParser.parseContentType(contentTypeStr, ArcConstants.CONTENT_TYPE_FIELD);
         if (ct == null) {
             // Version block content-type is required.
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,

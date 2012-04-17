@@ -497,16 +497,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Checks if the WARC record has errors.
-     * @return true/false based on whether the WARC record is valid or not
-     */
-    /*
-    public boolean hasErrors() {
-        return ((errors != null) && (!errors.isEmpty()));
-    }
-    */
-
-    /**
      * Add an error diagnosis of the given type on a specific entity with
      * optional extra information. The information varies according to the
      * diagnosis type.
@@ -526,6 +516,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @throws IOException if an error occurs while reading data
      */
     protected int parseNewLines(ByteCountingPushBackInputStream in) throws IOException {
+        // TODO report missing CR
         int newlines = 0;
         byte[] buffer = new byte[2];
         boolean b = true;

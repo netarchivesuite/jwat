@@ -28,7 +28,7 @@ public class RecordDebugBase {
     }
 
     public static void printRecord(WarcRecord record) {
-    	WarcHeader header = record.header;
+        WarcHeader header = record.header;
         System.out.println("--------------");
         System.out.println("       Version: " + header.bMagicIdentified + " " + header.bVersionParsed + " " + header.major + "." + header.minor);
         System.out.println("       TypeIdx: " + header.warcTypeIdx);

@@ -35,12 +35,13 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLine;
+import org.jwat.common.MaxLengthRecordingInputStream;
 
 public class WarcHeader {
 
-	/** Associated WarcReader context.
-	 * Must be set prior to calling the various methods. */
-	protected WarcReader reader;
+    /** Associated WarcReader context.
+     * Must be set prior to calling the various methods. */
+    protected WarcReader reader;
 
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
@@ -62,7 +63,7 @@ public class WarcHeader {
 
     protected long startOffset = -1;
 
-	/*
+    /*
      * WARC header fields.
      */
 
@@ -169,15 +170,15 @@ public class WarcHeader {
     }
 
     public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
-    	WarcHeader header = new WarcHeader();
-    	header.reader = reader;
-    	header.startOffset = startOffset;
-    	header.diagnostics = diagnostics;
-    	return header;
+        WarcHeader header = new WarcHeader();
+        header.reader = reader;
+        header.startOffset = startOffset;
+        header.diagnostics = diagnostics;
+        return header;
     }
 
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
-    	if (parseVersion(in)) {
+        if (parseVersion(in)) {
             // debug
             //System.out.println(wr.bMagicIdentified);
             //System.out.println(wr.bVersionParsed);
@@ -212,12 +213,17 @@ public class WarcHeader {
                                 "Magic Version string", versionStr));
             }
 
-            parseFields(in);
+            MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, 8192);
+            ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, 8192);
+
+            parseFields(pbin);
+            pbin.close();
+
             checkFields();
 
             headerBytes = headerBytesOut.toByteArray();
-    	}
-    	return bMagicIdentified;
+        }
+        return bMagicIdentified;
     }
 
     /**

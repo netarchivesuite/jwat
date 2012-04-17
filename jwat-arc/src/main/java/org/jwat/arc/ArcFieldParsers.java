@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jwat.warc;
+package org.jwat.arc;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -25,21 +25,28 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
-import org.jwat.common.Digest;
 import org.jwat.common.IPAddressParser;
 
 /**
  * Separate class containing all the different types of field parser.
  * Including validating parsers for strings, integers, longs,
- * content-types, URI's, WARC dates, and WARC digests.
+ * content-types, IP's, URI's and ARC dates.
  *
  * @author nicl
  */
-public class WarcFieldParser {
+public class ArcFieldParsers {
 
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
     protected Diagnostics<Diagnosis> diagnostics;
+
+    /**
+     * Add a warning diagnosis on the given entity stating that it is empty.
+     * @param entity entity examined
+     */
+    protected void addEmptyWarning(String entity) {
+        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+    }
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid
@@ -53,11 +60,28 @@ public class WarcFieldParser {
     }
 
     /**
-     * Add a warning diagnosis on the given entity stating that it is empty.
-     * @param entity entity examined
+     * Parses a string.
+     * @param str the value to parse
+     * @param field field name
+     * @return the parsed value
      */
-    protected void addEmptyWarning(String entity) {
-        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
+    protected String parseString(String str, String field) {
+        return parseString(str, field, false);
+    }
+
+    /**
+     * Parses a string.
+     * @param str the value to parse
+     * @param field field name
+     * @param optional specifies if the value is optional or not
+     * @return the parsed value
+     */
+    protected String parseString(String str, String field, boolean optional) {
+        if (((str == null) || (str.trim().length() == 0))
+            && (!optional)) {
+            addEmptyWarning("'" + field + "' field");
+        }
+        return str;
     }
 
     /**
@@ -77,11 +101,25 @@ public class WarcFieldParser {
                         intStr,
                         "Numeric format");
             }
-         } else {
-             // Missing integer value.
-             addEmptyWarning("'" + field + "' field");
          }
          return iVal;
+    }
+
+    /**
+     * Returns an Integer object holding the value of the specified string.
+     * @param intStr the value to parse.
+     * @param field field name
+     * @param optional specifies if the value is optional or not
+     * @return an integer object holding the value of the specified string
+     */
+    protected Integer parseInteger(String intStr, String field,
+                                   boolean optional) {
+        Integer result = this.parseInteger(intStr, field);
+        if((result == null) && (!optional)){
+            // Missing integer value.
+            addEmptyWarning("'" + field + "' field");
+        }
+        return result;
     }
 
     /**
@@ -102,50 +140,37 @@ public class WarcFieldParser {
                         "Numeric format");
             }
          } else {
-             // Missing long value.
+             // Missing mandatory value.
              addEmptyWarning("'" + field + "' field");
          }
          return lVal;
     }
 
     /**
-     * Parses a string.
-     * @param str the value to parse
+     * Parses ARC record content type.
+     * @param contentTypeStr ARC record content type
      * @param field field name
-     * @return the parsed value
+     * @return ARC record content type
      */
-    protected String parseString(String str, String field) {
-        if (((str == null) || (str.trim().length() == 0))) {
-            addEmptyWarning("'" + field + "' field");
-        }
-        return str;
-    }
-
-    /**
-     * Parses WARC record date.
-     * @param dateStr the date to parse.
-     * @param field field name
-     * @return the formatted date.
-     */
-    protected Date parseDate(String dateStr, String field) {
-        Date date = null;
-        if (dateStr != null && dateStr.length() > 0) {
-                date = WarcDateParser.getDate(dateStr);
-                if (date == null) {
-                    // Invalid date.
-                    addInvalidExpectedError("'" + field + "' value",
-                            dateStr,
-                            WarcConstants.WARC_DATE_FORMAT);
-                }
+    protected ContentType parseContentType(String contentTypeStr, String field) {
+        ContentType contentType = null;
+        if (contentTypeStr != null && contentTypeStr.length() != 0) {
+            contentType = ContentType.parseContentType(contentTypeStr);
+            if (contentType == null) {
+                // Invalid content-type.
+                addInvalidExpectedError("'" + field + "' value",
+                        contentTypeStr,
+                        ArcConstants.CONTENT_TYPE_FORMAT);
+            }
         } else {
-            // Missing date.
+            // Missing content-type.
             addEmptyWarning("'" + field + "' field");
         }
-        return date;
+        return contentType;
     }
 
     /**
-     * Parses WARC record IP address.
+     * Parses ARC record IP address.
      * @param ipAddress the IP address to parse
      * @param field field name
      * @return the IP address
@@ -155,13 +180,13 @@ public class WarcFieldParser {
         if (ipAddress != null && ipAddress.length() > 0) {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
-                // Invalid ip address.
+                // Invalid date.
                 addInvalidExpectedError("'" + field + "' value",
                         ipAddress,
                         "IPv4 or IPv6 format");
             }
         } else {
-            // Missing ip address.
+            // Missing mandatory value.
             addEmptyWarning("'" + field + "' field");
         }
         return inetAddr;
@@ -175,10 +200,7 @@ public class WarcFieldParser {
      */
     protected URI parseUri(String uriStr, String field) {
         URI uri = null;
-        if (uriStr != null && uriStr.length() != 0) {
-            if (uriStr.startsWith("<") && uriStr.endsWith(">")) {
-                uriStr = uriStr.substring(1, uriStr.length() - 1);
-            }
+        if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
                 uri = new URI(uriStr);
             } catch (Exception e) {
@@ -188,56 +210,33 @@ public class WarcFieldParser {
                         "URI format");
             }
         } else {
-            // Missing URI.
+            // Missing mandatory value.
             addEmptyWarning("'" + field + "' field");
         }
         return uri;
     }
 
     /**
-     * Parse and validate content-type string with optional parameters.
-     * @param contentTypeStr content-type string to parse
+     * Parses ARC record date.
+     * @param dateStr the date to parse.
      * @param field field name
-     * @return content-type wrapper object or null
+     * @return the formatted date.
      */
-    protected ContentType parseContentType(String contentTypeStr, String field) {
-        ContentType contentType = null;
-        if (contentTypeStr != null && contentTypeStr.length() != 0) {
-            contentType = ContentType.parseContentType(contentTypeStr);
-            if (contentType == null) {
-                // Invalid content-type.
-                addInvalidExpectedError("'" + field + "' value",
-                        contentTypeStr,
-                        WarcConstants.CONTENT_TYPE_FORMAT);
-            }
-        } else {
-            // Missing content-type.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return contentType;
-    }
-
-    /**
-     * Parse and validate WARC digest string.
-     * @param labelledDigest WARC digest string to parse
-     * @param field field name
-     * @return digest wrapper object or null
-     */
-    protected Digest parseDigest(String labelledDigest, String field) {
-        Digest digest = null;
-        if (labelledDigest != null && labelledDigest.length() > 0) {
-                digest = WarcDigest.parseDigest(labelledDigest);
-                if (digest == null) {
-                    // Invalid digest.
+    protected Date parseDate(String dateStr, String field) {
+        Date date = null;
+        if (dateStr != null && dateStr.length() > 0) {
+                date = ArcDateParser.getDate(dateStr);
+                if (date == null) {
+                    // Invalid date.
                     addInvalidExpectedError("'" + field + "' value",
-                            labelledDigest,
-                            WarcConstants.WARC_DIGEST_FORMAT);
+                            dateStr,
+                            ArcConstants.ARC_DATE_FORMAT);
                 }
         } else {
-            // Missing digest.
+            // Missing mandatory value.
             addEmptyWarning("'" + field + "' field");
         }
-        return digest;
+        return date;
     }
 
 }

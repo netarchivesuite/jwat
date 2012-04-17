@@ -69,6 +69,8 @@ public class ArcRecord extends ArcRecordBase {
         ar.in = in;
         ar.reader = reader;
         ar.startOffset = in.getConsumed();
+        // Initialize WarcFieldParser to report diagnoses here.
+        reader.fieldParser.diagnostics = ar.diagnostics;
 
         // Read record line.
         // Looping past empty lines.

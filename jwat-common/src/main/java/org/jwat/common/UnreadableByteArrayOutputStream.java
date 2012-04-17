@@ -26,15 +26,15 @@ import java.io.ByteArrayOutputStream;
  */
 public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
 
-	/**
-	 * Construct an object without specifying an buffer size.
-	 */
+    /**
+     * Construct an object without specifying an buffer size.
+     */
     public UnreadableByteArrayOutputStream() {
         super();
     }
 
     /**
-	 * Construct an object with the specifying buffer size.
+     * Construct an object with the specifying buffer size.
      * @param size buffer size
      */
     public UnreadableByteArrayOutputStream(int size)  {

@@ -45,6 +45,7 @@ public class ArcReaderUncompressed extends ArcReader {
      * using a supplied input stream for each record.
      */
     ArcReaderUncompressed() {
+        init();
     }
 
     /**
@@ -57,6 +58,7 @@ public class ArcReaderUncompressed extends ArcReader {
             throw new IllegalArgumentException("The inputstream 'in' is null");
         }
         this.in = in;
+        init();
     }
 
     @Override

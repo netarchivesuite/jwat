@@ -24,6 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jwat.common.HeaderLineReader;
+
 /**
  * ARC Reader base class.
  *
@@ -72,6 +74,22 @@ public abstract class ArcReader {
 
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
+
+    /** ARC field parser used. */
+    protected ArcFieldParsers fieldParser;
+
+    /** Line reader used to read header lines. */
+    protected HeaderLineReader lineReader;
+
+    /**
+     * Method used to initialize a readers internal state.
+     */
+    protected void init() {
+        lineReader = HeaderLineReader.getReader();
+        lineReader.bNameValue = false;
+        lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
+        fieldParser = new ArcFieldParsers();
+    }
 
     /**
      * Returns a boolean indicating whether the reader has only parsed

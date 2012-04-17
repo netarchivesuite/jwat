@@ -47,6 +47,7 @@ public class ArcReaderCompressed extends ArcReader {
      * using a supplied input stream for each record.
      */
     ArcReaderCompressed() {
+        init();
     }
 
     /**
@@ -59,6 +60,7 @@ public class ArcReaderCompressed extends ArcReader {
             throw new IllegalArgumentException("'reader' is null");
         }
         this.reader = reader;
+        init();
     }
 
     /**
@@ -78,6 +80,7 @@ public class ArcReaderCompressed extends ArcReader {
         }
         this.reader = reader;
         this.bufferSize = buffer_size;
+        init();
     }
 
     @Override
