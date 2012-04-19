@@ -39,6 +39,9 @@ public class TestParams {
         String str;
         InputStream is;
 
+        WarcConstants constants = new WarcConstants();
+        Assert.assertNotNull(constants);
+
         /*
          * Digest.
          */

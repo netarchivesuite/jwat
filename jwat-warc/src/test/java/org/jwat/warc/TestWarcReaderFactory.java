@@ -75,6 +75,9 @@ public class TestWarcReaderFactory {
         int errors = 0;
         int warnings = 0;
 
+        WarcReaderFactory factory = new WarcReaderFactory();
+        Assert.assertNotNull(factory);
+
         try {
             /*
              * Auto detect unbuffered.

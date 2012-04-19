@@ -65,6 +65,7 @@ public class ArcRecord extends ArcRecordBase {
                                                           throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.versionBlock = versionBlock;
+        // TODO check for actual version present!
         ar.version = versionBlock.version;
         ar.in = in;
         ar.reader = reader;

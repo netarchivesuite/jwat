@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Iterator;
+import java.util.List;
 
+import org.jwat.common.Diagnosis;
 import org.jwat.common.HttpResponse;
 
 public class RecordDebugBase {
@@ -88,6 +91,46 @@ public class RecordDebugBase {
         System.out.println("     Records: " + records);
         System.out.println("      Errors: " + errors);
         System.out.println("    Warnings: " + warnings);
+    }
+
+    public static void printRecordErrors(ArcRecord record) {
+        List<Diagnosis> diagnosisList;
+        Iterator<Diagnosis> diagnosisIterator;
+        Diagnosis diagnosis;
+        if (record.diagnostics.hasErrors()) {
+            diagnosisList = record.diagnostics.getErrors();
+            if (diagnosisList != null && diagnosisList.size() > 0) {
+                diagnosisIterator = diagnosisList.iterator();
+                while (diagnosisIterator.hasNext()) {
+                    diagnosis = diagnosisIterator.next();
+                    System.out.println( "Error" );
+                    System.out.println( diagnosis.type );
+                    System.out.println( diagnosis.entity );
+                    if (diagnosis.information != null) {
+                        for (int i=0; i<diagnosis.information.length; ++i) {
+                            System.out.println( diagnosis.information[i] );
+                        }
+                    }
+                }
+            }
+        }
+        if (record.diagnostics.hasWarnings()) {
+            diagnosisList = record.diagnostics.getWarnings();
+            if (diagnosisList != null && diagnosisList.size() > 0) {
+                diagnosisIterator = diagnosisList.iterator();
+                while (diagnosisIterator.hasNext()) {
+                    diagnosis = diagnosisIterator.next();
+                    System.out.println( "Warning:" );
+                    System.out.println( diagnosis.type );
+                    System.out.println( diagnosis.entity );
+                    if (diagnosis.information != null) {
+                        for (int i=0; i<diagnosis.information.length; ++i) {
+                            System.out.println( diagnosis.information[i] );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static void saveHttpResponse(String url, HttpResponse httpResponse) {

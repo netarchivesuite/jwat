@@ -234,7 +234,8 @@ public class EncodedWords {
                     } else if (ew.encoding == ENC_QUOTEDPRINTABLE) {
                         decoded = QuotedPrintable.decode(ew.encoded_text);
                     } else {
-                        System.out.println("Encoding: " + ew.encodingStr);
+                        // debug
+                        //System.out.println("Encoding: " + ew.encodingStr);
                     }
                     if (decoded != null) {
                         ByteBuffer bb = ByteBuffer.wrap(decoded);

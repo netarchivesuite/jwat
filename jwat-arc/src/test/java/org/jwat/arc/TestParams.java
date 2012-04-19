@@ -38,6 +38,9 @@ public class TestParams {
         String str;
         InputStream is;
 
+        ArcConstants constants = new ArcConstants();
+        Assert.assertNotNull(constants);
+
         /*
          * Date.
          */

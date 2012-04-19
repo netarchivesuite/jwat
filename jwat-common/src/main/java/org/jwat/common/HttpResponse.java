@@ -75,6 +75,7 @@ public class HttpResponse {
     /** Http payload stream returned to user. */
     protected InputStream in_payload;
 
+    /** Sequence of the header as a stream and the payload stream. */
     protected SequenceInputStream in_complete;
 
     /** Object size, in bytes. */
@@ -83,6 +84,7 @@ public class HttpResponse {
     /** Warnings detected when processing HTTP protocol response. */
     protected List<String> warnings = null;
 
+    /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /*
@@ -226,12 +228,14 @@ public class HttpResponse {
                     System.out.println("Epic fail!");
                     bValidHttpResponse = false;
                     bLoop = false;
-                    break;
+                    throw new IllegalStateException("Epic fail!");
+                    //break;
                 }
             } else {
                 System.out.println("Epic fail!");
                 bValidHttpResponse = false;
                 bLoop = false;
+                throw new IllegalStateException("Epic fail!");
             }
         }
         if (bValidHttpResponse) {

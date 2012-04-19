@@ -44,7 +44,7 @@ public class WarcReaderFactory {
     /**
      * Private constructor to enforce factory method.
      */
-    private WarcReaderFactory() {
+    protected WarcReaderFactory() {
     }
 
     /**

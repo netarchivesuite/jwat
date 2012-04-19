@@ -28,10 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.arc.ArcReader;
-import org.jwat.arc.ArcReaderFactory;
-import org.jwat.arc.ArcRecord;
-import org.jwat.arc.ArcVersionBlock;
 
 @RunWith(Parameterized.class)
 public class TestArcReaderFactory {
@@ -65,6 +61,9 @@ public class TestArcReaderFactory {
         int records = 0;
         int errors = 0;
         int warnings = 0;
+
+        ArcReaderFactory factory = new ArcReaderFactory();
+        Assert.assertNotNull(factory);
 
         try {
             /*

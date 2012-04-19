@@ -25,6 +25,12 @@ package org.jwat.arc;
  */
 public final class ArcConstants {
 
+    /**
+     * No constructor for this utility class, static access only.
+     */
+    protected ArcConstants() {
+    }
+
     /** An ARC version block starts with this string. */
     public static final String ARC_MAGIC_HEADER = "filedesc:";
 
@@ -141,12 +147,6 @@ public final class ArcConstants {
         }
         buf.setLength(buf.length() - 1);
         return buf.toString();
-    }
-
-    /**
-     * No constructor for this utility class, static access only.
-     */
-    private ArcConstants() {
     }
 
 }

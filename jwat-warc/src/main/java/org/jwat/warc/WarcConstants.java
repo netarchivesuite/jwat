@@ -30,6 +30,12 @@ import java.util.Map;
 public class WarcConstants {
 
     /**
+     * This utility class does not require instantiation.
+     */
+    protected WarcConstants() {
+    }
+
+    /**
      * A WARC header block starts with this string including trailing version
      * information.
      * */
@@ -494,12 +500,6 @@ public class WarcConstants {
 
         // Warc-Segment-Number
         field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
-    }
-
-    /**
-     * This utility class does not require instantiation.
-     */
-    private WarcConstants() {
     }
 
 }
