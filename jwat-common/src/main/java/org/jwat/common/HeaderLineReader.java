@@ -31,6 +31,9 @@ public class HeaderLineReader {
     protected static final int S_QUOTED_LWS = 6;
     protected static final int S_ENCODED_WORD_EQ = 7;
 
+    protected static final int E_BIT_EOF = 2^0;
+    protected static final int E_BIT_MiSPLACED_CR = 2^1;
+
     /** Control character characteristic. */
     protected static final int CC_CONTROL = 1;
     /** Separator character characteristic. */
@@ -75,6 +78,8 @@ public class HeaderLineReader {
 
     public boolean bEof;
 
+    public int bfErrors;
+
     private HeaderLineReader() {
     }
 
@@ -110,6 +115,7 @@ public class HeaderLineReader {
         }
         lineSb.setLength(0);
         nvSb.setLength(0);
+        bfErrors = 0;
         int c;
         boolean bCr = false;
         boolean bLoop = true;
@@ -123,6 +129,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
+                	bfErrors |= E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -143,6 +150,7 @@ public class HeaderLineReader {
                 default:
                     if (!bCr) {
                         // Misplaced CR.
+                    	bfErrors |= E_BIT_MiSPLACED_CR;
                         bCr = false;
                     }
                     boolean bValidChar;
@@ -171,6 +179,7 @@ public class HeaderLineReader {
                     }
                     if (c == -1) {
                         // EOF.
+                    	bfErrors |= E_BIT_EOF;
                         headerLine.type = HeaderLine.HLT_RAW;
                         bLoop = false;
                     } else {
@@ -191,6 +200,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
+                	bfErrors |= E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -250,6 +260,7 @@ public class HeaderLineReader {
                     }
                     if (c == -1) {
                         // EOF.
+                    	bfErrors |= E_BIT_EOF;
                         headerLine.type = HeaderLine.HLT_RAW;
                         bLoop = false;
                     } else {
@@ -277,6 +288,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
+                	bfErrors |= E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -327,6 +339,7 @@ public class HeaderLineReader {
                     }
                     if (c == -1) {
                         // EOF.
+                    	bfErrors |= E_BIT_EOF;
                         headerLine.type = HeaderLine.HLT_RAW;
                         bLoop = false;
                     } else {
@@ -358,6 +371,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
+                	bfErrors |= E_BIT_EOF;
                     // TODO what types of encoding etc. have we seen so far
                     headerLine.value = trim(nvSb);
                     bLoop = false;
@@ -434,6 +448,7 @@ public class HeaderLineReader {
                     }
                     if (c == -1) {
                         // EOF.
+                    	bfErrors |= E_BIT_EOF;
                         headerLine.type = HeaderLine.HLT_RAW;
                         bLoop = false;
                     } else {
@@ -477,6 +492,7 @@ public class HeaderLineReader {
                 }
                 if (c == -1) {
                     // EOF.
+                	bfErrors |= E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                 } else {
