@@ -317,4 +317,150 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         }
     }
 
+    @Test
+    public void test_headerlinereader_headerlines_lws() {
+        try {
+            cases = new Object[][] {
+                    {"content-type: monkeys".getBytes(), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: monkeys\r\n and\r\n poo".getBytes(), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
+                        {HeaderLine.HLT_LINE, " and", null, null},
+                        // TODO Maybe the line should be returned at least?
+                        {HeaderLine.HLT_RAW, null, null, null}
+                    }},
+                    {"content-type: monkeys\r\n".getBytes(), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                    }},
+                    {"content-type\r: monkeys\r\n and\r\n poo\n".getBytes(), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
+                        {HeaderLine.HLT_LINE, " and", null, null},
+                        {HeaderLine.HLT_LINE, " poo", null, null}
+                    }},
+                    {"content-type:monkeys\r\ncontent-length:  1 2 3 \r\n".getBytes(), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
+                        {HeaderLine.HLT_HEADERLINE, null, "content-length", "1 2 3"}
+                       
+                    }}
+            };
+            hlr = HeaderLineReader.getHeaderLineReader();
+            hlr.encoding = HeaderLineReader.ENC_UTF8;
+            hlr.bLWS = false;
+            test_headerline_cases(cases);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_headerlinereader_decode_eof() {
+        try {
+            cases = new Object[][] {
+                    {("content-type: monkeys" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }}
+            };
+            hlr = HeaderLineReader.getHeaderLineReader();
+            hlr.encoding = HeaderLineReader.ENC_UTF8;
+            hlr.bLWS = false;
+            test_headerline_cases(cases);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_headerlinereader_quotedtext() {
+        try {
+            cases = new Object[][] {
+                    {"content-type: \"monkeys\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\""}
+                    }},
+                    {"content-type: \"hello\rmonkeys\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"hellomonkeys\""}
+                    }},
+                    {"content-type: \"monkeys\r\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\""}
+                    }},
+                    {"content-type: \"monkeys\r\\\"\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\\\"\""}
+                    }},
+                    {"content-type: \"monkeys\r\n invasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                    }},
+                    {"content-type: \"monkeys\r\n\tinvasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                    }},
+                    {("content-type: \"monkeys" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    // Covered quoted-text and not quoted pair
+                    {("content-type: \"monkeys" + (char)(0xC0) + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    /*
+                    {"content-type: \"monkeys\u1234".getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\t".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    */
+                    {("content-type: \"monkeys" + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\\".getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {("content-type: \"monkeys\\" + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {("content-type: \"monkeys\\" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\r\n invasion!".getBytes("ISO8859-1"), new Object[][] {
+                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\r\n invasion!\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\r\n\tinvasion!\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: \"monkeys\r\n invasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                    }},
+                    {"content-type: \"monkeys\r\n\tinvasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                    }},
+                    {"content-type: \"monkeys\r\n\tinvasion!\r\ntest line\"\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null},
+                        {HeaderLine.HLT_LINE, "test line\"", null, null}
+                    }},
+
+                    {"content-type: =".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                    }},
+                    {"content-type: =?iso-8859-1?q?this=20is=20some=20text?=\r\n".getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "=?iso-8859-1?q?this=20is=20some=20text?="}
+                    }},
+
+            };
+            hlr = HeaderLineReader.getHeaderLineReader();
+            hlr.encoding = HeaderLineReader.ENC_UTF8;
+            hlr.bLWS = true;
+            test_headerline_cases(cases);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_headerlinereader_headerline_encoded_words() {
+    }
+
 }

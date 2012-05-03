@@ -43,7 +43,8 @@ public class TestHeaderLineReaderHelper {
             expected = (String)cases[i][2];
             in = new ByteArrayInputStream(bytes);
             pbin = new PushbackInputStream(in, 16);
-            line = hlr.readLine(new PushbackInputStream(in, 16));
+            // The puahback size should be equals to the maximum allowed header size.
+            line = hlr.readLine(new PushbackInputStream(in, 8192));
             //System.out.println(expected);
             Assert.assertNotNull(line);
             Assert.assertEquals(expectedType, line.type);
@@ -66,7 +67,8 @@ public class TestHeaderLineReaderHelper {
             Object[][] expectedLines = (Object[][])cases[i][1];
             bytesOut.reset();
             in = new ByteArrayInputStream(bytes);
-            pbin = new PushbackInputStream(in, 16);
+            // The puahback size should be equals to the maximum allowed header size.
+            pbin = new PushbackInputStream(in, 8192);
             for (int j=0; j<expectedLines.length; ++j) {
                 line = hlr.readLine(pbin);
                 Assert.assertNotNull(line);
