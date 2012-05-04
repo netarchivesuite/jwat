@@ -63,6 +63,7 @@ public class TestArcReaderFactoryCompressed {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
+        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -88,7 +89,10 @@ public class TestArcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
@@ -146,7 +150,10 @@ public class TestArcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
@@ -203,7 +210,10 @@ public class TestArcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 

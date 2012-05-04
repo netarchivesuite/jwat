@@ -67,6 +67,7 @@ public class TestWarcReaderFactoryCompressed {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
+        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -91,7 +92,10 @@ public class TestWarcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
@@ -160,7 +164,10 @@ public class TestWarcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
@@ -228,7 +235,10 @@ public class TestWarcReaderFactoryCompressed {
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(url.getFile());
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
@@ -287,6 +297,7 @@ public class TestWarcReaderFactoryCompressed {
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
         } catch (IOException e) {
+            e.printStackTrace();
             Assert.fail("Unexpected io exception");
         } catch (NoSuchAlgorithmException e) {
             Assert.fail("Unexpected algorithm exception");
