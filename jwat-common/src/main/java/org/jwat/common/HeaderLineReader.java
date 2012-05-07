@@ -120,7 +120,7 @@ public class HeaderLineReader {
     public static final int E_BIT_INVALID_CONTROL_CHAR = 2^6;
     public static final int E_BIT_INVALID_SEPARATOR_CHAR = 2^7;
     public static final int E_BIT_MISSING_QUOTE = 2^8;
-    public static final int E_BIT_MISSING_QUOTED_CHAR = 2^9;
+    public static final int E_BIT_MISSING_QUOTED_PAIR_CHAR = 2^9;
 
     /** Bit field of errors encountered while attempting to read a line. */
     public int bfErrors;
@@ -441,7 +441,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
-                    bfErrors |= E_BIT_MISSING_QUOTED_CHAR |E_BIT_EOF;
+                    bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR |E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -500,8 +500,11 @@ public class HeaderLineReader {
                     bytesOut.unread('?');
                     bytesOut.unread('=');
                     EncodedWords ew = EncodedWords.parseEncodedWords(in, true);
+                    /*
                     if (!ew.bIsValid) {
+                    	// TODO Decide whether to report encoded word errors or interpret as non encoded words.
                     }
+                    */
                     nvSb.append("=?");
                     in.unread(ew.line, 2, ew.line.length - 2);
                     bytesOut.write("=?".getBytes());
