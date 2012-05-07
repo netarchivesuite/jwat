@@ -89,14 +89,14 @@ public class TestDuplicateFields {
 
                 // Check number of concurrentto fields.
                 if (expected_concurrenttos == 0) {
-                    if (record.header.warcConcurrentToUriList != null) {
+                    if (record.header.warcConcurrentToList != null && record.header.warcConcurrentToList.size() != 0) {
                         Assert.fail("Not expecting any concurrent-to fields");
                     }
                 } else {
-                    if (record.header.warcConcurrentToUriList == null) {
+                    if (record.header.warcConcurrentToList == null) {
                         Assert.fail("Expecting concurrent-to fields");
                     } else {
-                        Assert.assertEquals(record.header.warcConcurrentToUriList.size(), 3);
+                        Assert.assertEquals(record.header.warcConcurrentToList.size(), 3);
                     }
                 }
             }

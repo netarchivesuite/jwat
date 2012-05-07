@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -93,8 +92,9 @@ public class WarcHeader {
     public String warcIpAddress;
     public InetAddress warcInetAddress;
 
-    public List<String> warcConcurrentToStrList;
-    public List<URI> warcConcurrentToUriList;
+    public List<WarcConcurrentTo> warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
+    //public List<String> warcConcurrentToStrList;
+    //public List<URI> warcConcurrentToUriList;
 
     public String warcRefersToStr;
     public URI warcRefersToUri;
@@ -356,6 +356,7 @@ public class WarcHeader {
     protected void parseField(HeaderLine headerLine, boolean[] seen) {
         String field = headerLine.name;
         String value = headerLine.value;
+        WarcConcurrentTo warcConcurrentTo;
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
         if (fn_idx != null) {
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
@@ -392,19 +393,16 @@ public class WarcHeader {
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    if (value != null && value.trim().length() > 0) {
-                        if (warcConcurrentToStrList == null) {
-                            warcConcurrentToStrList = new ArrayList<String>();
-                        }
-                        warcConcurrentToStrList.add( value );
-                    }
                     URI tmpUri = reader.fieldParser.parseUri(value,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
-                    if (tmpUri != null) {
-                        if (warcConcurrentToUriList == null) {
-                            warcConcurrentToUriList = new ArrayList<URI>();
+                    if (value != null && value.trim().length() > 0) {
+                        if (warcConcurrentToList == null) {
+                            warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
                         }
-                        warcConcurrentToUriList.add(tmpUri);
+                        warcConcurrentTo = new WarcConcurrentTo();
+                        warcConcurrentTo.warcConcurrentToStr = value;
+                        warcConcurrentTo.warcConcurrentToUri = tmpUri;
+                        warcConcurrentToList.add(warcConcurrentTo);
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
@@ -602,10 +600,14 @@ public class WarcHeader {
              * Check the policies for each field.
              */
 
+            WarcConcurrentTo warcConcurrentTo;
             if (warcTypeIdx  > 0) {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentTypeStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentToUriList, warcConcurrentToStrList);
+                for (int i=0; i<warcConcurrentToList.size(); ++i) {
+                	warcConcurrentTo = warcConcurrentToList.get(0);
+                    checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentTo.warcConcurrentToUri, warcConcurrentTo.warcConcurrentToStr);
+                }
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TRUNCATED, warcTruncatedIdx, warcTruncatedStr);
@@ -667,79 +669,6 @@ public class WarcHeader {
         default:
             break;
         }
-    }
-
-    /**
-     * Given a WARC record type and a WARC field looks up the policy in a
-     * matrix build from the WARC ISO standard.
-     * @param rtype WARC record type id
-     * @param ftype WARC field type id
-     * @param fieldObj WARC field
-     * @param valueList WARC raw field values
-     */
-    protected void checkFieldPolicy(int rtype, int ftype, List<?> fieldObj, List<String> valueList) {
-        String valueStr = null;
-        int policy = WarcConstants.field_policy[rtype][ftype];
-        switch (policy) {
-        case WarcConstants.POLICY_MANDATORY:
-            if (fieldObj == null) {
-                valueStr = listToStr(valueList);
-                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_SHALL:
-            if (fieldObj == null) {
-                valueStr = listToStr(valueList);
-                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_MAY:
-            break;
-        case WarcConstants.POLICY_MAY_NOT:
-            if (fieldObj != null) {
-                valueStr = listToStr(valueList);
-                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_SHALL_NOT:
-            if (fieldObj != null) {
-                valueStr = listToStr(valueList);
-                addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_IGNORE:
-        default:
-            break;
-        }
-    }
-
-    /**
-     * Concatenate a <code>List</code> of strings into one single delimited
-     * string.
-     * @param list <code>List</code> of strings to concatenate
-     * @return concatenated string
-     */
-    protected String listToStr(List<String> list) {
-        StringBuffer sb = new StringBuffer();
-        String str = null;
-        if (list != null) {
-            for (int i=0; i<list.size(); ++i) {
-                if (i != 0) {
-                    sb.append(", ");
-                }
-                sb.append(list.get(i));
-            }
-            str = sb.toString();
-        }
-        return str;
     }
 
 }

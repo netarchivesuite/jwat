@@ -40,7 +40,9 @@ public class RecordDebugBase {
         System.out.println("  Content-Type: " + header.contentType);
         System.out.println("     Truncated: " + header.warcTruncatedStr);
         System.out.println("   InetAddress: " + header.warcInetAddress);
-        System.out.println("  ConcurrentTo: " + header.warcConcurrentToUriList);
+        for (int i=0; i<header.warcConcurrentToList.size(); ++i) {
+            System.out.println("  ConcurrentTo: " + header.warcConcurrentToList.get(i));
+        }
         System.out.println("      RefersTo: " + header.warcRefersToUri);
         System.out.println("     TargetUri: " + header.warcTargetUriUri);
         System.out.println("   WarcInfo-Id: " + header.warcWarcInfoIdUri);

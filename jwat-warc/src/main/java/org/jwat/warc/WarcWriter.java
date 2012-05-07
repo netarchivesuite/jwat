@@ -184,15 +184,26 @@ public abstract class WarcWriter {
             out.write("\r\n".getBytes());
         }
         /*
-         * Warc-Concurrent-To-Uri
+         * Warc-Concurrent-To
          */
-        if (record.header.warcConcurrentToUriList != null) {
-            // TODO
-            for (int i=0; i<record.header.warcConcurrentToUriList.size(); ++i) {
-                out.write(WarcConstants.FN_WARC_CONCURRENT_TO.getBytes());
-                out.write(": <".getBytes());
-                out.write(record.header.warcConcurrentToUriList.get(i).toString().getBytes());
-                out.write(">\r\n".getBytes());
+        WarcConcurrentTo warcConcurrentTo;
+    	String warcConcurrentToStr;
+        if (record.header.warcConcurrentToList != null) {
+            for (int i=0; i<record.header.warcConcurrentToList.size(); ++i) {
+            	warcConcurrentTo = record.header.warcConcurrentToList.get(i);
+            	warcConcurrentToStr = null;
+            	if (warcConcurrentTo.warcConcurrentToUri != null) {
+            		warcConcurrentToStr = warcConcurrentTo.warcConcurrentToUri.toString();
+            	} else if (warcConcurrentTo.warcConcurrentToStr != null) {
+            		warcConcurrentToStr = warcConcurrentTo.warcConcurrentToStr;
+            		// Warning...
+            	}
+            	if (warcConcurrentToStr != null) {
+                    out.write(WarcConstants.FN_WARC_CONCURRENT_TO.getBytes());
+                    out.write(": <".getBytes());
+                    out.write(warcConcurrentToStr.getBytes());
+                    out.write(">\r\n".getBytes());
+            	}
             }
         }
         /*
