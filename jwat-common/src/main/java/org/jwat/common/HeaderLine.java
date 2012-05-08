@@ -48,4 +48,7 @@ public class HeaderLine {
     /** The original byte stream. */
     public byte[] raw;
 
+    /** Bit field of errors encountered while attempting to read a line. */
+    public int bfErrors;
+
 }

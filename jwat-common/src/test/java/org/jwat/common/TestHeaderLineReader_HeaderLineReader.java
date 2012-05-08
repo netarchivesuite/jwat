@@ -453,6 +453,41 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
             hlr.encoding = HeaderLineReader.ENC_UTF8;
             hlr.bLWS = true;
             test_headerline_cases(cases);
+
+            /*
+            String httpHeader = 
+            		//"HTTP/1.1 200 OK\r\n" +
+            		"Cache-Control: public\r\n" +
+		            "Content-Length: 108388\r\n" +
+		            "Content-Type: image/png\r\n" +
+		            "Last-Modified: Tue, 22 Feb 2011 21:13:52 GMT\r\n" +
+		            "Server: Microsoft-IIS/7.0\r\n" +
+		            "Content-Disposition: inline; filename=march-GEO.png\"\r\n" +
+		            "X-AspNet-Version: 2.0.50727\r\n" +
+		            "X-Powered-By: ASP.NET\r\n" +
+		            "Date: Fri, 25 Feb 2011 22:06:45 GMT\r\n" +
+		            "Connection: close\r\n" +
+		            "\r\n";
+            cases = new Object[][] {
+                    {httpHeader.getBytes("ISO8859-1"), new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "Cache-Control", "public"},
+                		{HeaderLine.HLT_HEADERLINE, null, "Content-Length", "108388"},
+        				{HeaderLine.HLT_HEADERLINE, null, "Content-Type", "image/png"},
+						{HeaderLine.HLT_HEADERLINE, null, "Last-Modified", "Tue, 22 Feb 2011 21:13:52 GMT"},
+						{HeaderLine.HLT_HEADERLINE, null, "Server", "Microsoft-IIS/7.0"},
+						{HeaderLine.HLT_HEADERLINE, null, "Content-Disposition", "inline; filename=march-GEO.png\""},
+						{HeaderLine.HLT_HEADERLINE, null, "X-AspNet-Version", "2.0.50727"},
+						{HeaderLine.HLT_HEADERLINE, null, "X-Powered-By", "ASP.NET"},
+						{HeaderLine.HLT_HEADERLINE, null, "Date", "Fri, 25 Feb 2011 22:06:45 GMT"},
+						{HeaderLine.HLT_HEADERLINE, null, "Connection", "close"}
+						//{HeaderLine.HLT_LINE, null, "Connection: close"}
+                    }}
+            };
+            hlr = HeaderLineReader.getHeaderLineReader();
+            hlr.encoding = HeaderLineReader.ENC_UTF8;
+            hlr.bLWS = false;
+            test_headerline_cases(cases);
+            */
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

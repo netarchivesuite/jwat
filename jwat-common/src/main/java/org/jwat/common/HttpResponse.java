@@ -226,6 +226,8 @@ public class HttpResponse {
                     break;
                 case HeaderLine.HLT_RAW:
                     System.out.println("Epic fail!");
+                    System.out.println(Integer.toBinaryString(hlr.bfErrors));
+                    System.out.println(new String(in.getRecording()));
                     bValidHttpResponse = false;
                     bLoop = false;
                     throw new IllegalStateException("Epic fail!");
@@ -233,6 +235,8 @@ public class HttpResponse {
                 }
             } else {
                 System.out.println("Epic fail!");
+                System.out.println(Integer.toBinaryString(hlr.bfErrors));
+                System.out.println(new String(in.getRecording()));
                 bValidHttpResponse = false;
                 bLoop = false;
                 throw new IllegalStateException("Epic fail!");

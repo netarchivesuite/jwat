@@ -71,6 +71,7 @@ public class TestHeaderLineReaderHelper {
             pbin = new PushbackInputStream(in, 8192);
             for (int j=0; j<expectedLines.length; ++j) {
                 line = hlr.readLine(pbin);
+            	System.out.println(line.bfErrors);
                 Assert.assertNotNull(line);
                 expectedType = (Byte)expectedLines[j][0];
                 Assert.assertEquals(expectedType, line.type);

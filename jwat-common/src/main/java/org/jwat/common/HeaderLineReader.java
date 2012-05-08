@@ -111,9 +111,6 @@ public class HeaderLineReader {
     /** CRLF end of line identifier. */
     public static final int EOL_CRLF = 1;
 
-    /** True if the previous character was a CR. */
-    protected boolean bCr = false;
-
     /*
      * Configuration.
      */
@@ -138,36 +135,47 @@ public class HeaderLineReader {
     /** Stream used to record the raw characters read by the parser. */
     protected UnreadableByteArrayOutputStream bytesOut = new UnreadableByteArrayOutputStream();
 
-    /** Used by decode method to indicated valid or non valid character. */
-    protected boolean bValidChar;
-
-    /** Boolean indicating whether or not EOF has been reached on stream. */
-    public boolean bEof;
-
     /*
      * Error reporting.
      */
 
     /** Bit denoting unexpected EOF. */
-    public static final int E_BIT_EOF = 2^0;
+    public static final int E_BIT_EOF = 1 << 0;
     /** Bit denoting a misplaced CR. */
-    public static final int E_BIT_MISPLACED_CR = 2^1;
+    public static final int E_BIT_MISPLACED_CR = 1 << 1;
     /** Bit denoting a missing CR. */
-    public static final int E_BIT_MISSING_CR = 2^2;
+    public static final int E_BIT_MISSING_CR = 1 << 2;
     /** Bit denoting an excessive CR. */
-    public static final int E_BIT_EXCESSIVE_CR = 2^3;
+    public static final int E_BIT_EXCESSIVE_CR = 1 << 3;
     /** Bit denoting an invalid UTF-8 encoded character. */
-    public static final int E_BIT_INVALID_UTF8_ENCODING = 2^4;
+    public static final int E_BIT_INVALID_UTF8_ENCODING = 1 << 4;
     /** Bit denoting an invalud US-ASCII character. */
-    public static final int E_BIT_INVALID_US_ASCII_CHAR = 2^5;
+    public static final int E_BIT_INVALID_US_ASCII_CHAR = 1 << 5;
     /** Bit denoting an invalid control character. */
-    public static final int E_BIT_INVALID_CONTROL_CHAR = 2^6;
+    public static final int E_BIT_INVALID_CONTROL_CHAR = 1 << 6;
     /** Bit denoting an invalid separator character. */
-    public static final int E_BIT_INVALID_SEPARATOR_CHAR = 2^7;
+    public static final int E_BIT_INVALID_SEPARATOR_CHAR = 1 << 7;
     /** Bit denoting a missing quote character. */
-    public static final int E_BIT_MISSING_QUOTE = 2^8;
+    public static final int E_BIT_MISSING_QUOTE = 1 << 8;
     /** Bit denoting a missing quoted pair character. */
-    public static final int E_BIT_MISSING_QUOTED_PAIR_CHAR = 2^9;
+    public static final int E_BIT_MISSING_QUOTED_PAIR_CHAR = 1 << 9;
+
+    /*
+     * Internal state.
+     */
+
+    /** True if the previous character was a CR. */
+    protected boolean bCr = false;
+
+    /** Used by decode method to indicated valid or non valid character. */
+    protected boolean bValidChar;
+
+    /*
+     * Exposed state.
+     */
+
+    /** Boolean indicating whether or not EOF has been reached on stream. */
+    public boolean bEof;
 
     /** Bit field of errors encountered while attempting to read a line. */
     public int bfErrors;
@@ -208,6 +216,7 @@ public class HeaderLineReader {
         HeaderLineReader hlr = new HeaderLineReader();
         hlr.bNameValue = true;
         hlr.encoding = ENC_ISO8859_1;
+        //hlr.eol
         hlr.bLWS = true;
         hlr.bQuotedText = true;
         hlr.bEncodedWords = true;
@@ -235,7 +244,7 @@ public class HeaderLineReader {
         bytesOut = new UnreadableByteArrayOutputStream();
         bfErrors = 0;
         int c;
-        boolean bCr = false;
+        bCr = false;
         boolean bLoop = true;
         while (bLoop) {
             c = in.read();
@@ -405,13 +414,17 @@ public class HeaderLineReader {
                         if (bValidChar) {
                             switch (c) {
                             case '\"':
-                                // TODO config?
                                 nvSb.append((char)c);
-                                state = S_QUOTED_TEXT;
+                            	if (bQuotedText) {
+                                    state = S_QUOTED_TEXT;
+                            	}
                                 break;
                             case '=':
-                                // TODO config?
-                                state = S_ENCODED_WORD_EQ;
+                            	if (bEncodedWords) {
+                                    state = S_ENCODED_WORD_EQ;
+                            	} else {
+                                    nvSb.append((char)c);
+                            	}
                                 break;
                             default:
                                 nvSb.append((char)c);
@@ -511,7 +524,7 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
-                    bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR |E_BIT_EOF;
+                    bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR | E_BIT_EOF;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -541,8 +554,8 @@ public class HeaderLineReader {
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
-                   case ' ':
-                   case '\t':
+                case ' ':
+                case '\t':
                     nvSb.append(" ");
                     state = S_QUOTED_TEXT;
                     break;
@@ -550,7 +563,7 @@ public class HeaderLineReader {
                     // TODO Non LWS force end of quoted text parsing and header line.
                     in.unread(c);
                     bytesOut.unread(c);
-                    bfErrors |= E_BIT_MISSING_QUOTE | E_BIT_EOF;
+                    bfErrors |= E_BIT_MISSING_QUOTE;
                     headerLine.type = HeaderLine.HLT_RAW;
                     bLoop = false;
                     break;
@@ -591,6 +604,7 @@ public class HeaderLineReader {
             }
         }
         headerLine.raw = bytesOut.toByteArray();
+        headerLine.bfErrors = bfErrors;
         bEof = (headerLine.type == HeaderLine.HLT_RAW && headerLine.raw.length == 0);
         return headerLine;
     }
