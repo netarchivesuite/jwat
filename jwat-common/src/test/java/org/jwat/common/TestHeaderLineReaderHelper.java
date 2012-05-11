@@ -49,10 +49,13 @@ public class TestHeaderLineReaderHelper {
             Assert.assertNotNull(line);
             Assert.assertEquals(expectedType, line.type);
             Assert.assertArrayEquals(bytes, line.raw);
+            Assert.assertEquals(cases[i][3], line.bfErrors);
             if (line.type == HeaderLine.HLT_LINE) {
                 //System.out.println(Base2.delimit(Base2.encodeArray(bytes), 8, '.'));
                 //System.out.println(Base16.encodeArray(bytes));
                 //System.out.println(Base2.delimit(Base2.encodeString(line.line), 8, '.'));
+                //System.out.println(Base16.encodeString(line.line));
+                //System.out.println(Base16.encodeString(expected));
                 //System.out.println(Base16.encodeString(line.line));
                 Assert.assertEquals(expected, line.line);
             }
@@ -71,7 +74,7 @@ public class TestHeaderLineReaderHelper {
             pbin = new PushbackInputStream(in, 8192);
             for (int j=0; j<expectedLines.length; ++j) {
                 line = hlr.readLine(pbin);
-            	System.out.println(line.bfErrors);
+                System.out.println(line.bfErrors);
                 Assert.assertNotNull(line);
                 expectedType = (Byte)expectedLines[j][0];
                 Assert.assertEquals(expectedType, line.type);
@@ -90,6 +93,7 @@ public class TestHeaderLineReaderHelper {
                 } else {
                     Assert.assertEquals(expectedLines[j][3], line.value);
                 }
+                Assert.assertEquals(expectedLines[j][4], line.bfErrors);
                 bytesOut.write(line.raw);
             }
             System.out.println("dst: " + new String(bytesOut.toByteArray()));

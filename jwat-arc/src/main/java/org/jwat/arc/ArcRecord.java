@@ -132,7 +132,14 @@ public class ArcRecord extends ArcRecordBase {
                             payload.getInputStream(), recLength.longValue(),
                             digestAlgorithm);
                 if (httpResponse != null) {
-                    payload.setHttpResponse(httpResponse);
+                    if (httpResponse.isValid()) {
+                        payload.setHttpResponse(httpResponse);
+                    } else {
+                        diagnostics.addError(
+                                new Diagnosis(DiagnosisType.ERROR,
+                                        "http response",
+                                        "Unable to parse http response!"));
+                    }
                 }
             }
         } else if (HttpResponse.isSupported(protocol)

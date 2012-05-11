@@ -280,7 +280,6 @@ public class WarcHeader {
                     }
                     break;
                 case HeaderLine.HLT_HEADERLINE:
-                case HeaderLine.HLT_RAW:
                     // Invalid data - header or binary.
                     bInvalidDataBeforeVersion = true;
                     break;
@@ -335,11 +334,14 @@ public class WarcHeader {
                         addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
                     }
                     break;
+                // TODO handle
+                /*
                 case HeaderLine.HLT_RAW:
                     bFields = false;
                     // Unknown header line.
                     addWarningDiagnosis(DiagnosisType.INVALID, "Header line");
                     break;
+                */
                 }
             } else {
                 // EOF.
@@ -605,7 +607,7 @@ public class WarcHeader {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentTypeStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
                 for (int i=0; i<warcConcurrentToList.size(); ++i) {
-                	warcConcurrentTo = warcConcurrentToList.get(0);
+                    warcConcurrentTo = warcConcurrentToList.get(0);
                     checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentTo.warcConcurrentToUri, warcConcurrentTo.warcConcurrentToStr);
                 }
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);

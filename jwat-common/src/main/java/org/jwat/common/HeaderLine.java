@@ -17,24 +17,25 @@
  */
 package org.jwat.common;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- * Parsed header entry split into a (name, value) pair. Unless the header
- * entry is not formatted correctly in which case the raw line is presented
- * instead.
+ * Depending on the parsing mode either a line or a header entry
+ * pair(name, value) is returned. Any problem(s) reading the (header)line
+ * is reported in the bfErrors field.
  *
  * @author nicl
  */
 public class HeaderLine {
 
-    /** Invalid line, for reporting the raw data read. */
-    public static final byte HLT_RAW = 0;
     /** Normal line parsed. */
     public static final byte HLT_LINE = 1;
     /** Header line parsed. */
     public static final byte HLT_HEADERLINE = 2;
 
     /** Type of the parsed line. */
-    public byte type = HLT_RAW;;
+    public byte type = 0;
 
     /** Header name. */
     public String name;
@@ -50,5 +51,8 @@ public class HeaderLine {
 
     /** Bit field of errors encountered while attempting to read a line. */
     public int bfErrors;
+
+    /** List of additional headers with the same name. */
+    public List<HeaderLine> lines = new LinkedList<HeaderLine>();
 
 }

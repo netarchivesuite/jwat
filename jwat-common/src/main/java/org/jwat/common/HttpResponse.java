@@ -59,6 +59,9 @@ public class HttpResponse {
     /** Payload length. */
     protected long totalLength;
 
+    /** Could the http response be read. */
+    protected boolean bIsValid;
+
     /** Stream used to ensure we don't use more than the pushback buffer on
      *  headers and at the same time store everything read in an array. */
     protected MaxLengthRecordingInputStream in_flr;
@@ -80,9 +83,6 @@ public class HttpResponse {
 
     /** Object size, in bytes. */
     public long payloadLength = 0L;
-
-    /** Warnings detected when processing HTTP protocol response. */
-    protected List<String> warnings = null;
 
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
@@ -155,55 +155,66 @@ public class HttpResponse {
         hr.totalLength = length;
         hr.in_flr = new MaxLengthRecordingInputStream(
                                         hr.in_pb, hr.in_pb.getPushbackSize());
-        hr.payloadLength = hr.readHttpResponse(hr.in_flr, length);
-        /*
-         * Block Digest.
-         */
-        if (digestAlgorithm != null) {
-            try {
-                hr.md = MessageDigest.getInstance(digestAlgorithm);
-            } catch (NoSuchAlgorithmException e) {
-                hr.bNoSuchAlgorithmException = true;
+        hr.bIsValid = hr.readHttpResponse(hr.in_flr, length);
+        if (hr.bIsValid) {
+            /*
+             * Block Digest.
+             */
+            if (digestAlgorithm != null) {
+                try {
+                    hr.md = MessageDigest.getInstance(digestAlgorithm);
+                } catch (NoSuchAlgorithmException e) {
+                    hr.bNoSuchAlgorithmException = true;
+                }
             }
-        }
-        if (hr.md != null) {
-            hr.in_digest = new DigestInputStreamNoSkip(hr.in_pb, hr.md);
-            hr.in_payload = hr.in_digest;
+            if (hr.md != null) {
+                hr.in_digest = new DigestInputStreamNoSkip(hr.in_pb, hr.md);
+                hr.in_payload = hr.in_digest;
+            } else {
+                hr.in_payload = hr.in_pb;
+            }
+            /*
+             * Ensure close() is not called on the payload stream!
+             */
+            hr.in_payload = new FilterInputStream(hr.in_payload) {
+                @Override
+                public void close() throws IOException {
+                }
+            };
+            hr.in_complete = new SequenceInputStream(new ByteArrayInputStream(hr.in_flr.getRecording()), hr.in_payload);
         } else {
-            hr.in_payload = hr.in_pb;
+            // Undo read and leave callers input stream in original state.
+            hr.in_pb.unread(hr.in_flr.getRecording());
+            hr.bClosed = true;
         }
-        /*
-         * Ensure close() is not called on the payload stream!
-         */
-        hr.in_payload = new FilterInputStream(hr.in_payload) {
-            @Override
-            public void close() throws IOException {
-            }
-        };
-        hr.in_complete = new SequenceInputStream(new ByteArrayInputStream(hr.in_flr.getRecording()), hr.in_payload);
         return hr;
     }
 
     /**
-     * Reads the protocol response.
+     * Reads the protocol response. Updates the payloadLength field if the
+     * response is valid.
      * @param in the input stream to parse.
      * @param payloadLength the record length.
-     * @return the bytes read
+     * @return boolean indicating whether the http response could be read
      * @throws IOException io exception while reading http headers
      */
-    protected long readHttpResponse(MaxLengthRecordingInputStream in, long payloadLength)
+    protected boolean readHttpResponse(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
         PushbackInputStream pbin = new PushbackInputStream(in, 16);
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
         hlr.encoding = HeaderLineReader.ENC_UTF8;
         boolean bValidHttpResponse = false;
         HeaderLine line = hlr.readLine(pbin);
+        int bfErrors = 0;
         if (!hlr.bEof && line.type == HeaderLine.HLT_LINE && line.line != null && line.line.length() > 0) {
+            bfErrors = (line.bfErrors & ~HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR);
             bValidHttpResponse = isHttpStatusLineValid(line.line);
         }
+        HeaderLine tmpLine;
         boolean bLoop = bValidHttpResponse;
         while (bLoop) {
             line = hlr.readLine(pbin);
+            bfErrors |= line.bfErrors;
             if (!hlr.bEof) {
                 switch (line.type) {
                 case HeaderLine.HLT_HEADERLINE:
@@ -212,104 +223,41 @@ public class HttpResponse {
                     if (CONTENT_TYPE.equals(line.name.toUpperCase())) {
                         contentType = line.value;
                     }
-                    // Uses a list because there can be multiple occurrences.
-                    // TODO concat multiple identical headers separated by ,
-                    headerMap.put(line.name.toLowerCase(), line);
+                    // A HeaderLine object contains a list of additional lines.
+                    tmpLine = headerMap.get(line.name.toLowerCase());
+                    if (tmpLine == null) {
+                        headerMap.put(line.name.toLowerCase(), line);
+                    } else {
+                        tmpLine.lines.add(line);
+                    }
                     headerList.add(line);
                     break;
                 case HeaderLine.HLT_LINE:
                     if (line.line.length() == 0) {
                         bLoop = false;
                     } else {
-                        // TODO invalid header
+                        // Errors reported by bfErrors.
                     }
                     break;
-                case HeaderLine.HLT_RAW:
+                }
+            } else {
+                // Accept truncated http header if it is the length of the payload.
+                if ((bfErrors & HeaderLineReader.E_BIT_EOF) == 0 || in.record.size() != payloadLength) {
+                    /*
                     System.out.println("Epic fail!");
                     System.out.println(Integer.toBinaryString(hlr.bfErrors));
                     System.out.println(new String(in.getRecording()));
+                    */
                     bValidHttpResponse = false;
-                    bLoop = false;
-                    throw new IllegalStateException("Epic fail!");
-                    //break;
                 }
-            } else {
-                System.out.println("Epic fail!");
-                System.out.println(Integer.toBinaryString(hlr.bfErrors));
-                System.out.println(new String(in.getRecording()));
-                bValidHttpResponse = false;
                 bLoop = false;
-                throw new IllegalStateException("Epic fail!");
             }
         }
+        HeaderLineReader.report_error(bfErrors, diagnostics);
         if (bValidHttpResponse) {
+            this.payloadLength = payloadLength - in.record.size();
         }
-        long remaining = payloadLength - in.record.size();
-        /*
-        boolean firstLineMatched = false;
-        boolean invalidProtocolResponse = false;
-
-        //mark the current position. An exception is thrown if the input
-        //stream does not support mark operation
-        in.mark(4096);
-        while (true) {
-            if (remaining == 0L) {
-                break;
-            }
-            LineToken token = readLine(in);
-            remaining -= token.consumed;
-            String line = token.line;
-            if (token.missingCr) {
-                linesWithoutCrEnding++;
-            }
-            if (token.missingLf) {
-                linesWithoutLfEnding++;
-            }
-            if (!firstLineMatched && (line.length() != 0)) {
-                if (!isHttpStatusLineValid(line)){
-                    this.addWarning("Invalid HTTP response header: " + line);
-                    invalidProtocolResponse = true;
-                    break;
-                }
-                firstLineMatched = true;
-            }
-            if (line.length() == 0) {
-                break;
-            }
-            if (line.toUpperCase().startsWith(CONTENT_TYPE)) {
-                this.contentType = line.substring(line.indexOf(':') + 1).trim();
-            }
-            // Temporary hack to save header lines.
-            int idx = line.indexOf(':');
-            HeaderLine headerLine = new HeaderLine();
-            if (idx != -1) {
-                headerLine.name = line.substring(0, idx);
-                headerLine.value = line.substring(idx + 1).trim();
-                // Uses a map for fast lookup of single header.
-                headerMap.put(headerLine.name.toLowerCase(), headerLine);
-            }
-            else {
-                headerLine.line = line;
-            }
-            // Uses a list because there can be multiple occurrences.
-            headerList.add(headerLine);
-        }
-        if (invalidProtocolResponse) {
-            //if the protocol response is invalid, re-read the input stream. In this case
-            //the object of the ARC record is equal to network doc.
-            in.reset();
-            remaining = recordlength;
-        }
-        if (linesWithoutCrEnding != 0) {
-            this.addWarning("" + linesWithoutCrEnding +
-                " LF-only line ending(s) found in HTTP response header");
-        }
-        if (linesWithoutLfEnding != 0) {
-                    this.addWarning("" + linesWithoutLfEnding +
-                        " CR-only line ending(s) found in HTTP response header");
-        }
-        */
-        return remaining;
+        return bValidHttpResponse;
     }
 
     /**
@@ -320,18 +268,18 @@ public class HttpResponse {
     protected boolean isHttpStatusLineValid(String statusLine) {
         int idx;
         int prevIdx;
-        boolean isValid = (statusLine != null) && (statusLine.length() > 0);
-        if (isValid) {
+        boolean bIsHttpStatusLineValid = (statusLine != null) && (statusLine.length() > 0);
+        if (bIsHttpStatusLineValid) {
             idx = statusLine.indexOf(' ');
             if (idx > 0) {
                 protocolVersion = statusLine.substring(0, idx);
                 if (!protocolVersion.startsWith(HTTP)) {
-                    isValid = false;
+                    bIsHttpStatusLineValid = false;
                 }
             } else {
-                isValid = false;
+                bIsHttpStatusLineValid = false;
             }
-            if (isValid) {
+            if (bIsHttpStatusLineValid) {
                 prevIdx = ++idx;
                 idx = statusLine.indexOf(' ', idx);
                 if (idx == -1) {
@@ -342,15 +290,15 @@ public class HttpResponse {
                     try {
                         resultCode = Integer.parseInt(resultCodeStr);
                         if (resultCode < 100 || resultCode > 999) {
-                            isValid = false;
+                            bIsHttpStatusLineValid = false;
                         }
                     } catch(NumberFormatException e) {
-                        isValid = false;
+                        bIsHttpStatusLineValid = false;
                     }
                 } else {
-                    isValid = false;
+                    bIsHttpStatusLineValid = false;
                 }
-                if (isValid) {
+                if (bIsHttpStatusLineValid) {
                     if (idx < statusLine.length()) {
                         ++idx;
                         resultMessage = statusLine.substring(idx);
@@ -358,35 +306,11 @@ public class HttpResponse {
                 }
             }
         }
-        return isValid;
+        return bIsHttpStatusLineValid;
     }
 
-    /**
-     * Warnings getter.
-     * @return the warnings
-     */
-    public List<String> getWarnings() {
-        return Collections.unmodifiableList(this.warnings);
-    }
-
-    /**
-     * Boolean indicating whether this http noted any warnings while parsing
-     * the headers.
-     * @return true/false indicating if there are warnings
-     */
-    public boolean hasWarnings() {
-        return ((warnings != null) && warnings.isEmpty());
-    }
-
-    /**
-     * Add an additional warning message to the list.
-     * @param w warning message
-     */
-    private void addWarning(String w) {
-        if (this.warnings == null) {
-            this.warnings = new LinkedList<String>();
-        }
-        this.warnings.add(w);
+    public boolean isValid() {
+        return bIsValid;
     }
 
     /**
@@ -444,14 +368,6 @@ public class HttpResponse {
     }
 
     /**
-     * Get http response payload length.
-     * @return http response payload length
-     */
-    public long getPayloadLength() {
-        return payloadLength;
-    }
-
-    /**
      * Get the raw http header as bytes.
      * @return raw http header as bytes
      */
@@ -468,10 +384,24 @@ public class HttpResponse {
     }
 
     /**
+     * Get http response payload length.
+     * @return http response payload length
+     */
+    public long getPayloadLength() {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
+        return payloadLength;
+    }
+
+    /**
      * Get payload total length, header and payload.
      * @return payload total length, header and payload
      */
     public long getTotalLength() {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
         return totalLength;
     }
 
@@ -482,6 +412,9 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getUnavailable() throws IOException {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
         return totalLength - in_pb.getConsumed();
     }
 
@@ -492,6 +425,9 @@ public class HttpResponse {
      * payload.
      */
     public InputStream getInputStreamComplete() {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
         return in_complete;
     }
 
@@ -500,6 +436,9 @@ public class HttpResponse {
      * @return <code>InputStream</code> containing only the payload.
      */
     public InputStream getPayloadInputStream() {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
         return in_payload;
     }
 
@@ -509,6 +448,9 @@ public class HttpResponse {
      * @throws IOException if errors occur calling available method on stream
      */
     public long getRemaining() throws IOException {
+        if (!bIsValid) {
+            throw new IllegalStateException("HttpHeader not valid");
+        }
         return totalLength - in_pb.getConsumed();
     }
 

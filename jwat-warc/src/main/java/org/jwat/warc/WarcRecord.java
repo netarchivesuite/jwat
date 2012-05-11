@@ -175,7 +175,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 wr.payload.getInputStream(), header.contentLength,
                                 digestAlgorithm);
                         if (wr.httpResponse != null) {
-                            wr.payload.setHttpResponse(wr.httpResponse);
+                            if (wr.httpResponse.isValid()) {
+                                wr.payload.setHttpResponse(wr.httpResponse);
+                            } else {
+                                wr.diagnostics.addError(
+                                        new Diagnosis(DiagnosisType.ERROR,
+                                                "http response",
+                                                "Unable to parse http response!"));
+                            }
                         }
                     }
                 }
@@ -291,7 +298,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         }
                     }
                 }
-                if (httpResponse != null) {
+                if (httpResponse != null && httpResponse.isValid()) {
                     /*
                      * Check payload digest.
                      */

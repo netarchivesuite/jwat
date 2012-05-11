@@ -187,23 +187,23 @@ public abstract class WarcWriter {
          * Warc-Concurrent-To
          */
         WarcConcurrentTo warcConcurrentTo;
-    	String warcConcurrentToStr;
+        String warcConcurrentToStr;
         if (record.header.warcConcurrentToList != null) {
             for (int i=0; i<record.header.warcConcurrentToList.size(); ++i) {
-            	warcConcurrentTo = record.header.warcConcurrentToList.get(i);
-            	warcConcurrentToStr = null;
-            	if (warcConcurrentTo.warcConcurrentToUri != null) {
-            		warcConcurrentToStr = warcConcurrentTo.warcConcurrentToUri.toString();
-            	} else if (warcConcurrentTo.warcConcurrentToStr != null) {
-            		warcConcurrentToStr = warcConcurrentTo.warcConcurrentToStr;
-            		// Warning...
-            	}
-            	if (warcConcurrentToStr != null) {
+                warcConcurrentTo = record.header.warcConcurrentToList.get(i);
+                warcConcurrentToStr = null;
+                if (warcConcurrentTo.warcConcurrentToUri != null) {
+                    warcConcurrentToStr = warcConcurrentTo.warcConcurrentToUri.toString();
+                } else if (warcConcurrentTo.warcConcurrentToStr != null) {
+                    warcConcurrentToStr = warcConcurrentTo.warcConcurrentToStr;
+                    // Warning...
+                }
+                if (warcConcurrentToStr != null) {
                     out.write(WarcConstants.FN_WARC_CONCURRENT_TO.getBytes());
                     out.write(": <".getBytes());
                     out.write(warcConcurrentToStr.getBytes());
                     out.write(">\r\n".getBytes());
-            	}
+                }
             }
         }
         /*

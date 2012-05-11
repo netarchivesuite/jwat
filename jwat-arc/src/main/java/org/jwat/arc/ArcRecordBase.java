@@ -353,7 +353,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                         }
                     }
                 }
-                if (httpResponse != null) {
+                if (httpResponse != null && httpResponse.isValid()) {
                     /*
                      * Check payload digest.
                      */

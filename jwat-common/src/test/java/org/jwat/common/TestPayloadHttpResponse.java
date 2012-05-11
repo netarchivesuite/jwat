@@ -129,6 +129,7 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     if (httpResponse != null) {
                         payload.setHttpResponse(httpResponse);
                     }
+                    Assert.assertTrue(httpResponse.isValid());
                     Assert.assertNotNull(httpResponse);
                     Assert.assertEquals(httpResponse, payload.httpResponse);
                     Assert.assertEquals(httpResponse, payload.getHttpResponse());
@@ -222,6 +223,7 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     if (httpResponse != null) {
                         payload.setHttpResponse(httpResponse);
                     }
+                    Assert.assertTrue(httpResponse.isValid());
                     Assert.assertNotNull(httpResponse);
                     Assert.assertEquals(httpResponse, payload.httpResponse);
                     Assert.assertEquals(httpResponse, payload.getHttpResponse());
@@ -316,6 +318,7 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     if (httpResponse != null) {
                         payload.setHttpResponse(httpResponse);
                     }
+                    Assert.assertTrue(httpResponse.isValid());
                     Assert.assertNotNull(httpResponse);
                     Assert.assertEquals(httpResponse, payload.httpResponse);
                     Assert.assertEquals(httpResponse, payload.getHttpResponse());

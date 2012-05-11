@@ -116,6 +116,7 @@ public class TestHttpResponse {
         try {
             pbin = new  ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
             httpResponse = HttpResponse.processPayload( pbin, 0, "shit1" );
+            Assert.assertFalse(httpResponse.isValid());
             Assert.assertNull( httpResponse.getMessageDigest() );
         } catch (IOException e) {
             e.printStackTrace();
@@ -148,6 +149,8 @@ public class TestHttpResponse {
                      */
                     pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
                     httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
+
+                    Assert.assertTrue(httpResponse.isValid());
 
                     in = httpResponse.getPayloadInputStream();
                     Assert.assertEquals(in, httpResponse.getPayloadInputStream());
@@ -206,6 +209,8 @@ public class TestHttpResponse {
                      */
                     pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
                     httpResponse = HttpResponse.processPayload( pbin, srcArr.length, digestAlgorithm );
+
+                    Assert.assertTrue(httpResponse.isValid());
 
                     in = httpResponse.getInputStreamComplete();
                     Assert.assertEquals(in, httpResponse.getInputStreamComplete());

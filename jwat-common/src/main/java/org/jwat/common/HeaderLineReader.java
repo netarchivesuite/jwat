@@ -39,7 +39,7 @@ public class HeaderLineReader {
      * Internal states.
      */
 
-	/** Initial state for reading a normal line. */
+    /** Initial state for reading a normal line. */
     protected static final int S_LINE = 0;
     /** Initial state for reading a header line. */
     protected static final int S_NAME = 1;
@@ -149,7 +149,7 @@ public class HeaderLineReader {
     public static final int E_BIT_EXCESSIVE_CR = 1 << 3;
     /** Bit denoting an invalid UTF-8 encoded character. */
     public static final int E_BIT_INVALID_UTF8_ENCODING = 1 << 4;
-    /** Bit denoting an invalud US-ASCII character. */
+    /** Bit denoting an invalid US-ASCII character. */
     public static final int E_BIT_INVALID_US_ASCII_CHAR = 1 << 5;
     /** Bit denoting an invalid control character. */
     public static final int E_BIT_INVALID_CONTROL_CHAR = 1 << 6;
@@ -159,6 +159,8 @@ public class HeaderLineReader {
     public static final int E_BIT_MISSING_QUOTE = 1 << 8;
     /** Bit denoting a missing quoted pair character. */
     public static final int E_BIT_MISSING_QUOTED_PAIR_CHAR = 1 << 9;
+    /** Bit denoting an invalid quoted pair character. */
+    public static final int E_BIT_INVALID_QUOTED_PAIR_CHAR = 1 << 10;
 
     /*
      * Internal state.
@@ -195,7 +197,7 @@ public class HeaderLineReader {
     }
 
     /**
-     * Returns a reader to read normal lines. 
+     * Returns a reader to read normal lines.
      * The reader is pre-configured to expect US-ASCII characters.
      * @return a reader to read normal lines
      */
@@ -257,14 +259,15 @@ public class HeaderLineReader {
                 case -1:
                     // EOF.
                     bfErrors |= E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.type = HeaderLine.HLT_LINE;
+                    headerLine.line = lineSb.toString();
+                    lineSb.setLength(0);
                     bLoop = false;
                     break;
                 case '\r':
                     bCr = true;
                     break;
                 case '\n':
-                    // TODO what types of encoding have we seen to far?
                     headerLine.type = HeaderLine.HLT_LINE;
                     headerLine.line = lineSb.toString();
                     lineSb.setLength(0);
@@ -273,7 +276,7 @@ public class HeaderLineReader {
                     bLoop = false;
                     break;
                 default:
-                    if (!bCr) {
+                    if (bCr) {
                         // Misplaced CR.
                         bfErrors |= E_BIT_MISPLACED_CR;
                         bCr = false;
@@ -283,7 +286,9 @@ public class HeaderLineReader {
                     if (c == -1) {
                         // EOF.
                         bfErrors |= E_BIT_EOF;
-                        headerLine.type = HeaderLine.HLT_RAW;
+                        headerLine.type = HeaderLine.HLT_LINE;
+                        headerLine.line = lineSb.toString();
+                        lineSb.setLength(0);
                         bLoop = false;
                     } else {
                         if (bValidChar && encoding != ENC_RAW) {
@@ -305,25 +310,28 @@ public class HeaderLineReader {
                 case -1:
                     // EOF.
                     bfErrors |= E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.type = HeaderLine.HLT_LINE;
+                    headerLine.line = lineSb.toString();
+                    lineSb.setLength(0);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case '\r':
                     bCr = true;
                     break;
                 case '\n':
-                    // TODO what types of encoding have we seen to far?
                     headerLine.type = HeaderLine.HLT_LINE;
                     headerLine.line = lineSb.toString();
                     lineSb.setLength(0);
+                    nvSb.setLength(0);
                     // Check EOL.
                     check_eol();
                     bLoop = false;
                     break;
                 case ':':
-                    // TODO what types of encoding have we seen to far?
                     headerLine.type = HeaderLine.HLT_HEADERLINE;
                     headerLine.name = nvSb.toString();
+                    lineSb.setLength(0);
                     nvSb.setLength(0);
                     if (bCr) {
                         // Misplaced CR.
@@ -343,7 +351,10 @@ public class HeaderLineReader {
                     if (c == -1) {
                         // EOF.
                         bfErrors |= E_BIT_EOF;
-                        headerLine.type = HeaderLine.HLT_RAW;
+                        headerLine.type = HeaderLine.HLT_LINE;
+                        headerLine.line = lineSb.toString();
+                        lineSb.setLength(0);
+                        nvSb.setLength(0);
                         bLoop = false;
                     } else {
                         if (bValidChar && encoding != ENC_RAW) {
@@ -373,7 +384,8 @@ public class HeaderLineReader {
                 case -1:
                     // EOF.
                     bfErrors |= E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case '\r':
@@ -385,8 +397,8 @@ public class HeaderLineReader {
                     if (bLWS) {
                         state = S_LWS;
                     } else {
-                        // TODO what types of encoding etc. have we seen so far
                         headerLine.value = trim(nvSb);
+                        nvSb.setLength(0);
                         bLoop = false;
                     }
                     break;
@@ -401,7 +413,8 @@ public class HeaderLineReader {
                     if (c == -1) {
                         // EOF.
                         bfErrors |= E_BIT_EOF;
-                        headerLine.type = HeaderLine.HLT_RAW;
+                        headerLine.value = trim(nvSb);
+                        nvSb.setLength(0);
                         bLoop = false;
                     } else {
                         if (bValidChar && encoding != ENC_RAW) {
@@ -415,16 +428,16 @@ public class HeaderLineReader {
                             switch (c) {
                             case '\"':
                                 nvSb.append((char)c);
-                            	if (bQuotedText) {
+                                if (bQuotedText) {
                                     state = S_QUOTED_TEXT;
-                            	}
+                                }
                                 break;
                             case '=':
-                            	if (bEncodedWords) {
+                                if (bEncodedWords) {
                                     state = S_ENCODED_WORD_EQ;
-                            	} else {
+                                } else {
                                     nvSb.append((char)c);
-                            	}
+                                }
                                 break;
                             default:
                                 nvSb.append((char)c);
@@ -439,9 +452,9 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
-                    bfErrors |= E_BIT_EOF;
-                    // TODO what types of encoding etc. have we seen so far
+                    //bfErrors |= E_BIT_EOF;
                     headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case ' ':
@@ -452,8 +465,8 @@ public class HeaderLineReader {
                 default:
                     in.unread(c);
                     bytesOut.unread(c);
-                    // TODO what types of encoding etc. have we seen so far
                     headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 }
@@ -463,7 +476,8 @@ public class HeaderLineReader {
                 case -1:
                     // EOF.
                     bfErrors |= E_BIT_MISSING_QUOTE | E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case '\"':
@@ -488,9 +502,14 @@ public class HeaderLineReader {
                     break;
                 case '\n':
                     // Check EOL.
-                    // TODO lws config?
                     check_eol();
-                    state = S_QUOTED_LWS;
+                    if (bLWS) {
+                        state = S_QUOTED_LWS;
+                    } else {
+                        headerLine.value = trim(nvSb);
+                        nvSb.setLength(0);
+                        bLoop = false;
+                    }
                     break;
                 default:
                     if (bCr) {
@@ -502,8 +521,9 @@ public class HeaderLineReader {
                     c = decode(c, in);
                     if (c == -1) {
                         // EOF.
-                        bfErrors |= E_BIT_EOF;
-                        headerLine.type = HeaderLine.HLT_RAW;
+                        bfErrors |= E_BIT_MISSING_QUOTE | E_BIT_EOF;
+                        headerLine.value = trim(nvSb);
+                        nvSb.setLength(0);
                         bLoop = false;
                     } else {
                         if (bValidChar && encoding != ENC_RAW) {
@@ -523,9 +543,11 @@ public class HeaderLineReader {
             case S_QUOTED_PAIR:
                 switch (c) {
                 case -1:
+                    nvSb.append('\\');
                     // EOF.
-                    bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR | E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR | E_BIT_MISSING_QUOTE | E_BIT_EOF;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 default:
@@ -533,13 +555,15 @@ public class HeaderLineReader {
                     c = decode(c, in);
                     if (c == -1) {
                         // EOF.
-                        bfErrors |= E_BIT_MISSING_QUOTE | E_BIT_EOF;
-                        headerLine.type = HeaderLine.HLT_RAW;
+                        bfErrors |= E_BIT_MISSING_QUOTED_PAIR_CHAR | E_BIT_MISSING_QUOTE | E_BIT_EOF;
+                        headerLine.value = trim(nvSb);
+                        nvSb.setLength(0);
                         bLoop = false;
                     } else {
-                        if (bValidChar) {
-                            nvSb.append('\\');
-                            nvSb.append((char)c);
+                        nvSb.append('\\');
+                        nvSb.append((char)c);
+                        if (!bValidChar) {
+                            bfErrors |= E_BIT_INVALID_QUOTED_PAIR_CHAR;
                         }
                         state = S_QUOTED_TEXT;
                     }
@@ -550,8 +574,9 @@ public class HeaderLineReader {
                 switch (c) {
                 case -1:
                     // EOF.
-                    bfErrors |= E_BIT_MISSING_QUOTE | E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    bfErrors |= E_BIT_MISSING_QUOTE;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case ' ':
@@ -560,11 +585,11 @@ public class HeaderLineReader {
                     state = S_QUOTED_TEXT;
                     break;
                 default:
-                    // TODO Non LWS force end of quoted text parsing and header line.
                     in.unread(c);
                     bytesOut.unread(c);
                     bfErrors |= E_BIT_MISSING_QUOTE;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 }
@@ -572,9 +597,11 @@ public class HeaderLineReader {
             case S_ENCODED_WORD_EQ:
                 switch (c) {
                 case -1:
+                    nvSb.append('=');
                     // EOF.
                     bfErrors |= E_BIT_EOF;
-                    headerLine.type = HeaderLine.HLT_RAW;
+                    headerLine.value = trim(nvSb);
+                    nvSb.setLength(0);
                     bLoop = false;
                     break;
                 case '?':
@@ -585,7 +612,7 @@ public class HeaderLineReader {
                     EncodedWords ew = EncodedWords.parseEncodedWords(in, true);
                     /*
                     if (!ew.bIsValid) {
-                    	// TODO Decide whether to report encoded word errors or interpret as non encoded words.
+                        // TODO Decide whether to report encoded word errors or interpret as non encoded words.
                     }
                     */
                     nvSb.append("=?");
@@ -605,7 +632,7 @@ public class HeaderLineReader {
         }
         headerLine.raw = bytesOut.toByteArray();
         headerLine.bfErrors = bfErrors;
-        bEof = (headerLine.type == HeaderLine.HLT_RAW && headerLine.raw.length == 0);
+        bEof = (headerLine.raw.length == 0);
         return headerLine;
     }
 
@@ -683,6 +710,47 @@ public class HeaderLineReader {
             --eIdx;
         }
         return sb.substring(sIdx, eIdx);
+    }
+
+    /**
+     * Report bit field errors as diagnoses.
+     * @param bfErrors bit field with indicated errors
+     * @param diagnostics diagnostics object used to report diagnoses
+     */
+    public static void report_error(int bfErrors, Diagnostics<Diagnosis> diagnostics) {
+        if ((bfErrors & E_BIT_EOF) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Unexpected EOF"));
+        }
+        if ((bfErrors & E_BIT_MISPLACED_CR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Misplaced CR"));
+        }
+        if ((bfErrors & E_BIT_MISSING_CR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Missing CR"));
+        }
+        if ((bfErrors & E_BIT_EXCESSIVE_CR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Excessive CR"));
+        }
+        if ((bfErrors & E_BIT_INVALID_UTF8_ENCODING) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid UTF-8 encoded character"));
+        }
+        if ((bfErrors & E_BIT_INVALID_US_ASCII_CHAR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid US-ASCII character"));
+        }
+        if ((bfErrors & E_BIT_INVALID_CONTROL_CHAR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid control character"));
+        }
+        if ((bfErrors & E_BIT_INVALID_SEPARATOR_CHAR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid separator character"));
+        }
+        if ((bfErrors & E_BIT_MISSING_QUOTE) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Missing quote character"));
+        }
+        if ((bfErrors & E_BIT_MISSING_QUOTED_PAIR_CHAR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Missing quoted pair character"));
+        }
+        if ((bfErrors & E_BIT_INVALID_QUOTED_PAIR_CHAR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid quoted pair character"));
+        }
     }
 
 }

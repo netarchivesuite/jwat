@@ -30,7 +30,10 @@ public enum DiagnosisType {
     /** Empty entity value. */
     EMPTY,
 
-    /** Entity is errornious and something else was expected. */
+    /** Entity is erroneous. */
+    ERROR,
+
+    /** Entity is erroneous and something else was expected. */
     ERROR_EXPECTED,
 
     /** Invalid circumstance surrounding entity. */

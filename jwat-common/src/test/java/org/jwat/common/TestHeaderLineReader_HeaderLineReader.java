@@ -42,26 +42,26 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         try {
             commonCases = new Object[][] {
                     {"WARC/1.0".getBytes(),
-                        HeaderLine.HLT_RAW, null},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_EOF},
                     {"WARC/1.0\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_MISSING_CR},
                     {"WARC\r/1.0\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_MISPLACED_CR | HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_MISSING_CR},
                     {"WARC/1.0\r\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
-                    {partialUtf8Str,
-                        HeaderLine.HLT_RAW, null}
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
             };
             /*
              * Raw.
              */
             cases = new Object[][] {
                     {"WARC/1.0\u0001\r\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0\u0001"},
+                        HeaderLine.HLT_LINE, "WARC/1.0\u0001", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("ISO8859-1"),
-                        HeaderLine.HLT_LINE, "WARCæøå?/1.0"},
+                        HeaderLine.HLT_LINE, "WARCæøå?/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("UTF-8"),
-                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á´/1.0"}
+                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á´/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                    {partialUtf8Str,
+                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á", HeaderLineReader.E_BIT_EOF}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_RAW;
@@ -72,11 +72,13 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"WARC/1.0\u0001\r\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("ISO8859-1"),
-                        HeaderLine.HLT_LINE, "WARC?/1.0"},
+                        HeaderLine.HLT_LINE, "WARC?/1.0", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR | HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("UTF-8"),
-                        HeaderLine.HLT_LINE, "WARC/1.0"}
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR | HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                    {partialUtf8Str,
+                        HeaderLine.HLT_LINE, "WARC", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR | HeaderLineReader.E_BIT_EOF}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_US_ASCII;
@@ -87,11 +89,13 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"WARC/1.0\u0001\r\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("ISO8859-1"),
-                        HeaderLine.HLT_LINE, "WARCæøå?/1.0"},
+                        HeaderLine.HLT_LINE, "WARCæøå?/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("UTF-8"),
-                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á´/1.0"}
+                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á´/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                    {partialUtf8Str,
+                        HeaderLine.HLT_LINE, "WARCÃ¦Ã¸Ã¥á", HeaderLineReader.E_BIT_EOF}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_ISO8859_1;
@@ -102,13 +106,15 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"WARC/1.0\u0001\r\n".getBytes(),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR},
                     {"WARCæøå/1.0\r\n".getBytes("ISO8859-1"),
-                        HeaderLine.HLT_LINE, "WARC1.0"},
+                        HeaderLine.HLT_LINE, "WARC1.0", HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("ISO8859-1"),
-                        HeaderLine.HLT_LINE, "WARC/1.0"},
+                        HeaderLine.HLT_LINE, "WARC/1.0", HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING | HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
                     {"WARCæøå\u1234/1.0\r\n".getBytes("UTF-8"),
-                        HeaderLine.HLT_LINE, "WARCæøå\u1234/1.0"}
+                        HeaderLine.HLT_LINE, "WARCæøå\u1234/1.0", HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                    {partialUtf8Str,
+                        HeaderLine.HLT_LINE, "WARCæøå", HeaderLineReader.E_BIT_EOF}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_UTF8;
@@ -143,30 +149,29 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         try {
             commonCases = new Object[][] {
                     {"content-type: monkeys".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: monkeys\r\n and\r\n poo".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys and poo", HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: monkeys\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", 0}
                     }},
                     {"content-type\r: monkeys\r\n and\r\n poo\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys and poo"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys and poo", HeaderLineReader.E_BIT_MISPLACED_CR | HeaderLineReader.E_BIT_MISSING_CR}
                     }},
                     {"content-type:monkeys\r\ncontent-length:  1 2 3 \r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
-                        {HeaderLine.HLT_HEADERLINE, null, "content-length", "1 2 3"}
-                       
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", 0},
+                        {HeaderLine.HLT_HEADERLINE, null, "content-length", "1 2 3", 0}
                     }},
                     {("Set-Cookie: a9locale=en_US; Domain=.a9.com; Path=/\r\n"
                         + "Set-Cookie: a9Temp=\"{\\\"w\\\":\\\"g\\\"}\"; Version=1; Domain=.a9.com; Path=/\r\n"
                         + "Vary: Accept-Encoding,User-Agent\r\n"
                         + "Connection: close\r\n").getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "Set-Cookie", "a9locale=en_US; Domain=.a9.com; Path=/"},
-                        {HeaderLine.HLT_HEADERLINE, null, "Set-Cookie", "a9Temp=\"{\\\"w\\\":\\\"g\\\"}\"; Version=1; Domain=.a9.com; Path=/"},
-                        {HeaderLine.HLT_HEADERLINE, null, "Vary", "Accept-Encoding,User-Agent"},
-                        {HeaderLine.HLT_HEADERLINE, null, "Connection", "close"}
+                        {HeaderLine.HLT_HEADERLINE, null, "Set-Cookie", "a9locale=en_US; Domain=.a9.com; Path=/", 0},
+                        {HeaderLine.HLT_HEADERLINE, null, "Set-Cookie", "a9Temp=\"{\\\"w\\\":\\\"g\\\"}\"; Version=1; Domain=.a9.com; Path=/", 0},
+                        {HeaderLine.HLT_HEADERLINE, null, "Vary", "Accept-Encoding,User-Agent", 0},
+                        {HeaderLine.HLT_HEADERLINE, null, "Connection", "close", 0}
                     }},
                     {("HTTP/1.1 200 OK\n"
                         + "Date: Wed, 30 Apr 2008 20:48:25 GMT\n"
@@ -177,36 +182,36 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
                         + "Content-Length: 366\n"
                         + "Connection: close\n"
                         + "Content-Type: text/html; charset=UTF-8\n").getBytes(), new Object[][] {
-                            {HeaderLine.HLT_LINE, "HTTP/1.1 200 OK", null, null},
-                            {HeaderLine.HLT_HEADERLINE, null, "Date", "Wed, 30 Apr 2008 20:48:25 GMT"},
-                            {HeaderLine.HLT_HEADERLINE, null, "Server", "Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g"},
-                            {HeaderLine.HLT_HEADERLINE, null, "Last-Modified", "Wed, 09 Jan 2008 23:18:29 GMT"},
-                            {HeaderLine.HLT_HEADERLINE, null, "ETag", "\"47ac-16e-4f9e5b40\""},
-                            {HeaderLine.HLT_HEADERLINE, null, "Accept-Ranges", "bytes"},
-                            {HeaderLine.HLT_HEADERLINE, null, "Content-Length", "366"},
-                            {HeaderLine.HLT_HEADERLINE, null, "Connection", "close"},
-                            {HeaderLine.HLT_HEADERLINE, null, "Content-Type", "text/html; charset=UTF-8"}
+                        {HeaderLine.HLT_LINE, "HTTP/1.1 200 OK", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Date", "Wed, 30 Apr 2008 20:48:25 GMT", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Server", "Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Last-Modified", "Wed, 09 Jan 2008 23:18:29 GMT", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "ETag", "\"47ac-16e-4f9e5b40\"", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Accept-Ranges", "bytes", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Content-Length", "366", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Connection", "close", HeaderLineReader.E_BIT_MISSING_CR},
+                        {HeaderLine.HLT_HEADERLINE, null, "Content-Type", "text/html; charset=UTF-8", HeaderLineReader.E_BIT_MISSING_CR}
                     }},
-                    /*
-                    {partialUtf8Str, null},
                     {"From: =?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>\r\n".getBytes(), new Object[][] {
-                            {null, "From", "=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>"}
+                        {HeaderLine.HLT_HEADERLINE, null, "From", "=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>", 0}
                     }}
-                    */
             };
             /*
              * Raw.
              */
             cases = new Object[][] {
                     {"content-type: monkeys\u0001\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys\u0001"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys\u0001", 0}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå?"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå?", 0}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("UTF-8"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á´"}
-                    }}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á´", 0}
+                    }},
+                    {partialUtf8Str, new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á", HeaderLineReader.E_BIT_EOF}
+                    }},
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_RAW;
@@ -217,14 +222,17 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"content-type: monkeys\u0001\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys?"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys?", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("UTF-8"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
-                    }}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR}
+                    }},
+                    {partialUtf8Str, new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR | HeaderLineReader.E_BIT_EOF}
+                    }},
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_US_ASCII;
@@ -235,14 +243,17 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"content-type: monkeys\u0001\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå?"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå?", 0}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("UTF-8"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á´"}
-                    }}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á´", 0}
+                    }},
+                    {partialUtf8Str, new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysÃ¦Ã¸Ã¥á", HeaderLineReader.E_BIT_EOF}
+                    }},
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_ISO8859_1;
@@ -253,17 +264,20 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
              */
             cases = new Object[][] {
                     {"content-type: monkeys\u0001\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR}
                     }},
                     {"content-type: monkeysæøå\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING | HeaderLineReader.E_BIT_MISSING_CR}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING}
                     }},
                     {"content-type: monkeysæøå\u1234\r\n".getBytes("UTF-8"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå\u1234"}
-                    }}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå\u1234", 0}
+                    }},
+                    {partialUtf8Str, new Object[][] {
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeysæøå", HeaderLineReader.E_BIT_EOF}
+                    }},
             };
             hlr = HeaderLineReader.getHeaderLineReader();
             hlr.encoding = HeaderLineReader.ENC_UTF8;
@@ -322,26 +336,24 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         try {
             cases = new Object[][] {
                     {"content-type: monkeys".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: monkeys\r\n and\r\n poo".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
-                        {HeaderLine.HLT_LINE, " and", null, null},
-                        // TODO Maybe the line should be returned at least?
-                        {HeaderLine.HLT_RAW, null, null, null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", 0},
+                        {HeaderLine.HLT_LINE, " and", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                        {HeaderLine.HLT_LINE, " poo", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: monkeys\r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", 0}
                     }},
                     {"content-type\r: monkeys\r\n and\r\n poo\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
-                        {HeaderLine.HLT_LINE, " and", null, null},
-                        {HeaderLine.HLT_LINE, " poo", null, null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_MISPLACED_CR},
+                        {HeaderLine.HLT_LINE, " and", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR},
+                        {HeaderLine.HLT_LINE, " poo", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR | HeaderLineReader.E_BIT_MISSING_CR}
                     }},
                     {"content-type:monkeys\r\ncontent-length:  1 2 3 \r\n".getBytes(), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys"},
-                        {HeaderLine.HLT_HEADERLINE, null, "content-length", "1 2 3"}
-                       
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", 0},
+                        {HeaderLine.HLT_HEADERLINE, null, "content-length", "1 2 3", 0}
                     }}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
@@ -359,7 +371,7 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         try {
             cases = new Object[][] {
                     {("content-type: monkeys" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "monkeys", HeaderLineReader.E_BIT_EOF}
                     }}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
@@ -377,75 +389,75 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
         try {
             cases = new Object[][] {
                     {"content-type: \"monkeys\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\"", 0}
                     }},
                     {"content-type: \"hello\rmonkeys\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"hellomonkeys\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"hellomonkeys\"", HeaderLineReader.E_BIT_MISPLACED_CR}
                     }},
                     {"content-type: \"monkeys\r\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\"", HeaderLineReader.E_BIT_MISPLACED_CR}
                     }},
                     {"content-type: \"monkeys\r\\\"\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\\\"\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\\\"\"", HeaderLineReader.E_BIT_MISPLACED_CR}
                     }},
                     {"content-type: \"monkeys\r\n invasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\"", 0}
                     }},
                     {"content-type: \"monkeys\r\n\tinvasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\"", 0}
                     }},
                     {("content-type: \"monkeys" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys", HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     // Covered quoted-text and not quoted pair
                     {("content-type: \"monkeys" + (char)(0xC0) + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys", HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING | HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
-                    /*
+                    // Code already covered.
                     {"content-type: \"monkeys\u1234".getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys?", HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
+                    // Code already covered.
                     {"content-type: \"monkeys\t".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\t", HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
-                    */
                     {("content-type: \"monkeys" + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys", HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR | HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: \"monkeys\\".getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\\", HeaderLineReader.E_BIT_MISSING_QUOTED_PAIR_CHAR | HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     {("content-type: \"monkeys\\" + (char)(0x01)).getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys\\" + (char)(0x01), HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     {("content-type: \"monkeys\\" + (char)(0xC0)).getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys", HeaderLineReader.E_BIT_MISSING_QUOTED_PAIR_CHAR | HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: \"monkeys\r\n invasion!".getBytes("ISO8859-1"), new Object[][] {
-                            {HeaderLine.HLT_RAW, null, "content-type", null}
+                            {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!", HeaderLineReader.E_BIT_MISSING_QUOTE | HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: \"monkeys\r\n invasion!\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!", HeaderLineReader.E_BIT_MISSING_QUOTE}
                     }},
                     {"content-type: \"monkeys\r\n\tinvasion!\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!", HeaderLineReader.E_BIT_MISSING_QUOTE}
                     }},
                     {"content-type: \"monkeys\r\n invasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\"", 0}
                     }},
                     {"content-type: \"monkeys\r\n\tinvasion!\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\""}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!\"", 0}
                     }},
                     {"content-type: \"monkeys\r\n\tinvasion!\r\ntest line\"\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null},
-                        {HeaderLine.HLT_LINE, "test line\"", null, null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "\"monkeys invasion!", HeaderLineReader.E_BIT_MISSING_QUOTE},
+                        {HeaderLine.HLT_LINE, "test line\"", null, null, HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR}
                     }},
 
                     {"content-type: =".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_RAW, null, "content-type", null}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "=", HeaderLineReader.E_BIT_EOF}
                     }},
                     {"content-type: =?iso-8859-1?q?this=20is=20some=20text?=\r\n".getBytes("ISO8859-1"), new Object[][] {
-                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "=?iso-8859-1?q?this=20is=20some=20text?="}
+                        {HeaderLine.HLT_HEADERLINE, null, "content-type", "=?iso-8859-1?q?this=20is=20some=20text?=", 0}
                     }},
 
             };
@@ -456,31 +468,31 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
 
             /*
             String httpHeader = 
-            		//"HTTP/1.1 200 OK\r\n" +
-            		"Cache-Control: public\r\n" +
-		            "Content-Length: 108388\r\n" +
-		            "Content-Type: image/png\r\n" +
-		            "Last-Modified: Tue, 22 Feb 2011 21:13:52 GMT\r\n" +
-		            "Server: Microsoft-IIS/7.0\r\n" +
-		            "Content-Disposition: inline; filename=march-GEO.png\"\r\n" +
-		            "X-AspNet-Version: 2.0.50727\r\n" +
-		            "X-Powered-By: ASP.NET\r\n" +
-		            "Date: Fri, 25 Feb 2011 22:06:45 GMT\r\n" +
-		            "Connection: close\r\n" +
-		            "\r\n";
+                    //"HTTP/1.1 200 OK\r\n" +
+                    "Cache-Control: public\r\n" +
+                    "Content-Length: 108388\r\n" +
+                    "Content-Type: image/png\r\n" +
+                    "Last-Modified: Tue, 22 Feb 2011 21:13:52 GMT\r\n" +
+                    "Server: Microsoft-IIS/7.0\r\n" +
+                    "Content-Disposition: inline; filename=march-GEO.png\"\r\n" +
+                    "X-AspNet-Version: 2.0.50727\r\n" +
+                    "X-Powered-By: ASP.NET\r\n" +
+                    "Date: Fri, 25 Feb 2011 22:06:45 GMT\r\n" +
+                    "Connection: close\r\n" +
+                    "\r\n";
             cases = new Object[][] {
                     {httpHeader.getBytes("ISO8859-1"), new Object[][] {
                         {HeaderLine.HLT_HEADERLINE, null, "Cache-Control", "public"},
-                		{HeaderLine.HLT_HEADERLINE, null, "Content-Length", "108388"},
-        				{HeaderLine.HLT_HEADERLINE, null, "Content-Type", "image/png"},
-						{HeaderLine.HLT_HEADERLINE, null, "Last-Modified", "Tue, 22 Feb 2011 21:13:52 GMT"},
-						{HeaderLine.HLT_HEADERLINE, null, "Server", "Microsoft-IIS/7.0"},
-						{HeaderLine.HLT_HEADERLINE, null, "Content-Disposition", "inline; filename=march-GEO.png\""},
-						{HeaderLine.HLT_HEADERLINE, null, "X-AspNet-Version", "2.0.50727"},
-						{HeaderLine.HLT_HEADERLINE, null, "X-Powered-By", "ASP.NET"},
-						{HeaderLine.HLT_HEADERLINE, null, "Date", "Fri, 25 Feb 2011 22:06:45 GMT"},
-						{HeaderLine.HLT_HEADERLINE, null, "Connection", "close"}
-						//{HeaderLine.HLT_LINE, null, "Connection: close"}
+                        {HeaderLine.HLT_HEADERLINE, null, "Content-Length", "108388"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Content-Type", "image/png"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Last-Modified", "Tue, 22 Feb 2011 21:13:52 GMT"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Server", "Microsoft-IIS/7.0"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Content-Disposition", "inline; filename=march-GEO.png\""},
+                        {HeaderLine.HLT_HEADERLINE, null, "X-AspNet-Version", "2.0.50727"},
+                        {HeaderLine.HLT_HEADERLINE, null, "X-Powered-By", "ASP.NET"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Date", "Fri, 25 Feb 2011 22:06:45 GMT"},
+                        {HeaderLine.HLT_HEADERLINE, null, "Connection", "close"}
+                        //{HeaderLine.HLT_LINE, null, "Connection: close"}
                     }}
             };
             hlr = HeaderLineReader.getHeaderLineReader();
