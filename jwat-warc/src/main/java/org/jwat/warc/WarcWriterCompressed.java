@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.jwat.common.ByteCountingInputStream;
 import org.jwat.gzip.GzipConstants;
 import org.jwat.gzip.GzipEntry;
 import org.jwat.gzip.GzipWriter;
@@ -37,7 +36,11 @@ public class WarcWriterCompressed extends WarcWriter {
      * Construct an unbuffered WARC writer used to write compressed records.
      * @param out outputstream to write to
      */
-    public WarcWriterCompressed(OutputStream out) {
+    WarcWriterCompressed(OutputStream out) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
         writer = new GzipWriter(out);
     }
 
@@ -48,7 +51,7 @@ public class WarcWriterCompressed extends WarcWriter {
      * @throws IllegalArgumentException if out is null.
      * @throws IllegalArgumentException if buffer_size <= 0.
      */
-    public WarcWriterCompressed(OutputStream out, int buffer_size) {
+    WarcWriterCompressed(OutputStream out, int buffer_size) {
         if (out == null) {
             throw new IllegalArgumentException(
                     "The 'out' parameter is null!");
@@ -68,9 +71,18 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public void close() {
-        try {
-            out.flush();
-            out.close();
+    	try {
+    		if (entry != null) {
+    			closeRecord();
+    		}
+		} catch (IOException e) {
+		}
+    	try {
+        	if (out != null) {
+                out.flush();
+                out.close();
+                out = null;
+        	}
         }
         catch (IOException e) {
         }
@@ -119,14 +131,21 @@ public class WarcWriterCompressed extends WarcWriter {
     }
 
     @Override
-    public long transferPayload(InputStream in, long length) throws IOException {
+    public long streamPayload(InputStream in, long length) throws IOException {
         if (entry == null) {
             throw new IllegalStateException();
         }
-        ByteCountingInputStream bcin = new ByteCountingInputStream(in);
-        entry.writeFrom(bcin);
-        //bcin.close();
-        return bcin.getConsumed();
+        int read = 0;
+        long written = 0;
+        byte[] buffer = new byte[8192];
+        while (read != -1) {
+        	read = in.read(buffer, 0, buffer.length);
+        	if (read > 0) {
+        		out.write(buffer, 0, read);
+        		written += read;
+        	}
+        }
+        return written;
     }
 
     @Override

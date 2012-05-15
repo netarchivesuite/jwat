@@ -99,6 +99,8 @@ public class WarcReaderCompressed extends WarcReader {
             warcRecord = null;
         }
         if (reader != null) {
+            startOffset = reader.getStartOffset();
+            consumed = reader.getOffset();
             try {
                 reader.close();
             } catch (IOException e) { /* ignore */ }
@@ -106,13 +108,20 @@ public class WarcReaderCompressed extends WarcReader {
         }
     }
 
+    /** Cached start offset used after the reader is closed. */
+    protected long startOffset = 0;
+
     /**
      * Get the current offset in the WARC <code>GzipReader</code>.
      * @return offset in WARC <code>InputStream</code>
      */
     @Override
     public long getStartOffset() {
-        return reader.getStartOffset();
+    	if (reader != null) {
+            return reader.getStartOffset();
+    	} else {
+    		return startOffset;
+    	}
     }
 
     /**
@@ -121,7 +130,20 @@ public class WarcReaderCompressed extends WarcReader {
      */
     @Override
     public long getOffset() {
-        return reader.getOffset();
+    	if (reader != null) {
+            return reader.getOffset();
+    	} else {
+            return consumed;
+    	}
+    }
+
+    @Override
+    public long getConsumed() {
+    	if (reader != null) {
+            return reader.getOffset();
+    	} else {
+            return consumed;
+    	}
     }
 
     @Override

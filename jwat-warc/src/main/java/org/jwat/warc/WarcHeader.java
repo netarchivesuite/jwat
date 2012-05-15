@@ -172,6 +172,7 @@ public class WarcHeader {
     public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
         header.reader = reader;
+    	// This is only relevant for uncompressed sequentially read records
         header.startOffset = startOffset;
         header.diagnostics = diagnostics;
         return header;
@@ -241,6 +242,7 @@ public class WarcHeader {
         String tmpStr;
         boolean bSeekMagic = true;
         while (bSeekMagic) {
+        	// This is only relevant for uncompressed sequentially read records
             startOffset = in.getConsumed();
             line = reader.lineReader.readLine(in);
             if (!reader.lineReader.bEof) {

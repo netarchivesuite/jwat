@@ -147,6 +147,7 @@ public class GzipEntry {
      * Read from input stream and write compressed data on output stream.
      * This method writes the compressed data read from the input stream
      * and closes the entry. Use @see(#getOutputStream) for more control.
+     * Using this method together with the OutputStream will end in tears.
      * @param in input stream with uncompressed data
      * @throws IOException if an io error occurs while transferring
      */

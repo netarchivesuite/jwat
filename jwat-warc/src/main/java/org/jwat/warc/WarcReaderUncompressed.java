@@ -76,6 +76,7 @@ public class WarcReaderUncompressed extends WarcReader {
             warcRecord = null;
         }
         if (in != null) {
+            consumed = in.getConsumed();
             try {
                 in.close();
             } catch (IOException e) { /* ignore */ }
@@ -90,7 +91,20 @@ public class WarcReaderUncompressed extends WarcReader {
 
     @Override
     public long getOffset() {
-        return in.getConsumed();
+    	if (in != null) {
+            return in.getConsumed();
+    	} else {
+    		return consumed;
+    	}
+    }
+
+    @Override
+    public long getConsumed() {
+    	if (in != null) {
+            return in.getConsumed();
+    	} else {
+            return consumed;
+    	}
     }
 
     @Override

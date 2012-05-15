@@ -18,6 +18,7 @@
 package org.jwat.warc;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
@@ -38,6 +39,7 @@ public class TestParams {
     public void test_parameters() throws IOException {
         String str;
         InputStream is;
+        ByteArrayOutputStream out;
 
         WarcConstants constants = new WarcConstants();
         Assert.assertNotNull(constants);
@@ -428,6 +430,220 @@ public class TestParams {
 
         is.close();
         is = null;
+
+        /*
+         * WarcWriterUncompressed.
+         */
+
+        WarcWriter writer;
+        out = null;
+        byte[] headerArr = null;
+        WarcRecord record = null;
+
+        try {
+            writer = new WarcWriterUncompressed(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new WarcWriterUncompressed(null, 512);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        out = new ByteArrayOutputStream();
+        try {
+            writer = new WarcWriterUncompressed(out, -1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new WarcWriterUncompressed(out, 0);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        writer = new WarcWriterUncompressed(out);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        writer = new WarcWriterUncompressed(out, 512);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        try {
+            writer.writeHeader(headerArr);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.writeHeader(record);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.streamPayload(null, 1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        writer.close();
+
+        /*
+         * WarcWriterCompressed.
+         */
+
+        out = null;
+
+        try {
+            writer = new WarcWriterCompressed(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new WarcWriterCompressed(null, 512);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        out = new ByteArrayOutputStream();
+        try {
+            writer = new WarcWriterCompressed(out, -1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = new WarcWriterCompressed(out, 0);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        writer = new WarcWriterCompressed(out);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        writer = new WarcWriterCompressed(out, 512);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        try {
+            writer.writeHeader(headerArr);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.writeHeader(record);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.streamPayload(null, 1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
+
+        writer.close();
+
+        /*
+         * WarcWriterFactory.
+         */
+
+        out = null;
+
+        try {
+            writer = WarcWriterFactory.getWriter(null, false);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriter(null, 512, false);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterUncompressed(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterUncompressed(null, 512);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterCompressed(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterCompressed(null, 512);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        out = new ByteArrayOutputStream();
+        try {
+            writer = WarcWriterFactory.getWriter(out, -1, false);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriter(out, 0, false);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterUncompressed(out, -1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterUncompressed(out, 0);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterCompressed(out, -1);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer = WarcWriterFactory.getWriterCompressed(out, 0);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+
+        writer = WarcWriterFactory.getWriter(out, false);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriter(out, 512, false);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriter(out, true);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriter(out, 512, true);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriterUncompressed(out);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriterUncompressed(out, 512);
+        Assert.assertNotNull(writer);
+        Assert.assertFalse(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriterCompressed(out);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        writer = WarcWriterFactory.getWriterCompressed(out, 512);
+        Assert.assertNotNull(writer);
+        Assert.assertTrue(writer.isCompressed());
+
+        WarcWriterFactory warcWriterFactory = new WarcWriterFactory();
+        Assert.assertNotNull(warcWriterFactory);
     }
 
 }

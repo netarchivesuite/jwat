@@ -29,9 +29,6 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
-    /** WARC magic header byte array. */
-    protected byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + "1.0\r\n").getBytes();
-
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat = WarcDateParser.getWarcDateFormat();
 
@@ -99,7 +96,8 @@ public abstract class WarcWriter {
         /*
          * Version Line
          */
-        out.write(magicVersion);
+    	byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + record.header.major + "." + record.header.minor + "\r\n").getBytes();
+    	out.write(magicVersion);
         /*
          * Warc-Type
          */
@@ -426,7 +424,7 @@ public abstract class WarcWriter {
      * @return written length of payload data
      * @throws IOException if an exception occurs while writing payload data
      */
-    public long transferPayload(InputStream in, long length) throws IOException {
+    public long streamPayload(InputStream in, long length) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
                     "The 'in' parameter is null!");

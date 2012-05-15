@@ -263,11 +263,9 @@ public abstract class WarcReader {
     /** Get number of bytes consumed by this reader.
      * @return number of bytes consumed by this reader
      */
-   public long getConsumed() {
-        return consumed;
-    }
+   public abstract long getConsumed();
 
-    /**
+   /**
      * Parses and gets the next record.
      * This method is for linear access to records.
      * @return the next record

@@ -17,6 +17,82 @@
  */
 package org.jwat.warc;
 
+import java.io.OutputStream;
+
 public class WarcWriterFactory {
+
+    /**
+     * Private constructor to enforce factory method.
+     */
+    protected WarcWriterFactory() {
+    }
+
+	public static WarcWriter getWriter(OutputStream out, boolean compressed) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+		if (compressed) {
+		    return new WarcWriterCompressed(out);
+		} else {
+			return new WarcWriterUncompressed(out);
+		}
+	}
+
+	public static WarcWriter getWriter(OutputStream out, int buffer_size, boolean compressed) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+        if (buffer_size <= 0) {
+            throw new IllegalArgumentException(
+                    "The 'buffer_size' parameter is less than or equal to zero!");
+        }
+		if (compressed) {
+		    return new WarcWriterCompressed(out, buffer_size);
+		} else {
+		    return new WarcWriterUncompressed(out, buffer_size);
+		}
+	}
+
+	public static WarcWriter getWriterUncompressed(OutputStream out) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+		return new WarcWriterUncompressed(out);
+	}
+
+	public static WarcWriter getWriterUncompressed(OutputStream out, int buffer_size) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+        if (buffer_size <= 0) {
+            throw new IllegalArgumentException(
+                    "The 'buffer_size' parameter is less than or equal to zero!");
+        }
+	    return new WarcWriterUncompressed(out, buffer_size);
+	}
+
+	public static WarcWriter getWriterCompressed(OutputStream out) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+	    return new WarcWriterCompressed(out);
+	}
+
+	public static WarcWriter getWriterCompressed(OutputStream out, int buffer_size) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
+        if (buffer_size <= 0) {
+            throw new IllegalArgumentException(
+                    "The 'buffer_size' parameter is less than or equal to zero!");
+        }
+	    return new WarcWriterCompressed(out, buffer_size);
+	}
 
 }

@@ -36,19 +36,26 @@ import org.jwat.common.RandomAccessFileInputStream;
 import org.jwat.common.RandomAccessFileOutputStream;
 
 @RunWith(Parameterized.class)
-public class TestWarcWriterCopy {
+public class TestWarcWriterFactory {
 
+	private boolean bCompress;
+	private boolean bBuffer;
     private int expected_records;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {822, "IAH-20080430204825-00000-blackbook.warc"}
+                {false, false, 822, "IAH-20080430204825-00000-blackbook.warc"},
+                {false, true, 822, "IAH-20080430204825-00000-blackbook.warc"},
+                {true, false, 822, "IAH-20080430204825-00000-blackbook.warc"},
+                {true, true, 822, "IAH-20080430204825-00000-blackbook.warc"}
         });
     }
 
-    public TestWarcWriterCopy(int records, String warcFile) {
+    public TestWarcWriterFactory(boolean bCompress, boolean bBuffer, int records, String warcFile) {
+    	this.bCompress = bCompress;
+    	this.bBuffer = bBuffer;
         this.expected_records = records;
         this.warcFile = warcFile;
     }
@@ -63,6 +70,7 @@ public class TestWarcWriterCopy {
 
         WarcReader reader;
         WarcRecord record;
+        WarcWriter writer;
 
         int records;
         int errors;
@@ -85,7 +93,13 @@ public class TestWarcWriterCopy {
 
             reader = WarcReaderFactory.getReader( in );
 
-            WarcWriter writer = new WarcWriterUncompressed( out );
+            if (bBuffer) {
+                writer = WarcWriterFactory.getWriter(out, 8192, bCompress);
+            } else {
+                writer = WarcWriterFactory.getWriter(out, bCompress);
+            }
+
+            //System.out.println(writer);
 
             records = 0;
             errors = 0;
@@ -111,7 +125,7 @@ public class TestWarcWriterCopy {
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();
                     //writer.transfer( payload.getInputStream(), payload.getTotalLength() );
-                    writer.transferPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
+                    writer.streamPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
                 }
 
                 writer.closeRecord();
@@ -129,8 +143,10 @@ public class TestWarcWriterCopy {
             out.close();
 
             Assert.assertEquals(expected_records, records);
+            Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
+            Assert.assertEquals(11231015, reader.getConsumed());
 
             /*
              * Validate written warc.
@@ -141,6 +157,8 @@ public class TestWarcWriterCopy {
             in = new RandomAccessFileInputStream( raf );
 
             reader = WarcReaderFactory.getReader( in );
+
+            //System.out.println(reader);
 
             records = 0;
             errors = 0;
@@ -174,8 +192,10 @@ public class TestWarcWriterCopy {
             out.close();
 
             Assert.assertEquals(expected_records, records);
+            Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
+            Assert.assertEquals(raf.length(), reader.getConsumed());
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
@@ -192,6 +212,7 @@ public class TestWarcWriterCopy {
                 }
             }
             if ( out_file != null ) {
+                //System.out.println(out_file.getName());
                 out_file.delete();
             }
         }
@@ -207,6 +228,7 @@ public class TestWarcWriterCopy {
 
         WarcReader reader;
         WarcRecord record;
+        WarcWriter writer;
 
         int records;
         int errors;
@@ -229,7 +251,13 @@ public class TestWarcWriterCopy {
 
             reader = WarcReaderFactory.getReader( in );
 
-            WarcWriter writer = new WarcWriterUncompressed( out );
+            if (bBuffer) {
+                writer = WarcWriterFactory.getWriter(out, 8192, bCompress);
+            } else {
+                writer = WarcWriterFactory.getWriter(out, bCompress);
+            }
+
+            //System.out.println(writer);
 
             records = 0;
             errors = 0;
@@ -255,7 +283,7 @@ public class TestWarcWriterCopy {
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();
                     //writer.transfer( payload.getInputStream(), payload.getTotalLength() );
-                    writer.transferPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
+                    writer.streamPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
                 }
 
                 writer.closeRecord();
@@ -273,8 +301,10 @@ public class TestWarcWriterCopy {
             out.close();
 
             Assert.assertEquals(expected_records, records);
+            Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
+            Assert.assertEquals(11231015, reader.getConsumed());
 
             /*
              * Validate written warc.
@@ -285,6 +315,8 @@ public class TestWarcWriterCopy {
             in = new RandomAccessFileInputStream( raf );
 
             reader = WarcReaderFactory.getReader( in );
+
+            //System.out.println(reader);
 
             records = 0;
             errors = 0;
@@ -318,8 +350,10 @@ public class TestWarcWriterCopy {
             out.close();
 
             Assert.assertEquals(expected_records, records);
+            Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(0, errors);
             Assert.assertEquals(0, warnings);
+            Assert.assertEquals(raf.length(), reader.getConsumed());
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {

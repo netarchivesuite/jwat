@@ -54,7 +54,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected WarcReader reader;
 
     /** Bytes consumed while validating this record. */
-    long consumed = 0;
+    //long consumed = 0;
 
     /** Input stream used to read this record. */
     protected ByteCountingPushBackInputStream in;
@@ -104,6 +104,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Non public constructor to allow unit testing.
      */
     protected WarcRecord() {
+    	header = new WarcHeader();
+    	header.major = 1;
+    	header.minor = 0;
     }
 
     /**
@@ -194,7 +197,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } else {
                 wr.bIsCompliant = true;
             }
-            wr.consumed = in.getConsumed() - header.startOffset;
+            //wr.consumed = in.getConsumed() - header.startOffset;
             wr.reader.bIsCompliant &= wr.bIsCompliant;
         } else {
             if (wr.diagnostics.hasErrors() || wr.diagnostics.hasWarnings()) {
@@ -394,8 +397,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
-            consumed = in.getConsumed() - header.startOffset;
-            reader.consumed += consumed;
+            //consumed = in.getConsumed() - header.startOffset;
+            //reader.consumed += consumed;
             // Dont not close payload again.
             bPayloadClosed = true;
         }
@@ -440,9 +443,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Return number of bytes consumed validating this record.
      * @return number of bytes consumed validating this record
      */
+    /*
     public Long getConsumed() {
         return consumed;
     }
+    */
 
     /**
      * Get a <code>List</code> of all the non-standard WARC headers found

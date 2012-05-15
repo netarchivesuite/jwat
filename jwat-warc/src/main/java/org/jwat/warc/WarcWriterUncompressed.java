@@ -32,7 +32,11 @@ public class WarcWriterUncompressed extends WarcWriter {
      * Construct an unbuffered WARC writer used to write uncompressed records.
      * @param out outputstream to write to
      */
-    public WarcWriterUncompressed(OutputStream out) {
+    WarcWriterUncompressed(OutputStream out) {
+        if (out == null) {
+            throw new IllegalArgumentException(
+                    "The 'out' parameter is null!");
+        }
         this.out = out;
     }
 
@@ -43,7 +47,7 @@ public class WarcWriterUncompressed extends WarcWriter {
      * @throws IllegalArgumentException if out is null.
      * @throws IllegalArgumentException if buffer_size <= 0.
      */
-    public WarcWriterUncompressed(OutputStream out, int buffer_size) {
+    WarcWriterUncompressed(OutputStream out, int buffer_size) {
         if (out == null) {
             throw new IllegalArgumentException(
                     "The 'out' parameter is null!");
@@ -72,8 +76,11 @@ public class WarcWriterUncompressed extends WarcWriter {
     @Override
     public void close() {
         try {
-            out.flush();
-            out.close();
+        	if (out != null) {
+                out.flush();
+                out.close();
+                out = null;
+        	}
         }
         catch (IOException e) {
         }
