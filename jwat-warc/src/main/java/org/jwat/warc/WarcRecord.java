@@ -104,9 +104,13 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Non public constructor to allow unit testing.
      */
     protected WarcRecord() {
-    	header = new WarcHeader();
-    	header.major = 1;
-    	header.minor = 0;
+    }
+
+    public static WarcRecord createRecord(WarcWriter writer) {
+    	WarcRecord record = new WarcRecord();
+    	record.header = WarcHeader.initHeader(writer, record.diagnostics);
+        writer.fieldParser.diagnostics = record.diagnostics;
+    	return record;
     }
 
     /**
@@ -120,14 +124,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public static WarcRecord parseRecord(ByteCountingPushBackInputStream in,
                                     WarcReader reader) throws IOException {
-        WarcRecord wr = new WarcRecord();
-        wr.in = in;
-        wr.reader = reader;
+        WarcRecord record = new WarcRecord();
+        record.in = in;
+        record.reader = reader;
         // Initialize WarcHeader with required context.
-        wr.header = WarcHeader.initHeader(reader, in.getConsumed(), wr.diagnostics);
-        WarcHeader header = wr.header;
+        record.header = WarcHeader.initHeader(reader, in.getConsumed(), record.diagnostics);
+        WarcHeader header = record.header;
         // Initialize WarcFieldParser to report diagnoses here.
-        reader.fieldParser.diagnostics = wr.diagnostics;
+        reader.fieldParser.diagnostics = record.diagnostics;
         if (header.parseHeader(in)) {
             /*
              * Payload processing.
@@ -149,9 +153,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         digestAlgorithm = reader.blockDigestAlgorithm;
                     }
                 }
-                wr.payload = Payload.processPayload(in, header.contentLength,
+                record.payload = Payload.processPayload(in, header.contentLength,
                                          PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
-                wr.payload.setOnClosedHandler(wr);
+                record.payload.setOnClosedHandler(record);
                 /*
                  * HttpResponse.
                  */
@@ -174,14 +178,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 digestAlgorithm = reader.payloadDigestAlgorithm;
                             }
                         }
-                        wr.httpResponse = HttpResponse.processPayload(
-                                wr.payload.getInputStream(), header.contentLength,
+                        record.httpResponse = HttpResponse.processPayload(
+                                record.payload.getInputStream(), header.contentLength,
                                 digestAlgorithm);
-                        if (wr.httpResponse != null) {
-                            if (wr.httpResponse.isValid()) {
-                                wr.payload.setHttpResponse(wr.httpResponse);
+                        if (record.httpResponse != null) {
+                            if (record.httpResponse.isValid()) {
+                                record.payload.setHttpResponse(record.httpResponse);
                             } else {
-                                wr.diagnostics.addError(
+                                record.diagnostics.addError(
                                         new Diagnosis(DiagnosisType.ERROR,
                                                 "http response",
                                                 "Unable to parse http response!"));
@@ -192,23 +196,24 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             // Preliminary compliance status, will be updated when the
             // payload/record is closed.
-            if (wr.diagnostics.hasErrors() || wr.diagnostics.hasWarnings()) {
-                wr.bIsCompliant = false;
+            if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
+                record.bIsCompliant = false;
             } else {
-                wr.bIsCompliant = true;
+                record.bIsCompliant = true;
             }
             //wr.consumed = in.getConsumed() - header.startOffset;
-            wr.reader.bIsCompliant &= wr.bIsCompliant;
+            record.reader.bIsCompliant &= record.bIsCompliant;
         } else {
-            if (wr.diagnostics.hasErrors() || wr.diagnostics.hasWarnings()) {
-                wr.reader.errors += wr.diagnostics.getErrors().size();
-                wr.reader.warnings += wr.diagnostics.getWarnings().size();
-                wr.reader.bIsCompliant = false;
+        	// TODO Report errors/warnings on reader, should maybe have it's own diagnostics.
+            if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
+                record.reader.errors += record.diagnostics.getErrors().size();
+                record.reader.warnings += record.diagnostics.getWarnings().size();
+                record.reader.bIsCompliant = false;
             }
             // EOF
-            wr = null;
+            record = null;
         }
-        return wr;
+        return record;
     }
 
     /**

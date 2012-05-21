@@ -38,6 +38,7 @@ public class WarcWriterUncompressed extends WarcWriter {
                     "The 'out' parameter is null!");
         }
         this.out = out;
+        init();
     }
 
     /**
@@ -57,6 +58,7 @@ public class WarcWriterUncompressed extends WarcWriter {
                     "The 'buffer_size' parameter is less than or equal to zero!");
         }
         this.out = new BufferedOutputStream(out, buffer_size);
+        init();
     }
 
     @Override

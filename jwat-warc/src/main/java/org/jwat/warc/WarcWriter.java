@@ -40,6 +40,16 @@ public abstract class WarcWriter {
     /** Block Digesting enabled/disabled. */
     protected boolean bDigestBlock = false;
 
+    /** WARC field parser used. */
+    protected WarcFieldParsers fieldParser;
+
+    /**
+     * Method used to initialize a readers internal state.
+     */
+    protected void init() {
+        fieldParser = new WarcFieldParsers();
+    }
+
     /**
      * Is this writer producing compressed output.
      * @return boolean indicating whether compressed output is produced
@@ -449,6 +459,7 @@ public abstract class WarcWriter {
      * @throws IOException if an exception occurs while closing the record
      */
     public void closeRecord() throws IOException {
+    	// TODO This can be written more than once per record.
         out.write(endMark);
     }
 

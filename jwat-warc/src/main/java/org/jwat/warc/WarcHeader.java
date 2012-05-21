@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,6 +47,13 @@ public class WarcHeader {
      * Must be set prior to calling the various methods. */
     protected Diagnostics<Diagnosis> diagnostics;
 
+    /** WARC field parser used.
+     * Must be set prior to calling the various methods. */
+    protected WarcFieldParsers fieldParser;
+
+    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
+    protected DateFormat warcDateFormat;
+
     /*
      * Version related fields.
      */
@@ -65,6 +73,8 @@ public class WarcHeader {
     /*
      * WARC header fields.
      */
+
+    protected boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 
     boolean bMandatoryMissing;
 
@@ -93,8 +103,6 @@ public class WarcHeader {
     public InetAddress warcInetAddress;
 
     public List<WarcConcurrentTo> warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
-    //public List<String> warcConcurrentToStrList;
-    //public List<URI> warcConcurrentToUriList;
 
     public String warcRefersToStr;
     public URI warcRefersToUri;
@@ -146,6 +154,32 @@ public class WarcHeader {
     protected Map<String, HeaderLine> headerMap;
 
     /**
+     * Non public constructor to allow unit testing.
+     */
+    protected WarcHeader() {
+    }
+
+    public static WarcHeader initHeader(WarcWriter writer, Diagnostics<Diagnosis> diagnostics) {
+        WarcHeader header = new WarcHeader();
+    	header.major = 1;
+    	header.minor = 0;
+    	header.fieldParser = writer.fieldParser;
+        header.warcDateFormat = writer.warcDateFormat;
+        header.diagnostics = diagnostics;
+        return header;
+    }
+
+    public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
+        WarcHeader header = new WarcHeader();
+        header.reader = reader;
+        header.fieldParser = reader.fieldParser;
+        header.diagnostics = diagnostics;
+    	// This is only relevant for uncompressed sequentially read records
+        header.startOffset = startOffset;
+        return header;
+    }
+
+    /**
      * Add an error diagnosis of the given type on a specific entity with
      * optional extra information. The information varies according to the
      * diagnosis type.
@@ -167,15 +201,6 @@ public class WarcHeader {
      */
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addWarning(new Diagnosis(type, entity, information));
-    }
-
-    public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
-        WarcHeader header = new WarcHeader();
-        header.reader = reader;
-    	// This is only relevant for uncompressed sequentially read records
-        header.startOffset = startOffset;
-        header.diagnostics = diagnostics;
-        return header;
     }
 
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
@@ -217,7 +242,7 @@ public class WarcHeader {
             MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, 8192);
             ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, 8192);
 
-            parseFields(pbin);
+            parseHeaders(pbin);
             pbin.close();
 
             checkFields();
@@ -306,11 +331,10 @@ public class WarcHeader {
      * @param in header input stream
      * @throws IOException if an error occurs while reading the WARC header
      */
-    protected void parseFields(ByteCountingPushBackInputStream in) throws IOException {
+    protected void parseHeaders(ByteCountingPushBackInputStream in) throws IOException {
         HeaderLine headerLine;
-        boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
-        boolean bFields = true;
-        while (bFields) {
+        boolean bLoop = true;
+        while (bLoop) {
             headerLine = reader.headerLineReader.readLine(in);
             if (!reader.headerLineReader.bEof) {
                 headerBytesOut.write(headerLine.raw);
@@ -320,8 +344,7 @@ public class WarcHeader {
                         // debug
                         //System.out.println(headerLine.name);
                         //System.out.println(headerLine.value);
-
-                        parseField(headerLine, seen);
+                        addHeader(headerLine);
                     } else {
                         // Empty field name.
                         addWarningDiagnosis(DiagnosisType.EMPTY, "Header line");
@@ -330,7 +353,7 @@ public class WarcHeader {
                 case HeaderLine.HLT_LINE:
                     if (headerLine.line.length() == 0) {
                         // Empty line.
-                        bFields = false;
+                        bLoop = false;
                     } else {
                         // Unknown header line.
                         addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
@@ -347,27 +370,28 @@ public class WarcHeader {
                 }
             } else {
                 // EOF.
-                bFields = false;
+                bLoop = false;
             }
         }
     }
 
     /**
-     * Identify a WARC header line and validate it accordingly.
-     * @param headerLine WARC header line
+     * Identify a (WARC) header name, validate the value and set the header.
+     * @param fieldName header name
+     * @param fieldValue header value
      * @param seen array of headers seen so far used for duplication check
      */
-    protected void parseField(HeaderLine headerLine, boolean[] seen) {
-        String field = headerLine.name;
-        String value = headerLine.value;
-        WarcConcurrentTo warcConcurrentTo;
-        Integer fn_idx = WarcConstants.fieldNameIdxMap.get(field.toLowerCase());
+    protected void addHeader(HeaderLine headerLine) {
+    	String fieldName = headerLine.name;
+    	String fieldValue = headerLine.value;
+    	WarcConcurrentTo warcConcurrentTo;
+        Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
                 case WarcConstants.FN_IDX_WARC_TYPE:
-                    warcTypeStr = reader.fieldParser.parseString(value,
+                    warcTypeStr = fieldParser.parseString(fieldValue,
                             WarcConstants.FN_WARC_TYPE);
                     if (warcTypeStr != null) {
                         warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
@@ -377,65 +401,62 @@ public class WarcHeader {
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
-                    warcRecordIdStr = value;
-                    warcRecordIdUri = reader.fieldParser.parseUri(value,
+                    warcRecordIdStr = fieldValue;
+                    warcRecordIdUri = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
-                    warcDateStr = value;
-                    warcDate = reader.fieldParser.parseDate(value,
+                    warcDateStr = fieldValue;
+                    warcDate = fieldParser.parseDate(fieldValue,
                             WarcConstants.FN_WARC_DATE);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_LENGTH:
-                    contentLengthStr = value;
-                    contentLength = reader.fieldParser.parseLong(value,
+                    contentLengthStr = fieldValue;
+                    contentLength = fieldParser.parseLong(fieldValue,
                             WarcConstants.FN_CONTENT_LENGTH);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_TYPE:
-                    contentTypeStr = value;
-                    contentType = reader.fieldParser.parseContentType(value,
+                    contentTypeStr = fieldValue;
+                    contentType = fieldParser.parseContentType(fieldValue,
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    URI tmpUri = reader.fieldParser.parseUri(value,
+                    URI tmpUri = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
-                    if (value != null && value.trim().length() > 0) {
-                        if (warcConcurrentToList == null) {
-                            warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
-                        }
+                    if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
-                        warcConcurrentTo.warcConcurrentToStr = value;
+                        warcConcurrentTo.warcConcurrentToStr = fieldValue;
                         warcConcurrentTo.warcConcurrentToUri = tmpUri;
                         warcConcurrentToList.add(warcConcurrentTo);
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
-                    warcBlockDigestStr = value;
-                    warcBlockDigest = reader.fieldParser.parseDigest(value,
+                    warcBlockDigestStr = fieldValue;
+                    warcBlockDigest = fieldParser.parseDigest(fieldValue,
                             WarcConstants.FN_WARC_BLOCK_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
-                    warcPayloadDigestStr = value;
-                    warcPayloadDigest = reader.fieldParser.parseDigest(value,
+                    warcPayloadDigestStr = fieldValue;
+                    warcPayloadDigest = fieldParser.parseDigest(fieldValue,
                             WarcConstants.FN_WARC_PAYLOAD_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
-                    warcIpAddress = value;
-                    warcInetAddress = reader.fieldParser.parseIpAddress(value,
+                    warcIpAddress = fieldValue;
+                    warcInetAddress = fieldParser.parseIpAddress(fieldValue,
                             WarcConstants.FN_WARC_IP_ADDRESS);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
-                    warcRefersToStr = value;
-                    warcRefersToUri = reader.fieldParser.parseUri(value,
+                    warcRefersToStr = fieldValue;
+                    warcRefersToUri = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
-                    warcTargetUriStr = value;
-                    warcTargetUriUri = reader.fieldParser.parseUri(value,
+                    warcTargetUriStr = fieldValue;
+                    warcTargetUriUri = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
-                    warcTruncatedStr = reader.fieldParser.parseString(value,
+                    warcTruncatedStr = fieldParser.parseString(fieldValue,
                             WarcConstants.FN_WARC_TRUNCATED);
                     if (warcTruncatedStr != null) {
                         warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
@@ -445,16 +466,16 @@ public class WarcHeader {
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
-                    warcWarcinfoIdStr = value;
-                    warcWarcInfoIdUri = reader.fieldParser.parseUri(value,
+                    warcWarcinfoIdStr = fieldValue;
+                    warcWarcInfoIdUri = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
-                    warcFilename = reader.fieldParser.parseString(value,
+                    warcFilename = fieldParser.parseString(fieldValue,
                             WarcConstants.FN_WARC_FILENAME);
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
-                    warcProfileStr = reader.fieldParser.parseString(value,
+                    warcProfileStr = fieldParser.parseString(fieldValue,
                             WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
@@ -464,29 +485,29 @@ public class WarcHeader {
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
-                    warcIdentifiedPayloadTypeStr = value;
-                    warcIdentifiedPayloadType = reader.fieldParser.parseContentType(value,
+                    warcIdentifiedPayloadTypeStr = fieldValue;
+                    warcIdentifiedPayloadType = fieldParser.parseContentType(fieldValue,
                             WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
-                    warcSegmentOriginIdStr = value;
-                    warcSegmentOriginIdUrl = reader.fieldParser.parseUri(value,
+                    warcSegmentOriginIdStr = fieldValue;
+                    warcSegmentOriginIdUrl = fieldParser.parseUri(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
-                    warcSegmentNumberStr = value;
-                    warcSegmentNumber = reader.fieldParser.parseInteger(value,
+                    warcSegmentNumberStr = fieldValue;
+                    warcSegmentNumber = fieldParser.parseInteger(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_NUMBER);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
-                    warcSegmentTotalLengthStr = value;
-                    warcSegmentTotalLength = reader.fieldParser.parseLong(value,
+                    warcSegmentTotalLengthStr = fieldValue;
+                    warcSegmentTotalLength = fieldParser.parseLong(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
                     break;
                 }
             } else {
                 // Duplicate field.
-                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + field + "' header", value);
+                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValue);
             }
         } else {
             // Not a recognized WARC field name.
@@ -499,8 +520,57 @@ public class WarcHeader {
             // Uses a list because there can be multiple occurrences.
             headerList.add(headerLine);
             // Uses a map for fast lookup of single header.
-            headerMap.put(field.toLowerCase(), headerLine);
+            headerMap.put(fieldName.toLowerCase(), headerLine);
         }
+    }
+
+    public HeaderLine addHeader(String fieldName, String fieldValue) {
+    	HeaderLine headerLine = new HeaderLine();
+    	headerLine.name = fieldName;
+    	headerLine.value = fieldValue;
+    	addHeader(headerLine);
+    	return headerLine;
+    }
+
+    public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
+    	if (dateFieldValue == null && fieldValueStr != null) {
+    		dateFieldValue = WarcDateParser.getDate(fieldValueStr);
+    	} else if (fieldValueStr == null && dateFieldValue != null) {
+        	fieldValueStr = warcDateFormat.format(dateFieldValue);
+    	}
+    	HeaderLine headerLine = new HeaderLine();
+    	headerLine.name = fieldName;
+    	headerLine.value = fieldValueStr;
+        Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
+        if (fn_idx != null) {
+            if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
+                seen[fn_idx] = true;
+                switch (fn_idx.intValue()) {
+                case WarcConstants.FN_IDX_WARC_DATE:
+                    warcDateStr = fieldValueStr;
+                    warcDate = dateFieldValue;
+                    break;
+                default:
+                	break;
+                }
+            } else {
+                // Duplicate field.
+                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValueStr);
+            }
+        } else {
+            // Not a recognized WARC field name.
+            if (headerList == null) {
+                headerList = new LinkedList<HeaderLine>();
+            }
+            if (headerMap == null) {
+                headerMap = new HashMap<String, HeaderLine>();
+            }
+            // Uses a list because there can be multiple occurrences.
+            headerList.add(headerLine);
+            // Uses a map for fast lookup of single header.
+            headerMap.put(fieldName.toLowerCase(), headerLine);
+        }
+        return headerLine;
     }
 
     /**
@@ -648,7 +718,7 @@ public class WarcHeader {
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
-                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
+                addWarningDiagnosis(DiagnosisType.REQUIRED_INVALID,
                         "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
                         valueStr);
             }

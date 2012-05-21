@@ -42,6 +42,7 @@ public class WarcWriterCompressed extends WarcWriter {
                     "The 'out' parameter is null!");
         }
         writer = new GzipWriter(out);
+        init();
     }
 
     /**
@@ -61,7 +62,7 @@ public class WarcWriterCompressed extends WarcWriter {
                     "The 'buffer_size' parameter is less than or equal to zero!");
         }
         writer = new GzipWriter(new BufferedOutputStream(out, buffer_size));
-
+        init();
     }
 
     @Override
