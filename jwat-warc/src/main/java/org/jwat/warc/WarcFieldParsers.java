@@ -226,7 +226,7 @@ public class WarcFieldParsers {
     protected Digest parseDigest(String labelledDigest, String field) {
         Digest digest = null;
         if (labelledDigest != null && labelledDigest.length() > 0) {
-                digest = WarcDigest.parseDigest(labelledDigest);
+                digest = WarcDigest.parseWarcDigest(labelledDigest);
                 if (digest == null) {
                     // Invalid digest.
                     addInvalidExpectedError("'" + field + "' value",

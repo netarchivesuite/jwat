@@ -27,10 +27,16 @@ import org.jwat.common.Digest;
  */
 public class WarcDigest extends Digest {
 
-    /**
+	/**
+	 * Package level constructor.
+	 */
+	protected WarcDigest() {
+	}
+
+	/**
      * Construct an object with the supplied parameters.
      * @param algorithm digest algorithm
-     * @param digestValue digest value in Base<x> format.
+     * @param digestValue digest value in encoded format. (base16/32/64)
      */
     private WarcDigest(String algorithm, String digestValue) {
         this.algorithm = algorithm;
@@ -42,7 +48,7 @@ public class WarcDigest extends Digest {
      * @param labelledDigest WARC digest header value
      * @return <code>WarcDigest</code> object or <code>null</code>
      */
-    public static Digest parseDigest(String labelledDigest) {
+    public static WarcDigest parseWarcDigest(String labelledDigest) {
         if (labelledDigest == null || labelledDigest.length() == 0) {
             return null;
         }
@@ -58,6 +64,22 @@ public class WarcDigest extends Digest {
         }
         return null;
     }
+
+	/**
+     * Create an object with the supplied parameters.
+     * @param algorithm digest algorithm
+     * @param digestBytes digest in byte form
+     * @param encoding encoding used
+     * @param digestValue digest value in encoded form.
+     */
+	public static WarcDigest createWarcDigest(String algorithm, byte[] digestBytes, String encoding, String digestValue) {
+		WarcDigest digest = new WarcDigest();;
+		digest.algorithm = algorithm;
+		digest.digestBytes = digestBytes;
+		digest.encoding = encoding.toLowerCase();
+		digest.digestString = digestValue;
+        return digest;
+	}
 
     /**
      * Returns a header representation of the class state.

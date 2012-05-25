@@ -31,7 +31,6 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
-import org.jwat.common.Digest;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpResponse;
 import org.jwat.common.Payload;
@@ -46,9 +45,6 @@ import org.jwat.common.PayloadOnClosedHandler;
  * @author nicl
  */
 public class WarcRecord implements PayloadOnClosedHandler {
-
-    /** Pushback size used in payload. */
-    public static final int PAYLOAD_PUSHBACK_SIZE = 8192;
 
     /** Reader instance used, required for file compliance. */
     protected WarcReader reader;
@@ -95,10 +91,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected HttpResponse httpResponse;
 
     /** Computed block digest. */
-    public Digest computedBlockDigest;
+    public WarcDigest computedBlockDigest;
 
     /** Computed payload digest. */
-    public Digest computedPayloadDigest;
+    public WarcDigest computedPayloadDigest;
 
     /**
      * Non public constructor to allow unit testing.
@@ -154,7 +150,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     }
                 }
                 record.payload = Payload.processPayload(in, header.contentLength,
-                                         PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
+                                         reader.payloadHeaderMaxSize, digestAlgorithm);
                 record.payload.setOnClosedHandler(record);
                 /*
                  * HttpResponse.
@@ -237,7 +233,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 byte[] digest;
                 // Check for computed block digest.
                 if (md != null) {
-                    computedBlockDigest = new Digest();
+                    computedBlockDigest = new WarcDigest();
                     computedBlockDigest.digestBytes = md.digest();
                 }
                 // Auto detect encoding used in WARC header.
@@ -313,7 +309,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     md = httpResponse.getMessageDigest();
                     // Check for computed payload digest.
                     if (md != null) {
-                        computedPayloadDigest = new Digest();
+                        computedPayloadDigest = new WarcDigest();
                         computedPayloadDigest.digestBytes = md.digest();
                     }
                     // Auto detect encoding used in WARC header.

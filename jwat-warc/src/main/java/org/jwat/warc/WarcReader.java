@@ -73,6 +73,12 @@ public abstract class WarcReader {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
+    /** Max length of warc header, pushback size used. */
+    protected int warcHeaderMaxSize;
+
+    /** Max length of payload header, pushback size used. */
+    protected int payloadHeaderMaxSize;
+
     /** Line reader used to read version lines. */
     protected HeaderLineReader lineReader;
 
@@ -86,6 +92,8 @@ public abstract class WarcReader {
      * Method used to initialize a readers internal state.
      */
     protected void init() {
+    	warcHeaderMaxSize = 8192;
+    	payloadHeaderMaxSize = 8192;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
         lineReader.encoding = HeaderLineReader.ENC_US_ASCII;

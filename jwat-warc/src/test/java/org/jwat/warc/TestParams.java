@@ -50,25 +50,25 @@ public class TestParams {
 
         Digest digest;
 
-        digest = WarcDigest.parseDigest(null);
+        digest = WarcDigest.parseWarcDigest(null);
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest("");
+        digest = WarcDigest.parseWarcDigest("");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest("fail");
+        digest = WarcDigest.parseWarcDigest("fail");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest(":");
+        digest = WarcDigest.parseWarcDigest(":");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest("sha1:");
+        digest = WarcDigest.parseWarcDigest("sha1:");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest(":AB2CD3EF4GH5IJ6KL7MN8OPQ");
+        digest = WarcDigest.parseWarcDigest(":AB2CD3EF4GH5IJ6KL7MN8OPQ");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseDigest("sha1:AB2CD3EF4GH5IJ6KL7MN8OPQ");
+        digest = WarcDigest.parseWarcDigest("sha1:AB2CD3EF4GH5IJ6KL7MN8OPQ");
         Assert.assertNotNull(digest);
 
         str = digest.toString();
