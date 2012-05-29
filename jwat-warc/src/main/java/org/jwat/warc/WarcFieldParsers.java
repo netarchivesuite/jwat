@@ -25,7 +25,6 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
-import org.jwat.common.Digest;
 import org.jwat.common.IPAddressParser;
 
 /**
@@ -223,8 +222,8 @@ public class WarcFieldParsers {
      * @param field field name
      * @return digest wrapper object or null
      */
-    protected Digest parseDigest(String labelledDigest, String field) {
-        Digest digest = null;
+    protected WarcDigest parseDigest(String labelledDigest, String field) {
+        WarcDigest digest = null;
         if (labelledDigest != null && labelledDigest.length() > 0) {
                 digest = WarcDigest.parseWarcDigest(labelledDigest);
                 if (digest == null) {

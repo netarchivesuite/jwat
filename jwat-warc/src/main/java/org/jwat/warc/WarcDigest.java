@@ -90,4 +90,8 @@ public class WarcDigest extends Digest {
         return (algorithm + ":" + digestString);
     }
 
+    public String toStringFull() {
+    	return (algorithm + ":" + encoding + ":" + digestString);
+    }
+
 }

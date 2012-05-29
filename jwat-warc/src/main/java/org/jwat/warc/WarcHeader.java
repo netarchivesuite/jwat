@@ -33,7 +33,6 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
-import org.jwat.common.Digest;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.MaxLengthRecordingInputStream;
 
@@ -114,10 +113,10 @@ public class WarcHeader {
     public URI warcWarcInfoIdUri;
 
     public String warcBlockDigestStr;
-    public Digest warcBlockDigest;
+    public WarcDigest warcBlockDigest;
 
     public String warcPayloadDigestStr;
-    public Digest warcPayloadDigest;
+    public WarcDigest warcPayloadDigest;
 
     public String warcIdentifiedPayloadTypeStr;
     public ContentType warcIdentifiedPayloadType;

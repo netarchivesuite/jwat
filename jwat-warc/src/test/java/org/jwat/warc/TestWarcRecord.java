@@ -1,6 +1,5 @@
 package org.jwat.warc;
 
-import java.beans.Expression;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -517,7 +516,12 @@ public class TestWarcRecord {
 			Assert.fail("Unexepected exception!");
 		}
 
-    	MessageDigest md_md5 = null;
+		Assert.assertEquals(467, payloadBytes.length);
+		Assert.assertEquals(782, httpHeaderBytes.length + payloadBytes.length);
+		/*
+		 * Calculate reference digests.
+		 */
+		MessageDigest md_md5 = null;
     	try {
     	    md_md5 = MessageDigest.getInstance("MD5");
     	} catch (NoSuchAlgorithmException e) {
@@ -529,7 +533,7 @@ public class TestWarcRecord {
     	} catch (NoSuchAlgorithmException e) {
     	    e.printStackTrace();
     	}
-
+    	
     	md_md5.reset();
     	md_md5.update(httpHeaderBytes);
     	md_md5.update(payloadBytes);
@@ -539,90 +543,101 @@ public class TestWarcRecord {
     	md_md5.update(payloadBytes);
     	byte[] payloadDigestMd5 = md_md5.digest();
 
-    	md_md5.reset();
-    	md_md5.update(httpHeaderBytes);
-    	md_md5.update(payloadBytes);
+    	md_sha1.reset();
+    	md_sha1.update(httpHeaderBytes);
+    	md_sha1.update(payloadBytes);
     	byte[] blockDigestSha1 = md_sha1.digest();
 
-    	md_md5.reset();
-    	md_md5.update(payloadBytes);
+    	md_sha1.reset();
+    	md_sha1.update(payloadBytes);
     	byte[] payloadDigestSha1 = md_sha1.digest();
 
-    	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	WarcWriter writer = WarcWriterFactory.getWriter(out, false);
-    	WarcDigest blockDigest;
-    	WarcDigest payloadDigest;
-    	WarcRecord record;
+		try {
+	    	Object[][] writedata = {
+	    	    	{httpHeaderBytes, payloadBytes, null, null},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"MD5", blockDigestMd5, "base16", Base16.encodeArray(blockDigestMd5)},
+	    	    		new Object[] {"MD5", payloadDigestMd5, "base16", Base16.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"MD5", blockDigestMd5, "base32", Base32.encodeArray(blockDigestMd5)},
+	   	    			new Object[] {"MD5", payloadDigestMd5, "base32", Base32.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"MD5", blockDigestMd5, "base64", Base64.encodeArray(blockDigestMd5)},
+	   	    			new Object[] {"MD5", payloadDigestMd5, "base64", Base64.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"SHA1", blockDigestSha1, "base16", Base16.encodeArray(blockDigestSha1)},
+	   	    			new Object[] {"SHA1", payloadDigestSha1, "base16", Base16.encodeArray(payloadDigestSha1)}
+	    	    	},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"SHA1", blockDigestSha1, "base32", Base32.encodeArray(blockDigestSha1)},
+	        	    	new Object[] {"SHA1", payloadDigestSha1, "base32", Base32.encodeArray(payloadDigestSha1)}
+	    	    	},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"SHA1", blockDigestSha1, "base64", Base64.encodeArray(blockDigestSha1)},
+	    	    		new Object[] {"SHA1", payloadDigestSha1, "base64", Base64.encodeArray(payloadDigestSha1)}
+	    	    	}
+	    	};
 
-    	record = createRecord(writer, warcHeaders, null, null);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    	WarcWriter writer = WarcWriterFactory.getWriter(out, false);
+	    	WarcRecord record;
+	    	writeRecords(writer, warcHeaders, writedata);
+	    	writer.close();
 
-    	blockDigest = WarcDigest.createWarcDigest("MD5", blockDigestMd5, "base16", Base16.encodeArray(blockDigestMd5));
-    	payloadDigest = WarcDigest.createWarcDigest("MD5", payloadDigestMd5, "base16", Base16.encodeArray(payloadDigestMd5));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+	    	System.out.println(new String(out.toByteArray()));
 
-    	blockDigest = WarcDigest.createWarcDigest("MD5", blockDigestMd5, "base32", Base32.encodeArray(blockDigestMd5));
-    	payloadDigest = WarcDigest.createWarcDigest("MD5", payloadDigestMd5, "base32", Base32.encodeArray(payloadDigestMd5));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+	    	Object[][] algoEnc = {
+	    			{"MD5", "base16"},
+	    			{"MD5", "base32"},
+	    	    	{"MD5", "base64"},
+	    	    	{"SHA1", "base16"},
+	    	    	{"SHA1", "base32"},
+	    	    	{"SHA1", "base64"}
+	    	};
 
-    	blockDigest = WarcDigest.createWarcDigest("MD5", blockDigestMd5, "base64", Base64.encodeArray(blockDigestMd5));
-    	payloadDigest = WarcDigest.createWarcDigest("MD5", payloadDigestMd5, "base64", Base64.encodeArray(payloadDigestMd5));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
-
-    	blockDigest = WarcDigest.createWarcDigest("SHA1", blockDigestSha1, "base16", Base16.encodeArray(blockDigestSha1));
-    	payloadDigest = WarcDigest.createWarcDigest("SHA1", payloadDigestSha1, "base16", Base16.encodeArray(payloadDigestSha1));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
-
-    	blockDigest = WarcDigest.createWarcDigest("SHA1", blockDigestSha1, "base32", Base32.encodeArray(blockDigestSha1));
-    	payloadDigest = WarcDigest.createWarcDigest("SHA1", payloadDigestSha1, "base32", Base32.encodeArray(payloadDigestSha1));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
-
-    	blockDigest = WarcDigest.createWarcDigest("SHA1", blockDigestSha1, "base64", Base64.encodeArray(blockDigestSha1));
-    	payloadDigest = WarcDigest.createWarcDigest("SHA1", payloadDigestSha1, "base64", Base64.encodeArray(payloadDigestSha1));
-    	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
-    	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
-
-    	writer.close();
-
-    	System.out.println(new String(out.toByteArray()));
-
-    	try {
+			/*
+			 * Disable digest validation.
+			 */
 			WarcReader reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(false);
 			reader.setPayloadDigestEnabled(false);
 			while ((record = reader.getNextRecord()) != null) {
 				record.close();
-				System.out.println(record.diagnostics.getErrors().size());
-				System.out.println(record.diagnostics.getWarnings().size());
-				System.out.println(record.isValidBlockDigest);
-				System.out.println(record.isValidPayloadDigest);
+				Assert.assertEquals(0, record.diagnostics.getErrors().size());
+				Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+				Assert.assertNull(record.computedBlockDigest);
+				Assert.assertNull(record.computedPayloadDigest);
+				Assert.assertNull(record.isValidBlockDigest);
+				Assert.assertNull(record.isValidPayloadDigest);
 			}
 			reader.close();
 			Assert.assertTrue(reader.isCompliant());
 			Assert.assertEquals(0, reader.errors);
 			Assert.assertEquals(0, reader.warnings);
-
+			/*
+			 * Enable digest validation.
+			 */
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(true);
 			reader.setPayloadDigestEnabled(true);
 			while ((record = reader.getNextRecord()) != null) {
 				record.close();
-				System.out.println(record.diagnostics.getErrors().size());
-				System.out.println(record.diagnostics.getWarnings().size());
+				Assert.assertEquals(0, record.diagnostics.getErrors().size());
+				Assert.assertEquals(0, record.diagnostics.getWarnings().size());
 				if (record.header.warcBlockDigest != null) {
-					System.out.println(record.header.warcBlockDigest.algorithm);
-					System.out.println(record.header.warcBlockDigest.encoding);
-					System.out.println(record.header.warcBlockDigest.digestString);
+					System.out.println(record.header.warcBlockDigest.toStringFull());
+				}
+				if (record.computedBlockDigest != null) {
+					System.out.println(record.computedBlockDigest.toStringFull());
 				}
 				if (record.header.warcPayloadDigest != null) {
-					System.out.println(record.header.warcPayloadDigest.algorithm);
-					System.out.println(record.header.warcPayloadDigest.encoding);
-					System.out.println(record.header.warcPayloadDigest.digestString);
+					System.out.println(record.header.warcPayloadDigest.toStringFull());
+				}
+				if (record.computedPayloadDigest != null) {
+					System.out.println(record.computedPayloadDigest.toStringFull());
 				}
 				System.out.println(record.isValidBlockDigest);
 				System.out.println(record.isValidPayloadDigest);
@@ -638,7 +653,9 @@ public class TestWarcRecord {
 				Assert.assertTrue(record.isClosed());
 			}
 			reader.close();
-			Assert.assertFalse(reader.isCompliant());
+			Assert.assertTrue(reader.isCompliant());
+			Assert.assertEquals(0, reader.errors);
+			Assert.assertEquals(0, reader.warnings);
 
 			/*
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
@@ -707,6 +724,38 @@ public class TestWarcRecord {
 			Assert.fail("Unexepected exception!");
 		}
 		return written;
+	}
+
+	public WarcDigest createWarcDigest(Object[] digestParams) {
+		WarcDigest warcDigest = null;
+		if (digestParams != null) {
+			String algorithm = (String)digestParams[0];
+			byte[] digest = (byte[])digestParams[1];
+			String encoding = (String)digestParams[2];
+			String digestString = (String)digestParams[3];
+        	warcDigest = WarcDigest.createWarcDigest(algorithm, digest, encoding, digestString);
+		}
+		return warcDigest;
+	}
+
+	public void writeRecords(WarcWriter writer, Object[][] warcHeaders, Object[][] writedata) {
+		byte[] httpHeaderBytes = null;
+		byte[] payloadBytes = null;
+		Object[] blockDigestParams;
+		Object[] payloadDigestParams;
+    	WarcDigest blockDigest;
+    	WarcDigest payloadDigest;
+    	WarcRecord record;
+    	for (int i=0; i<writedata.length; ++i) {
+    		httpHeaderBytes = (byte[])writedata[i][0];
+    		payloadBytes = (byte[])writedata[i][1];
+    		blockDigestParams = (Object[])writedata[i][2];
+    		payloadDigestParams = (Object[])writedata[i][3];
+        	blockDigest = createWarcDigest(blockDigestParams);
+        	payloadDigest = createWarcDigest(payloadDigestParams);
+        	record = createRecord(writer, warcHeaders, blockDigest, payloadDigest);
+        	writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+    	}
 	}
 
 }

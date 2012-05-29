@@ -20,9 +20,12 @@ package org.jwat.warc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
@@ -230,7 +233,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
                  * Check block digest.
                  */
                 MessageDigest md = payload.getMessageDigest();
-                byte[] digest;
                 // Check for computed block digest.
                 if (md != null) {
                     computedBlockDigest = new WarcDigest();
@@ -238,69 +240,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
                 // Auto detect encoding used in WARC header.
                 if (header.warcBlockDigest != null && header.warcBlockDigest.digestString != null) {
-                    if (computedBlockDigest != null) {
-                        computedBlockDigest.algorithm = header.warcBlockDigest.algorithm;
-                        if ((computedBlockDigest.digestBytes.length + 2) / 3 * 4 == header.warcBlockDigest.digestString.length()) {
-                            digest = Base64.decodeToArray(header.warcBlockDigest.digestString, true);
-                            header.warcBlockDigest.encoding = "base64";
-                            computedBlockDigest.encoding = header.warcBlockDigest.encoding;
-                        } else if ((computedBlockDigest.digestBytes.length + 4) / 5 * 8 == header.warcBlockDigest.digestString.length()) {
-                            digest = Base32.decodeToArray(header.warcBlockDigest.digestString, true);
-                            header.warcBlockDigest.encoding = "base32";
-                            computedBlockDigest.encoding = header.warcBlockDigest.encoding;
-                        } else if (computedBlockDigest.digestBytes.length * 2 == header.warcBlockDigest.digestString.length()) {
-                            digest = Base16.decodeToArray(header.warcBlockDigest.digestString);
-                            header.warcBlockDigest.encoding = "base16";
-                            computedBlockDigest.encoding = header.warcBlockDigest.encoding;
-                        } else {
-                            digest = null;
-                            // Encoding - Unrecognized block digest encoding scheme
-                            addErrorDiagnosis(DiagnosisType.UNKNOWN,
-                                    "Block digest encoding scheme",
-                                    header.warcBlockDigest.digestString);
-                        }
-                        if (digest != null) {
-                            if (!Arrays.equals(computedBlockDigest.digestBytes, digest)) {
-                                // Block digest - Computed block digest does not match
-                                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                                        "Block digest",
-                                        Base16.encodeArray(digest),
-                                        Base16.encodeArray(computedBlockDigest.digestBytes));
-                                isValidBlockDigest = false;
-                            } else {
-                                isValidBlockDigest = true;
-                            }
-                        }
-                    }
+                	isValidBlockDigest = checkDigest(header.warcBlockDigest, computedBlockDigest);
                 }
                 // Adjust information about computed block digest.
                 if (computedBlockDigest != null) {
-                    if (computedBlockDigest.algorithm == null) {
-                        computedBlockDigest.algorithm = reader.blockDigestAlgorithm;
-                    }
-                    if (computedBlockDigest.encoding == null && reader.blockDigestEncoding != null) {
-                        if ("base32".equals(reader.blockDigestEncoding)) {
-                            computedBlockDigest.encoding = "base32";
-                        } else if ("base64".equals(reader.blockDigestEncoding)) {
-                            computedBlockDigest.encoding = "base64";
-                        } else if ("base16".equals(reader.blockDigestEncoding)) {
-                            computedBlockDigest.encoding = "base16";
-                        } else {
-                            // Encoding - Unknown block digest encoding scheme ..
-                            addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                                    "Block digest encoding scheme",
-                                    reader.blockDigestEncoding);
-                        }
-                    }
-                    if (computedBlockDigest.encoding != null) {
-                        if ("base32".equals(computedBlockDigest.encoding)) {
-                            computedBlockDigest.digestString = Base32.encodeArray(computedBlockDigest.digestBytes);
-                        } else if ("base64".equals(computedBlockDigest.encoding)) {
-                            computedBlockDigest.digestString = Base64.encodeArray(computedBlockDigest.digestBytes);
-                        } else if ("base16".equals(computedBlockDigest.encoding)) {
-                            computedBlockDigest.digestString = Base16.encodeArray(computedBlockDigest.digestBytes);
-                        }
-                    }
+                    adjustDigestAlgoAndEncoding(computedBlockDigest,
+                    		reader.blockDigestAlgorithm, reader.blockDigestEncoding);
                 }
                 if (httpResponse != null && httpResponse.isValid()) {
                     /*
@@ -314,69 +259,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     }
                     // Auto detect encoding used in WARC header.
                     if (header.warcPayloadDigest != null && header.warcPayloadDigest.digestString != null ) {
-                        if (computedPayloadDigest != null) {
-                            computedPayloadDigest.algorithm = header.warcPayloadDigest.algorithm;
-                            if ((computedPayloadDigest.digestBytes.length + 2) / 3 * 4 == header.warcPayloadDigest.digestString.length()) {
-                                digest = Base64.decodeToArray(header.warcPayloadDigest.digestString, true);
-                                header.warcPayloadDigest.encoding = "base64";
-                                computedPayloadDigest.encoding = header.warcPayloadDigest.encoding;
-                            } else if ((computedPayloadDigest.digestBytes.length + 4) / 5 * 8 == header.warcPayloadDigest.digestString.length()) {
-                                digest = Base32.decodeToArray(header.warcPayloadDigest.digestString, true);
-                                header.warcPayloadDigest.encoding = "base32";
-                                computedPayloadDigest.encoding = header.warcPayloadDigest.encoding;
-                            } else if (computedPayloadDigest.digestBytes.length * 2 == header.warcPayloadDigest.digestString.length()) {
-                                digest = Base16.decodeToArray(header.warcPayloadDigest.digestString);
-                                header.warcPayloadDigest.encoding = "base16";
-                                computedPayloadDigest.encoding = header.warcPayloadDigest.encoding;
-                            } else {
-                                digest = null;
-                                // Encoding - Unrecognized payload digest encoding scheme
-                                addErrorDiagnosis(DiagnosisType.UNKNOWN,
-                                        "Payload digest encoding scheme",
-                                        header.warcPayloadDigest.digestString);
-                            }
-                            if (digest != null) {
-                                if (!Arrays.equals(computedPayloadDigest.digestBytes, digest)) {
-                                    // Payload digest - Computed payload digest does not match
-                                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                                            "Payload digest",
-                                            Base16.encodeArray(digest),
-                                            Base16.encodeArray(computedPayloadDigest.digestBytes));
-                                    isValidPayloadDigest = false;
-                                } else {
-                                    isValidPayloadDigest = true;
-                                }
-                            }
-                        }
+                        isValidPayloadDigest = checkDigest(header.warcPayloadDigest, computedPayloadDigest);
                     }
                     // Adjust information about computed payload digest.
                     if (computedPayloadDigest != null) {
-                        if (computedPayloadDigest.algorithm == null) {
-                            computedPayloadDigest.algorithm = reader.payloadDigestAlgorithm;
-                        }
-                        if (computedPayloadDigest.encoding == null && reader.payloadDigestEncoding != null) {
-                            if ("base32".equals(reader.payloadDigestEncoding)) {
-                                computedPayloadDigest.encoding = "base32";
-                            } else if ("base64".equals(reader.payloadDigestEncoding)) {
-                                computedPayloadDigest.encoding = "base64";
-                            } else if ("base16".equals(reader.payloadDigestEncoding)) {
-                                computedPayloadDigest.encoding = "base16";
-                            } else {
-                                // Encoding - Unknown payload digest encoding scheme ..
-                                addErrorDiagnosis(DiagnosisType.INVALID_DATA,
-                                        "Payload digest encoding scheme",
-                                        reader.payloadDigestEncoding);
-                            }
-                        }
-                        if (computedPayloadDigest.encoding != null) {
-                            if ("base32".equals(computedPayloadDigest.encoding)) {
-                                computedPayloadDigest.digestString = Base32.encodeArray(computedPayloadDigest.digestBytes);
-                            } else if ("base64".equals(computedPayloadDigest.encoding)) {
-                                computedPayloadDigest.digestString = Base64.encodeArray(computedPayloadDigest.digestBytes);
-                            } else if ("base16".equals(computedPayloadDigest.encoding)) {
-                                computedPayloadDigest.digestString = Base16.encodeArray(computedPayloadDigest.digestBytes);
-                            }
-                        }
+                        adjustDigestAlgoAndEncoding(computedPayloadDigest,
+                        		reader.payloadDigestAlgorithm, reader.payloadDigestEncoding);
                     }
                 }
             }
@@ -411,6 +299,107 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public boolean isClosed() {
         return bClosed;
+    }
+
+    protected static Map<String, Integer> digestAlgoLengthache = new TreeMap<String, Integer>();
+
+    public static synchronized int digestAlgoLength(String digestAlgorithm) {
+    	Integer cachedLen = digestAlgoLengthache.get(digestAlgorithm);
+    	if (cachedLen == null) {
+            try {
+                MessageDigest md = MessageDigest.getInstance(digestAlgorithm);
+                byte[] digest = md.digest(new byte[16]);
+                cachedLen = digest.length;
+                md.reset();
+                md = null;
+            } catch (NoSuchAlgorithmException e) {
+            }
+            if (cachedLen == null) {
+            	cachedLen = -1;
+            }
+            digestAlgoLengthache.put(digestAlgorithm,  cachedLen);
+    	}
+    	return cachedLen;
+    }
+
+    public Boolean checkDigest(WarcDigest warcDigest, WarcDigest computedDigest) {
+        byte[] digest;
+        Boolean isValidDigest = null;
+        if (computedDigest != null) {
+            computedDigest.algorithm = warcDigest.algorithm;
+            // debug
+            System.out.println(warcDigest.digestString.length());
+            System.out.println("64:" + (computedDigest.digestBytes.length + 2) / 3 * 4);
+            System.out.println("32:" + (computedDigest.digestBytes.length + 4) / 5 * 8);
+            System.out.println("16:" + computedDigest.digestBytes.length * 2);
+            if ((computedDigest.digestBytes.length + 2) / 3 * 4 == warcDigest.digestString.length()) {
+                digest = Base64.decodeToArray(warcDigest.digestString, true);
+                warcDigest.encoding = "base64";
+                computedDigest.encoding = warcDigest.encoding;
+            } else if ((computedDigest.digestBytes.length + 4) / 5 * 8 == warcDigest.digestString.length()) {
+                digest = Base32.decodeToArray(warcDigest.digestString, true);
+                warcDigest.encoding = "base32";
+                computedDigest.encoding = warcDigest.encoding;
+            } else if (computedDigest.digestBytes.length * 2 == warcDigest.digestString.length()) {
+                digest = Base16.decodeToArray(warcDigest.digestString);
+                warcDigest.encoding = "base16";
+                computedDigest.encoding = warcDigest.encoding;
+            } else {
+                digest = null;
+                // Encoding - Unrecognized block digest encoding scheme
+                addErrorDiagnosis(DiagnosisType.UNKNOWN,
+                        "Block digest encoding scheme",
+                        warcDigest.digestString);
+            }
+            if (digest != null) {
+                if (!Arrays.equals(computedDigest.digestBytes, digest)) {
+                    // Block digest - Computed block digest does not match
+                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "Block digest",
+                            Base16.encodeArray(digest),
+                            Base16.encodeArray(computedDigest.digestBytes));
+                    isValidDigest = false;
+                } else {
+                    isValidDigest = true;
+                }
+            }
+        }
+        return isValidDigest;
+    }
+
+    /**
+     * Adjust information about computed block digest.
+     * @param computedDigest
+     * @param digestAlgorithm
+     * @param digestEncoding
+     */
+    public void adjustDigestAlgoAndEncoding(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding) {
+        if (computedDigest.algorithm == null) {
+            computedDigest.algorithm = digestAlgorithm;
+        }
+        if (computedDigest.encoding == null && digestEncoding != null) {
+            if ("base32".equals(digestEncoding)) {
+                computedDigest.encoding = "base32";
+            } else if ("base64".equals(digestEncoding)) {
+                computedDigest.encoding = "base64";
+            } else if ("base16".equals(digestEncoding)) {
+                computedDigest.encoding = "base16";
+            } else {
+                // Encoding - Unknown block digest encoding scheme ..
+                addErrorDiagnosis(DiagnosisType.INVALID_DATA,
+                        "Block digest encoding scheme",
+                        digestEncoding);
+            }
+        }
+        if (computedDigest.encoding != null) {
+            if ("base32".equals(computedDigest.encoding)) {
+                computedDigest.digestString = Base32.encodeArray(computedDigest.digestBytes);
+            } else if ("base64".equals(computedDigest.encoding)) {
+                computedDigest.digestString = Base64.encodeArray(computedDigest.digestBytes);
+            } else if ("base16".equals(computedDigest.encoding)) {
+                computedDigest.digestString = Base16.encodeArray(computedDigest.digestBytes);
+            }
+        }
     }
 
     /**
