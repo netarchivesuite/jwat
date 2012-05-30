@@ -24,9 +24,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+/**
+ * Test the ISO-8859-1 decoder and encoder.
+ *
+ * @author nicl
+ */
 @RunWith(JUnit4.class)
 public class TestISO8859_1 {
 
+	/**
+	 * Test the ISO-8859-1 encoder.
+	 */
     @Test
     public void test_iso8859_1_encode() {
         ISO8859_1 iso = new ISO8859_1();
@@ -48,7 +56,7 @@ public class TestISO8859_1 {
         Assert.assertArrayEquals("Fudge\n".getBytes(), iso.encoded);
 
         /*
-         * 1.
+         * Test encoder with all possible 8-bit characters with no overrides.
          */
 
         srcSb.setLength(0);
@@ -80,7 +88,7 @@ public class TestISO8859_1 {
         Assert.assertEquals(dstStr, iso.decoded);
 
         /*
-         * 2.
+         * Test encoder with all possible 16-bit characters with no overrides.
          */
 
         srcSb.setLength(0);
@@ -96,7 +104,7 @@ public class TestISO8859_1 {
         Assert.assertEquals(dstStr, iso.decoded);
 
         /*
-         * 3.
+         * Test encoder with all possible 8-bit characters and with overrides.
          */
 
         srcSb.setLength(0);
@@ -128,7 +136,7 @@ public class TestISO8859_1 {
         Assert.assertEquals(dst2Str, iso.decoded);
 
         /*
-         * 4.
+         * Test encoder with all possible 16-bit characters and with overrides.
          */
 
         srcSb.setLength(0);
@@ -144,6 +152,9 @@ public class TestISO8859_1 {
         Assert.assertEquals(dst2Str, iso.decoded);
     }
 
+    /**
+     * Test the ISO-8859-1 decoder.
+     */
     @Test
     public void test_iso8859_1_decode() {
         ISO8859_1 iso = new ISO8859_1();
@@ -165,7 +176,7 @@ public class TestISO8859_1 {
         Assert.assertEquals("Fudge\n", iso.decoded);
 
         /*
-         * 1.
+         * Test decoder with all possible 8-bit characters with no overrides.
          */
 
         srcOut.reset();
@@ -197,7 +208,7 @@ public class TestISO8859_1 {
         Assert.assertArrayEquals(dstArr, iso.encoded);
 
         /*
-         * 2.
+         * Test decoder with all possible 8-bit characters and with overrides.
          */
 
         srcOut.reset();

@@ -8,12 +8,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.Base16;
+import org.jwat.common.Base2;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
@@ -24,7 +24,7 @@ import org.jwat.common.DiagnosisType;
 public class TestWarcRecord {
 
 	@Test
-	public void test_record_parsenewlines() {
+	public void test_warcrecord_parsenewlines() {
 		WarcRecord record = new WarcRecord();
 		byte[] bytes;
 		int expectedNewlines;
@@ -55,7 +55,8 @@ public class TestWarcRecord {
 				bytes = (byte[])cases[i][0];
 				expectedNewlines = (Integer)cases[i][1];
 				expectedRemaining = (String)cases[i][2];
-				System.out.println(Base16.encodeArray(bytes));
+				// debug
+				//System.out.println(Base16.encodeArray(bytes));
 				in = new ByteArrayInputStream(bytes);
 				pbin = new ByteCountingPushBackInputStream(in, 16);
 				newlines = record.parseNewLines(pbin);
@@ -78,7 +79,7 @@ public class TestWarcRecord {
 	 * content-type headers.
 	 */
 	@Test
-	public void test_record_nopayload() {
+	public void test_warcrecord_nopayload() {
 		Object[][] warcMetainfoHeaders = null;
 		Object[][] warcResourceHeaders = null;
 		byte[] payloadBytes = null;
@@ -123,8 +124,6 @@ public class TestWarcRecord {
 
 		WarcReader reader;
 		WarcRecord record;
-    	WarcDigest blockDigest;
-    	WarcDigest payloadDigest;
 
 		try {
 	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -162,7 +161,8 @@ public class TestWarcRecord {
 
 			writer.close();
 
-	    	System.out.println(new String(out.toByteArray()));
+			// debug
+	    	//System.out.println(new String(out.toByteArray()));
 
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(true);
@@ -279,7 +279,7 @@ public class TestWarcRecord {
 	 * http header so low the http header can not be fully read.
 	 */
 	@Test
-	public void test_record_httpresponse() {
+	public void test_warcrecord_httpresponse() {
 		Object[][] warcResponseHeaders = null;
 		byte[] httpHeaderBytes = null;
 		byte[] payloadBytes = null;
@@ -336,8 +336,6 @@ public class TestWarcRecord {
 
 		WarcReader reader;
 		WarcRecord record;
-    	WarcDigest blockDigest;
-    	WarcDigest payloadDigest;
 
 		try {
 	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -355,7 +353,8 @@ public class TestWarcRecord {
 
 			writer.close();
 
-	    	System.out.println(new String(out.toByteArray()));
+			// debug
+	    	//System.out.println(new String(out.toByteArray()));
 
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(false);
@@ -461,13 +460,20 @@ public class TestWarcRecord {
 	}
 
 	@Test
-	public void test_record_digest() {
+	public void test_warcrecord_digest() {
 		Object[][] warcHeaders = null;
 		byte[] httpHeaderBytes = null;
 		byte[] payloadBytes = null;
+    	Object[][] writedata;
+    	Object[][] expectedDigests;
 		Object[][] expectedDiagnoses;
 
-		warcHeaders = new Object[][] {
+    	ByteArrayOutputStream out;
+    	WarcWriter writer;
+		WarcReader reader;
+    	WarcRecord record;
+
+    	warcHeaders = new Object[][] {
     			{"WARC-Type", "response"},
     			{"WARC-Target-URI", "http://www.archive.org/robots.txt"},
     			{"WARC-Date", "2008-04-30T20:48:25Z"},
@@ -552,8 +558,12 @@ public class TestWarcRecord {
     	md_sha1.update(payloadBytes);
     	byte[] payloadDigestSha1 = md_sha1.digest();
 
-		try {
-	    	Object[][] writedata = {
+    	Assert.assertEquals(16, WarcRecord.digestAlgorithmLength("MD5"));
+    	Assert.assertEquals(20, WarcRecord.digestAlgorithmLength("SHA1"));
+    	Assert.assertEquals(-1, WarcRecord.digestAlgorithmLength("SHAFT1"));
+
+    	try {
+	    	writedata = new Object[][] {
 	    	    	{httpHeaderBytes, payloadBytes, null, null},
 	    	    	{httpHeaderBytes, payloadBytes,
 	    	    		new Object[] {"MD5", blockDigestMd5, "base16", Base16.encodeArray(blockDigestMd5)},
@@ -580,32 +590,23 @@ public class TestWarcRecord {
 	    	    		new Object[] {"SHA1", payloadDigestSha1, "base64", Base64.encodeArray(payloadDigestSha1)}
 	    	    	}
 	    	};
-
-	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    	WarcWriter writer = WarcWriterFactory.getWriter(out, false);
-	    	WarcRecord record;
+	    	out = new ByteArrayOutputStream();
+	    	writer = WarcWriterFactory.getWriter(out, false);
 	    	writeRecords(writer, warcHeaders, writedata);
 	    	writer.close();
 
-	    	System.out.println(new String(out.toByteArray()));
+	    	// debug
+	    	//System.out.println(new String(out.toByteArray()));
 
-	    	Object[][] algoEnc = {
-	    			{"MD5", "base16"},
-	    			{"MD5", "base32"},
-	    	    	{"MD5", "base64"},
-	    	    	{"SHA1", "base16"},
-	    	    	{"SHA1", "base32"},
-	    	    	{"SHA1", "base64"}
-	    	};
-
-			/*
+	    	/*
 			 * Disable digest validation.
 			 */
-			WarcReader reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
+			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(false);
 			reader.setPayloadDigestEnabled(false);
 			while ((record = reader.getNextRecord()) != null) {
 				record.close();
+				Assert.assertTrue(record.isClosed());
 				Assert.assertEquals(0, record.diagnostics.getErrors().size());
 				Assert.assertEquals(0, record.diagnostics.getWarnings().size());
 				Assert.assertNull(record.computedBlockDigest);
@@ -620,13 +621,50 @@ public class TestWarcRecord {
 			/*
 			 * Enable digest validation.
 			 */
+	    	expectedDigests = new Object[][] {
+	    			{null, null, null, null},
+	    			{"md5", "base16", blockDigestMd5, payloadDigestMd5},
+	    			{"md5", "base32", blockDigestMd5, payloadDigestMd5},
+	    	    	{"md5", "base64", blockDigestMd5, payloadDigestMd5},
+	    	    	{"sha1", "base16", blockDigestSha1, payloadDigestSha1},
+	    	    	{"sha1", "base32", blockDigestSha1, payloadDigestSha1},
+	    	    	{"sha1", "base64", blockDigestSha1, payloadDigestSha1}
+	    	};
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(true);
 			reader.setPayloadDigestEnabled(true);
-			while ((record = reader.getNextRecord()) != null) {
+			for (int i=0; i<expectedDigests.length; ++i) {
+				record = reader.getNextRecord();
 				record.close();
+				Assert.assertTrue(record.isClosed());
+				String expectedAlgo = (String)expectedDigests[i][0];
+				String expectedEnc = (String)expectedDigests[i][1];
+				byte[] expectedBlockDigest = (byte[])expectedDigests[i][2];
+				byte[] expectedPayloadDigest = (byte[])expectedDigests[i][3];
+				if (expectedAlgo == null && expectedEnc == null) {
+					Assert.assertNull(record.header.warcBlockDigest);
+					Assert.assertNull(record.header.warcPayloadDigest);
+					Assert.assertNull(record.computedBlockDigest);
+					Assert.assertNull(record.computedPayloadDigest);
+				} else {
+					Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.computedBlockDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.computedPayloadDigest.algorithm);
+					Assert.assertEquals(expectedEnc, record.header.warcBlockDigest.encoding);
+					Assert.assertEquals(expectedEnc, record.header.warcPayloadDigest.encoding);
+					Assert.assertEquals(expectedEnc, record.computedBlockDigest.encoding);
+					Assert.assertEquals(expectedEnc, record.computedPayloadDigest.encoding);
+					Assert.assertArrayEquals(expectedBlockDigest, record.header.warcBlockDigest.digestBytes);
+					Assert.assertArrayEquals(expectedPayloadDigest, record.header.warcPayloadDigest.digestBytes);
+					Assert.assertArrayEquals(expectedBlockDigest, record.computedBlockDigest.digestBytes);
+					Assert.assertArrayEquals(expectedPayloadDigest, record.computedPayloadDigest.digestBytes);
+					Assert.assertTrue(record.isValidBlockDigest);
+					Assert.assertTrue(record.isValidPayloadDigest);
+				}
 				Assert.assertEquals(0, record.diagnostics.getErrors().size());
 				Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+				/*
 				if (record.header.warcBlockDigest != null) {
 					System.out.println(record.header.warcBlockDigest.toStringFull());
 				}
@@ -639,8 +677,7 @@ public class TestWarcRecord {
 				if (record.computedPayloadDigest != null) {
 					System.out.println(record.computedPayloadDigest.toStringFull());
 				}
-				System.out.println(record.isValidBlockDigest);
-				System.out.println(record.isValidPayloadDigest);
+				*/
 				if (record.hasPayload()) {
 					Assert.assertNotNull(record.payload);
 					Assert.assertEquals(record.payload, record.getPayload());
@@ -650,35 +687,201 @@ public class TestWarcRecord {
 					Assert.assertNull(record.getPayload());
 					Assert.assertNull(record.getPayloadContent());
 				}
-				Assert.assertTrue(record.isClosed());
 			}
+			Assert.assertNull(reader.getNextRecord());
 			reader.close();
 			Assert.assertTrue(reader.isCompliant());
 			Assert.assertEquals(0, reader.errors);
 			Assert.assertEquals(0, reader.warnings);
-
 			/*
+			 * Mismatch algorithm and digest.
+			 */
+	    	writedata = new Object[][] {
+	    	    	{httpHeaderBytes, payloadBytes, null, null},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"SHA1", blockDigestMd5, "base16", Base16.encodeArray(blockDigestMd5)},
+	    	    		new Object[] {"SHA1", payloadDigestMd5, "base16", Base16.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"SHA1", blockDigestMd5, "base32", Base32.encodeArray(blockDigestMd5)},
+	   	    			new Object[] {"SHA1", payloadDigestMd5, "base32", Base32.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"SHA1", blockDigestMd5, "base64", Base64.encodeArray(blockDigestMd5)},
+	   	    			new Object[] {"SHA1", payloadDigestMd5, "base64", Base64.encodeArray(payloadDigestMd5)}
+	   	    		},
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"MD5", blockDigestSha1, "base16", Base16.encodeArray(blockDigestSha1)},
+	   	    			new Object[] {"MD5", payloadDigestSha1, "base16", Base16.encodeArray(payloadDigestSha1)}
+	    	    	},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"MD5", blockDigestSha1, "base32", Base32.encodeArray(blockDigestSha1)},
+	        	    	new Object[] {"MD5", payloadDigestSha1, "base32", Base32.encodeArray(payloadDigestSha1)}
+	    	    	},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"MD5", blockDigestSha1, "base64", Base64.encodeArray(blockDigestSha1)},
+	    	    		new Object[] {"MD5", payloadDigestSha1, "base64", Base64.encodeArray(payloadDigestSha1)}
+	    	    	}
+	    	};
+	    	out = new ByteArrayOutputStream();
+	    	writer = WarcWriterFactory.getWriter(out, false);
+	    	writeRecords(writer, warcHeaders, writedata);
+	    	writer.close();
+	    	/*
+			 * Disable digest validation.
+			 */
+	    	expectedDigests = new Object[][] {
+	    			{null, null, null, null},
+	    			{"sha1", null, null, null},
+	    			{"sha1", null, null, null},
+	    	    	{"sha1", null, null, null},
+	    	    	{"md5", null, null, null},
+	    	    	{"md5", null, null, null},
+	    	    	{"md5", null, null, null}
+	    	};
+			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
+			reader.setBlockDigestEnabled(false);
+			reader.setPayloadDigestEnabled(false);
+			int recordNumber = 0;
+			for (int i=0; i<expectedDigests.length; ++i) {
+				record = reader.getNextRecord();
+				record.close();
+				++recordNumber;
+				Assert.assertTrue(record.isClosed());
+				String expectedAlgo = (String)expectedDigests[i][0];
+				String expectedEnc = (String)expectedDigests[i][1];
+				byte[] expectedBlockDigest = (byte[])expectedDigests[i][2];
+				byte[] expectedPayloadDigest = (byte[])expectedDigests[i][3];
+				if (expectedAlgo == null && expectedEnc == null) {
+					Assert.assertEquals(0, record.diagnostics.getErrors().size());
+					Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+					Assert.assertNull(record.header.warcBlockDigest);
+					Assert.assertNull(record.header.warcPayloadDigest);
+					Assert.assertNull(record.computedBlockDigest);
+					Assert.assertNull(record.computedPayloadDigest);
+				} else {
+					Assert.assertEquals(2, record.diagnostics.getErrors().size());
+					Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+					expectedDiagnoses = new Object[][] {
+							{DiagnosisType.UNKNOWN, "Block digest encoding scheme", 1},
+							{DiagnosisType.UNKNOWN, "Block digest encoding scheme", 1}
+					};
+					compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+					Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
+					Assert.assertEquals(expectedEnc, record.header.warcBlockDigest.encoding);
+					Assert.assertEquals(expectedEnc, record.header.warcPayloadDigest.encoding);
+					Assert.assertArrayEquals(expectedBlockDigest, record.header.warcBlockDigest.digestBytes);
+					Assert.assertArrayEquals(expectedPayloadDigest, record.header.warcPayloadDigest.digestBytes);
+				}
+				Assert.assertNull(record.computedBlockDigest);
+				Assert.assertNull(record.computedPayloadDigest);
+				Assert.assertNull(record.isValidBlockDigest);
+				Assert.assertNull(record.isValidPayloadDigest);
+			}
+			reader.close();
+			Assert.assertFalse(reader.isCompliant());
+			Assert.assertEquals(12, reader.errors);
+			Assert.assertEquals(0, reader.warnings);
+			/*
+			 * Enable digest validation.
+			 */
+	    	expectedDigests = new Object[][] {
+	    			{null, null, null, null},
+	    			{"sha1", null, blockDigestSha1, payloadDigestSha1},
+	    			{"sha1", null, blockDigestSha1, payloadDigestSha1},
+	    	    	{"sha1", null, blockDigestSha1, payloadDigestSha1},
+	    	    	{"md5", null, blockDigestMd5, payloadDigestMd5},
+	    	    	{"md5", null, blockDigestMd5, payloadDigestMd5},
+	    	    	{"md5", null, blockDigestMd5, payloadDigestMd5}
+	    	};
 			reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
 			reader.setBlockDigestEnabled(true);
 			reader.setPayloadDigestEnabled(true);
-			while ((record = reader.getNextRecord()) != null) {
+			for (int i=0; i<expectedDigests.length; ++i) {
+				record = reader.getNextRecord();
 				record.close();
-				System.out.println(record.diagnostics.getErrors().size());
-				System.out.println(record.diagnostics.getWarnings().size());
+				Assert.assertTrue(record.isClosed());
+				String expectedAlgo = (String)expectedDigests[i][0];
+				String expectedEnc = (String)expectedDigests[i][1];
+				byte[] expectedBlockDigest = (byte[])expectedDigests[i][2];
+				byte[] expectedPayloadDigest = (byte[])expectedDigests[i][3];
+				if (expectedAlgo == null && expectedEnc == null) {
+					Assert.assertEquals(0, record.diagnostics.getErrors().size());
+					Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+					Assert.assertNull(record.header.warcBlockDigest);
+					Assert.assertNull(record.header.warcPayloadDigest);
+					Assert.assertNull(record.computedBlockDigest);
+					Assert.assertNull(record.computedPayloadDigest);
+				} else {
+					Assert.assertEquals(2, record.diagnostics.getErrors().size());
+					Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+					expectedDiagnoses = new Object[][] {
+							{DiagnosisType.UNKNOWN, "Block digest encoding scheme", 1},
+							{DiagnosisType.UNKNOWN, "Block digest encoding scheme", 1}
+					};
+					compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+					Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.computedBlockDigest.algorithm);
+					Assert.assertEquals(expectedAlgo, record.computedPayloadDigest.algorithm);
+					Assert.assertEquals(expectedEnc, record.header.warcBlockDigest.encoding);
+					Assert.assertEquals(expectedEnc, record.header.warcPayloadDigest.encoding);
+					Assert.assertEquals(reader.blockDigestEncoding, record.computedBlockDigest.encoding);
+					Assert.assertEquals(reader.payloadDigestEncoding, record.computedPayloadDigest.encoding);
+					Assert.assertNull(record.header.warcBlockDigest.digestBytes);
+					Assert.assertNull(record.header.warcPayloadDigest.digestBytes);
+					Assert.assertArrayEquals(expectedBlockDigest, record.computedBlockDigest.digestBytes);
+					Assert.assertArrayEquals(expectedPayloadDigest, record.computedPayloadDigest.digestBytes);
+					Assert.assertFalse(record.isValidBlockDigest);
+					Assert.assertFalse(record.isValidPayloadDigest);
+				}
+				/*
 				if (record.header.warcBlockDigest != null) {
-					System.out.println(record.header.warcBlockDigest.algorithm);
-					System.out.println(record.header.warcBlockDigest.encoding);
-					System.out.println(record.header.warcBlockDigest.digestString);
+					System.out.println(record.header.warcBlockDigest.toStringFull());
+				}
+				if (record.computedBlockDigest != null) {
+					System.out.println(record.computedBlockDigest.toStringFull());
 				}
 				if (record.header.warcPayloadDigest != null) {
-					System.out.println(record.header.warcPayloadDigest.algorithm);
-					System.out.println(record.header.warcPayloadDigest.encoding);
-					System.out.println(record.header.warcPayloadDigest.digestString);
+					System.out.println(record.header.warcPayloadDigest.toStringFull());
 				}
-				System.out.println(record.isValidBlockDigest);
-				System.out.println(record.isValidPayloadDigest);
+				if (record.computedPayloadDigest != null) {
+					System.out.println(record.computedPayloadDigest.toStringFull());
+				}
+				*/
+				if (record.hasPayload()) {
+					Assert.assertNotNull(record.payload);
+					Assert.assertEquals(record.payload, record.getPayload());
+					Assert.assertEquals(record.payload.getInputStream(), record.getPayloadContent());
+				} else {
+					Assert.assertNull(record.payload);
+					Assert.assertNull(record.getPayload());
+					Assert.assertNull(record.getPayloadContent());
+				}
 			}
-			*/
+			Assert.assertNull(reader.getNextRecord());
+			reader.close();
+			Assert.assertFalse(reader.isCompliant());
+			Assert.assertEquals(12, reader.errors);
+			Assert.assertEquals(0, reader.warnings);
+			/*
+			 * Unknown encoding.
+			 */
+	    	writedata = new Object[][] {
+	    	    	{httpHeaderBytes, payloadBytes,
+	   	    			new Object[] {"MD5", blockDigestSha1, "base2", Base2.encodeArray(blockDigestSha1)},
+	   	    			new Object[] {"MD5", payloadDigestSha1, "base2", Base2.encodeArray(payloadDigestSha1)}
+	    	    	},
+	    	    	{httpHeaderBytes, payloadBytes,
+	    	    		new Object[] {"SHA1", blockDigestMd5, "base2", Base2.encodeArray(blockDigestMd5)},
+	    	    		new Object[] {"SHA1", payloadDigestMd5, "base2", Base2.encodeArray(payloadDigestMd5)}
+	   	    		}
+	    	};
+	    	out = new ByteArrayOutputStream();
+	    	writer = WarcWriterFactory.getWriter(out, false);
+	    	writeRecords(writer, warcHeaders, writedata);
+	    	writer.close();
     	} catch (IOException e) {
 			e.printStackTrace();
 			Assert.fail("Unexepected exception!");

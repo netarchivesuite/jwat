@@ -24,12 +24,12 @@ import java.io.ByteArrayOutputStream;
  *
  * @author nicl
  */
-public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
+public class ByteArrayOutputStreamWithUnread extends ByteArrayOutputStream {
 
     /**
      * Construct an object without specifying an buffer size.
      */
-    public UnreadableByteArrayOutputStream() {
+    public ByteArrayOutputStreamWithUnread() {
         super();
     }
 
@@ -37,7 +37,7 @@ public class UnreadableByteArrayOutputStream extends ByteArrayOutputStream {
      * Construct an object with the specifying buffer size.
      * @param size buffer size
      */
-    public UnreadableByteArrayOutputStream(int size)  {
+    public ByteArrayOutputStreamWithUnread(int size)  {
         super(size);
     }
 

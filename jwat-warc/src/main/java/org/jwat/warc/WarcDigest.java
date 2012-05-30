@@ -38,7 +38,7 @@ public class WarcDigest extends Digest {
      * @param algorithm digest algorithm
      * @param digestValue digest value in encoded format. (base16/32/64)
      */
-    private WarcDigest(String algorithm, String digestValue) {
+    protected WarcDigest(String algorithm, String digestValue) {
         this.algorithm = algorithm;
         this.digestString = digestValue;
     }
@@ -56,7 +56,7 @@ public class WarcDigest extends Digest {
         String digestValue;
         int cIdx = labelledDigest.indexOf(':');
         if (cIdx != -1) {
-            algorithm = labelledDigest.substring(0, cIdx).trim();
+            algorithm = labelledDigest.substring(0, cIdx).trim().toLowerCase();
             digestValue = labelledDigest.substring(cIdx + 1).trim();
             if (algorithm.length() > 0 && digestValue.length() > 0) {
                 return new WarcDigest(algorithm, digestValue);
@@ -73,10 +73,16 @@ public class WarcDigest extends Digest {
      * @param digestValue digest value in encoded form.
      */
 	public static WarcDigest createWarcDigest(String algorithm, byte[] digestBytes, String encoding, String digestValue) {
-		WarcDigest digest = new WarcDigest();;
+		WarcDigest digest = new WarcDigest();
+		if (algorithm != null) {
+			algorithm = algorithm.toLowerCase();
+		}
+		if (encoding != null) {
+			encoding = encoding.toLowerCase();
+		}
 		digest.algorithm = algorithm;
 		digest.digestBytes = digestBytes;
-		digest.encoding = encoding.toLowerCase();
+		digest.encoding = encoding;
 		digest.digestString = digestValue;
         return digest;
 	}

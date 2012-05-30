@@ -91,7 +91,7 @@ public class UTF8 {
                 utf8_octets = 0;
                 bValidChar = false;
             }
-            // Read he remaning octets.
+            // Read the remaining octets.
             while (bValidChar && utf8_read < utf8_octets) {
                 c = in.read();
                 if (c == -1) {
@@ -176,7 +176,7 @@ public class UTF8 {
             utf8_octets = 4;
             shift = 12;
         } else {
-            throw new IOException("Not UTF-8 encodable!");
+            throw new IOException("Character (0x" + Integer.toHexString(c) + ") not UTF-8 encodable!");
         }
         while (utf8_write < utf8_octets) {
             b = ((c >> shift) & 0x3F) | 0x80;

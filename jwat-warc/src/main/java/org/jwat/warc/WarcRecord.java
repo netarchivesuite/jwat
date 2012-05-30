@@ -240,11 +240,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
                 // Auto detect encoding used in WARC header.
                 if (header.warcBlockDigest != null && header.warcBlockDigest.digestString != null) {
-                	isValidBlockDigest = checkDigest(header.warcBlockDigest, computedBlockDigest);
+                	isValidBlockDigest = processWarcDigest(header.warcBlockDigest, computedBlockDigest);
                 }
                 // Adjust information about computed block digest.
                 if (computedBlockDigest != null) {
-                    adjustDigestAlgoAndEncoding(computedBlockDigest,
+                    processComputedDigest(computedBlockDigest,
                     		reader.blockDigestAlgorithm, reader.blockDigestEncoding);
                 }
                 if (httpResponse != null && httpResponse.isValid()) {
@@ -259,11 +259,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     }
                     // Auto detect encoding used in WARC header.
                     if (header.warcPayloadDigest != null && header.warcPayloadDigest.digestString != null ) {
-                        isValidPayloadDigest = checkDigest(header.warcPayloadDigest, computedPayloadDigest);
+                        isValidPayloadDigest = processWarcDigest(header.warcPayloadDigest, computedPayloadDigest);
                     }
                     // Adjust information about computed payload digest.
                     if (computedPayloadDigest != null) {
-                        adjustDigestAlgoAndEncoding(computedPayloadDigest,
+                        processComputedDigest(computedPayloadDigest,
                         		reader.payloadDigestAlgorithm, reader.payloadDigestEncoding);
                     }
                 }
@@ -303,7 +303,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     protected static Map<String, Integer> digestAlgoLengthache = new TreeMap<String, Integer>();
 
-    public static synchronized int digestAlgoLength(String digestAlgorithm) {
+    public static synchronized int digestAlgorithmLength(String digestAlgorithm) {
     	Integer cachedLen = digestAlgoLengthache.get(digestAlgorithm);
     	if (cachedLen == null) {
             try {
@@ -322,58 +322,70 @@ public class WarcRecord implements PayloadOnClosedHandler {
     	return cachedLen;
     }
 
-    public Boolean checkDigest(WarcDigest warcDigest, WarcDigest computedDigest) {
+    /**
+     * Auto-detect encoding used in WARC digest header and compare it to the
+     * internal one, if it has been computed. 
+     * @param warcDigest digest from WARC header
+     * @param computedDigest internally compute digest
+     * @return WARC digest validity indication
+     */
+    protected Boolean processWarcDigest(WarcDigest warcDigest, WarcDigest computedDigest) {
         byte[] digest;
         Boolean isValidDigest = null;
+        int digestAlgorithmLength = WarcRecord.digestAlgorithmLength(warcDigest.algorithm);
+        digest = Base16.decodeToArray(warcDigest.digestString);
+        if (digest != null && digest.length == digestAlgorithmLength) {
+        	warcDigest.digestBytes = digest;
+            warcDigest.encoding = "base16";
+        }
+        if (warcDigest.digestBytes == null) {
+            digest = Base32.decodeToArray(warcDigest.digestString, true);
+            if (digest != null && digest.length == digestAlgorithmLength) {
+            	warcDigest.digestBytes = digest;
+                warcDigest.encoding = "base32";
+            }
+            if (warcDigest.digestBytes == null) {
+                digest = Base64.decodeToArray(warcDigest.digestString, true);
+                if (digest != null && digest.length == digestAlgorithmLength) {
+                	warcDigest.digestBytes = digest;
+                    warcDigest.encoding = "base64";
+                }
+            }
+        }
+        if (warcDigest.encoding == null) {
+            // Encoding - Unrecognized block digest encoding scheme
+            addErrorDiagnosis(DiagnosisType.UNKNOWN,
+                    "Block digest encoding scheme",
+                    warcDigest.digestString);
+        }
         if (computedDigest != null) {
             computedDigest.algorithm = warcDigest.algorithm;
-            // debug
-            System.out.println(warcDigest.digestString.length());
-            System.out.println("64:" + (computedDigest.digestBytes.length + 2) / 3 * 4);
-            System.out.println("32:" + (computedDigest.digestBytes.length + 4) / 5 * 8);
-            System.out.println("16:" + computedDigest.digestBytes.length * 2);
-            if ((computedDigest.digestBytes.length + 2) / 3 * 4 == warcDigest.digestString.length()) {
-                digest = Base64.decodeToArray(warcDigest.digestString, true);
-                warcDigest.encoding = "base64";
-                computedDigest.encoding = warcDigest.encoding;
-            } else if ((computedDigest.digestBytes.length + 4) / 5 * 8 == warcDigest.digestString.length()) {
-                digest = Base32.decodeToArray(warcDigest.digestString, true);
-                warcDigest.encoding = "base32";
-                computedDigest.encoding = warcDigest.encoding;
-            } else if (computedDigest.digestBytes.length * 2 == warcDigest.digestString.length()) {
-                digest = Base16.decodeToArray(warcDigest.digestString);
-                warcDigest.encoding = "base16";
-                computedDigest.encoding = warcDigest.encoding;
-            } else {
-                digest = null;
-                // Encoding - Unrecognized block digest encoding scheme
-                addErrorDiagnosis(DiagnosisType.UNKNOWN,
-                        "Block digest encoding scheme",
-                        warcDigest.digestString);
-            }
-            if (digest != null) {
-                if (!Arrays.equals(computedDigest.digestBytes, digest)) {
+            computedDigest.encoding = warcDigest.encoding;
+            if (warcDigest.digestBytes != null) {
+                if (!Arrays.equals(computedDigest.digestBytes, warcDigest.digestBytes)) {
                     // Block digest - Computed block digest does not match
                     addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                             "Block digest",
-                            Base16.encodeArray(digest),
+                            Base16.encodeArray(warcDigest.digestBytes),
                             Base16.encodeArray(computedDigest.digestBytes));
                     isValidDigest = false;
                 } else {
                     isValidDigest = true;
                 }
+            } else {
+                isValidDigest = false;
             }
         }
         return isValidDigest;
     }
 
     /**
-     * Adjust information about computed block digest.
-     * @param computedDigest
-     * @param digestAlgorithm
-     * @param digestEncoding
+     * Adjust algorithm and encoding information about computed block digest.
+     * @param computedDigest internally compute digest
+     * @param digestAlgorithm default algorithm
+     * @param digestEncoding default encoding
      */
-    public void adjustDigestAlgoAndEncoding(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding) {
+    protected void processComputedDigest(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding) {
         if (computedDigest.algorithm == null) {
             computedDigest.algorithm = digestAlgorithm;
         }

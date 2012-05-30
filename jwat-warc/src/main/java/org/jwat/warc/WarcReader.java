@@ -90,6 +90,7 @@ public abstract class WarcReader {
 
     /**
      * Method used to initialize a readers internal state.
+     * Must be called by all constructors.
      */
     protected void init() {
     	warcHeaderMaxSize = 8192;

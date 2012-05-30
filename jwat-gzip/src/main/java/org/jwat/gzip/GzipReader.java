@@ -156,7 +156,7 @@ public class GzipReader {
     }
 
     /**
-     * Returns the offset of the current or next entry depending of when in the
+     * Returns the offset of the current or next entry depending of where in the
      * parsing it is called.
      * @return offset of current or next entry
      */
@@ -167,7 +167,7 @@ public class GzipReader {
     /**
      * Returns the current offset in the input stream. Which could be anywhere
      * in the (multi-part) GZip file.
-     * @return
+     * @return current offset in the input stream
      */
     public long getOffset() {
         return pbin.getConsumed();
@@ -213,6 +213,7 @@ public class GzipReader {
                         );
             }
             if (gzipEntry.cm != GzipConstants.CM_DEFLATE) {
+            	// Currently only the deflate compression method is supported in GZip.
                 gzipEntry.diagnostics.addError(
                         new Diagnosis(
                                 DiagnosisType.INVALID_EXPECTED,
@@ -222,6 +223,8 @@ public class GzipReader {
                             )
                         );
             } else {
+            	// Currently only the deflate compression method is supported in GZip.
+            	// Check to see whether some xfl reserved bits have been used.
                 if ((gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED) != 0) {
                     gzipEntry.diagnostics.addWarning(
                             new Diagnosis(

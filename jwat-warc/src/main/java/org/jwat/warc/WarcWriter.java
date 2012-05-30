@@ -45,6 +45,7 @@ public abstract class WarcWriter {
 
     /**
      * Method used to initialize a readers internal state.
+     * Must be called by all constructors.
      */
     protected void init() {
         fieldParser = new WarcFieldParsers();

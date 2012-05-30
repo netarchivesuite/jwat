@@ -52,7 +52,8 @@ public class ISO8859_1 {
     public ISO8859_1() {
     }
 
-    /** Encoded string after call to encode method. */
+    /** Encoded string after call to encode method.
+     *  Invalid chars will have been removed if the method returns false. */
     public byte[] encoded;
 
     /**
@@ -81,12 +82,14 @@ public class ISO8859_1 {
                 valid = false;
             }
         }
+        // Exposes a valid decoded string with invalid chars filtered out.
         decoded = sb.toString();
         encoded = out.toByteArray();
         return valid;
     }
 
-    /** Decode byte array after call to decode method. */
+    /** Decode byte array after call to decode method.
+     *  Invalid chars will have been removed if the method returns false. */
     public String decoded;
 
     /**

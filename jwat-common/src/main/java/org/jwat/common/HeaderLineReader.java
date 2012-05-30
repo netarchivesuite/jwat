@@ -26,7 +26,8 @@ import java.io.PushbackInputStream;
  * The reader can either read normal lines or header lines.
  * Supported encodings are raw, US-ASCII, ISO-8859-1 and UTF-8.
  *
- * Furthermore header line can employ LWS, quoted text and encoded words.
+ * Furthermore header lines can employ linear white space (LWS), quoted text
+ * and encoded words.
  *
  * After calling the readLine method additional information is available from
  * public fields on the reader.
@@ -133,7 +134,7 @@ public class HeaderLineReader {
     /** Reusable <code>StringBuffer</code> for name/value strings. */
     protected final StringBuffer nvSb = new StringBuffer();
     /** Stream used to record the raw characters read by the parser. */
-    protected UnreadableByteArrayOutputStream bytesOut = new UnreadableByteArrayOutputStream();
+    protected ByteArrayOutputStreamWithUnread bytesOut = new ByteArrayOutputStreamWithUnread();
 
     /*
      * Error reporting.
@@ -210,7 +211,7 @@ public class HeaderLineReader {
 
     /**
      * Returns a reader to read header lines.
-     * The reader is pre- configured to expect UTF-8 encoding, LWS,
+     * The reader is pre- configured to expect ISO-8859-1 encoding, LWS,
      * quoted text and encoded words.
      * @return a reader to read header lines
      */
@@ -231,7 +232,7 @@ public class HeaderLineReader {
      * from public fields on the reader.
      * @param in <code>InputStream</code> with characters
      * @return result wrapped in a <code>HeaderLine</code> object
-     * @throws IOException
+     * @throws IOException if an io error occurs in the underlying input stream
      */
     public HeaderLine readLine(PushbackInputStream in) throws IOException {
         HeaderLine headerLine = new HeaderLine();
@@ -243,7 +244,7 @@ public class HeaderLineReader {
         }
         lineSb.setLength(0);
         nvSb.setLength(0);
-        bytesOut = new UnreadableByteArrayOutputStream();
+        bytesOut = new ByteArrayOutputStreamWithUnread();
         bfErrors = 0;
         int c;
         bCr = false;
@@ -641,7 +642,7 @@ public class HeaderLineReader {
      * @param c first character of the possibly encoded character sequence
      * @param in <code>InputStream</code> with possible extra encoded characters.
      * @return decoded character
-     * @throws IOException
+     * @throws IOException if an io error occurs in the underlying input stream
      */
     protected int decode(int c, InputStream in) throws IOException {
         switch (encoding) {
@@ -664,7 +665,9 @@ public class HeaderLineReader {
             }
             break;
         case ENC_ISO8859_1:
+        	// ISO-8859-1 utilizes all 8-bits and required no decoding.
         case ENC_RAW:
+        	// Raw 8-bit character needs no decoding.
         default:
              bValidChar = true;
             break;
@@ -673,7 +676,7 @@ public class HeaderLineReader {
     }
 
     /**
-     * Check and report whether a line was ended a expected.
+     * Check and report whether the line ended as expected.
      */
     protected void check_eol() {
         switch (eol) {
@@ -718,7 +721,10 @@ public class HeaderLineReader {
      * @param diagnostics diagnostics object used to report diagnoses
      */
     public static void report_error(int bfErrors, Diagnostics<Diagnosis> diagnostics) {
-        if ((bfErrors & E_BIT_EOF) != 0) {
+    	if (diagnostics == null) {
+    		throw new IllegalArgumentException("'diagnostics' argument is null");
+    	}
+    	if ((bfErrors & E_BIT_EOF) != 0) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Unexpected EOF"));
         }
         if ((bfErrors & E_BIT_MISPLACED_CR) != 0) {

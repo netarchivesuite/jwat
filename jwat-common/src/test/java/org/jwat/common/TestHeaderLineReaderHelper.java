@@ -43,7 +43,7 @@ public class TestHeaderLineReaderHelper {
             expected = (String)cases[i][2];
             in = new ByteArrayInputStream(bytes);
             pbin = new PushbackInputStream(in, 16);
-            // The puahback size should be equals to the maximum allowed header size.
+            // The pushback size should be equals to the maximum allowed header size.
             line = hlr.readLine(new PushbackInputStream(in, 8192));
             //System.out.println(expected);
             Assert.assertNotNull(line);
@@ -66,7 +66,8 @@ public class TestHeaderLineReaderHelper {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         for (int i=0; i<cases.length; ++i) {
             bytes = (byte[])cases[i][0];
-            System.out.println("org: " + new String(bytes));
+            // debug
+            //System.out.println("org: " + new String(bytes));
             Object[][] expectedLines = (Object[][])cases[i][1];
             bytesOut.reset();
             in = new ByteArrayInputStream(bytes);
@@ -74,7 +75,8 @@ public class TestHeaderLineReaderHelper {
             pbin = new PushbackInputStream(in, 8192);
             for (int j=0; j<expectedLines.length; ++j) {
                 line = hlr.readLine(pbin);
-                System.out.println(line.bfErrors);
+                // debug
+                //System.out.println(line.bfErrors);
                 Assert.assertNotNull(line);
                 expectedType = (Byte)expectedLines[j][0];
                 Assert.assertEquals(expectedType, line.type);
@@ -96,7 +98,8 @@ public class TestHeaderLineReaderHelper {
                 Assert.assertEquals(expectedLines[j][4], line.bfErrors);
                 bytesOut.write(line.raw);
             }
-            System.out.println("dst: " + new String(bytesOut.toByteArray()));
+            // debug
+            //System.out.println("dst: " + new String(bytesOut.toByteArray()));
             Assert.assertArrayEquals(bytes, bytesOut.toByteArray());
         }
     }

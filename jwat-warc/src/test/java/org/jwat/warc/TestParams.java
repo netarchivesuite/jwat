@@ -24,12 +24,11 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.jwat.common.Digest;
+import org.jwat.common.Base16;
 import org.jwat.gzip.GzipReader;
 
 @RunWith(JUnit4.class)
@@ -48,7 +47,7 @@ public class TestParams {
          * Digest.
          */
 
-        Digest digest;
+        WarcDigest digest;
 
         digest = WarcDigest.parseWarcDigest(null);
         Assert.assertNull(digest);
@@ -68,11 +67,27 @@ public class TestParams {
         digest = WarcDigest.parseWarcDigest(":AB2CD3EF4GH5IJ6KL7MN8OPQ");
         Assert.assertNull(digest);
 
-        digest = WarcDigest.parseWarcDigest("sha1:AB2CD3EF4GH5IJ6KL7MN8OPQ");
+        digest = WarcDigest.parseWarcDigest("SHA1:AB2CD3EF4GH5IJ6KL7MN8OPQ");
         Assert.assertNotNull(digest);
+        Assert.assertEquals("sha1", digest.algorithm);
+        Assert.assertNull(digest.digestBytes);
+        Assert.assertNull(digest.encoding);
+        Assert.assertEquals("AB2CD3EF4GH5IJ6KL7MN8OPQ", digest.digestString);
+        Assert.assertEquals("sha1:AB2CD3EF4GH5IJ6KL7MN8OPQ", digest.toString());
+        Assert.assertEquals("sha1:null:AB2CD3EF4GH5IJ6KL7MN8OPQ", digest.toStringFull());
 
-        str = digest.toString();
-        Assert.assertNotNull(str);
+        byte[] digestBytes = new byte[16];
+        for (int i=0; i<digestBytes.length; ++i) {
+        	digestBytes[i] = (byte)i;
+        }
+    	digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "BASE16", Base16.encodeArray(digestBytes));
+        Assert.assertNotNull(digest);
+        Assert.assertEquals("sha1", digest.algorithm);
+        Assert.assertArrayEquals(digestBytes, digest.digestBytes);
+        Assert.assertEquals("base16", digest.encoding);
+        Assert.assertEquals(Base16.encodeArray(digestBytes), digest.digestString);
+        Assert.assertEquals("sha1:" + Base16.encodeArray(digestBytes), digest.toString());
+        Assert.assertEquals("sha1:base16:" + Base16.encodeArray(digestBytes), digest.toStringFull());
 
         /*
          * Date.
