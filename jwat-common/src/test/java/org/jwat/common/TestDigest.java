@@ -20,7 +20,6 @@ package org.jwat.common;
 import java.io.IOException;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,6 +29,18 @@ public class TestDigest {
 
     @Test
     public void test_digest_wrapper() throws IOException {
+        Assert.assertEquals(16, Digest.digestAlgorithmLength("MD5"));
+        Assert.assertEquals(20, Digest.digestAlgorithmLength("SHA1"));
+        Assert.assertEquals(-1, Digest.digestAlgorithmLength("SHAFT1"));
+        try {
+            Digest.digestAlgorithmLength(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            Digest.digestAlgorithmLength("");
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+
         Digest digest = new Digest();
         Assert.assertNull(digest.algorithm);
         Assert.assertNull(digest.digestBytes);

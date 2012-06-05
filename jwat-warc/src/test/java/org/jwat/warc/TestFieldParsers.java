@@ -113,8 +113,18 @@ public class TestFieldParsers {
                 Assert.assertNull(reader.fieldParser.parseIpAddress("a.b.c.d", null));
                 //Assert.assertNull(reader.fieldParser.parseUri("bad_uri", null));
                 //Assert.assertNull(reader.fieldParser.parseUri("<zaphod>", null));
+                Assert.assertNull(reader.fieldParser.parseUri("http://", null));
                 Assert.assertNull(reader.fieldParser.parseDate("blue monday", null));
                 Assert.assertNull(reader.fieldParser.parseDigest("sharif-1; omar", null));
+
+                Assert.assertNotNull(reader.fieldParser.parseInteger("42", null));
+                Assert.assertNotNull(reader.fieldParser.parseLong("12345678901234", null));
+                Assert.assertNotNull(reader.fieldParser.parseString("JWAT", null));
+                Assert.assertNotNull(reader.fieldParser.parseContentType("text/plain", null));
+                Assert.assertNotNull(reader.fieldParser.parseIpAddress("127.0.0.1", null));
+                Assert.assertNotNull(reader.fieldParser.parseUri("http://jwat.org", null));
+                Assert.assertNotNull(reader.fieldParser.parseDate("2012-12-24T20:12:34Z", null));
+                Assert.assertNotNull(reader.fieldParser.parseDigest("sha1:1234567890abcdef", null));
 
                 if (bDebugOutput) {
                     RecordDebugBase.printRecord(record);

@@ -91,20 +91,20 @@ public class WarcReaderUncompressed extends WarcReader {
 
     @Override
     public long getOffset() {
-    	if (in != null) {
+        if (in != null) {
             return in.getConsumed();
-    	} else {
-    		return consumed;
-    	}
+        } else {
+            return consumed;
+        }
     }
 
     @Override
     public long getConsumed() {
-    	if (in != null) {
+        if (in != null) {
             return in.getConsumed();
-    	} else {
+        } else {
             return consumed;
-    	}
+        }
     }
 
     @Override

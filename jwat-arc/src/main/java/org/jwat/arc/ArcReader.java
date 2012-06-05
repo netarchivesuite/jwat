@@ -19,11 +19,10 @@ package org.jwat.arc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jwat.common.Digest;
 import org.jwat.common.HeaderLineReader;
 
 /**
@@ -152,15 +151,17 @@ public abstract class ArcReader {
      * Set the optional block digest algorithm.
      * @param digestAlgorithm block digest algorithm
      * (null means optional block digest is disabled)
-     * @throws NoSuchAlgorithmException occurs in case the algorithm can not
-     * be identified
      */
-    public void setBlockDigestAlgorithm(String digestAlgorithm)
-                                            throws NoSuchAlgorithmException {
-        if (digestAlgorithm != null) {
-            MessageDigest.getInstance(digestAlgorithm);
+    public boolean setBlockDigestAlgorithm(String digestAlgorithm) {
+        if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
+            blockDigestAlgorithm = null;
+            return true;
         }
-        blockDigestAlgorithm = digestAlgorithm;
+        if (Digest.digestAlgorithmLength(digestAlgorithm) > 0) {
+            blockDigestAlgorithm = digestAlgorithm;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -175,15 +176,17 @@ public abstract class ArcReader {
      * Set the optional payload digest algorithm.
      * @param digestAlgorithm payload digest algorithm
      * (null means optional payload digest is disabled)
-     * @throws NoSuchAlgorithmException occurs in case the algorithm can not
-     * be identified
      */
-    public void setPayloadDigestAlgorithm(String digestAlgorithm)
-            throws NoSuchAlgorithmException {
-        if (digestAlgorithm != null) {
-            MessageDigest.getInstance(digestAlgorithm);
+    public boolean setPayloadDigestAlgorithm(String digestAlgorithm) {
+        if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
+            payloadDigestAlgorithm = null;
+            return true;
         }
-        payloadDigestAlgorithm = digestAlgorithm;
+        if (Digest.digestAlgorithmLength(digestAlgorithm) > 0) {
+            payloadDigestAlgorithm = digestAlgorithm;
+            return true;
+        }
+        return false;
     }
 
     /**

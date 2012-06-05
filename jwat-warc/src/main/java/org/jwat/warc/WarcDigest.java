@@ -27,13 +27,13 @@ import org.jwat.common.Digest;
  */
 public class WarcDigest extends Digest {
 
-	/**
-	 * Package level constructor.
-	 */
-	protected WarcDigest() {
-	}
+    /**
+     * Package level constructor.
+     */
+    protected WarcDigest() {
+    }
 
-	/**
+    /**
      * Construct an object with the supplied parameters.
      * @param algorithm digest algorithm
      * @param digestValue digest value in encoded format. (base16/32/64)
@@ -65,27 +65,33 @@ public class WarcDigest extends Digest {
         return null;
     }
 
-	/**
+    /**
      * Create an object with the supplied parameters.
      * @param algorithm digest algorithm
      * @param digestBytes digest in byte form
      * @param encoding encoding used
      * @param digestValue digest value in encoded form.
      */
-	public static WarcDigest createWarcDigest(String algorithm, byte[] digestBytes, String encoding, String digestValue) {
-		WarcDigest digest = new WarcDigest();
-		if (algorithm != null) {
-			algorithm = algorithm.toLowerCase();
-		}
-		if (encoding != null) {
-			encoding = encoding.toLowerCase();
-		}
-		digest.algorithm = algorithm;
-		digest.digestBytes = digestBytes;
-		digest.encoding = encoding;
-		digest.digestString = digestValue;
+    public static WarcDigest createWarcDigest(String algorithm, byte[] digestBytes, String encoding, String digestValue) {
+        if (algorithm == null || algorithm.length() == 0) {
+            throw new IllegalArgumentException("'algorithm' is empty or null");
+        }
+        if (digestBytes == null || digestBytes.length == 0) {
+            throw new IllegalArgumentException("'digestBytes' is empty or null");
+        }
+        if (encoding == null || encoding.length() == 0) {
+            throw new IllegalArgumentException("'encoding' is empty or null");
+        }
+        if (digestValue == null || digestValue.length() == 0) {
+            throw new IllegalArgumentException("'digestValue' is empty or null");
+        }
+        WarcDigest digest = new WarcDigest();
+        digest.algorithm = algorithm.toLowerCase();
+        digest.digestBytes = digestBytes;
+        digest.encoding = encoding.toLowerCase();
+        digest.digestString = digestValue;
         return digest;
-	}
+    }
 
     /**
      * Returns a header representation of the class state.
@@ -97,7 +103,7 @@ public class WarcDigest extends Digest {
     }
 
     public String toStringFull() {
-    	return (algorithm + ":" + encoding + ":" + digestString);
+        return (algorithm + ":" + encoding + ":" + digestString);
     }
 
 }

@@ -77,21 +77,33 @@ public class TestNonWarcHeaders {
 
                 record.close();
 
+                Assert.assertNull(record.getHeader(null));
+                Assert.assertNull(record.getHeader(""));
+
                 HeaderLine header1 = record.getHeader("header1");
                 HeaderLine header2 = record.getHeader("HEADER2");
 
                 Assert.assertNotNull(header1);
                 Assert.assertNotNull(header2);
 
-                Assert.assertEquals("domination", header1.value);
+                Assert.assertEquals("hello", header1.value);
+                Assert.assertNotNull(header1.lines);
+                Assert.assertEquals("domination", header1.lines.get(0).value);
                 Assert.assertEquals("world", header2.value);
+                Assert.assertEquals(0, header2.lines.size());
 
                 List<HeaderLine> headers = record.getHeaderList();
 
                 String[][] headerRef = {
+                        {"WARC-Type", "warcinfo"},
                         {"Header1", "hello"},
+                        {"WARC-Date", "2008-04-30T20:48:25Z"},
+                        {"WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz"},
                         {"hEADER2", "world"},
-                        {"header1", "domination"}
+                        {"WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-1>"},
+                        {"header1", "domination"},
+                        {"Content-Type", "application/warc-fields"},
+                        {"Content-Length", "483"}
                 };
 
                 Assert.assertEquals(headers.size(), headerRef.length);

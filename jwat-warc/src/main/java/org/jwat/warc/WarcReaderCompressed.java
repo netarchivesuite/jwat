@@ -117,11 +117,11 @@ public class WarcReaderCompressed extends WarcReader {
      */
     @Override
     public long getStartOffset() {
-    	if (reader != null) {
+        if (reader != null) {
             return reader.getStartOffset();
-    	} else {
-    		return startOffset;
-    	}
+        } else {
+            return startOffset;
+        }
     }
 
     /**
@@ -130,20 +130,20 @@ public class WarcReaderCompressed extends WarcReader {
      */
     @Override
     public long getOffset() {
-    	if (reader != null) {
+        if (reader != null) {
             return reader.getOffset();
-    	} else {
+        } else {
             return consumed;
-    	}
+        }
     }
 
     @Override
     public long getConsumed() {
-    	if (reader != null) {
+        if (reader != null) {
             return reader.getOffset();
-    	} else {
+        } else {
             return consumed;
-    	}
+        }
     }
 
     @Override

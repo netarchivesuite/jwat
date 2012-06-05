@@ -38,8 +38,8 @@ import org.jwat.common.RandomAccessFileOutputStream;
 @RunWith(Parameterized.class)
 public class TestWarcWriterFactory {
 
-	private boolean bCompress;
-	private boolean bBuffer;
+    private boolean bCompress;
+    private boolean bBuffer;
     private int expected_records;
     private String warcFile;
 
@@ -54,8 +54,8 @@ public class TestWarcWriterFactory {
     }
 
     public TestWarcWriterFactory(boolean bCompress, boolean bBuffer, int records, String warcFile) {
-    	this.bCompress = bCompress;
-    	this.bBuffer = bBuffer;
+        this.bCompress = bCompress;
+        this.bBuffer = bBuffer;
         this.expected_records = records;
         this.warcFile = warcFile;
     }

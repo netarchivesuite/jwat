@@ -147,10 +147,10 @@ public class WarcHeader {
     public byte[] headerBytes;
 
     /** List of parsed header fields. */
-    protected List<HeaderLine> headerList;
+    protected List<HeaderLine> headerList = new LinkedList<HeaderLine>();
 
     /** Map of parsed header fields. */
-    protected Map<String, HeaderLine> headerMap;
+    protected Map<String, HeaderLine> headerMap = new HashMap<String, HeaderLine>();
 
     /**
      * Non public constructor to allow unit testing.
@@ -160,9 +160,9 @@ public class WarcHeader {
 
     public static WarcHeader initHeader(WarcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
-    	header.major = 1;
-    	header.minor = 0;
-    	header.fieldParser = writer.fieldParser;
+        header.major = 1;
+        header.minor = 0;
+        header.fieldParser = writer.fieldParser;
         header.warcDateFormat = writer.warcDateFormat;
         header.diagnostics = diagnostics;
         return header;
@@ -173,7 +173,7 @@ public class WarcHeader {
         header.reader = reader;
         header.fieldParser = reader.fieldParser;
         header.diagnostics = diagnostics;
-    	// This is only relevant for uncompressed sequentially read records
+        // This is only relevant for uncompressed sequentially read records
         header.startOffset = startOffset;
         return header;
     }
@@ -266,7 +266,7 @@ public class WarcHeader {
         String tmpStr;
         boolean bSeekMagic = true;
         while (bSeekMagic) {
-        	// This is only relevant for uncompressed sequentially read records
+            // This is only relevant for uncompressed sequentially read records
             startOffset = in.getConsumed();
             line = reader.lineReader.readLine(in);
             if (!reader.lineReader.bEof) {
@@ -381,11 +381,12 @@ public class WarcHeader {
      * @param seen array of headers seen so far used for duplication check
      */
     protected void addHeader(HeaderLine headerLine) {
-    	String fieldName = headerLine.name;
-    	String fieldValue = headerLine.value;
-    	WarcConcurrentTo warcConcurrentTo;
+        String fieldName = headerLine.name;
+        String fieldValue = headerLine.value;
+        WarcConcurrentTo warcConcurrentTo;
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
+            // Recognized WARC field name.
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
@@ -508,40 +509,36 @@ public class WarcHeader {
                 // Duplicate field.
                 addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValue);
             }
-        } else {
-            // Not a recognized WARC field name.
-            if (headerList == null) {
-                headerList = new LinkedList<HeaderLine>();
-            }
-            if (headerMap == null) {
-                headerMap = new HashMap<String, HeaderLine>();
-            }
-            // Uses a list because there can be multiple occurrences.
-            headerList.add(headerLine);
-            // Uses a map for fast lookup of single header.
-            headerMap.put(fieldName.toLowerCase(), headerLine);
         }
+        HeaderLine tmpLine = headerMap.get(fieldName.toLowerCase());
+        if (tmpLine == null) {
+            headerMap.put(fieldName.toLowerCase(), headerLine);
+        } else {
+            tmpLine.lines.add(headerLine);
+        }
+        headerList.add(headerLine);
     }
 
     public HeaderLine addHeader(String fieldName, String fieldValue) {
-    	HeaderLine headerLine = new HeaderLine();
-    	headerLine.name = fieldName;
-    	headerLine.value = fieldValue;
-    	addHeader(headerLine);
-    	return headerLine;
+        HeaderLine headerLine = new HeaderLine();
+        headerLine.name = fieldName;
+        headerLine.value = fieldValue;
+        addHeader(headerLine);
+        return headerLine;
     }
 
     public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
-    	if (dateFieldValue == null && fieldValueStr != null) {
-    		dateFieldValue = WarcDateParser.getDate(fieldValueStr);
-    	} else if (fieldValueStr == null && dateFieldValue != null) {
-        	fieldValueStr = warcDateFormat.format(dateFieldValue);
-    	}
-    	HeaderLine headerLine = new HeaderLine();
-    	headerLine.name = fieldName;
-    	headerLine.value = fieldValueStr;
+        if (dateFieldValue == null && fieldValueStr != null) {
+            dateFieldValue = WarcDateParser.getDate(fieldValueStr);
+        } else if (fieldValueStr == null && dateFieldValue != null) {
+            fieldValueStr = warcDateFormat.format(dateFieldValue);
+        }
+        HeaderLine headerLine = new HeaderLine();
+        headerLine.name = fieldName;
+        headerLine.value = fieldValueStr;
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
+            // Recognized WARC field name.
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
@@ -550,24 +547,18 @@ public class WarcHeader {
                     warcDate = dateFieldValue;
                     break;
                 default:
-                	break;
+                    break;
                 }
             } else {
                 // Duplicate field.
                 addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValueStr);
             }
-        } else {
-            // Not a recognized WARC field name.
-            if (headerList == null) {
-                headerList = new LinkedList<HeaderLine>();
-            }
-            if (headerMap == null) {
-                headerMap = new HashMap<String, HeaderLine>();
-            }
-            // Uses a list because there can be multiple occurrences.
-            headerList.add(headerLine);
-            // Uses a map for fast lookup of single header.
+        }
+        HeaderLine tmpLine = headerMap.get(fieldName.toLowerCase());
+        if (tmpLine == null) {
             headerMap.put(fieldName.toLowerCase(), headerLine);
+        } else {
+            tmpLine.lines.add(headerLine);
         }
         return headerLine;
     }

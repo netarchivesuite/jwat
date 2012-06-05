@@ -67,22 +67,22 @@ public class WarcWriterUncompressed extends WarcWriter {
     }
 
     @Override
-    public void writeHeader(WarcRecord record) throws IOException {
+    public byte[] writeHeader(WarcRecord record) throws IOException {
         if (record == null) {
             throw new IllegalArgumentException(
                     "The 'record' parameter is null!");
         }
-        writeHeader_impl(record);
+        return writeHeader_impl(record);
     }
 
     @Override
     public void close() {
         try {
-        	if (out != null) {
+            if (out != null) {
                 out.flush();
                 out.close();
                 out = null;
-        	}
+            }
         }
         catch (IOException e) {
         }

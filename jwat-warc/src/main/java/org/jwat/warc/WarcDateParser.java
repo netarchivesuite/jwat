@@ -30,7 +30,7 @@ import java.util.TimeZone;
  */
 public class WarcDateParser {
 
-    /** WARC <code>DateFormat</code> as speficied in the WARC ISO standard. */
+    /** WARC <code>DateFormat</code> as specified in the WARC ISO standard. */
     private final DateFormat dateFormat;
 
     /** Basic <code>DateFormat</code> is not thread safe. */
@@ -48,20 +48,6 @@ public class WarcDateParser {
         dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);
         dateFormat.setLenient(false);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
-    /**
-     * Return a <code>DateFormat</code> object which can be used to string
-     * format WARC dates.
-     * @return <code>DateFormat</code> object which can be used to string
-     * format WARC dates.
-     */
-    public static DateFormat getWarcDateFormat() {
-        DateFormat dateFormat;
-        dateFormat = new SimpleDateFormat(WarcConstants.WARC_DATE_FORMAT);
-        dateFormat.setLenient(false);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat;
     }
 
     /**
@@ -94,6 +80,16 @@ public class WarcDateParser {
         boolean isValid = (date == null) ? false
                                          : (date.getTime() > 0);
         return isValid ? date : null;
+    }
+
+    /**
+     * Return a <code>DateFormat</code> object which can be used to string
+     * format WARC dates.
+     * @return <code>DateFormat</code> object which can be used to string
+     * format WARC dates.
+     */
+    public static DateFormat getDateFormat() {
+        return DateParserTL.get().dateFormat;
     }
 
 }

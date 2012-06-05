@@ -20,7 +20,6 @@ package org.jwat.warc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -29,9 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcReaderFactory;
-import org.jwat.warc.WarcRecord;
 
 /**
  * Test to check if GZip auto detection is working correctly.
@@ -93,9 +89,9 @@ public class TestWarcReaderFactory {
 
             if ( bDigest ) {
                 reader.setBlockDigestEnabled( true );
-                reader.setBlockDigestAlgorithm( "sha1" );
+                Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
                 reader.setPayloadDigestEnabled( true );
-                reader.setPayloadDigestAlgorithm( "sha1" );
+                Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
             }
 
             while ((record = reader.getNextRecord()) != null) {
@@ -147,9 +143,9 @@ public class TestWarcReaderFactory {
             reader = WarcReaderFactory.getReader(in, 8192);
 
             reader.setBlockDigestEnabled( true );
-            reader.setBlockDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( true );
-            reader.setPayloadDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
@@ -190,8 +186,6 @@ public class TestWarcReaderFactory {
             Assert.fail("Input file missing");
         } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail("Unexpected algorithm exception");
         }
     }
 

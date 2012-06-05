@@ -17,6 +17,11 @@
  */
 package org.jwat.common;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * This class represents a message digest including information about algorithm
  * and encoding used.
@@ -36,5 +41,36 @@ public class Digest {
 
     /** Digest encoding used. (E.g. Base16, 32 or 64) */
     public String encoding;
+
+    /** Cache length of algorithm digest output. */
+    protected static Map<String, Integer> digestAlgoLengthache = new TreeMap<String, Integer>();
+
+    /**
+     * Returns the length of an algorithms digest output or -1 if it is an
+     * invalid digest algorithm.
+     * @param digestAlgorithm digest algorithm
+     * @return digest algorithm output length or -1 if invalid digest algorithm
+     */
+    public static synchronized int digestAlgorithmLength(String digestAlgorithm) {
+        if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
+            throw new IllegalArgumentException("'digestAlgorithm' is empty or null");
+        }
+        Integer cachedLen = digestAlgoLengthache.get(digestAlgorithm);
+        if (cachedLen == null) {
+            try {
+                MessageDigest md = MessageDigest.getInstance(digestAlgorithm);
+                byte[] digest = md.digest(new byte[16]);
+                cachedLen = digest.length;
+                md.reset();
+                md = null;
+            } catch (NoSuchAlgorithmException e) {
+            }
+            if (cachedLen == null) {
+                cachedLen = -1;
+            }
+            digestAlgoLengthache.put(digestAlgorithm,  cachedLen);
+        }
+        return cachedLen;
+    }
 
 }

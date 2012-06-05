@@ -29,7 +29,7 @@ import java.util.TimeZone;
  */
 public final class ArcDateParser {
 
-    /** Allowed <code>DateFormat</code>. */
+    /** ARC <code>DateFormat</code> as specified in the ARC documentation. */
     private final DateFormat dateFormat;
 
     /** Basic <code>DateFormat</code> is not thread safe. */
@@ -76,6 +76,16 @@ public final class ArcDateParser {
         boolean isValid = (date == null) ? false
                                          : (date.getTime() > 0);
         return isValid ? date : null;
+    }
+
+    /**
+     * Return a <code>DateFormat</code> object which can be used to string
+     * format ARC dates.
+     * @return <code>DateFormat</code> object which can be used to string
+     * format ARC dates.
+     */
+    public static DateFormat getDateFormat() {
+        return DateParserTL.get().dateFormat;
     }
 
 }

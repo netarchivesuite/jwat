@@ -41,6 +41,9 @@ public class WarcConstants {
      * */
     public static final String WARC_MAGIC_HEADER = "WARC/";
 
+    /** End mark used after each record consisting of two newlines. */
+    protected static byte[] endMark = "\r\n\r\n".getBytes();
+
     /** WARC date format string as specified by the WARC ISO standard. */
     public static final String WARC_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 

@@ -17,6 +17,7 @@
  */
 package org.jwat.warc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,9 +31,7 @@ import java.text.DateFormat;
 public abstract class WarcWriter {
 
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
-    protected DateFormat warcDateFormat = WarcDateParser.getWarcDateFormat();
-
-    protected byte[] endMark = "\r\n\r\n".getBytes();
+    protected DateFormat warcDateFormat = WarcDateParser.getDateFormat();
 
     /** Outputstream used to write WARC records. */
     protected OutputStream out;
@@ -96,19 +95,20 @@ public abstract class WarcWriter {
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
-    public abstract void writeHeader(WarcRecord record) throws IOException;
+    public abstract byte[] writeHeader(WarcRecord record) throws IOException;
 
     /**
      * Write a WARC header to the WARC output stream.
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
-    protected void writeHeader_impl(WarcRecord record) throws IOException {
+    protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
+        ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         /*
          * Version Line
          */
-    	byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + record.header.major + "." + record.header.minor + "\r\n").getBytes();
-    	out.write(magicVersion);
+        byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + record.header.major + "." + record.header.minor + "\r\n").getBytes();
+        outBuf.write(magicVersion);
         /*
          * Warc-Type
          */
@@ -123,10 +123,10 @@ public abstract class WarcWriter {
             }
         }
         if (warcTypeStr != null) {
-            out.write(WarcConstants.FN_WARC_TYPE.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcTypeStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_TYPE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcTypeStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Record-Id
@@ -139,10 +139,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcRecordIdStr != null) {
-            out.write(WarcConstants.FN_WARC_RECORD_ID.getBytes());
-            out.write(": <".getBytes());
-            out.write(warcRecordIdStr.getBytes());
-            out.write(">\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_RECORD_ID.getBytes());
+            outBuf.write(": <".getBytes());
+            outBuf.write(warcRecordIdStr.getBytes());
+            outBuf.write(">\r\n".getBytes());
         }
         /*
          * Warc-Date
@@ -155,10 +155,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcDateStr != null) {
-            out.write(WarcConstants.FN_WARC_DATE.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcDateStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_DATE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcDateStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Content-Length
@@ -171,10 +171,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (contentLengthStr != null) {
-            out.write(WarcConstants.FN_CONTENT_LENGTH.getBytes());
-            out.write(": ".getBytes());
-            out.write(contentLengthStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_CONTENT_LENGTH.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(contentLengthStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Content-Type
@@ -187,10 +187,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (contentTypeStr != null) {
-            out.write(WarcConstants.FN_CONTENT_TYPE.getBytes());
-            out.write(": ".getBytes());
-            out.write(contentTypeStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_CONTENT_TYPE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(contentTypeStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Concurrent-To
@@ -208,10 +208,10 @@ public abstract class WarcWriter {
                     // Warning...
                 }
                 if (warcConcurrentToStr != null) {
-                    out.write(WarcConstants.FN_WARC_CONCURRENT_TO.getBytes());
-                    out.write(": <".getBytes());
-                    out.write(warcConcurrentToStr.getBytes());
-                    out.write(">\r\n".getBytes());
+                    outBuf.write(WarcConstants.FN_WARC_CONCURRENT_TO.getBytes());
+                    outBuf.write(": <".getBytes());
+                    outBuf.write(warcConcurrentToStr.getBytes());
+                    outBuf.write(">\r\n".getBytes());
                 }
             }
         }
@@ -226,10 +226,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcBlockDigestStr != null) {
-            out.write(WarcConstants.FN_WARC_BLOCK_DIGEST.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcBlockDigestStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_BLOCK_DIGEST.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcBlockDigestStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Payload-Digest
@@ -242,10 +242,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcPayloadDigestStr != null) {
-            out.write(WarcConstants.FN_WARC_PAYLOAD_DIGEST.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcPayloadDigestStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_PAYLOAD_DIGEST.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcPayloadDigestStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Ip-Address
@@ -258,10 +258,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcIpAddress != null) {
-            out.write(WarcConstants.FN_WARC_IP_ADDRESS.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcIpAddress.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_IP_ADDRESS.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcIpAddress.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Refers-To
@@ -274,10 +274,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcRefersToUriStr != null) {
-            out.write(WarcConstants.FN_WARC_REFERS_TO.getBytes());
-            out.write(": <".getBytes());
-            out.write(warcRefersToUriStr.getBytes());
-            out.write(">\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_REFERS_TO.getBytes());
+            outBuf.write(": <".getBytes());
+            outBuf.write(warcRefersToUriStr.getBytes());
+            outBuf.write(">\r\n".getBytes());
         }
         /*
          * Warc-Target-Uri
@@ -290,10 +290,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcTargetUriStr != null) {
-            out.write(WarcConstants.FN_WARC_TARGET_URI.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcTargetUriStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_TARGET_URI.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcTargetUriStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Truncated
@@ -309,10 +309,10 @@ public abstract class WarcWriter {
             }
         }
         if (warcTruncatedStr != null) {
-            out.write(WarcConstants.FN_WARC_TRUNCATED.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcTruncatedStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_TRUNCATED.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcTruncatedStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Warcinfo-Id
@@ -325,19 +325,19 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcWarcInfoIdStr != null) {
-            out.write(WarcConstants.FN_WARC_WARCINFO_ID.getBytes());
-            out.write(": <".getBytes());
-            out.write(warcWarcInfoIdStr.getBytes());
-            out.write(">\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_WARCINFO_ID.getBytes());
+            outBuf.write(": <".getBytes());
+            outBuf.write(warcWarcInfoIdStr.getBytes());
+            outBuf.write(">\r\n".getBytes());
         }
         /*
          * Warc-Filename
          */
         if (record.header.warcFilename != null) {
-            out.write(WarcConstants.FN_WARC_FILENAME.getBytes());
-            out.write(": ".getBytes());
-            out.write(record.header.warcFilename.toString().getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_FILENAME.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(record.header.warcFilename.toString().getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Profile
@@ -353,10 +353,10 @@ public abstract class WarcWriter {
             }
         }
         if (warcProfileStr != null) {
-            out.write(WarcConstants.FN_WARC_PROFILE.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcProfileStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_PROFILE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcProfileStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Identified-Payload-Type
@@ -369,10 +369,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcIdentifiedPayloadTypeStr != null) {
-            out.write(WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcIdentifiedPayloadTypeStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcIdentifiedPayloadTypeStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Segment-Number
@@ -385,10 +385,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcSegmentNumberStr != null) {
-            out.write(WarcConstants.FN_WARC_SEGMENT_NUMBER.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcSegmentNumberStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_SEGMENT_NUMBER.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcSegmentNumberStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Segment-Origin-Id
@@ -401,10 +401,10 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcSegmentOriginIdStr != null) {
-            out.write(WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID.getBytes());
-            out.write(": <".getBytes());
-            out.write(warcSegmentOriginIdStr.getBytes());
-            out.write(">\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID.getBytes());
+            outBuf.write(": <".getBytes());
+            outBuf.write(warcSegmentOriginIdStr.getBytes());
+            outBuf.write(">\r\n".getBytes());
         }
         /*
          * Warc-Segment-Total-Length
@@ -417,15 +417,18 @@ public abstract class WarcWriter {
             // Warning...
         }
         if (warcSegmentTotalLengthStr != null) {
-            out.write(WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH.getBytes());
-            out.write(": ".getBytes());
-            out.write(warcSegmentTotalLengthStr.getBytes());
-            out.write("\r\n".getBytes());
+            outBuf.write(WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcSegmentTotalLengthStr.getBytes());
+            outBuf.write("\r\n".getBytes());
         }
         /*
          * End Of Header
          */
-        out.write("\r\n".getBytes());
+        outBuf.write("\r\n".getBytes());
+        byte[] header = outBuf.toByteArray();
+        out.write(header);
+        return header;
     }
 
     /**
@@ -460,8 +463,8 @@ public abstract class WarcWriter {
      * @throws IOException if an exception occurs while closing the record
      */
     public void closeRecord() throws IOException {
-    	// TODO This can be written more than once per record.
-        out.write(endMark);
+        // TODO This can be written more than once per record.
+        out.write(WarcConstants.endMark);
     }
 
 }

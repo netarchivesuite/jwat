@@ -213,7 +213,7 @@ public class GzipReader {
                         );
             }
             if (gzipEntry.cm != GzipConstants.CM_DEFLATE) {
-            	// Currently only the deflate compression method is supported in GZip.
+                // Currently only the deflate compression method is supported in GZip.
                 gzipEntry.diagnostics.addError(
                         new Diagnosis(
                                 DiagnosisType.INVALID_EXPECTED,
@@ -223,8 +223,8 @@ public class GzipReader {
                             )
                         );
             } else {
-            	// Currently only the deflate compression method is supported in GZip.
-            	// Check to see whether some xfl reserved bits have been used.
+                // Currently only the deflate compression method is supported in GZip.
+                // Check to see whether some xfl reserved bits have been used.
                 if ((gzipEntry.xfl & GzipConstants.DEFLATE_XLF_RESERVED) != 0) {
                     gzipEntry.diagnostics.addWarning(
                             new Diagnosis(

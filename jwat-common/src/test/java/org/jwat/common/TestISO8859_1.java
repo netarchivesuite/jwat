@@ -32,9 +32,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestISO8859_1 {
 
-	/**
-	 * Test the ISO-8859-1 encoder.
-	 */
+    /**
+     * Test the ISO-8859-1 encoder.
+     */
     @Test
     public void test_iso8859_1_encode() {
         ISO8859_1 iso = new ISO8859_1();

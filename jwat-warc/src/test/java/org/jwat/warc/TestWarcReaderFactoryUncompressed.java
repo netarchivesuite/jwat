@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,9 +111,9 @@ public class TestWarcReaderFactoryUncompressed {
             reader = WarcReaderFactory.getReaderUncompressed();
 
             reader.setBlockDigestEnabled( true );
-            reader.setBlockDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( true );
-            reader.setPayloadDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -184,9 +183,9 @@ public class TestWarcReaderFactoryUncompressed {
             reader = WarcReaderFactory.getReaderUncompressed(in);
 
             reader.setBlockDigestEnabled( true );
-            reader.setBlockDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( true );
-            reader.setPayloadDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -255,9 +254,9 @@ public class TestWarcReaderFactoryUncompressed {
             reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
 
             reader.setBlockDigestEnabled( true );
-            reader.setBlockDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( true );
-            reader.setPayloadDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -309,8 +308,6 @@ public class TestWarcReaderFactoryUncompressed {
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected io exception");
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail("Unexpected algorithm exception");
         }
     }
 
@@ -335,9 +332,9 @@ public class TestWarcReaderFactoryUncompressed {
             WarcReader reader = WarcReaderFactory.getReader(in);
 
             reader.setBlockDigestEnabled( true );
-            reader.setBlockDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( true );
-            reader.setPayloadDigestAlgorithm( "sha1" );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             Iterator<WarcRecord> recordIterator = reader.iterator();
             WarcRecord record;
@@ -386,8 +383,6 @@ public class TestWarcReaderFactoryUncompressed {
             in.close();
         } catch (IOException e) {
             Assert.fail("Unexpected io exception");
-        } catch (NoSuchAlgorithmException e) {
-            Assert.fail("Unexpected algorithm exception");
         }
 
         Assert.assertEquals(expected_records, records);

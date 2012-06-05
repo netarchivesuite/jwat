@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -36,7 +35,6 @@ public class TestParams {
 
     @Test
     public void test_parameters() throws IOException {
-        String str;
         InputStream is;
         ByteArrayOutputStream out;
 
@@ -78,9 +76,9 @@ public class TestParams {
 
         byte[] digestBytes = new byte[16];
         for (int i=0; i<digestBytes.length; ++i) {
-        	digestBytes[i] = (byte)i;
+            digestBytes[i] = (byte)i;
         }
-    	digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "BASE16", Base16.encodeArray(digestBytes));
+        digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "BASE16", Base16.encodeArray(digestBytes));
         Assert.assertNotNull(digest);
         Assert.assertEquals("sha1", digest.algorithm);
         Assert.assertArrayEquals(digestBytes, digest.digestBytes);
@@ -88,6 +86,39 @@ public class TestParams {
         Assert.assertEquals(Base16.encodeArray(digestBytes), digest.digestString);
         Assert.assertEquals("sha1:" + Base16.encodeArray(digestBytes), digest.toString());
         Assert.assertEquals("sha1:base16:" + Base16.encodeArray(digestBytes), digest.toStringFull());
+
+        try {
+            digest = WarcDigest.createWarcDigest(null, digestBytes, "BASE16", Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("", digestBytes, "BASE16", Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", null, "BASE16", Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", new byte[0], "BASE16", Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", digestBytes, null, Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "", Base16.encodeArray(digestBytes));
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "BASE16", null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            digest = WarcDigest.createWarcDigest("SHA1", digestBytes, "BASE16", "");
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
 
         /*
          * Date.
@@ -110,6 +141,11 @@ public class TestParams {
         warcDate = WarcDateParser.getDate("2011-12-24T19:30:00Z");
         Assert.assertNotNull(warcDate);
 
+        Date date = new Date(0);
+        String dateStr = WarcDateParser.getDateFormat().format(date);
+        warcDate = WarcDateParser.getDate(dateStr);
+        Assert.assertNull(warcDate);
+
         /*
          * WarcReaderUncompressed.
          */
@@ -131,21 +167,25 @@ public class TestParams {
         readerUncompressed.setPayloadDigestEnabled(false);
         Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
 
-        try {
-            Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
-            readerUncompressed.setBlockDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerUncompressed.getBlockDigestAlgorithm());
-            readerUncompressed.setBlockDigestAlgorithm(null);
-            Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm(null));
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm(""));
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertFalse(readerUncompressed.setBlockDigestAlgorithm("shaft1"));
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm(null));
 
-            Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-            readerUncompressed.setPayloadDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
-            readerUncompressed.setPayloadDigestAlgorithm(null);
-            Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-        } catch (NoSuchAlgorithmException e1) {
-            Assert.fail("Unexpected exception!");
-        }
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm(null));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm(""));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertFalse(readerUncompressed.setPayloadDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
 
         Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
         readerUncompressed.setBlockDigestEncoding("BASE16");
@@ -244,21 +284,25 @@ public class TestParams {
         readerCompressed.setPayloadDigestEnabled(false);
         Assert.assertFalse(readerCompressed.getPayloadDigestEnabled());
 
-        try {
-            Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
-            readerCompressed.setBlockDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerCompressed.getBlockDigestAlgorithm());
-            readerCompressed.setBlockDigestAlgorithm(null);
-            Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm(null));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm(""));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertFalse(readerCompressed.setBlockDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
 
-            Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-            readerCompressed.setPayloadDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
-            readerCompressed.setPayloadDigestAlgorithm(null);
-            Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-        } catch (NoSuchAlgorithmException e1) {
-            Assert.fail("Unexpected exception!");
-        }
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm(null));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm(""));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertFalse(readerCompressed.setPayloadDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
 
         Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
         readerUncompressed.setBlockDigestEncoding("BASE16");

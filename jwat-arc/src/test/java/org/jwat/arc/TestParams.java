@@ -20,7 +20,6 @@ package org.jwat.arc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import junit.framework.Assert;
@@ -45,22 +44,27 @@ public class TestParams {
          * Date.
          */
 
-        Date warcDate;
+        Date arcDate;
 
-        warcDate = ArcDateParser.getDate(null);
-        Assert.assertNull(warcDate);
+        arcDate = ArcDateParser.getDate(null);
+        Assert.assertNull(arcDate);
 
-        warcDate = ArcDateParser.getDate("");
-        Assert.assertNull(warcDate);
+        arcDate = ArcDateParser.getDate("");
+        Assert.assertNull(arcDate);
 
-        warcDate = ArcDateParser.getDate("fail");
-        Assert.assertNull(warcDate);
+        arcDate = ArcDateParser.getDate("fail");
+        Assert.assertNull(arcDate);
 
-        warcDate = ArcDateParser.getDate("yyyyMMddHHmmss");
-        Assert.assertNull(warcDate);
+        arcDate = ArcDateParser.getDate("yyyyMMddHHmmss");
+        Assert.assertNull(arcDate);
 
-        warcDate = ArcDateParser.getDate("20111224193000");
-        Assert.assertNotNull(warcDate);
+        arcDate = ArcDateParser.getDate("20111224193000");
+        Assert.assertNotNull(arcDate);
+
+        Date date = new Date(0);
+        String dateStr = ArcDateParser.getDateFormat().format(date);
+        arcDate = ArcDateParser.getDate(dateStr);
+        Assert.assertNull(arcDate);
 
         /*
          * ArcVersion.
@@ -104,21 +108,25 @@ public class TestParams {
         readerUncompressed.setPayloadDigestEnabled(false);
         Assert.assertFalse(readerUncompressed.getPayloadDigestEnabled());
 
-        try {
-            Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
-            readerUncompressed.setBlockDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerUncompressed.getBlockDigestAlgorithm());
-            readerUncompressed.setBlockDigestAlgorithm(null);
-            Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm(null));
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setBlockDigestAlgorithm(""));
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
+        Assert.assertFalse(readerUncompressed.setBlockDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerUncompressed.getBlockDigestAlgorithm());
 
-            Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-            readerUncompressed.setPayloadDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
-            readerUncompressed.setPayloadDigestAlgorithm(null);
-            Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-        } catch (NoSuchAlgorithmException e1) {
-            Assert.fail("Unexpected exception!");
-        }
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm(null));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerUncompressed.setPayloadDigestAlgorithm(""));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+        Assert.assertFalse(readerUncompressed.setPayloadDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
 
         readerUncompressed = new ArcReaderUncompressed();
         try {
@@ -211,21 +219,25 @@ public class TestParams {
         readerCompressed.setPayloadDigestEnabled(false);
         Assert.assertFalse(readerCompressed.getPayloadDigestEnabled());
 
-        try {
-            Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
-            readerCompressed.setBlockDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerCompressed.getBlockDigestAlgorithm());
-            readerCompressed.setBlockDigestAlgorithm(null);
-            Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm(null));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setBlockDigestAlgorithm(""));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
+        Assert.assertFalse(readerCompressed.setBlockDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerCompressed.getBlockDigestAlgorithm());
 
-            Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-            readerCompressed.setPayloadDigestAlgorithm("sha1");
-            Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
-            readerCompressed.setPayloadDigestAlgorithm(null);
-            Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-        } catch (NoSuchAlgorithmException e1) {
-            Assert.fail("Unexpected exception!");
-        }
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm("sha1"));
+        Assert.assertNotNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm(null));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertTrue(readerCompressed.setPayloadDigestAlgorithm(""));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+        Assert.assertFalse(readerCompressed.setPayloadDigestAlgorithm("shaft1"));
+        Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
 
         readerCompressed = new ArcReaderCompressed();
         try {

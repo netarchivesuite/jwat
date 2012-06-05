@@ -665,9 +665,9 @@ public class HeaderLineReader {
             }
             break;
         case ENC_ISO8859_1:
-        	// ISO-8859-1 utilizes all 8-bits and required no decoding.
+            // ISO-8859-1 utilizes all 8-bits and required no decoding.
         case ENC_RAW:
-        	// Raw 8-bit character needs no decoding.
+            // Raw 8-bit character needs no decoding.
         default:
              bValidChar = true;
             break;
@@ -721,10 +721,10 @@ public class HeaderLineReader {
      * @param diagnostics diagnostics object used to report diagnoses
      */
     public static void report_error(int bfErrors, Diagnostics<Diagnosis> diagnostics) {
-    	if (diagnostics == null) {
-    		throw new IllegalArgumentException("'diagnostics' argument is null");
-    	}
-    	if ((bfErrors & E_BIT_EOF) != 0) {
+        if (diagnostics == null) {
+            throw new IllegalArgumentException("'diagnostics' argument is null");
+        }
+        if ((bfErrors & E_BIT_EOF) != 0) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Unexpected EOF"));
         }
         if ((bfErrors & E_BIT_MISPLACED_CR) != 0) {

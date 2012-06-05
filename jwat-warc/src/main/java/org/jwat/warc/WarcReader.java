@@ -19,8 +19,6 @@ package org.jwat.warc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -73,10 +71,10 @@ public abstract class WarcReader {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
-    /** Max length of warc header, pushback size used. */
+    /** Max size allowed for a WARC header. */
     protected int warcHeaderMaxSize;
 
-    /** Max length of payload header, pushback size used. */
+    /** Max size allowed for a payload header. */
     protected int payloadHeaderMaxSize;
 
     /** Line reader used to read version lines. */
@@ -93,8 +91,8 @@ public abstract class WarcReader {
      * Must be called by all constructors.
      */
     protected void init() {
-    	warcHeaderMaxSize = 8192;
-    	payloadHeaderMaxSize = 8192;
+        warcHeaderMaxSize = 8192;
+        payloadHeaderMaxSize = 8192;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
         lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
@@ -172,15 +170,17 @@ public abstract class WarcReader {
      * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm block digest algorithm
      * (null means default block digest is disabled)
-     * @throws NoSuchAlgorithmException occurs in case the algorithm can not
-     * be identified
      */
-    public void setBlockDigestAlgorithm(String digestAlgorithm)
-                                            throws NoSuchAlgorithmException {
-        if (digestAlgorithm != null) {
-            MessageDigest.getInstance(digestAlgorithm);
+    public boolean setBlockDigestAlgorithm(String digestAlgorithm) {
+        if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
+            blockDigestAlgorithm = null;
+            return true;
         }
-        blockDigestAlgorithm = digestAlgorithm;
+        if (WarcDigest.digestAlgorithmLength(digestAlgorithm) > 0) {
+            blockDigestAlgorithm = digestAlgorithm;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -196,15 +196,17 @@ public abstract class WarcReader {
      * in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm payload digest algorithm
      * (null means default payload digest is disabled)
-     * @throws NoSuchAlgorithmException occurs in case the algorithm can not
-     * be identified
      */
-    public void setPayloadDigestAlgorithm(String digestAlgorithm)
-            throws NoSuchAlgorithmException {
-        if (digestAlgorithm != null) {
-            MessageDigest.getInstance(digestAlgorithm);
+    public boolean setPayloadDigestAlgorithm(String digestAlgorithm) {
+        if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
+            payloadDigestAlgorithm = null;
+            return true;
         }
-        payloadDigestAlgorithm = digestAlgorithm;
+        if (WarcDigest.digestAlgorithmLength(digestAlgorithm) > 0) {
+            payloadDigestAlgorithm = digestAlgorithm;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -249,6 +251,38 @@ public abstract class WarcReader {
         } else {
             payloadDigestEncoding = null;
         }
+    }
+
+    /**
+     * Get the max size allowed for a WARC header.
+     * @return max size allowed for a WARC header
+     */
+    public int getWarcHeaderMaxSize() {
+        return warcHeaderMaxSize;
+    }
+
+    /**
+     * Set the max size allowed for a WARC header.
+     * @param size max size allowed
+     */
+    public void setWarcHeaderMaxSize(int size) {
+        warcHeaderMaxSize = size;
+    }
+
+    /**
+     * Get the max size allowed for a payload header.
+     * @return max size allowed for a payload header
+     */
+    public int getPayloadHeaderMaxSize() {
+        return payloadHeaderMaxSize;
+    }
+
+    /**
+     * Set the max size allowed for a payload header.
+     * @param size max size allowed
+     */
+    public void setPayloadHeaderMaxSize(int size) {
+        payloadHeaderMaxSize = size;
     }
 
     /**
