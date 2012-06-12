@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
-import org.jwat.common.HttpResponse;
+import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 
 /**
@@ -121,28 +121,28 @@ public class ArcRecord extends ArcRecordBase {
             payload = Payload.processPayload(in, recLength.longValue(),
                                   PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
             payload.setOnClosedHandler(this);
-            if (HttpResponse.isSupported(protocol)
+            if (HttpHeader.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                                     recContentType)) {
                 digestAlgorithm = null;
                 if (reader.bPayloadDigest) {
                     digestAlgorithm = reader.payloadDigestAlgorithm;
                 }
-                httpResponse = HttpResponse.processPayload(
+                httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
                             payload.getInputStream(), recLength.longValue(),
                             digestAlgorithm);
-                if (httpResponse != null) {
-                    if (httpResponse.isValid()) {
-                        payload.setHttpResponse(httpResponse);
+                if (httpHeader != null) {
+                    if (httpHeader.isValid()) {
+                        payload.setHttpHeader(httpHeader);
                     } else {
                         diagnostics.addError(
                                 new Diagnosis(DiagnosisType.ERROR,
-                                        "http response",
-                                        "Unable to parse http response!"));
+                                        "http header",
+                                        "Unable to parse http header!"));
                     }
                 }
             }
-        } else if (HttpResponse.isSupported(protocol)
+        } else if (HttpHeader.isSupported(protocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                                     recContentType)) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
@@ -180,8 +180,8 @@ public class ArcRecord extends ArcRecordBase {
         builder.append("\nArcRecord [");
         builder.append(super.toString());
         builder.append(']');
-        if (httpResponse != null) {
-            builder.append(httpResponse.toString());
+        if (httpHeader != null) {
+            builder.append(httpHeader.toString());
         }
         return builder.toString();
     }

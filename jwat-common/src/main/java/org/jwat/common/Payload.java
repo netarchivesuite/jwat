@@ -68,7 +68,7 @@ public class Payload {
     protected int pushback_size;
 
     /** HttpResponse payload, if present. */
-    protected HttpResponse httpResponse;
+    protected HttpHeader httpHeader;
 
     /** Handler called when this payloads stream has been fully consumed. */
     protected PayloadOnClosedHandler onClosedHandler;
@@ -175,19 +175,19 @@ public class Payload {
     }
 
     /**
-     * Set http response object in case of recognized payload content.
-     * @param httpResponse http response payload object
+     * Set http header object in case of recognized payload content.
+     * @param httpHeader http header payload object
      */
-    public void setHttpResponse(HttpResponse httpResponse) {
-        this.httpResponse = httpResponse;
+    public void setHttpHeader(HttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
     }
 
     /**
-     * Get the <code>HttpResponse</code> object associated with this payload.
-     * @return <code>HttpResponse</code> object or null
+     * Get the <code>HttpHeader</code> object associated with this payload.
+     * @return <code>HttpHeader</code> object or null
      */
-    public HttpResponse getHttpResponse() {
-        return httpResponse;
+    public HttpHeader getHttpHeader() {
+        return httpHeader;
     }
 
     /**
@@ -196,8 +196,8 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data (in)directly.
      */
     public InputStream getInputStreamComplete() {
-        if (httpResponse != null) {
-            return httpResponse.getInputStreamComplete();
+        if (httpHeader != null) {
+            return httpHeader.getInputStreamComplete();
         } else {
             return in_pb_exposed;
         }
@@ -220,8 +220,8 @@ public class Payload {
      * @throws IOException if an io error occurs calling available method on stream
      */
     public long getRemaining() throws IOException {
-        if (httpResponse != null) {
-            return httpResponse.getPayloadInputStream().available();
+        if (httpHeader != null) {
+            return httpHeader.getPayloadInputStream().available();
         } else {
             return in_pb_exposed.available();
         }
@@ -241,8 +241,8 @@ public class Payload {
      */
     public void close() throws IOException {
         if (!bClosed) {
-            if (httpResponse != null) {
-                httpResponse.close();
+            if (httpHeader != null) {
+                httpHeader.close();
             }
             if (md != null) {
                 // Skip remaining unread bytes to ensure payload is completely

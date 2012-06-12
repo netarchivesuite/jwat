@@ -83,7 +83,7 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
         byte[] dstArr;
 
         Payload payload;
-        HttpResponse httpResponse;
+        HttpHeader httpHeader;
 
         InputStream in;
         long remaining;
@@ -122,27 +122,29 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     //payload.setOnClosedHandler( this );
                     Assert.assertEquals(srcArr.length, payload.getTotalLength());
                     /*
-                     * HttpResponse.
+                     * HttpHeader.
                      */
-                    httpResponse = HttpResponse.processPayload(payload.getInputStream(),
-                            payload.getTotalLength(), digestAlgorithm);
-                    if (httpResponse != null) {
-                        payload.setHttpResponse(httpResponse);
+                    httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
+                            payload.getInputStream(),
+                            payload.getTotalLength(),
+                            digestAlgorithm);
+                    if (httpHeader != null) {
+                        payload.setHttpHeader(httpHeader);
                     }
-                    Assert.assertTrue(httpResponse.isValid());
-                    Assert.assertNotNull(httpResponse);
-                    Assert.assertEquals(httpResponse, payload.httpResponse);
-                    Assert.assertEquals(httpResponse, payload.getHttpResponse());
+                    Assert.assertTrue(httpHeader.isValid());
+                    Assert.assertNotNull(httpHeader);
+                    Assert.assertEquals(httpHeader, payload.httpHeader);
+                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
 
-                    in = httpResponse.getPayloadInputStream();
-                    Assert.assertEquals(in, httpResponse.getPayloadInputStream());
+                    in = httpHeader.getPayloadInputStream();
+                    Assert.assertEquals(in, httpHeader.getPayloadInputStream());
                     Assert.assertEquals( srcArr.length, payload.getTotalLength() );
-                    Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
+                    Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
                     Assert.assertEquals( 8192, payload.getPushbackSize() );
 
                     dstOut.reset();
 
-                    remaining = httpResponse.getTotalLength() - httpResponse.getHeader().length;
+                    remaining = httpHeader.getTotalLength() - httpHeader.getHeader().length;
                     read = 0;
                     while ( remaining > 0 && read != -1 ) {
                         dstOut.write(tmpBuf, 0, read);
@@ -157,38 +159,42 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     }
 
                     Assert.assertEquals( 0, remaining );
-                    Assert.assertEquals( 0, httpResponse.getUnavailable() );
-                    Assert.assertEquals( 0, httpResponse.getRemaining() );
+                    Assert.assertEquals( 0, httpHeader.getUnavailable() );
+                    Assert.assertEquals( 0, httpHeader.getRemaining() );
                     Assert.assertEquals( 0, payload.getUnavailable() );
                     Assert.assertEquals( 0, payload.getRemaining() );
 
-                    Assert.assertArrayEquals(headerArr, httpResponse.getHeader());
+                    Assert.assertArrayEquals(headerArr, httpHeader.getHeader());
 
                     dstArr = dstOut.toByteArray();
                     Assert.assertEquals( payloadArr.length, dstArr.length );
                     Assert.assertArrayEquals( payloadArr, dstArr );
 
-                    Assert.assertFalse(httpResponse.isClosed());
+                    Assert.assertFalse(httpHeader.isClosed());
                     Assert.assertFalse(payload.isClosed());
                     in.close();
-                    Assert.assertFalse(httpResponse.isClosed());
+                    Assert.assertFalse(httpHeader.isClosed());
                     Assert.assertFalse(payload.isClosed());
 
-                    Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
-                    Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
-                    Assert.assertEquals( new Integer(200), httpResponse.getProtocolResultCode() );
-                    Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
-                    Assert.assertEquals( n, httpResponse.getPayloadLength() );
+                    Assert.assertEquals( "HTTP/1.1", httpHeader.getProtocolVersion() );
+                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMajor );
+                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMinor );
+                    Assert.assertEquals( "200", httpHeader.getProtocolStatusCodeStr() );
+                    Assert.assertEquals( new Integer(200), httpHeader.getProtocolStatusCode() );
+                    Assert.assertEquals( null, httpHeader.method );
+                    Assert.assertEquals( null, httpHeader.requestUri);
+                    Assert.assertEquals( "text/html; charset=UTF-8", httpHeader.getProtocolContentType() );
+                    Assert.assertEquals( n, httpHeader.getPayloadLength() );
 
                     payload.close();
-                    Assert.assertTrue(httpResponse.isClosed());
+                    Assert.assertTrue(httpHeader.isClosed());
                     Assert.assertTrue(payload.isClosed());
-                    httpResponse.close();
+                    httpHeader.close();
 
-                    Assert.assertNotNull( httpResponse.toString() );
+                    Assert.assertNotNull( httpHeader.toString() );
 
                     in.close();
-                    httpResponse.close();
+                    httpHeader.close();
                     payload.close();
                     /*
                      * HttpResponse Payload Digest.
@@ -200,13 +206,13 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpResponse.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getMessageDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpResponse.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpResponse.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getMessageDigest() );
                     }
                     /*
                      * Payload.
@@ -216,28 +222,30 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     //payload.setOnClosedHandler( this );
                     Assert.assertEquals(srcArr.length, payload.getTotalLength());
                     /*
-                     * HttpResponse Complete
+                     * HttpHeader Complete
                      */
-                    httpResponse = HttpResponse.processPayload(payload.getInputStream(),
-                            payload.getTotalLength(), digestAlgorithm);
-                    if (httpResponse != null) {
-                        payload.setHttpResponse(httpResponse);
+                    httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
+                            payload.getInputStream(),
+                            payload.getTotalLength(),
+                            digestAlgorithm);
+                    if (httpHeader != null) {
+                        payload.setHttpHeader(httpHeader);
                     }
-                    Assert.assertTrue(httpResponse.isValid());
-                    Assert.assertNotNull(httpResponse);
-                    Assert.assertEquals(httpResponse, payload.httpResponse);
-                    Assert.assertEquals(httpResponse, payload.getHttpResponse());
+                    Assert.assertTrue(httpHeader.isValid());
+                    Assert.assertNotNull(httpHeader);
+                    Assert.assertEquals(httpHeader, payload.httpHeader);
+                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
 
-                    in = httpResponse.getInputStreamComplete();
-                    Assert.assertEquals(in, httpResponse.getInputStreamComplete());
+                    in = httpHeader.getInputStreamComplete();
+                    Assert.assertEquals(in, httpHeader.getInputStreamComplete());
                     Assert.assertEquals(in, payload.getInputStreamComplete());
                     Assert.assertEquals( srcArr.length, payload.getTotalLength() );
-                    Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
+                    Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
                     Assert.assertEquals( 8192, payload.getPushbackSize() );
 
                     dstOut.reset();
 
-                    remaining = httpResponse.getTotalLength();
+                    remaining = httpHeader.getTotalLength();
                     read = 0;
                     while ( remaining > 0 && read != -1 ) {
                         dstOut.write(tmpBuf, 0, read);
@@ -252,41 +260,45 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     }
 
                     Assert.assertEquals( 0, remaining );
-                    Assert.assertEquals( 0, httpResponse.getUnavailable() );
-                    Assert.assertEquals( 0, httpResponse.getRemaining() );
+                    Assert.assertEquals( 0, httpHeader.getUnavailable() );
+                    Assert.assertEquals( 0, httpHeader.getRemaining() );
                     Assert.assertEquals( 0, payload.getUnavailable() );
                     Assert.assertEquals( 0, payload.getRemaining() );
 
-                    Assert.assertArrayEquals(headerArr, httpResponse.getHeader());
+                    Assert.assertArrayEquals(headerArr, httpHeader.getHeader());
 
                     dstArr = dstOut.toByteArray();
                     Assert.assertEquals( srcArr.length, dstArr.length );
                     Assert.assertArrayEquals( srcArr, dstArr );
 
-                    Assert.assertFalse(httpResponse.isClosed());
+                    Assert.assertFalse(httpHeader.isClosed());
                     Assert.assertFalse(payload.isClosed());
                     in.close();
-                    Assert.assertFalse(httpResponse.isClosed());
+                    Assert.assertFalse(httpHeader.isClosed());
                     Assert.assertFalse(payload.isClosed());
 
-                    Assert.assertEquals( "HTTP/1.1", httpResponse.getProtocolVersion() );
-                    Assert.assertEquals( "200", httpResponse.getProtocolResultCodeStr() );
-                    Assert.assertEquals( new Integer(200), httpResponse.getProtocolResultCode() );
-                    Assert.assertEquals( "text/html; charset=UTF-8", httpResponse.getProtocolContentType() );
-                    Assert.assertEquals( n, httpResponse.getPayloadLength() );
+                    Assert.assertEquals( "HTTP/1.1", httpHeader.getProtocolVersion() );
+                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMajor );
+                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMinor );
+                    Assert.assertEquals( "200", httpHeader.getProtocolStatusCodeStr() );
+                    Assert.assertEquals( new Integer(200), httpHeader.getProtocolStatusCode() );
+                    Assert.assertEquals( null, httpHeader.method );
+                    Assert.assertEquals( null, httpHeader.requestUri);
+                    Assert.assertEquals( "text/html; charset=UTF-8", httpHeader.getProtocolContentType() );
+                    Assert.assertEquals( n, httpHeader.getPayloadLength() );
 
                     payload.close();
-                    Assert.assertTrue(httpResponse.isClosed());
+                    Assert.assertTrue(httpHeader.isClosed());
                     Assert.assertTrue(payload.isClosed());
-                    httpResponse.close();
+                    httpHeader.close();
 
-                    Assert.assertNotNull( httpResponse.toString() );
+                    Assert.assertNotNull( httpHeader.toString() );
 
                     in.close();
-                    httpResponse.close();
+                    httpHeader.close();
                     payload.close();
                     /*
-                     * HttpResponse Payload Digest.
+                     * HttpHeader Payload Digest.
                      */
                     if ( digestAlgorithm != null ) {
                         Assert.assertNotNull( payload.getMessageDigest() );
@@ -295,13 +307,13 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpResponse.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getMessageDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpResponse.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpResponse.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getMessageDigest() );
                     }
                     /*
                      * Payload.
@@ -313,20 +325,22 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                     /*
                      * HttpResponse Complete
                      */
-                    httpResponse = HttpResponse.processPayload(payload.getInputStream(),
-                    payload.getTotalLength(), digestAlgorithm);
-                    if (httpResponse != null) {
-                        payload.setHttpResponse(httpResponse);
+                    httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
+                            payload.getInputStream(),
+                            payload.getTotalLength(),
+                            digestAlgorithm);
+                    if (httpHeader != null) {
+                        payload.setHttpHeader(httpHeader);
                     }
-                    Assert.assertTrue(httpResponse.isValid());
-                    Assert.assertNotNull(httpResponse);
-                    Assert.assertEquals(httpResponse, payload.httpResponse);
-                    Assert.assertEquals(httpResponse, payload.getHttpResponse());
+                    Assert.assertTrue(httpHeader.isValid());
+                    Assert.assertNotNull(httpHeader);
+                    Assert.assertEquals(httpHeader, payload.httpHeader);
+                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
 
                     in = payload.getInputStreamComplete();
-                    Assert.assertEquals( httpResponse.getInputStreamComplete(), payload.getInputStreamComplete() );
+                    Assert.assertEquals( httpHeader.getInputStreamComplete(), payload.getInputStreamComplete() );
                     Assert.assertEquals( srcArr.length, payload.getTotalLength() );
-                    Assert.assertEquals( srcArr.length, httpResponse.getTotalLength() );
+                    Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
                     Assert.assertEquals( 8192, payload.getPushbackSize() );
 
                     dstOut.reset();
@@ -372,10 +386,10 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpResponse.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getMessageDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpResponse.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getMessageDigest().digest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
                         Assert.assertNull( payload.getMessageDigest() );

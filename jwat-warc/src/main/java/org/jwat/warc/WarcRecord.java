@@ -32,7 +32,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
-import org.jwat.common.HttpResponse;
+import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 
@@ -87,8 +87,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Payload object if any exists. */
     protected Payload payload;
 
-    /** HttpResponse header content parse from payload. */
-    protected HttpResponse httpResponse;
+    /** HTTP header content parsed from payload. */
+    protected HttpHeader httpHeader;
 
     /** Computed block digest. */
     public WarcDigest computedBlockDigest;
@@ -153,14 +153,20 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                          reader.payloadHeaderMaxSize, digestAlgorithm);
                 record.payload.setOnClosedHandler(record);
                 /*
-                 * HttpResponse.
+                 * HttpHeader.
                  */
                 if (header.contentType != null
                         && header.contentType.contentType.equals("application")
                         && header.contentType.mediaType.equals("http")) {
                     String value = header.contentType.getParameter("msgtype");
                     // request
-                    if ("response".equals(value)) {
+                    int httpHeaderType = 0;
+                    if ("response".equalsIgnoreCase(value)) {
+                        httpHeaderType = HttpHeader.HT_RESPONSE;
+                    } else if ("request".equalsIgnoreCase(value)) {
+                        httpHeaderType = HttpHeader.HT_REQUEST;
+                    }
+                    if (httpHeaderType != 0) {
                         digestAlgorithm = null;
                         if (reader.bPayloadDigest) {
                             if (header.warcPayloadDigest != null && header.warcPayloadDigest.algorithm != null) {
@@ -174,17 +180,17 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 digestAlgorithm = reader.payloadDigestAlgorithm;
                             }
                         }
-                        record.httpResponse = HttpResponse.processPayload(
+                        record.httpHeader = HttpHeader.processPayload(httpHeaderType,
                                 record.payload.getInputStream(), header.contentLength,
                                 digestAlgorithm);
-                        if (record.httpResponse != null) {
-                            if (record.httpResponse.isValid()) {
-                                record.payload.setHttpResponse(record.httpResponse);
+                        if (record.httpHeader != null) {
+                            if (record.httpHeader.isValid()) {
+                                record.payload.setHttpHeader(record.httpHeader);
                             } else {
                                 record.diagnostics.addError(
                                         new Diagnosis(DiagnosisType.ERROR,
-                                                "http response",
-                                                "Unable to parse http response!"));
+                                                "http header",
+                                                "Unable to parse http header!"));
                             }
                         }
                     }
@@ -244,11 +250,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     processComputedDigest(computedBlockDigest,
                             reader.blockDigestAlgorithm, reader.blockDigestEncoding, "block");
                 }
-                if (httpResponse != null && httpResponse.isValid()) {
+                if (httpHeader != null && httpHeader.isValid()) {
                     /*
                      * Check payload digest.
                      */
-                    md = httpResponse.getMessageDigest();
+                    md = httpHeader.getMessageDigest();
                     // Check for computed payload digest.
                     if (md != null) {
                         computedPayloadDigest = new WarcDigest();

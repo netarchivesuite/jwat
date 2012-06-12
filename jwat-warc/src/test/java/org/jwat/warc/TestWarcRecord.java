@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.HttpHeader;
 
 @RunWith(JUnit4.class)
 public class TestWarcRecord extends TestWarcRecordHelper {
@@ -198,7 +199,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 2:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
@@ -209,7 +210,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 3:
                     Assert.assertEquals(2, record.diagnostics.getErrors().size());
@@ -221,7 +222,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 4:
                     Assert.assertEquals(3, record.diagnostics.getErrors().size());
@@ -234,7 +235,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 5:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
@@ -249,7 +250,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 6:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
@@ -264,7 +265,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 }
                 Assert.assertNull(record.computedBlockDigest);
@@ -299,10 +300,12 @@ public class TestWarcRecord extends TestWarcRecordHelper {
      * http header so low the http header can not be fully read.
      */
     @Test
-    public void test_warcrecord_httpresponse() {
+    public void test_warcrecord_httpheader() {
         Object[][] warcResponseHeaders = null;
-        byte[] httpHeaderBytes = null;
-        byte[] payloadBytes = null;
+        byte[] httpResponseHeaderBytes = null;
+        byte[] responsePayloadBytes = null;
+        Object[][] warcRequestHeaders = null;
+        byte[] httpRequestHeaderBytes = null;
         Object[][] expectedDiagnoses;
 
         warcResponseHeaders = new Object[][] {
@@ -314,7 +317,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 {"Content-Length", "782"}
         };
 
-        String httpHeader =
+        String httpResponseHeader =
                 "HTTP/1.1 200 OK\r\n"
                 + "Date: Wed, 30 Apr 2008 20:48:24 GMT\r\n"
                 + "Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g\r\n"
@@ -326,7 +329,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 + "Content-Type: text/plain; charset=UTF-8\r\n"
                 + "\r\n";
 
-        String payload =
+        String responsePayload =
                 "##############################################\n"
                 +"#\n"
                 + "# Welcome to the Archive!\n"
@@ -344,15 +347,35 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 + "User-agent: Teoma\n"
                 + "Crawl-Delay: 10\n";
 
+        warcRequestHeaders = new Object[][] {
+                {"WARC-Type", "request"},
+                {"WARC-Target-URI", "http://www.archive.org/robots.txt"},
+                {"WARC-Date", "2008-04-30T20:48:25Z"},
+                {"WARC-Concurrent-To", "<urn:uuid:e7c9eff8-f5bc-4aeb-b3d2-9d3df99afb30>"},
+                {"WARC-Record-ID", "<urn:uuid:fe11aa54-f8a7-4795-8cba-595f689a688f>"},
+                {"Content-Length", "238"}
+        };
+
+        String httpRequestHeader =
+                "GET /robots.txt HTTP/1.0\r\n"
+                + "User-Agent: Mozilla/5.0 (compatible; heritrix/1.14.0 +http://crawler.archive.org)\r\n"
+                + "From: archive-crawler-agent@lists.sourceforge.net\r\n"
+                + "Connection: close\r\n"
+                + "Referer: http://www.archive.org/\r\n"
+                + "Host: www.archive.org\r\n"
+                + "\r\n";
+
         try {
-            httpHeaderBytes = httpHeader.getBytes("ISO8859-1");
-            payloadBytes = payload.getBytes("ISO8859-1");
+            httpResponseHeaderBytes = httpResponseHeader.getBytes("ISO8859-1");
+            responsePayloadBytes = responsePayload.getBytes("ISO8859-1");
+            httpRequestHeaderBytes = httpRequestHeader.getBytes("ISO8859-1");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
-        Assert.assertEquals(467, payloadBytes.length);
-        Assert.assertEquals(782, httpHeaderBytes.length + payloadBytes.length);
+        Assert.assertEquals(467, responsePayloadBytes.length);
+        Assert.assertEquals(782, httpResponseHeaderBytes.length + responsePayloadBytes.length);
+        Assert.assertEquals(238, httpRequestHeaderBytes.length);
 
         WarcReader reader;
         WarcRecord record;
@@ -363,18 +386,43 @@ public class TestWarcRecord extends TestWarcRecordHelper {
 
             record = createRecord(writer, warcResponseHeaders, null, null);
             record.header.addHeader("Content-Type", "application/http; msgtype=custom");
-            writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+            writeRecord(writer, record, httpResponseHeaderBytes, responsePayloadBytes);
+            writer.closeRecord();
+
+            record = createRecord(writer, warcResponseHeaders, null, null);
+            record.header.addHeader("Content-Type", "application/http; msgtype=request");
+            writeRecord(writer, record, httpResponseHeaderBytes, responsePayloadBytes);
             writer.closeRecord();
 
             record = createRecord(writer, warcResponseHeaders, null, null);
             record.header.addHeader("Content-Type", "application/http; msgtype=response");
-            writeRecord(writer, record, httpHeaderBytes, payloadBytes);
+            writeRecord(writer, record, httpResponseHeaderBytes, responsePayloadBytes);
+            writer.closeRecord();
+
+            record = createRecord(writer, warcRequestHeaders, null, null);
+            record.header.addHeader("Content-Type", "application/http; msgtype=custom");
+            writeRecord(writer, record, httpRequestHeaderBytes, null);
+            writer.closeRecord();
+
+            record = createRecord(writer, warcRequestHeaders, null, null);
+            record.header.addHeader("Content-Type", "application/http; msgtype=response");
+            writeRecord(writer, record, httpRequestHeaderBytes, null);
+            writer.closeRecord();
+
+            record = createRecord(writer, warcRequestHeaders, null, null);
+            record.header.addHeader("Content-Type", "application/http; msgtype=request");
+            writeRecord(writer, record, httpRequestHeaderBytes, null);
             writer.closeRecord();
 
             writer.close();
 
             // debug
             //System.out.println(new String(out.toByteArray()));
+
+            Integer[] expectedHeaderTypes = {
+                    0, HttpHeader.HT_REQUEST, HttpHeader.HT_RESPONSE,
+                    0, HttpHeader.HT_RESPONSE, HttpHeader.HT_REQUEST
+            };
 
             reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
             reader.setBlockDigestEnabled(false);
@@ -386,6 +434,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 Assert.assertTrue(record.isClosed());
                 switch (recordNumber) {
                 case 1:
+                case 4:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
@@ -393,9 +442,24 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 2:
+                case 5:
+                    Assert.assertEquals(2, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+                    expectedDiagnoses = new Object[][] {
+                            {DiagnosisType.ERROR, "http header", 1},
+                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                    };
+                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    Assert.assertNotNull(record.payload);
+                    Assert.assertNotNull(record.httpHeader);
+                    Assert.assertFalse(record.httpHeader.isValid());
+                    Assert.assertEquals(expectedHeaderTypes[recordNumber - 1], new Integer(record.httpHeader.headerType));
+                    break;
+                case 3:
+                case 6:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
@@ -403,8 +467,9 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNotNull(record.httpResponse);
-                    Assert.assertTrue(record.httpResponse.isValid());
+                    Assert.assertNotNull(record.httpHeader);
+                    Assert.assertTrue(record.httpHeader.isValid());
+                    Assert.assertEquals(expectedHeaderTypes[recordNumber - 1], new Integer(record.httpHeader.headerType));
                     break;
                 }
                 Assert.assertNull(record.computedBlockDigest);
@@ -434,9 +499,9 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             reader.setPayloadDigestEnabled(false);
 
             Assert.assertEquals(8192, reader.warcHeaderMaxSize);
-            Assert.assertEquals(8192, reader.payloadHeaderMaxSize);
+            Assert.assertEquals(32768, reader.payloadHeaderMaxSize);
             Assert.assertEquals(8192, reader.getWarcHeaderMaxSize());
-            Assert.assertEquals(8192, reader.getPayloadHeaderMaxSize());
+            Assert.assertEquals(32768, reader.getPayloadHeaderMaxSize());
             reader.setWarcHeaderMaxSize(1024);
             reader.setPayloadHeaderMaxSize(4096);
             Assert.assertEquals(1024, reader.warcHeaderMaxSize);
@@ -453,6 +518,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 Assert.assertTrue(record.isClosed());
                 switch (recordNumber) {
                 case 1:
+                case 4:
                     Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
@@ -460,19 +526,23 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNull(record.httpResponse);
+                    Assert.assertNull(record.httpHeader);
                     break;
                 case 2:
+                case 3:
+                case 5:
+                case 6:
                     Assert.assertEquals(2, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.ERROR, "http response", 1},
+                            {DiagnosisType.ERROR, "http header", 1},
                             {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
-                    Assert.assertNotNull(record.httpResponse);
-                    Assert.assertFalse(record.httpResponse.isValid());
+                    Assert.assertNotNull(record.httpHeader);
+                    Assert.assertFalse(record.httpHeader.isValid());
+                    Assert.assertEquals(expectedHeaderTypes[recordNumber - 1], new Integer(record.httpHeader.headerType));
                     break;
                 }
                 Assert.assertNull(record.computedBlockDigest);
@@ -712,8 +782,8 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 expectedDiagnoses = (Object[][])expectedRecords[i][5];
                 compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                 Assert.assertNotNull(record.payload);
-                Assert.assertNotNull(record.httpResponse);
-                Assert.assertTrue(record.httpResponse.isValid());
+                Assert.assertNotNull(record.httpHeader);
+                Assert.assertTrue(record.httpHeader.isValid());
                 Assert.assertNull(record.header.warcBlockDigest);
                 Assert.assertNull(record.header.warcPayloadDigest);
                 Assert.assertNull(record.isValidBlockDigest);

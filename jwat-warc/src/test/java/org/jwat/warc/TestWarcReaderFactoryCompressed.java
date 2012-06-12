@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(Parameterized.class)
@@ -118,9 +119,25 @@ public class TestWarcReaderFactoryCompressed {
 
                     record.close();
 
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
+
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
-                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
                             Assert.fail( "Digest missing!" );
                         }
                     }
@@ -190,9 +207,25 @@ public class TestWarcReaderFactoryCompressed {
 
                     record.close();
 
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
+
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
-                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
                             Assert.fail( "Digest missing!" );
                         }
                     }
@@ -261,9 +294,25 @@ public class TestWarcReaderFactoryCompressed {
 
                     record.close();
 
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
+
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
-                                || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
                             Assert.fail( "Digest missing!" );
                         }
                     }
@@ -347,12 +396,28 @@ public class TestWarcReaderFactoryCompressed {
 
                 record.close();
 
+                // Test content-type and http response/request
+                if (record.header.contentType != null) {
+                    if ("application".equals(record.header.contentType.contentType)
+                            && "http".equals(record.header.contentType.mediaType)) {
+                        if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                            Assert.assertNotNull(record.payload);
+                            Assert.assertNotNull(record.httpHeader);
+                            Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                        } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                            Assert.assertNotNull(record.payload);
+                            Assert.assertNotNull(record.httpHeader);
+                            Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                        }
+                    }
+                }
+
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
                 if ( bDigest ) {
                     if ( (record.payload != null && record.computedBlockDigest == null)
-                            || (record.httpResponse != null && record.computedPayloadDigest == null) ) {
+                            || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
                         Assert.fail( "Digest missing!" );
                     }
                 }

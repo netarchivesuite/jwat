@@ -92,7 +92,7 @@ public abstract class WarcReader {
      */
     protected void init() {
         warcHeaderMaxSize = 8192;
-        payloadHeaderMaxSize = 8192;
+        payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
         lineReader.encoding = HeaderLineReader.ENC_US_ASCII;

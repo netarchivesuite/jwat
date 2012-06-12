@@ -46,13 +46,10 @@ public class ByteArrayOutputStreamWithUnread extends ByteArrayOutputStream {
      * @param b the int value whose low-order byte is to be unread.
      */
     public void unread(int b) {
-        --count;
-        if (count < 0) {
-            System.out.println(new String(buf));
-            System.out.println(1);
-            System.out.println(count);
-            throw new IllegalStateException("Can not unread more that buffered!");
+        if (count == 0) {
+            throw new IllegalArgumentException("Can not unread more that buffered!");
         }
+        --count;
     }
 
     /**
@@ -60,13 +57,10 @@ public class ByteArrayOutputStreamWithUnread extends ByteArrayOutputStream {
      * @param b the byte array to push back
      */
     public void unread(byte[] b) {
-        count -= b.length;
-        if (count < 0) {
-            System.out.println(new String(buf));
-            System.out.println(b.length);
-            System.out.println(count);
-            throw new IllegalStateException("Can not unread more that buffered!");
+        if (count < b.length) {
+            throw new IllegalArgumentException("Can not unread more that buffered!");
         }
+        count -= b.length;
     }
 
     /**
@@ -76,13 +70,10 @@ public class ByteArrayOutputStreamWithUnread extends ByteArrayOutputStream {
      * @param len the number of bytes to unread.
      */
     public void unread(byte[] b, int off, int len) {
-        count -= len;
-        if (count < 0) {
-            System.out.println(new String(buf));
-            System.out.println(len);
-            System.out.println(count);
-            throw new IllegalStateException("Can not unread more that buffered!");
+        if (count < len) {
+            throw new IllegalArgumentException("Can not unread more that buffered!");
         }
+        count -= len;
     }
 
 }

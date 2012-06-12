@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jwat.common.Diagnosis;
-import org.jwat.common.HttpResponse;
+import org.jwat.common.HttpHeader;
 
 public class RecordDebugBase {
 
@@ -75,11 +75,11 @@ public class RecordDebugBase {
         System.out.println( "      offset: " + arcRecord.recOffset );
         System.out.println( "    filename: " + arcRecord.recFilename );
         System.out.println( "      length: " + arcRecord.recLength );
-        if (arcRecord.httpResponse != null ) {
-            System.out.println( " result-code: " + arcRecord.httpResponse.resultCode );
-            System.out.println( "protocol-ver: " + arcRecord.httpResponse.protocolVersion );
-            System.out.println( "content-type: " + arcRecord.httpResponse.contentType );
-            System.out.println( " object-size: " + arcRecord.httpResponse.payloadLength );
+        if (arcRecord.httpHeader != null ) {
+            System.out.println( " result-code: " + arcRecord.httpHeader.statusCode );
+            System.out.println( "protocol-ver: " + arcRecord.httpHeader.httpVersion );
+            System.out.println( "content-type: " + arcRecord.httpHeader.contentType );
+            System.out.println( " object-size: " + arcRecord.httpHeader.payloadLength );
             //saveHttpResponse( arcRecord.recUrl, arcRecord.httpResponse );
         }
         //System.out.println( "      errors: " + arcRecord.hasErrors() );
@@ -133,8 +133,8 @@ public class RecordDebugBase {
         }
     }
 
-    public static void saveHttpResponse(String url, HttpResponse httpResponse) {
-        if ( "200".equals(httpResponse.resultCode) && url != null && url.length() > 0 && httpResponse.payloadLength > 0L ) {
+    public static void saveHttpResponse(String url, HttpHeader httpResponse) {
+        if ( "200".equals(httpResponse.statusCode) && url != null && url.length() > 0 && httpResponse.payloadLength > 0L ) {
             if ( url.startsWith("http://") ) {
                 int fidx = "http://".length();
                 fidx = url.indexOf( '/', fidx );

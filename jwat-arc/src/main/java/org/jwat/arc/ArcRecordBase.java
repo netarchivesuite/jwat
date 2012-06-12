@@ -33,7 +33,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
-import org.jwat.common.HttpResponse;
+import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 
@@ -158,8 +158,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Payload object if any exists. */
     protected Payload payload;
 
-    /** HttpResponse header content parsed from payload. */
-    protected HttpResponse httpResponse;
+    /** HTTP header content parsed from payload. */
+    protected HttpHeader httpHeader;
 
     /** Computed block digest. */
     public Digest computedBlockDigest;
@@ -353,11 +353,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                         }
                     }
                 }
-                if (httpResponse != null && httpResponse.isValid()) {
+                if (httpHeader != null && httpHeader.isValid()) {
                     /*
                      * Check payload digest.
                      */
-                    md = httpResponse.getMessageDigest();
+                    md = httpHeader.getMessageDigest();
                     if (md != null) {
                         computedPayloadDigest = new Digest();
                         computedPayloadDigest.digestBytes = md.digest();
