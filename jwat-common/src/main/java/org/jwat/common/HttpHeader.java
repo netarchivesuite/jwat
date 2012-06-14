@@ -194,7 +194,7 @@ public class HttpHeader {
         hh.totalLength = length;
         hh.in_flr = new MaxLengthRecordingInputStream(
                                         hh.in_pb, hh.in_pb.getPushbackSize());
-        hh.bIsValid = hh.readHttpResponse(hh.in_flr, length);
+        hh.bIsValid = hh.readHttpHeader(hh.in_flr, length);
         if (hh.bIsValid) {
             /*
              * Block Digest.
@@ -237,7 +237,7 @@ public class HttpHeader {
      * @return boolean indicating whether the http header could be read
      * @throws IOException io exception while reading http headers
      */
-    protected boolean readHttpResponse(MaxLengthRecordingInputStream in, long payloadLength)
+    protected boolean readHttpHeader(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
         PushbackInputStream pbin = new PushbackInputStream(in, 16);
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();

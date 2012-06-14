@@ -67,15 +67,6 @@ public class WarcWriterUncompressed extends WarcWriter {
     }
 
     @Override
-    public byte[] writeHeader(WarcRecord record) throws IOException {
-        if (record == null) {
-            throw new IllegalArgumentException(
-                    "The 'record' parameter is null!");
-        }
-        return writeHeader_impl(record);
-    }
-
-    @Override
     public void close() {
         try {
             if (out != null) {
@@ -86,6 +77,31 @@ public class WarcWriterUncompressed extends WarcWriter {
         }
         catch (IOException e) {
         }
+    }
+
+    @Override
+    public void closeRecord() throws IOException {
+    	if (state == S_HEADER_WRITTEN || state == S_PAYLOAD_WRITTEN) {
+        	closeRecord_impl();
+        	state = S_RECORD_CLOSED;
+    	} else if (state == S_INIT) {
+    		throw new IllegalStateException("Write a record before closing it!");
+    	}
+    }
+
+    @Override
+    public byte[] writeHeader(WarcRecord record) throws IOException {
+        if (record == null) {
+            throw new IllegalArgumentException(
+                    "The 'record' parameter is null!");
+        }
+        if (state == S_HEADER_WRITTEN) {
+        	throw new IllegalStateException("Headers written back to back!");
+        } else if (state == S_PAYLOAD_WRITTEN) {
+        	closeRecord_impl();
+        }
+        return writeHeader_impl(record);
+        //state = S_HEADER_WRITTEN;
     }
 
 }

@@ -58,6 +58,7 @@ public class TestParams {
         } catch (IllegalArgumentException e) {
         }
         reader = new GzipReader(in, 1024);
+        Assert.assertNotNull(reader);
 
         GzipWriter writer;
 

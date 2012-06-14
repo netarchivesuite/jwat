@@ -69,6 +69,7 @@ public class TestSkippingClose {
             while ((entry = reader.getNextEntry()) != null) {
                 entryIn = entry.getInputStream();
                 tmpStr = entry.toString();
+                Assert.assertNotNull(tmpStr);
                 Assert.assertEquals(1, entryIn.available());
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());

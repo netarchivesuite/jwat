@@ -30,11 +30,25 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
-    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
+	protected static final int S_INIT = 0;
+
+	protected static final int S_HEADER_WRITTEN = 1;
+
+	protected static final int S_PAYLOAD_WRITTEN = 2;
+
+	protected static final int S_RECORD_CLOSED = 3;
+
+	/** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat = WarcDateParser.getDateFormat();
+
+    /** Current state of writer. */
+    protected int state = S_INIT;
 
     /** Outputstream used to write WARC records. */
     protected OutputStream out;
+
+    /** Buffer used by streamPayload() to copy from one stream to another. */
+    protected byte[] stream_copy_buffer = new byte[8192];
 
     /** Block Digesting enabled/disabled. */
     protected boolean bDigestBlock = false;
@@ -78,6 +92,20 @@ public abstract class WarcWriter {
     public abstract void close();
 
     /**
+     * Close the WARC record.
+     * @throws IOException if an exception occurs while closing the record
+     */
+    public abstract void closeRecord() throws IOException;
+
+    /**
+     * Close the WARC record by writing two newlines.
+     * @throws IOException if an exception occurs while closing the record
+     */
+    protected void closeRecord_impl() throws IOException {
+        out.write(WarcConstants.endMark);
+    }
+
+    /**
      * Write a raw WARC header to the WARC output stream.
      * @param header_bytes raw WARC record to output
      * @throws IOException if an exception occurs while writing header data
@@ -87,7 +115,13 @@ public abstract class WarcWriter {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
         }
+        if (state == S_HEADER_WRITTEN) {
+        	throw new IllegalStateException("Headers written back to back!");
+        } else if (state == S_PAYLOAD_WRITTEN) {
+        	closeRecord_impl();
+        }
         out.write(header_bytes);
+        state = S_HEADER_WRITTEN;
     }
 
     /**
@@ -428,6 +462,7 @@ public abstract class WarcWriter {
         outBuf.write("\r\n".getBytes());
         byte[] header = outBuf.toByteArray();
         out.write(header);
+        state = S_HEADER_WRITTEN;
         return header;
     }
 
@@ -447,24 +482,18 @@ public abstract class WarcWriter {
             throw new IllegalArgumentException(
                     "The 'length' parameter is less than zero!");
         }
+        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
+        	throw new IllegalStateException("Write a header before writing payload!");
+        }
         long written = 0;
-        byte[] buffer = new byte[1024];
         int read = 0;
         while (read != -1) {
-            out.write(buffer, 0, read);
+            out.write(stream_copy_buffer, 0, read);
             written += read;
-            read = in.read(buffer);
+            read = in.read(stream_copy_buffer);
         }
+        state = S_PAYLOAD_WRITTEN;
         return written;
-    }
-
-    /**
-     * Close the WARC record.
-     * @throws IOException if an exception occurs while closing the record
-     */
-    public void closeRecord() throws IOException {
-        // TODO This can be written more than once per record.
-        out.write(WarcConstants.endMark);
     }
 
 }

@@ -190,25 +190,18 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 Assert.assertTrue(record.isClosed());
                 switch (recordNumber) {
                 case 1:
-                    Assert.assertEquals(2, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.REQUIRED_INVALID, "'Content-Length' header", 1},
-                            // FIXME !
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                            {DiagnosisType.REQUIRED_INVALID, "'Content-Length' header", 1}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
                 case 2:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            // FIXME !
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -225,26 +218,19 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     Assert.assertNull(record.httpHeader);
                     break;
                 case 4:
-                    Assert.assertEquals(3, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(2, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            // FIXME !
                             {DiagnosisType.INVALID, "Data before WARC version", 0},
-                            {DiagnosisType.INVALID, "Empty lines before WARC version", 0},
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                            {DiagnosisType.INVALID, "Empty lines before WARC version", 0}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
                 case 5:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(1, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            // FIXME !
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.RECOMMENDED, "'Content-Type' header", 0}
                     };
@@ -253,13 +239,8 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     Assert.assertNull(record.httpHeader);
                     break;
                 case 6:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(1, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            // FIXME !
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.RECOMMENDED, "'Content-Type' value", 2}
                     };
@@ -435,22 +416,17 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 switch (recordNumber) {
                 case 1:
                 case 4:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
                 case 2:
                 case 5:
-                    Assert.assertEquals(2, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.ERROR, "http header", 1},
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                            {DiagnosisType.ERROR, "http header", 1}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
@@ -460,12 +436,8 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     break;
                 case 3:
                 case 6:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNotNull(record.httpHeader);
                     Assert.assertTrue(record.httpHeader.isValid());
@@ -519,12 +491,8 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 switch (recordNumber) {
                 case 1:
                 case 4:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
-                    expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
-                    };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -532,11 +500,10 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 case 3:
                 case 5:
                 case 6:
-                    Assert.assertEquals(2, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.ERROR, "http header", 1},
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                            {DiagnosisType.ERROR, "http header", 1}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
@@ -698,25 +665,21 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             md_sha1.update(httpHeaderBytes);
             md_sha1.update(payloadSmallerBytes);
             md_sha1.update(WarcConstants.endMark);
-            md_sha1.update(WarcConstants.endMark);
-            md_sha1.update(warcHeaderBytes, 0, 100-8);
+            md_sha1.update(warcHeaderBytes, 0, 100-4);
             byte[] smallerBlockDigestSha1 = md_sha1.digest();
             md_sha1.reset();
             md_sha1.update(payloadSmallerBytes);
             md_sha1.update(WarcConstants.endMark);
-            md_sha1.update(WarcConstants.endMark);
-            md_sha1.update(warcHeaderBytes, 0, 100-8);
+            md_sha1.update(warcHeaderBytes, 0, 100-4);
             byte[] smallerPayloadDigestSha1 = md_sha1.digest();
 
             md_sha1.reset();
             md_sha1.update(httpHeaderBytes);
             md_sha1.update(payloadSmallerBytes);
             md_sha1.update(WarcConstants.endMark);
-            md_sha1.update(WarcConstants.endMark);
             byte[] truncatedBlockDigestSha1 = md_sha1.digest();
             md_sha1.reset();
             md_sha1.update(payloadSmallerBytes);
-            md_sha1.update(WarcConstants.endMark);
             md_sha1.update(WarcConstants.endMark);
             byte[] truncatedPayloadDigestSha1 = md_sha1.digest();
 
@@ -725,7 +688,6 @@ public class TestWarcRecord extends TestWarcRecordHelper {
              */
             expectedRecords = new Object[][] {
                     {"sha1", "base32", blockDigestSha1, payloadDigestSha1, new Object[][] {
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2},
                     }, new Object[][] {
                     }},
                     {"sha1", "base32", smallerBlockDigestSha1, smallerPayloadDigestSha1, new Object[][] {
@@ -734,8 +696,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     }},
                     {"sha1", "base32", blockDigestSha1, payloadDigestSha1, new Object[][] {
                             {DiagnosisType.INVALID, "Data before WARC version", 0},
-                            {DiagnosisType.INVALID, "Empty lines before WARC version", 0},
-                            {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+                            {DiagnosisType.INVALID, "Empty lines before WARC version", 0}
                     }, new Object[][] {
                     }},
                     {"sha1", "base32", blockDigestSha1, payloadDigestSha1, new Object[][] {
@@ -757,11 +718,11 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             reader.setPayloadDigestEnabled(true);
             reader.setPayloadDigestAlgorithm("sha1");
             reader.setPayloadDigestEncoding("base32");
-            int recordNumber = 0;
+            //int recordNumber = 0;
             for (int i=0; i<expectedRecords.length; ++i) {
                 record = reader.getNextRecord();
                 record.close();
-                ++recordNumber;
+                //++recordNumber;
                 Assert.assertTrue(record.isClosed());
                 // debug
                 //System.out.println(recordNumber);
