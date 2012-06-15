@@ -30,15 +30,15 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
-	protected static final int S_INIT = 0;
+    protected static final int S_INIT = 0;
 
-	protected static final int S_HEADER_WRITTEN = 1;
+    protected static final int S_HEADER_WRITTEN = 1;
 
-	protected static final int S_PAYLOAD_WRITTEN = 2;
+    protected static final int S_PAYLOAD_WRITTEN = 2;
 
-	protected static final int S_RECORD_CLOSED = 3;
+    protected static final int S_RECORD_CLOSED = 3;
 
-	/** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
+    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat = WarcDateParser.getDateFormat();
 
     /** Current state of writer. */
@@ -116,9 +116,9 @@ public abstract class WarcWriter {
                     "The 'header_bytes' parameter is null!");
         }
         if (state == S_HEADER_WRITTEN) {
-        	throw new IllegalStateException("Headers written back to back!");
+            throw new IllegalStateException("Headers written back to back!");
         } else if (state == S_PAYLOAD_WRITTEN) {
-        	closeRecord_impl();
+            closeRecord_impl();
         }
         out.write(header_bytes);
         state = S_HEADER_WRITTEN;
@@ -483,7 +483,7 @@ public abstract class WarcWriter {
                     "The 'length' parameter is less than zero!");
         }
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
-        	throw new IllegalStateException("Write a header before writing payload!");
+            throw new IllegalStateException("Write a header before writing payload!");
         }
         long written = 0;
         int read = 0;

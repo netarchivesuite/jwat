@@ -127,7 +127,7 @@ public class TestInputStream {
         try {
             gzin = new GzipInputStream(in);
             while ((entry = gzin.getNextEntry()) != null) {
-            	Assert.assertNotNull(entry);
+                Assert.assertNotNull(entry);
                 out.reset();
                 gzis = gzin.getEntryInputStream();
                 while ((read = gzin.read(tmpBuf)) != -1) {
@@ -140,7 +140,7 @@ public class TestInputStream {
                 out.reset();
                 ++entries;
             }
-        	Assert.assertNull(entry);
+            Assert.assertNull(entry);
             gzin.close();
             in.close();
         } catch (IOException e) {

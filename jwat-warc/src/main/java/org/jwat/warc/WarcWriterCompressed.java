@@ -91,12 +91,12 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public void closeRecord() throws IOException {
-    	if (state == S_INIT) {
-    		throw new IllegalStateException("Write a record before closing it!");
-    	}
+        if (state == S_INIT) {
+            throw new IllegalStateException("Write a record before closing it!");
+        }
         if (entry != null) {
-        	closeRecord_impl();
-        	state = S_RECORD_CLOSED;
+            closeRecord_impl();
+            state = S_RECORD_CLOSED;
             entry.close();
             entry = null;
         }
@@ -112,9 +112,9 @@ public class WarcWriterCompressed extends WarcWriter {
                     "The 'header_bytes' parameter is null!");
         }
         if (state == S_HEADER_WRITTEN) {
-        	throw new IllegalStateException("Headers written back to back!");
+            throw new IllegalStateException("Headers written back to back!");
         } else if (state == S_PAYLOAD_WRITTEN) {
-        	closeRecord_impl();
+            closeRecord_impl();
         }
         entry = new GzipEntry();
         entry.magic = GzipConstants.GZIP_MAGIC;
@@ -139,9 +139,9 @@ public class WarcWriterCompressed extends WarcWriter {
                     "The 'record' parameter is null!");
         }
         if (state == S_HEADER_WRITTEN) {
-        	throw new IllegalStateException("Headers written back to back!");
+            throw new IllegalStateException("Headers written back to back!");
         } else if (state == S_PAYLOAD_WRITTEN) {
-        	closeRecord_impl();
+            closeRecord_impl();
         }
         entry = new GzipEntry();
         entry.magic = GzipConstants.GZIP_MAGIC;

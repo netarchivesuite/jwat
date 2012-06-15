@@ -20,6 +20,8 @@
 
   <inceptionYear>2011</inceptionYear>
 
+  <organizationName>Netarkivet.dk (http://netarkivet.dk/)</organizationName>
+
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>

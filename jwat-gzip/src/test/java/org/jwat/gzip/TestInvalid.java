@@ -43,10 +43,10 @@ public class TestInvalid {
         gzin = new GzipInputStream(in);
         try {
             while ((entry = gzin.getNextEntry()) != null) {
-            	Assert.assertNotNull(entry);
+                Assert.assertNotNull(entry);
                 gzin.closeEntry();
             }
-        	Assert.assertNull(entry);
+            Assert.assertNull(entry);
             gzin.close();
             Assert.fail("Exception expected!");
         } catch (ZipException e) {
@@ -56,10 +56,10 @@ public class TestInvalid {
         in = this.getClass().getClassLoader().getResourceAsStream("invalid-entries.gz");
         gzin = new GzipInputStream(in);
         while ((entry = gzin.getNextEntry()) != null) {
-        	Assert.assertNotNull(entry);
+            Assert.assertNotNull(entry);
             gzin.closeEntry();
         }
-    	Assert.assertNull(entry);
+        Assert.assertNull(entry);
         gzin.close();
         in.close();
 
@@ -67,10 +67,10 @@ public class TestInvalid {
         gzin = new GzipInputStream(in);
         try {
             while ((entry = gzin.getNextEntry()) != null) {
-            	Assert.assertNotNull(entry);
+                Assert.assertNotNull(entry);
                 gzin.closeEntry();
             }
-        	Assert.assertNull(entry);
+            Assert.assertNull(entry);
             gzin.close();
             Assert.fail("Exception expected!");
         } catch (ZipException e) {
