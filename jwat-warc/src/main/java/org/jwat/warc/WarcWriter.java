@@ -30,12 +30,16 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
+	/** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;
 
+    /** State after header has been written. */
     protected static final int S_HEADER_WRITTEN = 1;
 
+    /** State after payload has been written. */
     protected static final int S_PAYLOAD_WRITTEN = 2;
 
+    /** State after record has been closed. */
     protected static final int S_RECORD_CLOSED = 3;
 
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */

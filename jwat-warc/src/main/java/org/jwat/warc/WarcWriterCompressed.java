@@ -26,10 +26,17 @@ import org.jwat.gzip.GzipConstants;
 import org.jwat.gzip.GzipEntry;
 import org.jwat.gzip.GzipWriter;
 
+/**
+ * WARC Writer implementation for writing GZip compressed files.
+ *
+ * @author nicl
+ */
 public class WarcWriterCompressed extends WarcWriter {
 
+	/** GZip Writer used. */
     protected GzipWriter writer;
 
+    /** Current GZip entry. */
     protected GzipEntry entry;
 
     /**

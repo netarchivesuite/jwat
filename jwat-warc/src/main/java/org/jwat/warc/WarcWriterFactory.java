@@ -19,6 +19,14 @@ package org.jwat.warc;
 
 import java.io.OutputStream;
 
+/**
+ * Factory used for creating <code>WarcWriter</code> instances.
+ * Factory methods are available for creating <code>WarcWriter</code>
+ * instances for writing either compressed or uncompressed records.
+ * Use of buffered methods and/or buffering speeds up the writer considerably.
+ *
+ * @author nicl
+ */
 public class WarcWriterFactory {
 
     /**
@@ -27,6 +35,14 @@ public class WarcWriterFactory {
     protected WarcWriterFactory() {
     }
 
+    /**
+     * Creates a new unbuffered <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * Returns a normal or compressing writer according to the arguments.
+     * @param out output stream to write to
+     * @param compressed compression switch
+     * @return unbuffered <code>WarcWriter</code>
+     */
     public static WarcWriter getWriter(OutputStream out, boolean compressed) {
         if (out == null) {
             throw new IllegalArgumentException(
@@ -39,6 +55,15 @@ public class WarcWriterFactory {
         }
     }
 
+    /**
+     * Creates a new buffered <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * Returns a normal or compressing writer according to the arguments.
+     * @param out output stream to write to
+     * @param buffer_size buffer size to use
+     * @param compressed compression switch
+     * @return buffered <code>WarcWriter</code>
+     */
     public static WarcWriter getWriter(OutputStream out, int buffer_size, boolean compressed) {
         if (out == null) {
             throw new IllegalArgumentException(
@@ -55,6 +80,12 @@ public class WarcWriterFactory {
         }
     }
 
+    /**
+     * Creates a new unbuffered normal <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * @param out output stream to write to
+     * @return unbuffered normal <code>WarcWriter</code>
+     */
     public static WarcWriter getWriterUncompressed(OutputStream out) {
         if (out == null) {
             throw new IllegalArgumentException(
@@ -63,6 +94,13 @@ public class WarcWriterFactory {
         return new WarcWriterUncompressed(out);
     }
 
+    /**
+     * Creates a new buffered normal <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * @param out output stream to write to
+     * @param buffer_size buffer size to use
+     * @return buffered normal <code>WarcWriter</code>
+     */
     public static WarcWriter getWriterUncompressed(OutputStream out, int buffer_size) {
         if (out == null) {
             throw new IllegalArgumentException(
@@ -75,6 +113,12 @@ public class WarcWriterFactory {
         return new WarcWriterUncompressed(out, buffer_size);
     }
 
+    /**
+     * Creates a new unbuffered compressing <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * @param out output stream to write to
+     * @return unbuffered compressing <code>WarcWriter</code>
+     */
     public static WarcWriter getWriterCompressed(OutputStream out) {
         if (out == null) {
             throw new IllegalArgumentException(
@@ -83,6 +127,13 @@ public class WarcWriterFactory {
         return new WarcWriterCompressed(out);
     }
 
+    /**
+     * Creates a new buffered compressing <code>WarcWriter</code> from an
+     * <code>OutputStream</code>.
+     * @param out output stream to write to
+     * @param buffer_size buffer size to use
+     * @return buffered compressing <code>WarcWriter</code>
+     */
     public static WarcWriter getWriterCompressed(OutputStream out, int buffer_size) {
         if (out == null) {
             throw new IllegalArgumentException(

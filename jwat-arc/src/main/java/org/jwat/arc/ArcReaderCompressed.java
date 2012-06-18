@@ -26,7 +26,7 @@ import org.jwat.gzip.GzipReader;
 import org.jwat.gzip.GzipEntry;
 
 /**
- * ARC Reader used on GZip compressed files.
+ * ARC Reader implementation for reading GZip compressed files.
  *
  * @author nicl
  */

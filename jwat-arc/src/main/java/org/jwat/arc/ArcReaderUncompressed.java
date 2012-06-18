@@ -24,7 +24,7 @@ import java.io.InputStream;
 import org.jwat.common.ByteCountingPushBackInputStream;
 
 /**
- * ARC Reader used on uncompressed files.
+ * ARC Reader implementation for reading uncompressed files.
  *
  * @author lbihanic, selghissassi, nicl
  */

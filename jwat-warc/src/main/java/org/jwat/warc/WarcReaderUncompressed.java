@@ -24,7 +24,7 @@ import java.io.InputStream;
 import org.jwat.common.ByteCountingPushBackInputStream;
 
 /**
- * WARC Reader used on uncompressed files.
+ * WARC Reader implementation for reading uncompressed files.
  *
  * @author nicl
  */
