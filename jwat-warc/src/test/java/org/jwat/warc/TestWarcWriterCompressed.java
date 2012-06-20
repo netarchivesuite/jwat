@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,45 +31,26 @@ public class TestWarcWriterCompressed {
 
     @Test
     public void test_warcwriter_compressed() {
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-            WarcWriterCompressed writer = (WarcWriterCompressed)WarcWriterFactory.getWriterCompressed(out);
-
-            WarcRecord record = WarcRecord.createRecord(writer);
-            record.header.addHeader("WARC-Type", "warcinfo");
-            record.header.addHeader("WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>");
-            record.header.addHeader("WARC-Date", "2008-04-30T20:48:25Z");
-            record.header.addHeader("WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz");
-            record.header.addHeader("Content-Length", "483");
-            record.header.addHeader("Content-Type", "application/warc-fields");
-
-            byte[] bytes = "Welcome to dænemark!".getBytes("UTF-8");
-
-            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-
-            writer.writeHeader(record);
-            writer.streamPayload(in, bytes.length);
-            writer.closeRecord();
-            writer.close();
-
-            out.close();
-
-            String tmpStr = new String(out.toByteArray());
-            System.out.println(tmpStr);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    	test_warc_writer_states(true);
     }
 
     @Test
-    public void test_warcwriter() {
-        try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+    public void test_warcwriter_uncompressed() {
+    	test_warc_writer_states(false);
+    }
 
-            WarcWriter writer = WarcWriterFactory.getWriter(out, false);
+    public void test_warc_writer_states(boolean compress) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        WarcWriter writer;
+        WarcRecord record;
+        byte[] recordHeader;
+        ByteArrayInputStream in;
+        byte[] payload;
+    	try {
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
 
-            WarcRecord record = WarcRecord.createRecord(writer);
+            record = WarcRecord.createRecord(writer);
             record.header.addHeader("WARC-Type", "warcinfo");
             record.header.addHeader("WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>");
             record.header.addHeader("WARC-Date", "2008-04-30T20:48:25Z");
@@ -76,12 +58,12 @@ public class TestWarcWriterCompressed {
             record.header.addHeader("Content-Length", "483");
             record.header.addHeader("Content-Type", "application/warc-fields");
 
-            byte[] bytes = "Welcome to dænemark!".getBytes("UTF-8");
+            payload = "Welcome to dænemark!".getBytes("UTF-8");
 
-            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+            in = new ByteArrayInputStream(payload);
 
-            writer.writeHeader(record);
-            writer.streamPayload(in, bytes.length);
+            recordHeader = writer.writeHeader(record);
+            writer.streamPayload(in, payload.length);
             writer.closeRecord();
             writer.close();
 
@@ -89,9 +71,145 @@ public class TestWarcWriterCompressed {
 
             String tmpStr = new String(out.toByteArray());
             System.out.print(tmpStr);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+            /*
+             * Test invalid closeRecord state.
+             */
+
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
+            try {
+                writer.closeRecord();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_INIT, writer.state);
+
+            /*
+             * Test header written back to back.
+             */
+
+            record = WarcRecord.createRecord(writer);
+            record.header.addHeader("WARC-Type", "warcinfo");
+            record.header.addHeader("WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>");
+            record.header.addHeader("WARC-Date", "2008-04-30T20:48:25Z");
+            record.header.addHeader("WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz");
+            record.header.addHeader("Content-Length", "483");
+            record.header.addHeader("Content-Type", "application/warc-fields");
+
+            writer.writeHeader(record);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+            try {
+                writer.writeHeader(record);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+
+            /*
+             * Test writing header after a payload with implicit record closing.
+             */
+
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+
+            writer.writeHeader(record);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+
+            /*
+             * Test double closeRecord().
+             */
+
+            writer.closeRecord();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+            writer.closeRecord();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            /*
+             * Test double close().
+             */
+
+            writer.close();
+            Assert.assertNull(writer.out);
+            writer.close();
+            Assert.assertNull(writer.out);
+
+            /*
+             * Test close() after writeHeader().
+             */
+
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
+
+            writer.writeHeader(record);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+            writer.close();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+            Assert.assertNull(writer.out);
+
+            /*
+             * Test close() after streamPayload().
+             */
+
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
+
+            writer.writeHeader(record);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+            writer.close();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+            Assert.assertNull(writer.out);
+
+            /*
+             * Test streamPayload() in wrong states.
+             */
+
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
+            try {
+                writer.streamPayload(in, payload.length);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_INIT, writer.state);
+
+            writer.writeHeader(record);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+            writer.closeRecord();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            /*
+             * Test header bytes written back to back.
+             */
+
+            writer.writeHeader(recordHeader);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+            try {
+                writer.writeHeader(recordHeader);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+
+            /*
+             * Test writing header bytes after a payload with implicit record closing.
+             */
+
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+
+            writer.writeHeader(recordHeader);
+            Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+    	} catch (IOException e) {
+    	}
     }
 
 }

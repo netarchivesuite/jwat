@@ -80,8 +80,7 @@ public class WarcWriterUncompressed extends WarcWriter {
                 out.close();
                 out = null;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
     }
 
