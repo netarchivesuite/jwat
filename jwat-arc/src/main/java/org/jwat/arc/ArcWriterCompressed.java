@@ -33,7 +33,7 @@ import org.jwat.gzip.GzipWriter;
  */
 public class ArcWriterCompressed extends ArcWriter {
 
-	/** GZip Writer used. */
+    /** GZip Writer used. */
     protected GzipWriter writer;
 
     /** Current GZip entry. */

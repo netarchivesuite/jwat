@@ -69,12 +69,12 @@ public class WarcWriterUncompressed extends WarcWriter {
     @Override
     public void close() {
         try {
-        	if (state == S_HEADER_WRITTEN || state == S_PAYLOAD_WRITTEN) {
-    			closeRecord();
-        	}
-		} catch (IOException e) {
-		}
-    	try {
+            if (state == S_HEADER_WRITTEN || state == S_PAYLOAD_WRITTEN) {
+                closeRecord();
+            }
+        } catch (IOException e) {
+        }
+        try {
             if (out != null) {
                 out.flush();
                 out.close();

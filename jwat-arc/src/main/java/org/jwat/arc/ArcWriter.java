@@ -30,7 +30,7 @@ import java.text.DateFormat;
  */
 public abstract class ArcWriter {
 
-	/** State after writer has been constructed and before records have been written. */
+    /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;
 
     /** State after header has been written. */
@@ -83,7 +83,7 @@ public abstract class ArcWriter {
      * @throws IOException if an exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
-    	// TODO
+        // TODO
     }
 
     /**

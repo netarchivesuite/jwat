@@ -19,6 +19,7 @@ package org.jwat.common;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -71,6 +72,39 @@ public class Digest {
             digestAlgoLengthache.put(digestAlgorithm,  cachedLen);
         }
         return cachedLen;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        Digest digestObj = (Digest)obj;
+        if (!Arrays.equals(digestBytes, digestObj.digestBytes)) {
+            return false;
+        }
+        if (algorithm != null) {
+            if (!algorithm.equals(digestObj.algorithm)) {
+                return false;
+            }
+        } else if (digestObj.algorithm != null) {
+            return false;
+        }
+        if (digestString != null) {
+            if (!digestString.equals(digestObj.digestString)) {
+                return false;
+            }
+        } else if (digestObj.digestString != null) {
+            return false;
+        }
+        if (encoding != null) {
+            if (!encoding.equals(digestObj.encoding)) {
+                return false;
+            }
+        } else if (digestObj.encoding != null) {
+            return false;
+        }
+        return true;
     }
 
 }

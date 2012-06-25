@@ -30,7 +30,7 @@ import java.text.DateFormat;
  */
 public abstract class WarcWriter {
 
-	/** State after writer has been constructed and before records have been written. */
+    /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;
 
     /** State after header has been written. */

@@ -527,33 +527,193 @@ public class WarcHeader {
         return headerLine;
     }
 
+    public HeaderLine addHeader(String fieldName, Integer integerFieldValue, String fieldValueStr) {
+        if (integerFieldValue == null && fieldValueStr != null) {
+            integerFieldValue = fieldParser.parseInteger(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && integerFieldValue != null) {
+            fieldValueStr = integerFieldValue.toString();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_INTEGER,
+                integerFieldValue, null, null, null, null, null, null);
+    }
+
+    public HeaderLine addHeader(String fieldName, Long longFieldValue, String fieldValueStr) {
+        if (longFieldValue == null && fieldValueStr != null) {
+            longFieldValue = fieldParser.parseLong(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && longFieldValue != null) {
+            fieldValueStr = longFieldValue.toString();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_LONG,
+                null, longFieldValue, null, null, null, null, null);
+    }
+
+    public HeaderLine addHeader(String fieldName, WarcDigest digestFieldValue, String fieldValueStr) {
+        if (digestFieldValue == null && fieldValueStr != null) {
+            digestFieldValue = fieldParser.parseDigest(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && digestFieldValue != null) {
+            fieldValueStr = digestFieldValue.toString();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_DIGEST,
+                null, null, digestFieldValue, null, null, null, null);
+    }
+
+    public HeaderLine addHeader(String fieldName, ContentType contentTypeFieldValue, String fieldValueStr) {
+        if (contentTypeFieldValue == null && fieldValueStr != null) {
+            contentTypeFieldValue = fieldParser.parseContentType(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && contentTypeFieldValue != null) {
+            fieldValueStr = contentTypeFieldValue.toString();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_CONTENTTYPE,
+                null, null, null, contentTypeFieldValue, null, null, null);
+    }
+
     public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
         if (dateFieldValue == null && fieldValueStr != null) {
-            dateFieldValue = WarcDateParser.getDate(fieldValueStr);
+            dateFieldValue = fieldParser.parseDate(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && dateFieldValue != null) {
             fieldValueStr = warcDateFormat.format(dateFieldValue);
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_DATE,
+                null, null, null, null, dateFieldValue, null, null);
+    }
+
+    public HeaderLine addHeader(String fieldName, InetAddress inetAddrFieldValue, String fieldValueStr) {
+        if (inetAddrFieldValue == null && fieldValueStr != null) {
+            inetAddrFieldValue = fieldParser.parseIpAddress(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && inetAddrFieldValue != null) {
+            fieldValueStr = inetAddrFieldValue.getHostAddress();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_INETADDRESS,
+                null, null, null, null, null, inetAddrFieldValue, null);
+    }
+
+    public HeaderLine addHeader(String fieldName, URI uriFieldValue, String fieldValueStr) {
+        if (uriFieldValue == null && fieldValueStr != null) {
+            uriFieldValue = fieldParser.parseUri(fieldValueStr, fieldName);
+        } else if (fieldValueStr == null && uriFieldValue != null) {
+            fieldValueStr = uriFieldValue.toString();
+        }
+        return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_URI,
+                null, null, null, null, null, null, uriFieldValue);
+    }
+
+    public HeaderLine addHeader(String fieldName, String fieldValueStr, int dt,
+            Integer integerFieldValue, Long longFieldValue,
+            WarcDigest digestFieldValue, ContentType contentTypeFieldValue,
+            Date dateFieldValue, InetAddress inetAddrFieldValue,
+            URI uriFieldValue) {
+        Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
+        if (fn_idx != null) {
+            if (dt == WarcConstants.FN_IDX_DT[fn_idx]) {
+                // Recognized WARC field name.
+                if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
+                    seen[fn_idx] = true;
+                    switch (fn_idx.intValue()) {
+                    /*
+                     * Integer.
+                     */
+                    case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
+                        warcSegmentNumberStr = fieldValueStr;
+                        warcSegmentNumber = integerFieldValue;
+                        break;
+                    /*
+                     * Long.
+                     */
+                    case WarcConstants.FN_IDX_CONTENT_LENGTH:
+                        contentLengthStr = fieldValueStr;
+                        contentLength = longFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
+                        warcSegmentTotalLengthStr = fieldValueStr;
+                        warcSegmentTotalLength = longFieldValue;
+                        break;
+                    /*
+                     * Digest.
+                     */
+                    case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
+                        warcBlockDigestStr = fieldValueStr;
+                        warcBlockDigest = digestFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
+                        warcPayloadDigestStr = fieldValueStr;
+                        warcPayloadDigest = digestFieldValue;
+                        break;
+                    /*
+                     * ContentType.
+                     */
+                    case WarcConstants.FN_IDX_CONTENT_TYPE:
+                        contentTypeStr = fieldValueStr;
+                        contentType = contentTypeFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
+                        warcIdentifiedPayloadTypeStr = fieldValueStr;
+                        warcIdentifiedPayloadType = contentTypeFieldValue;
+                        break;
+                    /*
+                     * Date.
+                     */
+                    case WarcConstants.FN_IDX_WARC_DATE:
+                        warcDateStr = fieldValueStr;
+                        warcDate = dateFieldValue;
+                        break;
+                    /*
+                     * InetAddress.
+                     */
+                    case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
+                        warcIpAddress = fieldValueStr;
+                        warcInetAddress = inetAddrFieldValue;
+                        break;
+                    /*
+                     * URI.
+                     */
+                    case WarcConstants.FN_IDX_WARC_RECORD_ID:
+                        warcRecordIdStr = fieldValueStr;
+                        warcRecordIdUri = uriFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
+                        if (fieldValueStr != null || uriFieldValue != null) {
+                            WarcConcurrentTo warcConcurrentTo = new WarcConcurrentTo();
+                            warcConcurrentTo.warcConcurrentToStr = fieldValueStr;
+                            warcConcurrentTo.warcConcurrentToUri = uriFieldValue;
+                            warcConcurrentToList.add(warcConcurrentTo);
+                        }
+                        break;
+                    case WarcConstants.FN_IDX_WARC_REFERS_TO:
+                        warcRefersToStr = fieldValueStr;
+                        warcRefersToUri = uriFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_TARGET_URI:
+                        warcTargetUriStr = fieldValueStr;
+                        warcTargetUriUri = uriFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
+                        warcWarcinfoIdStr = fieldValueStr;
+                        warcWarcInfoIdUri = uriFieldValue;
+                        break;
+                    case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
+                        warcSegmentOriginIdStr = fieldValueStr;
+                        warcSegmentOriginIdUrl = uriFieldValue;
+                        break;
+                    default:
+                        break;
+                    }
+                } else {
+                    // Duplicate field.
+                    addErrorDiagnosis(DiagnosisType.DUPLICATE,
+                            "'" + fieldName + "' header",
+                            fieldValueStr);
+                }
+            } else {
+                // Invalid datatype for field.
+                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "Invalid datatype for '" + fieldName + "' header",
+                        WarcConstants.FDT_IDX_STRINGS[WarcConstants.FN_IDX_DT[fn_idx]],
+                        WarcConstants.FDT_IDX_STRINGS[dt]);
+            }
         }
         HeaderLine headerLine = new HeaderLine();
         headerLine.name = fieldName;
         headerLine.value = fieldValueStr;
-        Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
-        if (fn_idx != null) {
-            // Recognized WARC field name.
-            if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
-                seen[fn_idx] = true;
-                switch (fn_idx.intValue()) {
-                case WarcConstants.FN_IDX_WARC_DATE:
-                    warcDateStr = fieldValueStr;
-                    warcDate = dateFieldValue;
-                    break;
-                default:
-                    break;
-                }
-            } else {
-                // Duplicate field.
-                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValueStr);
-            }
-        }
         HeaderLine tmpLine = headerMap.get(fieldName.toLowerCase());
         if (tmpLine == null) {
             headerMap.put(fieldName.toLowerCase(), headerLine);

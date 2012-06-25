@@ -35,6 +35,9 @@ public class TestParams {
     public void test_parameters() throws IOException {
         GzipReader reader;
 
+        GzipConstants constants = new GzipConstants();
+        Assert.assertNotNull(constants);
+
         ByteArrayInputStream in = new ByteArrayInputStream(new byte[] {42});
 
         try {

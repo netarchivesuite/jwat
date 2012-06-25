@@ -382,4 +382,27 @@ public class ContentType {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        ContentType contentTypeObj = (ContentType)obj;
+        if (contentType != null) {
+            if (!contentType.equals(contentTypeObj.contentType)) {
+                return false;
+            }
+        } else if (contentTypeObj.contentType != null) {
+            return false;
+        }
+        if (mediaType != null) {
+            if (!mediaType.equals(contentTypeObj.mediaType)) {
+                return false;
+            }
+        } else if (contentTypeObj.mediaType != null) {
+            return false;
+        }
+        return true;
+    }
+
 }

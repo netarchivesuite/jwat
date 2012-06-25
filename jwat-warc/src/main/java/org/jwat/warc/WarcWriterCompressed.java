@@ -33,7 +33,7 @@ import org.jwat.gzip.GzipWriter;
  */
 public class WarcWriterCompressed extends WarcWriter {
 
-	/** GZip Writer used. */
+    /** GZip Writer used. */
     protected GzipWriter writer;
 
     /** Current GZip entry. */
@@ -111,7 +111,7 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public void writeHeader(byte[] header_bytes) throws IOException {
-    	/*
+        /*
         if (entry != null) {
             closeRecord();
         }
@@ -140,7 +140,7 @@ public class WarcWriterCompressed extends WarcWriter {
 
     @Override
     public byte[] writeHeader(WarcRecord record) throws IOException {
-    	/*
+        /*
         if (entry != null) {
             closeRecord();
         }

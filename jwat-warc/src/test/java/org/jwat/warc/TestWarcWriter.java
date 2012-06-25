@@ -27,16 +27,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class TestWarcWriterCompressed {
+public class TestWarcWriter {
 
     @Test
     public void test_warcwriter_compressed() {
-    	test_warc_writer_states(true);
+        test_warc_writer_states(true);
     }
 
     @Test
     public void test_warcwriter_uncompressed() {
-    	test_warc_writer_states(false);
+        test_warc_writer_states(false);
     }
 
     public void test_warc_writer_states(boolean compress) {
@@ -46,7 +46,7 @@ public class TestWarcWriterCompressed {
         byte[] recordHeader;
         ByteArrayInputStream in;
         byte[] payload;
-    	try {
+        try {
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
 
@@ -208,8 +208,8 @@ public class TestWarcWriterCompressed {
 
             writer.writeHeader(recordHeader);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
-    	} catch (IOException e) {
-    	}
+        } catch (IOException e) {
+        }
     }
 
 }

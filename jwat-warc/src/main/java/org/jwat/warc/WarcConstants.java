@@ -221,6 +221,59 @@ public class WarcConstants {
         fieldNameIdxMap.put(FN_WARC_SEGMENT_TOTAL_LENGTH.toLowerCase(), FN_IDX_WARC_SEGMENT_TOTAL_LENGTH);
     }
 
+    /** WARC String field datatype identifier. */
+    public static final int FDT_STRING = 0;
+    /** WARC Integer field datatype identifier. */
+    public static final int FDT_INTEGER = 1;
+    /** WARC Long field datatype identifier. */
+    public static final int FDT_LONG = 2;
+    /** WARC Digest field datatype identifier. */
+    public static final int FDT_DIGEST = 3;
+    /** WARC ContentType field datatype identifier. */
+    public static final int FDT_CONTENTTYPE = 4;
+    /** WARC Date field datatype identifier. */
+    public static final int FDT_DATE = 5;
+    /** WARC InetAddress field datatype identifier. */
+    public static final int FDT_INETADDRESS = 6;
+    /** WARC URI field datatype identifier. */
+    public static final int FDT_URI = 7;
+
+    /** WARC field datatype id to field datatype name mapping table. */
+    public static final String[] FDT_IDX_STRINGS = {
+        "String",
+        "Integer",
+        "Long",
+        "Digest",
+        "ContentType",
+        "Date",
+        "InetAddress",
+        "URI"
+    };
+
+    /** Array to lookup WARC field datatypes. */
+    public static final int[] FN_IDX_DT = {
+        -1,
+        FDT_STRING,
+        FDT_URI,
+        FDT_DATE,
+        FDT_LONG,
+        FDT_CONTENTTYPE,
+        FDT_URI,
+        FDT_DIGEST,
+        FDT_DIGEST,
+        FDT_INETADDRESS,
+        FDT_URI,
+        FDT_URI,
+        FDT_STRING,
+        FDT_URI,
+        FDT_STRING,
+        FDT_STRING,
+        FDT_CONTENTTYPE,
+        FDT_URI,
+        FDT_INTEGER,
+        FDT_LONG
+    };
+
     /*
      * WARC fields that can have multiple occurrences in a Warc header.
      */

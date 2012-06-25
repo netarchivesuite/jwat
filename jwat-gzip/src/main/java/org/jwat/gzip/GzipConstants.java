@@ -30,6 +30,12 @@ import java.util.TreeMap;
  */
 public class GzipConstants {
 
+    /**
+     * This utility class does not require instantiation.
+     */
+    protected GzipConstants() {
+    }
+
     /** GZip header magic number. */
     public static final byte[] GZIP_MAGIC_HEADER = new byte[] {(byte)0x1f, (byte)0x8b};
 
@@ -157,12 +163,6 @@ public class GzipConstants {
         osIdxStr.put(OS_QDOS, OS_STRING_QDOS);
         osIdxStr.put(OS_ACORN, OS_STRING_ACORN);
         osIdxStr.put(OS_UNKNOWN, OS_STRING_UNKNOWN);
-    }
-
-    /**
-     * This utility class does not require instantiation.
-     */
-    private GzipConstants() {
     }
 
 }
