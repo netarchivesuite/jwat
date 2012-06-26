@@ -107,9 +107,9 @@ public class TestByteArrayOutputStreamWithUnread {
                 dstOut.unread(arr, 0, 1);
             } catch (IllegalArgumentException e) {
             }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail( "Exception not expected!" );
         }
 
         ByteCountingPushBackInputStream in = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 16 );
@@ -227,8 +227,8 @@ public class TestByteArrayOutputStreamWithUnread {
 
                     in.close();
                 } catch (IOException e) {
-                    Assert.fail( "Exception not expected!" );
                     e.printStackTrace();
+                    Assert.fail( "Exception not expected!" );
                 }
             }
         }

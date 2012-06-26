@@ -17,6 +17,10 @@
  */
 package org.jwat.common;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.IOException;
 
 import org.junit.Assert;
@@ -66,6 +70,119 @@ public class TestDigest {
         Assert.assertNull(digest.digestBytes);
         Assert.assertNull(digest.digestString);
         Assert.assertNull(digest.encoding);
+    }
+
+    @Test
+    public void test_digest_equals_hashcode() {
+        Digest d1;
+        Digest d2;
+
+        /*
+         * Nulls.
+         */
+
+        d1 = new Digest();
+        d1.algorithm = null;
+        d1.digestBytes = null;
+        d1.digestString = null;
+        d1.encoding = null;
+
+        d2 = new Digest();
+        d2.algorithm = null;
+        d2.digestBytes = null;
+        d2.digestString = null;
+        d2.encoding = null;
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        Assert.assertFalse(d1.equals(null));
+        Assert.assertFalse(d2.equals(null));
+
+        /*
+         * Source null - Obj cycling.
+         */
+
+        d2.algorithm = "rsa";
+        d2.digestBytes = null;
+        d2.digestString = null;
+        d2.encoding = null;
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = null;
+        d2.digestBytes = "1234567890".getBytes();
+        d2.digestString = null;
+        d2.encoding = null;
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = null;
+        d2.digestBytes = null;
+        d2.digestString = "1234567890";
+        d2.encoding = null;
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = null;
+        d2.digestBytes = null;
+        d2.digestString = null;
+        d2.encoding = "base32";
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        /*
+         * Source obj - Obj cycling
+         */
+
+        d1.algorithm = "rsa";
+        d1.digestBytes = "1234567890".getBytes();
+        d1.digestString = "1234567890";
+        d1.encoding = "base32";
+
+        d2.algorithm = "rsa";
+        d2.digestBytes = "1234567890".getBytes();
+        d2.digestString = "1234567890";
+        d2.encoding = "base32";
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d2.algorithm = "dsa";
+        d2.digestBytes = "1234567890".getBytes();
+        d2.digestString = "1234567890";
+        d2.encoding = "base32";
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = "rsa";
+        d2.digestBytes = "0987654321".getBytes();
+        d2.digestString = "1234567890";
+        d2.encoding = "base32";
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = "rsa";
+        d2.digestBytes = "1234567890".getBytes();
+        d2.digestString = "0987654321";
+        d2.encoding = "base32";
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d2.algorithm = "rsa";
+        d2.digestBytes = "1234567890".getBytes();
+        d2.digestString = "1234567890";
+        d2.encoding = "base64";
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
     }
 
 }

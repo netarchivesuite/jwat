@@ -32,4 +32,38 @@ public class WarcConcurrentTo {
     /** Warc-Concurrent-To URI object. */
     public URI warcConcurrentToUri;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        WarcConcurrentTo concurrentToeObj = (WarcConcurrentTo)obj;
+        if (warcConcurrentToStr != null) {
+            if (!warcConcurrentToStr.equals(concurrentToeObj.warcConcurrentToStr)) {
+                return false;
+            }
+        } else if (concurrentToeObj.warcConcurrentToStr != null) {
+            return false;
+        }
+        if (warcConcurrentToUri != null) {
+            if (!warcConcurrentToUri.equals(concurrentToeObj.warcConcurrentToUri)) {
+                return false;
+            }
+        } else if (concurrentToeObj.warcConcurrentToUri != null) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        int hashCode = 0;
+        if (warcConcurrentToStr != null) {
+            hashCode ^= warcConcurrentToStr.hashCode();
+        }
+        if (warcConcurrentToUri != null) {
+            hashCode ^= warcConcurrentToUri.hashCode();
+        }
+        return hashCode;
+    }
+
 }

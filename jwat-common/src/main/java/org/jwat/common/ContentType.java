@@ -402,7 +402,63 @@ public class ContentType {
         } else if (contentTypeObj.mediaType != null) {
             return false;
         }
+        if (parameters != null) {
+            if (contentTypeObj.parameters == null) {
+                return false;
+            }
+            if (parameters.size() != contentTypeObj.parameters.size()) {
+                return false;
+            }
+            if (parameters.size() > 0) {
+                Iterator<Entry<String, String>> iter = parameters.entrySet().iterator();
+                Entry<String, String> entry;
+                String value;
+                while (iter.hasNext()) {
+                    entry = iter.next();
+                    if (!contentTypeObj.parameters.containsKey(entry.getKey())) {
+                        return false;
+                    }
+                    value = entry.getValue();
+                    if (value != null) {
+                        if (!value.equals(contentTypeObj.parameters.get(entry.getKey()))) {
+                            return false;
+                        }
+                    } else if (contentTypeObj.parameters.get(entry.getKey()) != null) {
+                        return false;
+                    }
+                }
+            }
+        } else if (contentTypeObj.parameters != null) {
+            return false;
+        }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 0;
+        if (contentType != null) {
+            hashCode ^= contentType.hashCode();
+        }
+        if (mediaType != null) {
+            hashCode ^= mediaType.hashCode();
+        }
+        if (parameters != null) {
+            // Ensure null and empty parameters map does not mean object equality!
+            hashCode ^= 31331;
+            Iterator<Entry<String, String>> iter = parameters.entrySet().iterator();
+            Entry<String, String> entry;
+            String value;
+            while (iter.hasNext()) {
+                entry = iter.next();
+                hashCode ^= entry.getKey().hashCode();
+                value = entry.getValue();
+                if (value != null) {
+                    hashCode ^= value.hashCode();
+                }
+            }
+        }
+        return hashCode;
     }
 
 }

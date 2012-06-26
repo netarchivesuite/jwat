@@ -141,24 +141,27 @@ public abstract class WarcWriter {
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
+        WarcHeader header = record.header;
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         /*
          * Version Line
          */
-        byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + record.header.major + "." + record.header.minor + "\r\n").getBytes();
+        byte[] magicVersion = (WarcConstants.WARC_MAGIC_HEADER + header.major + "." + header.minor + "\r\n").getBytes();
         outBuf.write(magicVersion);
         /*
          * Warc-Type
          */
         String warcTypeStr = null;
-        if (record.header.warcTypeIdx != null) {
-            if (record.header.warcTypeIdx > 0
-                && record.header.warcTypeIdx < WarcConstants.RT_IDX_STRINGS.length) {
-                warcTypeStr = WarcConstants.RT_IDX_STRINGS[record.header.warcTypeIdx];
-            } else if (record.header.warcTypeStr != null) {
-                warcTypeStr = record.header.warcTypeStr;
+        if (header.warcTypeIdx != null) {
+            if (header.warcTypeIdx > 0
+                && header.warcTypeIdx < WarcConstants.RT_IDX_STRINGS.length) {
+                warcTypeStr = WarcConstants.RT_IDX_STRINGS[header.warcTypeIdx];
+            } else {
                 // Warning...
             }
+        }
+        if (warcTypeStr == null) {
+            warcTypeStr = header.warcTypeStr;
         }
         if (warcTypeStr != null) {
             outBuf.write(WarcConstants.FN_WARC_TYPE.getBytes());
@@ -170,10 +173,10 @@ public abstract class WarcWriter {
          * Warc-Record-Id
          */
         String warcRecordIdStr = null;
-        if (record.header.warcRecordIdUri != null) {
-            warcRecordIdStr = record.header.warcRecordIdUri.toString();
-        } else if (record.header.warcRecordIdStr != null) {
-            warcRecordIdStr = record.header.warcRecordIdStr;
+        if (header.warcRecordIdUri != null) {
+            warcRecordIdStr = header.warcRecordIdUri.toString();
+        } else if (header.warcRecordIdStr != null) {
+            warcRecordIdStr = header.warcRecordIdStr;
             // Warning...
         }
         if (warcRecordIdStr != null) {
@@ -186,10 +189,10 @@ public abstract class WarcWriter {
          * Warc-Date
          */
         String warcDateStr = null;
-        if (record.header.warcDate != null) {
-            warcDateStr = warcDateFormat.format(record.header.warcDate);
-        } else if (record.header.warcDateStr != null) {
-            warcDateStr = record.header.warcDateStr;
+        if (header.warcDate != null) {
+            warcDateStr = warcDateFormat.format(header.warcDate);
+        } else if (header.warcDateStr != null) {
+            warcDateStr = header.warcDateStr;
             // Warning...
         }
         if (warcDateStr != null) {
@@ -202,10 +205,10 @@ public abstract class WarcWriter {
          * Content-Length
          */
         String contentLengthStr = null;
-        if (record.header.contentLength != null) {
-            contentLengthStr = record.header.contentLength.toString();
-        } else if (record.header.contentLengthStr != null) {
-            contentLengthStr = record.header.contentLengthStr;
+        if (header.contentLength != null) {
+            contentLengthStr = header.contentLength.toString();
+        } else if (header.contentLengthStr != null) {
+            contentLengthStr = header.contentLengthStr;
             // Warning...
         }
         if (contentLengthStr != null) {
@@ -218,10 +221,10 @@ public abstract class WarcWriter {
          * Content-Type
          */
         String contentTypeStr = null;
-        if (record.header.contentType != null) {
-            contentTypeStr = record.header.contentType.toString();
-        } else if (record.header.contentTypeStr != null) {
-            contentTypeStr = record.header.contentTypeStr;
+        if (header.contentType != null) {
+            contentTypeStr = header.contentType.toString();
+        } else if (header.contentTypeStr != null) {
+            contentTypeStr = header.contentTypeStr;
             // Warning...
         }
         if (contentTypeStr != null) {
@@ -235,9 +238,9 @@ public abstract class WarcWriter {
          */
         WarcConcurrentTo warcConcurrentTo;
         String warcConcurrentToStr;
-        if (record.header.warcConcurrentToList != null) {
-            for (int i=0; i<record.header.warcConcurrentToList.size(); ++i) {
-                warcConcurrentTo = record.header.warcConcurrentToList.get(i);
+        if (header.warcConcurrentToList != null) {
+            for (int i=0; i<header.warcConcurrentToList.size(); ++i) {
+                warcConcurrentTo = header.warcConcurrentToList.get(i);
                 warcConcurrentToStr = null;
                 if (warcConcurrentTo.warcConcurrentToUri != null) {
                     warcConcurrentToStr = warcConcurrentTo.warcConcurrentToUri.toString();
@@ -257,10 +260,10 @@ public abstract class WarcWriter {
          * Warc-Block-Digest
          */
         String warcBlockDigestStr = null;
-        if (record.header.warcBlockDigest != null) {
-            warcBlockDigestStr = record.header.warcBlockDigest.toString();
-        } else if (record.header.warcBlockDigestStr != null) {
-            warcBlockDigestStr = record.header.warcBlockDigestStr;
+        if (header.warcBlockDigest != null) {
+            warcBlockDigestStr = header.warcBlockDigest.toString();
+        } else if (header.warcBlockDigestStr != null) {
+            warcBlockDigestStr = header.warcBlockDigestStr;
             // Warning...
         }
         if (warcBlockDigestStr != null) {
@@ -273,10 +276,10 @@ public abstract class WarcWriter {
          * Warc-Payload-Digest
          */
         String warcPayloadDigestStr = null;
-        if (record.header.warcPayloadDigest != null) {
-            warcPayloadDigestStr = record.header.warcPayloadDigest.toString();
-        } else if (record.header.warcPayloadDigestStr != null) {
-            warcPayloadDigestStr = record.header.warcPayloadDigestStr;
+        if (header.warcPayloadDigest != null) {
+            warcPayloadDigestStr = header.warcPayloadDigest.toString();
+        } else if (header.warcPayloadDigestStr != null) {
+            warcPayloadDigestStr = header.warcPayloadDigestStr;
             // Warning...
         }
         if (warcPayloadDigestStr != null) {
@@ -289,10 +292,10 @@ public abstract class WarcWriter {
          * Warc-Ip-Address
          */
         String warcIpAddress = null;
-        if (record.header.warcInetAddress != null) {
-            warcIpAddress = record.header.warcInetAddress.getHostAddress();
-        } else if (record.header.warcIpAddress != null) {
-            warcIpAddress = record.header.warcIpAddress;
+        if (header.warcInetAddress != null) {
+            warcIpAddress = header.warcInetAddress.getHostAddress();
+        } else if (header.warcIpAddress != null) {
+            warcIpAddress = header.warcIpAddress;
             // Warning...
         }
         if (warcIpAddress != null) {
@@ -305,10 +308,10 @@ public abstract class WarcWriter {
          * Warc-Refers-To
          */
         String warcRefersToUriStr = null;
-        if (record.header.warcRefersToUri != null) {
-            warcRefersToUriStr = record.header.warcRefersToUri.toString();
-        } else if (record.header.warcRefersToStr != null) {
-            warcRefersToUriStr = record.header.warcRefersToStr;
+        if (header.warcRefersToUri != null) {
+            warcRefersToUriStr = header.warcRefersToUri.toString();
+        } else if (header.warcRefersToStr != null) {
+            warcRefersToUriStr = header.warcRefersToStr;
             // Warning...
         }
         if (warcRefersToUriStr != null) {
@@ -321,10 +324,10 @@ public abstract class WarcWriter {
          * Warc-Target-Uri
          */
         String warcTargetUriStr = null;
-        if (record.header.warcTargetUriUri != null) {
-            warcTargetUriStr = record.header.warcTargetUriUri.toString();
-        } else if (record.header.warcTargetUriStr != null) {
-            warcTargetUriStr = record.header.warcTargetUriStr;
+        if (header.warcTargetUriUri != null) {
+            warcTargetUriStr = header.warcTargetUriUri.toString();
+        } else if (header.warcTargetUriStr != null) {
+            warcTargetUriStr = header.warcTargetUriStr;
             // Warning...
         }
         if (warcTargetUriStr != null) {
@@ -337,14 +340,16 @@ public abstract class WarcWriter {
          * Warc-Truncated
          */
         String warcTruncatedStr = null;
-        if (record.header.warcTruncatedIdx != null) {
-            if (record.header.warcTruncatedIdx > 0
-                    && record.header.warcTruncatedIdx < WarcConstants.TT_IDX_STRINGS.length) {
-                warcTruncatedStr = WarcConstants.TT_IDX_STRINGS[record.header.warcTruncatedIdx];
-            } else if (record.header.warcTruncatedStr != null) {
-                warcTruncatedStr = record.header.warcTruncatedStr;
+        if (header.warcTruncatedIdx != null) {
+            if (header.warcTruncatedIdx > 0
+                    && header.warcTruncatedIdx < WarcConstants.TT_IDX_STRINGS.length) {
+                warcTruncatedStr = WarcConstants.TT_IDX_STRINGS[header.warcTruncatedIdx];
+            } else {
                 // Warning...
             }
+        }
+        if (warcTruncatedStr == null) {
+            warcTruncatedStr = header.warcTruncatedStr;
         }
         if (warcTruncatedStr != null) {
             outBuf.write(WarcConstants.FN_WARC_TRUNCATED.getBytes());
@@ -356,10 +361,10 @@ public abstract class WarcWriter {
          * Warc-Warcinfo-Id
          */
         String warcWarcInfoIdStr = null;
-        if (record.header.warcWarcInfoIdUri != null) {
-            warcWarcInfoIdStr = record.header.warcWarcInfoIdUri.toString();
-        } else if (record.header.warcWarcinfoIdStr != null) {
-            warcWarcInfoIdStr = record.header.warcWarcinfoIdStr;
+        if (header.warcWarcInfoIdUri != null) {
+            warcWarcInfoIdStr = header.warcWarcInfoIdUri.toString();
+        } else if (header.warcWarcinfoIdStr != null) {
+            warcWarcInfoIdStr = header.warcWarcinfoIdStr;
             // Warning...
         }
         if (warcWarcInfoIdStr != null) {
@@ -371,24 +376,26 @@ public abstract class WarcWriter {
         /*
          * Warc-Filename
          */
-        if (record.header.warcFilename != null) {
+        if (header.warcFilename != null) {
             outBuf.write(WarcConstants.FN_WARC_FILENAME.getBytes());
             outBuf.write(": ".getBytes());
-            outBuf.write(record.header.warcFilename.toString().getBytes());
+            outBuf.write(header.warcFilename.toString().getBytes());
             outBuf.write("\r\n".getBytes());
         }
         /*
          * Warc-Profile
          */
         String warcProfileStr = null;
-        if (record.header.warcProfileIdx != null) {
-            if (record.header.warcProfileIdx > 0
-                    && record.header.warcProfileIdx < WarcConstants.P_IDX_STRINGS.length) {
-                warcProfileStr = WarcConstants.P_IDX_STRINGS[record.header.warcProfileIdx];
-            } else if (record.header.warcProfileStr != null) {
-                warcProfileStr = record.header.warcProfileStr;
+        if (header.warcProfileIdx != null) {
+            if (header.warcProfileIdx > 0
+                    && header.warcProfileIdx < WarcConstants.P_IDX_STRINGS.length) {
+                warcProfileStr = WarcConstants.P_IDX_STRINGS[header.warcProfileIdx];
+            } else {
                 // Warning...
             }
+        }
+        if (warcProfileStr == null) {
+            warcProfileStr = header.warcProfileStr;
         }
         if (warcProfileStr != null) {
             outBuf.write(WarcConstants.FN_WARC_PROFILE.getBytes());
@@ -400,10 +407,10 @@ public abstract class WarcWriter {
          * Warc-Identified-Payload-Type
          */
         String warcIdentifiedPayloadTypeStr = null;
-        if (record.header.warcIdentifiedPayloadType != null) {
-            warcIdentifiedPayloadTypeStr = record.header.warcIdentifiedPayloadType.toString();
-        } else if (record.header.warcIdentifiedPayloadTypeStr != null) {
-            warcIdentifiedPayloadTypeStr = record.header.warcIdentifiedPayloadTypeStr;
+        if (header.warcIdentifiedPayloadType != null) {
+            warcIdentifiedPayloadTypeStr = header.warcIdentifiedPayloadType.toString();
+        } else if (header.warcIdentifiedPayloadTypeStr != null) {
+            warcIdentifiedPayloadTypeStr = header.warcIdentifiedPayloadTypeStr;
             // Warning...
         }
         if (warcIdentifiedPayloadTypeStr != null) {
@@ -416,10 +423,10 @@ public abstract class WarcWriter {
          * Warc-Segment-Number
          */
         String warcSegmentNumberStr = null;
-        if (record.header.warcSegmentNumber != null) {
-            warcSegmentNumberStr = record.header.warcSegmentNumber.toString();
-        } else if (record.header.warcSegmentNumberStr != null) {
-            warcSegmentNumberStr = record.header.warcSegmentNumberStr;
+        if (header.warcSegmentNumber != null) {
+            warcSegmentNumberStr = header.warcSegmentNumber.toString();
+        } else if (header.warcSegmentNumberStr != null) {
+            warcSegmentNumberStr = header.warcSegmentNumberStr;
             // Warning...
         }
         if (warcSegmentNumberStr != null) {
@@ -432,10 +439,10 @@ public abstract class WarcWriter {
          * Warc-Segment-Origin-Id
          */
         String warcSegmentOriginIdStr = null;
-        if (record.header.warcSegmentOriginIdUrl != null) {
-            warcSegmentOriginIdStr = record.header.warcSegmentOriginIdUrl.toString();
-        } else if (record.header.warcSegmentOriginIdStr != null) {
-            warcSegmentOriginIdStr = record.header.warcSegmentOriginIdStr;
+        if (header.warcSegmentOriginIdUrl != null) {
+            warcSegmentOriginIdStr = header.warcSegmentOriginIdUrl.toString();
+        } else if (header.warcSegmentOriginIdStr != null) {
+            warcSegmentOriginIdStr = header.warcSegmentOriginIdStr;
             // Warning...
         }
         if (warcSegmentOriginIdStr != null) {
@@ -448,10 +455,10 @@ public abstract class WarcWriter {
          * Warc-Segment-Total-Length
          */
         String warcSegmentTotalLengthStr = null;
-        if (record.header.warcSegmentTotalLength != null) {
-            warcSegmentTotalLengthStr = record.header.warcSegmentTotalLength.toString();
-        } else if (record.header.warcSegmentTotalLengthStr != null) {
-            warcSegmentTotalLengthStr = record.header.warcSegmentTotalLengthStr;
+        if (header.warcSegmentTotalLength != null) {
+            warcSegmentTotalLengthStr = header.warcSegmentTotalLength.toString();
+        } else if (header.warcSegmentTotalLengthStr != null) {
+            warcSegmentTotalLengthStr = header.warcSegmentTotalLengthStr;
             // Warning...
         }
         if (warcSegmentTotalLengthStr != null) {
@@ -464,10 +471,10 @@ public abstract class WarcWriter {
          * End Of Header
          */
         outBuf.write("\r\n".getBytes());
-        byte[] header = outBuf.toByteArray();
-        out.write(header);
+        byte[] headerBytes = outBuf.toByteArray();
+        out.write(headerBytes);
         state = S_HEADER_WRITTEN;
-        return header;
+        return headerBytes;
     }
 
     /**

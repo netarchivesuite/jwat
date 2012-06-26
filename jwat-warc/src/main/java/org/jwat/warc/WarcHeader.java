@@ -358,14 +358,8 @@ public class WarcHeader {
                         addWarningDiagnosis(DiagnosisType.UNKNOWN, "Header line", headerLine.line);
                     }
                     break;
-                // TODO handle
-                /*
-                case HeaderLine.HLT_RAW:
-                    bFields = false;
-                    // Unknown header line.
-                    addWarningDiagnosis(DiagnosisType.INVALID, "Header line");
-                    break;
-                */
+                default:
+                    throw new IllegalStateException("Invalid HeaderLine output!");
                 }
             } else {
                 // EOF.

@@ -197,8 +197,8 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
         test_headeradd_object_cases(cases, WarcConstants.FDT_DIGEST);
 
         String payloadDigestStr = "sha1:BCCYP7NW6QIIOSM523Y5XHQKE5KWLMBD";
-        WarcDigest payloadDigestStrObj = WarcDigest.parseWarcDigest(payloadDigestStr);
-        cases = generate_header_datatype_cases(payloadDigestStrObj, payloadDigestStr, WarcConstants.FN_WARC_PAYLOAD_DIGEST, "warcPayloadDigestStr", "warcPayloadDigest");
+        WarcDigest payloadDigestObj = WarcDigest.parseWarcDigest(payloadDigestStr);
+        cases = generate_header_datatype_cases(payloadDigestObj, payloadDigestStr, WarcConstants.FN_WARC_PAYLOAD_DIGEST, "warcPayloadDigestStr", "warcPayloadDigest");
         test_headeradd_object_cases(cases, WarcConstants.FDT_DIGEST);
 
         /*

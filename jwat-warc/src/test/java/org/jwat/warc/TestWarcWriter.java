@@ -69,8 +69,9 @@ public class TestWarcWriter {
 
             out.close();
 
-            String tmpStr = new String(out.toByteArray());
-            System.out.print(tmpStr);
+            // debug
+            //String tmpStr = new String(out.toByteArray());
+            //System.out.print(tmpStr);
 
             /*
              * Test invalid closeRecord state.

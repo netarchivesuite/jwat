@@ -210,7 +210,6 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     Assert.assertEquals(0, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.REQUIRED_INVALID, "'Content-Length' header", 1},
-                            // FIXME !
                             {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
                     };
                     compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());

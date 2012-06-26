@@ -17,14 +17,17 @@
  */
 package org.jwat.common;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.io.IOException;
+import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.jwat.common.ContentType;
 
 /**
  * Test ContentType parser with legal and illegal content-types with and without
@@ -320,6 +323,214 @@ public class TestContentType {
                 Assert.assertNull(value);
             }
         }
+    }
+
+    @Test
+    public void test_contenttype_equals_hashcode() {
+        ContentType ct1;
+        ContentType ct2;
+
+        /*
+         * Nulls.
+         */
+
+        ct1 = new ContentType();
+        ct1.contentType = null;
+        ct1.mediaType = null;
+        ct1.parameters = null;
+
+        ct2 = new ContentType();
+        ct2.contentType = null;
+        ct2.mediaType = null;
+        ct2.parameters = null;
+
+        Assert.assertEquals(ct1, ct2);
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        Assert.assertFalse(ct1.equals(null));
+        Assert.assertFalse(ct2.equals(null));
+
+        /*
+         * Null vs. partial.
+         */
+
+        ct2.contentType = "application";
+        ct2.mediaType = null;
+        ct2.parameters = null;
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = null;
+        ct2.mediaType = "http";
+        ct2.parameters = null;
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = null;
+        ct2.mediaType = null;
+        ct2.parameters = new HashMap<String, String>();
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = null;
+        ct2.mediaType = null;
+        ct2.parameters.put("msgtype", null);
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = null;
+        ct2.mediaType = null;
+        ct2.parameters.put("msgtype", "response");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        /*
+         * Full vs. partial.
+         */
+
+        ct1.contentType = "application";
+        ct1.mediaType = "http";
+        ct1.parameters = new HashMap<String, String>();
+        ct1.parameters.put("msgtype", "response");
+
+        ct2.contentType = null;
+        ct2.mediaType = null;
+        ct2.parameters = null;
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = null;
+        ct2.parameters = null;
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = "http";
+        ct2.parameters = null;
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = "http";
+        ct2.parameters = new HashMap<String, String>();
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = "http";
+        ct2.parameters.put("msgtype", null);
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = "http";
+        ct2.parameters.put("response", "msgtype");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct2.contentType = "application";
+        ct2.mediaType = "http";
+        ct2.parameters.put("msgtype", "response");
+        ct2.parameters.remove("response");
+
+        Assert.assertEquals(ct1, ct2);
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        /*
+         * Parameter variations.
+         */
+
+        ct1.parameters.clear();
+        ct2.parameters.clear();
+
+        Assert.assertEquals(ct1, ct2);
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        ct1.parameters.put("msgtype", "response");
+        ct2.parameters.put("response", "msgtype");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        // Technicality.
+        //Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        ct1.parameters.clear();
+        ct1.parameters.put("msgtype", null);
+        ct2.parameters.clear();
+        ct2.parameters.put("msgtype", "response");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct1.parameters.clear();
+        ct1.parameters.put("msgtype", "response");
+        ct2.parameters.clear();
+        ct2.parameters.put("msgtype", null);
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct1.parameters.clear();
+        ct1.parameters.put("msgtype", null);
+        ct2.parameters.clear();
+        ct2.parameters.put("msgtype", null);
+
+        Assert.assertEquals(ct1, ct2);
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        /*
+         * More parameters.
+         */
+
+        ct1.parameters.clear();
+        ct2.parameters.clear();
+        ct1.parameters.put("msgtype", "response");
+        ct1.parameters.put("response", "msgtype");
+        ct2.parameters.put("response", "msgtype");
+        ct2.parameters.put("msgtype", "response");
+
+        Assert.assertEquals(ct1, ct2);
+        Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
+
+        ct1.parameters.clear();
+        ct2.parameters.clear();
+        ct1.parameters.put("msgtype", "response");
+        ct1.parameters.put("response", "msgtype");
+        ct2.parameters.put("response", "msgtype");
+        ct2.parameters.put("msgtype", "null");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct1.parameters.clear();
+        ct2.parameters.clear();
+        ct1.parameters.put("msgtype", "response");
+        ct1.parameters.put("response", "msgtype");
+        ct2.parameters.put("response", "msgtype");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
+
+        ct1.parameters.clear();
+        ct2.parameters.clear();
+        ct1.parameters.put("response", "msgtype");
+        ct2.parameters.put("response", "msgtype");
+        ct2.parameters.put("msgtype", "null");
+
+        Assert.assertFalse(ct1.equals(ct2));
+        Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
     }
 
 }

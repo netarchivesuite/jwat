@@ -22,6 +22,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 /**
  * This class represents a message digest including information about algorithm
@@ -105,6 +107,26 @@ public class Digest {
             return false;
         }
         return true;
+    }
+
+    public int hashCode() {
+        int hashCode = 0;
+        if (digestBytes != null) {
+            //hashCode ^= digestBytes.hashCode();
+            Checksum checksum = new CRC32();
+            checksum.update(digestBytes, 0, digestBytes.length);
+            hashCode ^= checksum.getValue();
+        }
+        if (algorithm != null) {
+            hashCode ^= algorithm.hashCode();
+        }
+        if (digestString != null) {
+            hashCode ^= digestString.hashCode();
+        }
+        if (encoding != null) {
+            hashCode ^= encoding.hashCode();
+        }
+        return hashCode;
     }
 
 }
