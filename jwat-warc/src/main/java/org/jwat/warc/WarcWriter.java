@@ -23,6 +23,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+
 /**
  * Base class for WARC writer implementations.
  *
@@ -43,7 +47,20 @@ public abstract class WarcWriter {
     protected static final int S_RECORD_CLOSED = 3;
 
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
-    protected DateFormat warcDateFormat = WarcDateParser.getDateFormat();
+    protected DateFormat warcDateFormat;
+
+    /** WARC field parser used. */
+    protected WarcFieldParsers fieldParser;
+
+    /** Buffer used by streamPayload() to copy from one stream to another. */
+    protected byte[] stream_copy_buffer = new byte[8192];
+
+    /** Configuration for throwing exception on content-length mismatch.
+     *  (Default is true) */
+    protected boolean bExceptionOnContentLengthMismatch;
+
+    /** Writer level errors and warnings or when writing byte headers. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /** Current state of writer. */
     protected int state = S_INIT;
@@ -51,21 +68,26 @@ public abstract class WarcWriter {
     /** Outputstream used to write WARC records. */
     protected OutputStream out;
 
-    /** Buffer used by streamPayload() to copy from one stream to another. */
-    protected byte[] stream_copy_buffer = new byte[8192];
+    /** Current WARC header written. */
+    protected WarcHeader header;
+
+    /** Content-Length from the WARC header. */
+    protected Long headerContentLength;
+
+    /** Total bytes written for current record payload. */
+    protected long payloadWrittenTotal;
 
     /** Block Digesting enabled/disabled. */
-    protected boolean bDigestBlock = false;
-
-    /** WARC field parser used. */
-    protected WarcFieldParsers fieldParser;
+    //protected boolean bDigestBlock = false;
 
     /**
      * Method used to initialize a readers internal state.
      * Must be called by all constructors.
      */
     protected void init() {
+        warcDateFormat = WarcDateParser.getDateFormat();
         fieldParser = new WarcFieldParsers();
+        bExceptionOnContentLengthMismatch = true;
     }
 
     /**
@@ -75,20 +97,42 @@ public abstract class WarcWriter {
     public abstract boolean isCompressed();
 
     /**
+     * Does this writer throw an exception if the content-length does not match
+     * the payload amount written.
+     * @return boolean indicating if an exception is thrown or not
+     */
+    public boolean exceptionOnContentLengthMismatch() {
+        return bExceptionOnContentLengthMismatch;
+    }
+
+    /**
+     * Tell the writer what to do in case of mismatch between content-length
+     * and amount payload written.
+     * @param enabled boolean indicating exception throwing on/off
+     */
+    public void setExceptionOnContentLengthMismatch(boolean enabled) {
+        bExceptionOnContentLengthMismatch = enabled;
+    }
+
+    /**
      * Is this writer set to block digest payload.
      * @return boolean indicating payload block digesting
      */
+    /*
     public boolean digestBlock() {
         return bDigestBlock;
     }
+    */
 
     /**
      * Set the writers payload block digest mode
      * @param enabled boolean indicating digest on/off
      */
+    /*
     public void setDigestBlock(boolean enabled) {
         bDigestBlock = enabled;
     }
+    */
 
     /**
      * Close WARC writer and free its resources.
@@ -106,7 +150,40 @@ public abstract class WarcWriter {
      * @throws IOException if an exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
+        Diagnostics<Diagnosis> diagnosticsUsed;
         out.write(WarcConstants.endMark);
+        if (headerContentLength == null) {
+            if (header != null) {
+                diagnosticsUsed = header.diagnostics;
+            } else {
+                diagnosticsUsed = diagnostics;
+            }
+            diagnosticsUsed.addError(new Diagnosis(
+                    DiagnosisType.ERROR_EXPECTED,
+                    "'" + WarcConstants.FN_CONTENT_LENGTH + "' header",
+                    "Mandatory!"));
+            if (bExceptionOnContentLengthMismatch) {
+                throw new IllegalStateException("Payload size does not match content-length!");
+            }
+        } else {
+            if (headerContentLength != payloadWrittenTotal) {
+                if (header != null) {
+                    diagnosticsUsed = header.diagnostics;
+                } else {
+                    diagnosticsUsed = diagnostics;
+                }
+                diagnosticsUsed.addError(new Diagnosis(
+                        DiagnosisType.INVALID_EXPECTED,
+                        "'" + WarcConstants.FN_CONTENT_LENGTH + "' header",
+                        Long.toString(payloadWrittenTotal),
+                        headerContentLength.toString()));
+                if (bExceptionOnContentLengthMismatch) {
+                    throw new IllegalStateException("Payload size does not match content-length!");
+                }
+            }
+        }
+        header = null;
+        headerContentLength = null;
     }
 
     /**
@@ -114,10 +191,14 @@ public abstract class WarcWriter {
      * @param header_bytes raw WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
-    public void writeHeader(byte[] header_bytes) throws IOException {
+    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
+        }
+        if (contentLength != null && contentLength < 0) {
+            throw new IllegalArgumentException(
+                    "The 'contentLength' parameter is negative!");
         }
         if (state == S_HEADER_WRITTEN) {
             throw new IllegalStateException("Headers written back to back!");
@@ -126,6 +207,9 @@ public abstract class WarcWriter {
         }
         out.write(header_bytes);
         state = S_HEADER_WRITTEN;
+        header = null;
+        headerContentLength = contentLength;
+        payloadWrittenTotal = 0;
     }
 
     /**
@@ -141,7 +225,8 @@ public abstract class WarcWriter {
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
-        WarcHeader header = record.header;
+        header = record.header;
+        headerContentLength = header.contentLength;
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         /*
          * Version Line
@@ -474,24 +559,20 @@ public abstract class WarcWriter {
         byte[] headerBytes = outBuf.toByteArray();
         out.write(headerBytes);
         state = S_HEADER_WRITTEN;
+        payloadWrittenTotal = 0;
         return headerBytes;
     }
 
     /**
      *
      * @param in input stream containing payload data
-     * @param length payload length
      * @return written length of payload data
      * @throws IOException if an exception occurs while writing payload data
      */
-    public long streamPayload(InputStream in, long length) throws IOException {
+    public long streamPayload(InputStream in) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
                     "The 'in' parameter is null!");
-        }
-        if (length < 0) {
-            throw new IllegalArgumentException(
-                    "The 'length' parameter is less than zero!");
         }
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
             throw new IllegalStateException("Write a header before writing payload!");
@@ -504,7 +585,28 @@ public abstract class WarcWriter {
             read = in.read(stream_copy_buffer);
         }
         state = S_PAYLOAD_WRITTEN;
+        payloadWrittenTotal += written;
         return written;
+    }
+
+    public long writePayload(byte[] b) throws IOException {
+        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
+            throw new IllegalStateException("Write a header before writing payload!");
+        }
+        out.write(b);
+        state = S_PAYLOAD_WRITTEN;
+        payloadWrittenTotal += b.length;
+        return b.length;
+    }
+
+    public long writePayload(byte[] b, int offset, int len) throws IOException {
+        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
+            throw new IllegalStateException("Write a header before writing payload!");
+        }
+        out.write(b, offset, len);
+        state = S_PAYLOAD_WRITTEN;
+        payloadWrittenTotal += len;
+        return len;
     }
 
 }

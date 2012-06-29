@@ -50,21 +50,41 @@ public class TestWarcWriter {
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
 
+            Assert.assertNull(writer.header);
+            Assert.assertNull(writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
+            payload = "Welcome to dænemark!".getBytes("UTF-8");
+
             record = WarcRecord.createRecord(writer);
             record.header.addHeader("WARC-Type", "warcinfo");
             record.header.addHeader("WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>");
             record.header.addHeader("WARC-Date", "2008-04-30T20:48:25Z");
             record.header.addHeader("WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz");
-            record.header.addHeader("Content-Length", "483");
+            //record.header.addHeader("Content-Length", "483");
+            record.header.addHeader("Content-Length", Integer.toString(payload.length));
             record.header.addHeader("Content-Type", "application/warc-fields");
 
-            payload = "Welcome to dænemark!".getBytes("UTF-8");
+            recordHeader = writer.writeHeader(record);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(record.header.contentLength, writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
 
             in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
 
-            recordHeader = writer.writeHeader(record);
-            writer.streamPayload(in, payload.length);
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(payload.length), record.header.contentLength);
+            Assert.assertEquals(new Long(payload.length), writer.headerContentLength);
+            Assert.assertEquals(payload.length, writer.payloadWrittenTotal);
+
             writer.closeRecord();
+
+            Assert.assertNull(writer.header);
+            Assert.assertNull(writer.headerContentLength);
+            Assert.assertEquals(payload.length, writer.payloadWrittenTotal);
+
             writer.close();
 
             out.close();
@@ -86,6 +106,10 @@ public class TestWarcWriter {
             }
             Assert.assertEquals(WarcWriter.S_INIT, writer.state);
 
+            Assert.assertNull(writer.header);
+            Assert.assertNull(writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
             /*
              * Test header written back to back.
              */
@@ -95,11 +119,18 @@ public class TestWarcWriter {
             record.header.addHeader("WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>");
             record.header.addHeader("WARC-Date", "2008-04-30T20:48:25Z");
             record.header.addHeader("WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz");
-            record.header.addHeader("Content-Length", "483");
+            //record.header.addHeader("Content-Length", "483");
+            record.header.addHeader("Content-Length", "0");
             record.header.addHeader("Content-Type", "application/warc-fields");
 
             writer.writeHeader(record);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(0), record.header.contentLength);
+            Assert.assertEquals(new Long(0), writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
             try {
                 writer.writeHeader(record);
                 Assert.fail("Exception expected!");
@@ -107,14 +138,30 @@ public class TestWarcWriter {
             }
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
 
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(0), record.header.contentLength);
+            Assert.assertEquals(new Long(0), writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
             /*
              * Test writing header after a payload with implicit record closing.
              */
 
-            writer.streamPayload(in, payload.length);
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
-            writer.streamPayload(in, payload.length);
+
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+
+            // Hack!
+            writer.headerContentLength = (long) (payload.length * 2);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(0), record.header.contentLength);
+            Assert.assertEquals(new Long(payload.length * 2), writer.headerContentLength);
+            Assert.assertEquals(payload.length * 2, writer.payloadWrittenTotal);
 
             writer.writeHeader(record);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
@@ -125,6 +172,11 @@ public class TestWarcWriter {
 
             writer.closeRecord();
             Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            Assert.assertNull(writer.header);
+            Assert.assertNull(writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
             writer.closeRecord();
             Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
 
@@ -146,6 +198,12 @@ public class TestWarcWriter {
 
             writer.writeHeader(record);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(0), record.header.contentLength);
+            Assert.assertEquals(new Long(0), writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
             writer.close();
             Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
             Assert.assertNull(writer.out);
@@ -157,13 +215,32 @@ public class TestWarcWriter {
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
 
+            record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, payload.length, null);
+
             writer.writeHeader(record);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
-            writer.streamPayload(in, payload.length);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(payload.length), record.header.contentLength);
+            Assert.assertEquals(new Long(payload.length), writer.headerContentLength);
+            Assert.assertEquals(0, writer.payloadWrittenTotal);
+
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
+
+            Assert.assertEquals(record.header, writer.header);
+            Assert.assertEquals(new Long(payload.length), record.header.contentLength);
+            Assert.assertEquals(new Long(payload.length), writer.headerContentLength);
+            Assert.assertEquals(payload.length, writer.payloadWrittenTotal);
+
             writer.close();
             Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
             Assert.assertNull(writer.out);
+
+            Assert.assertNull(writer.header);
+            Assert.assertNull(writer.headerContentLength);
+            Assert.assertEquals(payload.length, writer.payloadWrittenTotal);
 
             /*
              * Test streamPayload() in wrong states.
@@ -172,7 +249,22 @@ public class TestWarcWriter {
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
             try {
-                writer.streamPayload(in, payload.length);
+                in = new ByteArrayInputStream(payload);
+                writer.streamPayload(in);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_INIT, writer.state);
+
+            try {
+                writer.writePayload(payload);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_INIT, writer.state);
+
+            try {
+                writer.writePayload(payload, 0, 10);
                 Assert.fail("Exception expected!");
             } catch (IllegalStateException e) {
             }
@@ -180,19 +272,42 @@ public class TestWarcWriter {
 
             writer.writeHeader(record);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
-            writer.streamPayload(in, payload.length);
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
             writer.closeRecord();
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            try {
+                in = new ByteArrayInputStream(payload);
+                writer.streamPayload(in);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            try {
+                writer.writePayload(payload);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
+            Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
+
+            try {
+                writer.writePayload(payload, 0, 10);
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
             Assert.assertEquals(WarcWriter.S_RECORD_CLOSED, writer.state);
 
             /*
              * Test header bytes written back to back.
              */
 
-            writer.writeHeader(recordHeader);
+            writer.writeHeader(recordHeader, null);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
             try {
-                writer.writeHeader(recordHeader);
+                writer.writeHeader(recordHeader, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalStateException e) {
             }
@@ -202,12 +317,17 @@ public class TestWarcWriter {
              * Test writing header bytes after a payload with implicit record closing.
              */
 
-            writer.streamPayload(in, payload.length);
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
-            writer.streamPayload(in, payload.length);
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             Assert.assertEquals(WarcWriter.S_PAYLOAD_WRITTEN, writer.state);
 
-            writer.writeHeader(recordHeader);
+            // Hack!
+            writer.headerContentLength = (long) (payload.length * 2);
+
+            writer.writeHeader(recordHeader, null);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
         } catch (IOException e) {
         }

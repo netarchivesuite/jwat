@@ -132,6 +132,12 @@ public class TestWarcWriterHeaders {
 
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.exceptionOnContentLengthMismatch());
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
+
             /*
              * Empty headers.
              */
@@ -139,6 +145,7 @@ public class TestWarcWriterHeaders {
             header = record.header;
 
             recordHeader = writer.writeHeader(record);
+            Assert.assertNotNull(recordHeader);
 
             writer.closeRecord();
             /*
@@ -174,7 +181,9 @@ public class TestWarcWriterHeaders {
             in = new ByteArrayInputStream(payload);
 
             recordHeader = writer.writeHeader(record);
-            writer.streamPayload(in, payload.length);
+            Assert.assertNotNull(recordHeader);
+
+            writer.streamPayload(in);
             writer.closeRecord();
             /*
              * Object headers.
@@ -209,7 +218,9 @@ public class TestWarcWriterHeaders {
             in = new ByteArrayInputStream(payload);
 
             recordHeader = writer.writeHeader(record);
-            writer.streamPayload(in, payload.length);
+            Assert.assertNotNull(recordHeader);
+
+            writer.streamPayload(in);
             writer.closeRecord();
             /*
              * addHeader Strings.
@@ -242,7 +253,9 @@ public class TestWarcWriterHeaders {
             in = new ByteArrayInputStream(payload);
 
             recordHeader = writer.writeHeader(record);
-            writer.streamPayload(in, payload.length);
+            Assert.assertNotNull(recordHeader);
+
+            writer.streamPayload(in);
             writer.closeRecord();
             /*
              * addHeader datatypes.
@@ -275,7 +288,9 @@ public class TestWarcWriterHeaders {
             in = new ByteArrayInputStream(payload);
 
             recordHeader = writer.writeHeader(record);
-            writer.streamPayload(in, payload.length);
+            Assert.assertNotNull(recordHeader);
+
+            writer.streamPayload(in);
             writer.closeRecord();
 
             writer.close();
@@ -291,8 +306,8 @@ public class TestWarcWriterHeaders {
             */
 
             // debug
-            String tmpStr = new String(out.toByteArray());
-            System.out.print(tmpStr);
+            //String tmpStr = new String(out.toByteArray());
+            //System.out.print(tmpStr);
 
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(out.toByteArray());
 
@@ -352,8 +367,10 @@ public class TestWarcWriterHeaders {
             }
             reader.close();
 
+            Assert.assertEquals(5, recordNr);
+
             // debug
-            System.out.println(recordNr);
+            //System.out.println(recordNr);
 
         } catch (IOException e) {
         }

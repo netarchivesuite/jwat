@@ -598,104 +598,108 @@ public class WarcHeader {
             URI uriFieldValue) {
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
+            if (WarcConstants.FN_IDX_DT[fn_idx] == WarcConstants.FDT_LONG
+                    && dt == WarcConstants.FDT_INTEGER) {
+                longFieldValue = (long)integerFieldValue;
+                dt = WarcConstants.FDT_LONG;
+            }
             if (dt == WarcConstants.FN_IDX_DT[fn_idx]) {
                 // Recognized WARC field name.
-                if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
-                    seen[fn_idx] = true;
-                    switch (fn_idx.intValue()) {
-                    /*
-                     * Integer.
-                     */
-                    case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
-                        warcSegmentNumberStr = fieldValueStr;
-                        warcSegmentNumber = integerFieldValue;
-                        break;
-                    /*
-                     * Long.
-                     */
-                    case WarcConstants.FN_IDX_CONTENT_LENGTH:
-                        contentLengthStr = fieldValueStr;
-                        contentLength = longFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
-                        warcSegmentTotalLengthStr = fieldValueStr;
-                        warcSegmentTotalLength = longFieldValue;
-                        break;
-                    /*
-                     * Digest.
-                     */
-                    case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
-                        warcBlockDigestStr = fieldValueStr;
-                        warcBlockDigest = digestFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
-                        warcPayloadDigestStr = fieldValueStr;
-                        warcPayloadDigest = digestFieldValue;
-                        break;
-                    /*
-                     * ContentType.
-                     */
-                    case WarcConstants.FN_IDX_CONTENT_TYPE:
-                        contentTypeStr = fieldValueStr;
-                        contentType = contentTypeFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
-                        warcIdentifiedPayloadTypeStr = fieldValueStr;
-                        warcIdentifiedPayloadType = contentTypeFieldValue;
-                        break;
-                    /*
-                     * Date.
-                     */
-                    case WarcConstants.FN_IDX_WARC_DATE:
-                        warcDateStr = fieldValueStr;
-                        warcDate = dateFieldValue;
-                        break;
-                    /*
-                     * InetAddress.
-                     */
-                    case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
-                        warcIpAddress = fieldValueStr;
-                        warcInetAddress = inetAddrFieldValue;
-                        break;
-                    /*
-                     * URI.
-                     */
-                    case WarcConstants.FN_IDX_WARC_RECORD_ID:
-                        warcRecordIdStr = fieldValueStr;
-                        warcRecordIdUri = uriFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                        if (fieldValueStr != null || uriFieldValue != null) {
-                            WarcConcurrentTo warcConcurrentTo = new WarcConcurrentTo();
-                            warcConcurrentTo.warcConcurrentToStr = fieldValueStr;
-                            warcConcurrentTo.warcConcurrentToUri = uriFieldValue;
-                            warcConcurrentToList.add(warcConcurrentTo);
-                        }
-                        break;
-                    case WarcConstants.FN_IDX_WARC_REFERS_TO:
-                        warcRefersToStr = fieldValueStr;
-                        warcRefersToUri = uriFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_TARGET_URI:
-                        warcTargetUriStr = fieldValueStr;
-                        warcTargetUriUri = uriFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
-                        warcWarcinfoIdStr = fieldValueStr;
-                        warcWarcInfoIdUri = uriFieldValue;
-                        break;
-                    case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
-                        warcSegmentOriginIdStr = fieldValueStr;
-                        warcSegmentOriginIdUrl = uriFieldValue;
-                        break;
-                    default:
-                        break;
-                    }
-                } else {
+                if (seen[fn_idx] && !WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                     // Duplicate field.
                     addErrorDiagnosis(DiagnosisType.DUPLICATE,
                             "'" + fieldName + "' header",
                             fieldValueStr);
+                }
+                seen[fn_idx] = true;
+                switch (fn_idx.intValue()) {
+                /*
+                 * Integer.
+                 */
+                case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
+                    warcSegmentNumberStr = fieldValueStr;
+                    warcSegmentNumber = integerFieldValue;
+                    break;
+                /*
+                 * Long.
+                 */
+                case WarcConstants.FN_IDX_CONTENT_LENGTH:
+                    contentLengthStr = fieldValueStr;
+                    contentLength = longFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
+                    warcSegmentTotalLengthStr = fieldValueStr;
+                    warcSegmentTotalLength = longFieldValue;
+                    break;
+                /*
+                 * Digest.
+                 */
+                case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
+                    warcBlockDigestStr = fieldValueStr;
+                    warcBlockDigest = digestFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
+                    warcPayloadDigestStr = fieldValueStr;
+                    warcPayloadDigest = digestFieldValue;
+                    break;
+                /*
+                 * ContentType.
+                 */
+                case WarcConstants.FN_IDX_CONTENT_TYPE:
+                    contentTypeStr = fieldValueStr;
+                    contentType = contentTypeFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
+                    warcIdentifiedPayloadTypeStr = fieldValueStr;
+                    warcIdentifiedPayloadType = contentTypeFieldValue;
+                    break;
+                /*
+                 * Date.
+                 */
+                case WarcConstants.FN_IDX_WARC_DATE:
+                    warcDateStr = fieldValueStr;
+                    warcDate = dateFieldValue;
+                    break;
+                /*
+                 * InetAddress.
+                 */
+                case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
+                    warcIpAddress = fieldValueStr;
+                    warcInetAddress = inetAddrFieldValue;
+                    break;
+                /*
+                 * URI.
+                 */
+                case WarcConstants.FN_IDX_WARC_RECORD_ID:
+                    warcRecordIdStr = fieldValueStr;
+                    warcRecordIdUri = uriFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
+                    if (fieldValueStr != null || uriFieldValue != null) {
+                        WarcConcurrentTo warcConcurrentTo = new WarcConcurrentTo();
+                        warcConcurrentTo.warcConcurrentToStr = fieldValueStr;
+                        warcConcurrentTo.warcConcurrentToUri = uriFieldValue;
+                        warcConcurrentToList.add(warcConcurrentTo);
+                    }
+                    break;
+                case WarcConstants.FN_IDX_WARC_REFERS_TO:
+                    warcRefersToStr = fieldValueStr;
+                    warcRefersToUri = uriFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_TARGET_URI:
+                    warcTargetUriStr = fieldValueStr;
+                    warcTargetUriUri = uriFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
+                    warcWarcinfoIdStr = fieldValueStr;
+                    warcWarcInfoIdUri = uriFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
+                    warcSegmentOriginIdStr = fieldValueStr;
+                    warcSegmentOriginIdUrl = uriFieldValue;
+                    break;
+                default:
+                    break;
                 }
             } else {
                 // Invalid datatype for field.
@@ -703,6 +707,7 @@ public class WarcHeader {
                         "Invalid datatype for '" + fieldName + "' header",
                         WarcConstants.FDT_IDX_STRINGS[WarcConstants.FN_IDX_DT[fn_idx]],
                         WarcConstants.FDT_IDX_STRINGS[dt]);
+                // Consider throwing exception at some point.
             }
         }
         HeaderLine headerLine = new HeaderLine();

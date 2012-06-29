@@ -206,12 +206,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
             //wr.consumed = in.getConsumed() - header.startOffset;
             record.reader.bIsCompliant &= record.bIsCompliant;
         } else {
-            // TODO Report errors/warnings on reader, should maybe have it's own diagnostics.
             if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
                 record.reader.errors += record.diagnostics.getErrors().size();
                 record.reader.warnings += record.diagnostics.getWarnings().size();
                 record.reader.bIsCompliant = false;
             }
+            // In case no record is found the errors/warnings in the record
+            // object are transfered to the Reader.
+            reader.diagnostics.addAll(record.diagnostics);
             // EOF
             record = null;
         }

@@ -107,6 +107,9 @@ public class WarcWriterUncompressed extends WarcWriter {
         }
         return writeHeader_impl(record);
         //state = S_HEADER_WRITTEN;
+        //header
+        //headerContentLength
+        //payloadWrittenTotal = 0;
     }
 
 }

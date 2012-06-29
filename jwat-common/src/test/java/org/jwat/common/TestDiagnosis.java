@@ -17,8 +17,11 @@
  */
 package org.jwat.common;
 
-import junit.framework.Assert;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -150,6 +153,7 @@ public class TestDiagnosis {
          */
 
         Diagnostics<Diagnosis> ds;
+        Diagnostics<Diagnosis> ds2;
 
         ds = new Diagnostics<Diagnosis>();
         Assert.assertFalse(ds.hasErrors());
@@ -204,5 +208,243 @@ public class TestDiagnosis {
         Assert.assertEquals(2, d.information.length);
         Assert.assertEquals("me", d.information[0]);
         Assert.assertEquals("NOW!", d.information[1]);
+
+        /*
+         * addAll.
+         */
+
+        ds = new Diagnostics<Diagnosis>();
+        ds2 = new Diagnostics<Diagnosis>();
+
+        Assert.assertFalse(ds.hasErrors());
+        Assert.assertFalse(ds.hasWarnings());
+        Assert.assertEquals(0, ds.getErrors().size());
+        Assert.assertEquals(0, ds.getWarnings().size());
+
+        Assert.assertFalse(ds2.hasErrors());
+        Assert.assertFalse(ds2.hasWarnings());
+        Assert.assertEquals(0, ds2.getErrors().size());
+        Assert.assertEquals(0, ds2.getWarnings().size());
+
+        d = new Diagnosis(DiagnosisType.ERROR, "e_one_entity", "e_one_info");
+        Assert.assertNotNull(d);
+        ds.addError(d);
+
+        d = new Diagnosis(DiagnosisType.RECOMMENDED, "w_one_entity", "w_one_info");
+        Assert.assertNotNull(d);
+        ds.addWarning(d);
+
+        d = new Diagnosis(DiagnosisType.INVALID, "e_two_entity", "e_two_info");
+        Assert.assertNotNull(d);
+        ds2.addError(d);
+
+        d = new Diagnosis(DiagnosisType.RESERVED, "w_two_entity", "w_two_info");
+        Assert.assertNotNull(d);
+        ds2.addWarning(d);
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(1, ds.getErrors().size());
+        Assert.assertEquals(1, ds.getWarnings().size());
+
+        d = ds.getErrors().get(0);
+        Assert.assertEquals(DiagnosisType.ERROR, d.type);
+        Assert.assertEquals("e_one_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("e_one_info", d.information[0]);
+
+        d = ds.getWarnings().get(0);
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("w_one_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("w_one_info", d.information[0]);
+
+        Assert.assertTrue(ds2.hasErrors());
+        Assert.assertTrue(ds2.hasWarnings());
+        Assert.assertEquals(1, ds2.getErrors().size());
+        Assert.assertEquals(1, ds2.getWarnings().size());
+
+        d = ds2.getErrors().get(0);
+        Assert.assertEquals(DiagnosisType.INVALID, d.type);
+        Assert.assertEquals("e_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("e_two_info", d.information[0]);
+
+        d = ds2.getWarnings().get(0);
+        Assert.assertEquals(DiagnosisType.RESERVED, d.type);
+        Assert.assertEquals("w_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("w_two_info", d.information[0]);
+
+        ds.addAll(ds2);
+
+        Assert.assertTrue(ds2.hasErrors());
+        Assert.assertTrue(ds2.hasWarnings());
+        Assert.assertEquals(1, ds2.getErrors().size());
+        Assert.assertEquals(1, ds2.getWarnings().size());
+
+        d = ds2.getErrors().get(0);
+        Assert.assertEquals(DiagnosisType.INVALID, d.type);
+        Assert.assertEquals("e_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("e_two_info", d.information[0]);
+
+        d = ds2.getWarnings().get(0);
+        Assert.assertEquals(DiagnosisType.RESERVED, d.type);
+        Assert.assertEquals("w_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("w_two_info", d.information[0]);
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(2, ds.getErrors().size());
+        Assert.assertEquals(2, ds.getWarnings().size());
+
+        d = ds.getErrors().get(0);
+        Assert.assertEquals(DiagnosisType.ERROR, d.type);
+        Assert.assertEquals("e_one_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("e_one_info", d.information[0]);
+
+        d = ds.getWarnings().get(0);
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals("w_one_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("w_one_info", d.information[0]);
+
+        d = ds.getErrors().get(1);
+        Assert.assertEquals(DiagnosisType.INVALID, d.type);
+        Assert.assertEquals("e_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("e_two_info", d.information[0]);
+
+        d = ds.getWarnings().get(1);
+        Assert.assertEquals(DiagnosisType.RESERVED, d.type);
+        Assert.assertEquals("w_two_entity", d.entity);
+        Assert.assertEquals(1, d.information.length);
+        Assert.assertEquals("w_two_info", d.information[0]);
     }
+
+    @Test
+    public void test_digest_equals_hashcode() {
+        Diagnosis d1;
+        Diagnosis d2;
+
+        /*
+         * Equals.
+         */
+
+        d1 = new Diagnosis(DiagnosisType.EMPTY, "empty");
+        d2 = new Diagnosis(DiagnosisType.EMPTY, "empty");
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one");
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "two");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "two");
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one", null);
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one", null);
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one", "two");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "one", "two");
+
+        Assert.assertEquals(d1, d2);
+        Assert.assertEquals(d1.hashCode(), d2.hashCode());
+
+        /*
+         * Nulls.
+         */
+
+        Assert.assertFalse(d1.equals(null));
+        Assert.assertFalse(d2.equals(null));
+
+        /*
+         * Different.
+         */
+
+        d1 = new Diagnosis(DiagnosisType.INVALID, "empty");
+        d2 = new Diagnosis(DiagnosisType.EMPTY, "empty");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.ERROR, "empty");
+        d2 = new Diagnosis(DiagnosisType.ERROR, "error");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "ofni");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info", null);
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info", "ofni");
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+
+        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info", "ofni");
+        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info", null);
+
+        Assert.assertFalse(d1.equals(d2));
+        Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
+    }
+
 }

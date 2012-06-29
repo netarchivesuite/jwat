@@ -66,10 +66,10 @@ public class TestWarcRecordHelper {
         try {
             warcHeaderBytes = writer.writeHeader(record);
             if (httpHeaderBytes != null) {
-                written += writer.streamPayload(new ByteArrayInputStream(httpHeaderBytes), 0);
+                written += writer.streamPayload(new ByteArrayInputStream(httpHeaderBytes));
             }
             if (payloadBytes != null) {
-                written += writer.streamPayload(new ByteArrayInputStream(payloadBytes), 0);
+                written += writer.streamPayload(new ByteArrayInputStream(payloadBytes));
             }
             writer.closeRecord();
         } catch (IOException e) {

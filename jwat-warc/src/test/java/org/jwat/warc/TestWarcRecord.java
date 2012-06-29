@@ -144,6 +144,9 @@ public class TestWarcRecord extends TestWarcRecordHelper {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             WarcWriter writer = WarcWriterFactory.getWriter(out, false);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
 
             record = createRecord(writer, warcMetainfoHeaders, null, null);
             writeRecord(writer, record, null, null);
@@ -623,6 +626,9 @@ public class TestWarcRecord extends TestWarcRecordHelper {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             WarcWriter writer = WarcWriterFactory.getWriter(out, false);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
 
             record = createRecord(writer, warcResponseHeaders, null, null);
             record.header.addHeader("Content-Type", "application/http; msgtype=response");

@@ -54,6 +54,15 @@ public class Diagnostics<T> {
     }
 
     /**
+     * Add all errors/warnings from supplied object to this one.
+     * @param diagnostics other diagnostics with errors/warnings
+     */
+    public void addAll(Diagnostics<T> diagnostics) {
+        errors.addAll(diagnostics.errors);
+        warnings.addAll(diagnostics.warnings);
+    }
+
+    /**
      * Add errors diagnosis to the collection.
      * @param d error diagnosis
      */

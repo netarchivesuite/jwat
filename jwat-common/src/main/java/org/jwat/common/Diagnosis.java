@@ -17,6 +17,7 @@
  */
 package org.jwat.common;
 
+
 /**
  * Class representing a diagnosis which was found while validating an entity.
  *
@@ -65,6 +66,51 @@ public class Diagnosis {
             System.arraycopy(information, 0, messageArgs, 1, information.length);
         }
         return messageArgs;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        Diagnosis diagnosisObj = (Diagnosis)obj;
+        if (!type.equals(diagnosisObj.type)) {
+            return false;
+        }
+        if (!entity.equals(diagnosisObj.entity)) {
+            return false;
+        }
+        if (information != null && diagnosisObj.information != null) {
+            if (information.length != diagnosisObj.information.length) {
+                return false;
+            }
+            for (int i=0; i<information.length; ++i) {
+                if (information[i] != null) {
+                    if (!information[i].equals(diagnosisObj.information[i])) {
+                        return false;
+                    }
+                } else if (diagnosisObj.information[i] != null) {
+                    return false;
+                }
+            }
+        } else if (information != null || diagnosisObj.information != null) {
+            return false;
+        }
+        return true;
+    }
+
+    public int hashCode() {
+        int hashCode = type.hashCode();
+        hashCode ^= entity.hashCode();
+        if (information != null) {
+            hashCode ^= 31331;
+            for (int i=0; i<information.length; ++i) {
+                if (information[ i ] != null) {
+                    hashCode ^= information[ i ].hashCode();
+                }
+            }
+        }
+        return hashCode;
     }
 
 }

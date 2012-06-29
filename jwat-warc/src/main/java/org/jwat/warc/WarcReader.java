@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLineReader;
 
 /**
@@ -85,6 +87,9 @@ public abstract class WarcReader {
 
     /** WARC field parser used. */
     protected WarcFieldParsers fieldParser;
+
+    /** Reader level errors and warnings or when no record is available. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /**
      * Method used to initialize a readers internal state.

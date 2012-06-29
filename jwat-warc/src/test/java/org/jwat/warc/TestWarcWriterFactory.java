@@ -125,7 +125,7 @@ public class TestWarcWriterFactory {
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();
                     //writer.transfer( payload.getInputStream(), payload.getTotalLength() );
-                    writer.streamPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
+                    writer.streamPayload( payload.getInputStreamComplete() );
                 }
 
                 writer.closeRecord();
@@ -278,12 +278,12 @@ public class TestWarcWriterFactory {
                     warnings += record.diagnostics.getWarnings().size();
                 }
 
-                writer.writeHeader(record.header.headerBytes);
+                writer.writeHeader(record.header.headerBytes, record.header.contentLength);
 
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();
                     //writer.transfer( payload.getInputStream(), payload.getTotalLength() );
-                    writer.streamPayload( payload.getInputStreamComplete(), payload.getTotalLength() );
+                    writer.streamPayload( payload.getInputStreamComplete() );
                 }
 
                 writer.closeRecord();

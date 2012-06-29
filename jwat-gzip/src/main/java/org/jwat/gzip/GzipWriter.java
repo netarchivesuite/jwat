@@ -469,11 +469,12 @@ public class GzipWriter {
         public void write(byte[] b, int off, int len) throws IOException {
             int pLen;
             try {
-                while (off < len) {
+                while (len > 0) {
                     if (bb.remaining() > 0) {
-                        pLen = Math.min(bb.remaining(), len - off);
+                        pLen = Math.min(bb.remaining(), len);
                         bb.put(b, off, pLen);
                         off += pLen;
+                        len -= pLen;
                     } else {
                         bb.flip();
                         int compressed = writer.readCompressed(bb, compressedBytes, 0, compressedBytes.length, false);

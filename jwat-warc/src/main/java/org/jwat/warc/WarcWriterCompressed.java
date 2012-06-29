@@ -110,7 +110,7 @@ public class WarcWriterCompressed extends WarcWriter {
     }
 
     @Override
-    public void writeHeader(byte[] header_bytes) throws IOException {
+    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
         /*
         if (entry != null) {
             closeRecord();
@@ -119,6 +119,10 @@ public class WarcWriterCompressed extends WarcWriter {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
+        }
+        if (contentLength != null && contentLength < 0) {
+            throw new IllegalArgumentException(
+                    "The 'contentLength' parameter is negative!");
         }
         if (state == S_HEADER_WRITTEN) {
             throw new IllegalStateException("Headers written back to back!");
@@ -136,6 +140,9 @@ public class WarcWriterCompressed extends WarcWriter {
         out = entry.getOutputStream();
         out.write(header_bytes);
         state = S_HEADER_WRITTEN;
+        header = null;
+        headerContentLength = contentLength;
+        payloadWrittenTotal = 0;
     }
 
     @Override
@@ -165,14 +172,35 @@ public class WarcWriterCompressed extends WarcWriter {
         out = entry.getOutputStream();
         return writeHeader_impl(record);
         //state = S_HEADER_WRITTEN;
+        //header
+        //headerContentLength
+        //payloadWrittenTotal = 0;
     }
 
     @Override
-    public long streamPayload(InputStream in, long length) throws IOException {
+    public long streamPayload(InputStream in) throws IOException {
         if (entry == null) {
             throw new IllegalStateException();
         }
-        return super.streamPayload(in, length);
+        return super.streamPayload(in);
+        //state = S_PAYLOAD_WRITTEN;
+    }
+
+    @Override
+    public long writePayload(byte[] b) throws IOException {
+        if (entry == null) {
+            throw new IllegalStateException();
+        }
+        return super.writePayload(b);
+        //state = S_PAYLOAD_WRITTEN;
+    }
+
+    @Override
+    public long writePayload(byte[] b, int offset, int len) throws IOException {
+        if (entry == null) {
+            throw new IllegalStateException();
+        }
+        return super.writePayload(b, offset, len);
         //state = S_PAYLOAD_WRITTEN;
     }
 

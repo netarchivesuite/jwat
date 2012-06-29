@@ -530,7 +530,12 @@ public class TestParams {
         Assert.assertFalse(writer.isCompressed());
 
         try {
-            writer.writeHeader(headerArr);
+            writer.writeHeader(headerArr, null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.writeHeader(new byte[1], -1L);
             Assert.fail("Exception expected!");
         } catch (IllegalArgumentException e) {
         }
@@ -540,7 +545,7 @@ public class TestParams {
         } catch (IllegalArgumentException e) {
         }
         try {
-            writer.streamPayload(null, 1);
+            writer.streamPayload(null);
             Assert.fail("Exception expected!");
         } catch (IllegalArgumentException e) {
         }
@@ -584,7 +589,12 @@ public class TestParams {
         Assert.assertTrue(writer.isCompressed());
 
         try {
-            writer.writeHeader(headerArr);
+            writer.writeHeader(headerArr, null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            writer.writeHeader(new byte[1], -1L);
             Assert.fail("Exception expected!");
         } catch (IllegalArgumentException e) {
         }
@@ -594,7 +604,7 @@ public class TestParams {
         } catch (IllegalArgumentException e) {
         }
         try {
-            writer.streamPayload(null, 1);
+            writer.streamPayload(null);
             Assert.fail("Exception expected!");
         } catch (IllegalStateException e) {
         }
