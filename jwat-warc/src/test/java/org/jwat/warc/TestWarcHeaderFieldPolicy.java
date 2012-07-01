@@ -268,12 +268,12 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     Assert.assertEquals(1, diagnosis.information.length);
                     break;
                 case WarcConstants.POLICY_SHALL:
-                    Assert.assertEquals(0, errors.size());
-                    Assert.assertEquals(1, warnings.size());
-                    diagnosis = warnings.get(0);
+                    Assert.assertEquals(1, errors.size());
+                    diagnosis = errors.get(0);
                     Assert.assertEquals(DiagnosisType.REQUIRED_INVALID, diagnosis.type);
                     Assert.assertEquals("'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value", diagnosis.entity);
                     Assert.assertEquals(1, diagnosis.information.length);
+                    Assert.assertEquals(0, warnings.size());
                     break;
                 case WarcConstants.POLICY_SHALL_NOT:
                 case WarcConstants.POLICY_MAY_NOT:

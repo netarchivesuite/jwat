@@ -74,6 +74,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** WARC header. */
     public WarcHeader header;
 
+    /** Did the reader detect a missing CR while parsing newlines. */
+    protected boolean bMissingCr = false;
+
+    /** Did the reader detect a missing LF while parsing newlines. */
+    protected boolean bMissingLf = false;
+
+    /** Did the reader detect a misplaced CR while parsing newlines. */
+    protected boolean bMisplacedCr = false;
+
+    /** Did the reader detect a misplaced LF while parsing newlines. */
+    protected boolean bMisplacedLf = false;
+
     /*
      * Payload
      */
@@ -280,6 +292,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
                         "Trailing newlines",
                         Integer.toString(newlines),
                         "2");
+            }
+            if (bMissingCr) {
+                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing CR");
+            }
+            if (bMissingLf) {
+                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing LF");
+            }
+            if (bMisplacedCr) {
+                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced CR");
+            }
+            if (bMisplacedLf) {
+                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced LF");
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -503,6 +531,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
+    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
+        diagnostics.addWarning(new Diagnosis(type, entity, information));
+    }
+
+    /**
      * Looks forward in the inputstream and counts the number of newlines
      * found. Non newlines characters are pushed back onto the inputstream.
      * @param in data inputstream
@@ -510,7 +550,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @throws IOException if an error occurs while reading data
      */
     protected int parseNewLines(ByteCountingPushBackInputStream in) throws IOException {
-        // TODO report missing CR
+        bMissingCr = false;
+        bMissingLf = false;
+        bMisplacedCr = false;
+        bMisplacedLf = false;
         int newlines = 0;
         byte[] buffer = new byte[2];
         boolean b = true;
@@ -520,17 +563,34 @@ public class WarcRecord implements PayloadOnClosedHandler {
             case 1:
                 if (buffer[0] == '\n') {
                     ++newlines;
+                    bMissingCr = true;
+                } else if ((buffer[0] == '\r')) {
+                    ++newlines;
+                    bMissingLf = true;
                 } else {
                     in.unread(buffer[0]);
                     b = false;
                 }
                 break;
             case 2:
-                if (buffer[0] == '\r' && buffer[1] == '\n') {
-                    ++newlines;
+                if (buffer[0] == '\r') {
+                    if (buffer[1] == '\n') {
+                        ++newlines;
+                    } else {
+                        ++newlines;
+                        bMissingLf = true;
+                        in.unread(buffer[1]);
+                    }
                 } else if (buffer[0] == '\n') {
-                    ++newlines;
-                    in.unread(buffer[1]);
+                    if (buffer[1] == '\r') {
+                        ++newlines;
+                        bMisplacedCr = true;
+                        bMisplacedLf = true;
+                    } else {
+                        ++newlines;
+                        bMissingCr = true;
+                        in.unread(buffer[1]);
+                    }
                 } else {
                     in.unread(buffer);
                     b = false;

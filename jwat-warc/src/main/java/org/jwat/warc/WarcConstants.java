@@ -458,15 +458,15 @@ public class WarcConstants {
 
     /** Warc header can be ignored. */
     public static final int POLICY_IGNORE = 0;
-    /** TODO rename */
+    /** Warc header is mandatory (equal to shall). */
     public static final int POLICY_MANDATORY = 1;
-    /** TODO rename */
+    /** Warc header must be present. */
     public static final int POLICY_SHALL = 2;
-    /** TODO rename */
+    /** Warc header must not be present. */
     public static final int POLICY_SHALL_NOT = 3;
-    /** TODO rename */
+    /** Warc header can be present. */
     public static final int POLICY_MAY = 4;
-    /** TODO rename */
+    /** Warc header should not be present. */
     public static final int POLICY_MAY_NOT = 5;
 
     /** A (Warc-Types x Warc-Header-Fields) matrix used for policy validation.

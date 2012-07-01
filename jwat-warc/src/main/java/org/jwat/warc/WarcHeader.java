@@ -867,16 +867,7 @@ public class WarcHeader {
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
-                addWarningDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_MAY:
-            break;
-        case WarcConstants.POLICY_MAY_NOT:
-            if (fieldObj != null) {
-                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
                         "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
                         valueStr);
             }
@@ -888,6 +879,14 @@ public class WarcHeader {
                         valueStr);
             }
             break;
+        case WarcConstants.POLICY_MAY_NOT:
+            if (fieldObj != null) {
+                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
+                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        valueStr);
+            }
+            break;
+        case WarcConstants.POLICY_MAY:
         case WarcConstants.POLICY_IGNORE:
         default:
             break;

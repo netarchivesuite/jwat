@@ -44,6 +44,10 @@ public class TestWarcRecord extends TestWarcRecordHelper {
         WarcRecord record = new WarcRecord();
         byte[] bytes;
         int expectedNewlines;
+        boolean expectedMissingCr;
+        boolean expectedMissingLf;
+        boolean expectedMisplacedCr;
+        boolean expectedMisplacedLf;
         String expectedRemaining;
         ByteArrayInputStream in;
         ByteCountingPushBackInputStream pbin;
@@ -53,30 +57,40 @@ public class TestWarcRecord extends TestWarcRecordHelper {
         String remainingStr;
 
         Object[][] cases = {
-                {"".getBytes(), 0, ""},
-                {"\n".getBytes(), 1, ""},
-                {"a".getBytes(), 0, "a"},
-                {"\r\n".getBytes(), 1, ""},
-                {"\ra".getBytes(), 0, "\ra"},
-                {"\r\n\n".getBytes(), 2, ""},
-                {"\n\r\n".getBytes(), 2, ""},
-                {"\r\n\r\n".getBytes(), 2, ""},
-                {"\r\n\na".getBytes(), 2, "a"},
-                {"\n\r\na".getBytes(), 2, "a"},
-                {"\r\n\r\na".getBytes(), 2, "a"}
+                {"".getBytes(), 0, false, false, false, false, ""},
+                {"\n".getBytes(), 1, true, false, false, false, ""},
+                {"\r".getBytes(), 1, false, true, false, false, ""},
+                {"a".getBytes(), 0, false, false, false, false, "a"},
+                {"\r\n".getBytes(), 1, false, false, false, false, ""},
+                {"\ra".getBytes(), 1, false, true, false, false, "a"},
+                {"\r\n\n".getBytes(), 2, true, false, false, false, ""},
+                {"\n\r\n".getBytes(), 2, true, false, true, true, ""},
+                {"\r\n\r\n".getBytes(), 2, false, false, false, false, ""},
+                {"\r\n\na".getBytes(), 2, true, false, false, false, "a"},
+                {"\n\r\na".getBytes(), 2, true, false, true, true, "a"},
+                {"\r\n\r\na".getBytes(), 2, false, false, false, false, "a"},
+                {"\n\r\n\ra".getBytes(), 2, false, false, true, true, "a"}
         };
 
         try {
             for (int i=0; i<cases.length; ++i) {
                 bytes = (byte[])cases[i][0];
                 expectedNewlines = (Integer)cases[i][1];
-                expectedRemaining = (String)cases[i][2];
+                expectedMissingCr = (Boolean)cases[i][2];
+                expectedMissingLf = (Boolean)cases[i][3];
+                expectedMisplacedCr = (Boolean)cases[i][4];
+                expectedMisplacedLf = (Boolean)cases[i][5];
+                expectedRemaining = (String)cases[i][6];
                 // debug
                 //System.out.println(Base16.encodeArray(bytes));
                 in = new ByteArrayInputStream(bytes);
                 pbin = new ByteCountingPushBackInputStream(in, 16);
                 newlines = record.parseNewLines(pbin);
                 Assert.assertEquals(expectedNewlines, newlines);
+                Assert.assertEquals(expectedMissingCr, record.bMissingCr);
+                Assert.assertEquals(expectedMissingLf, record.bMissingLf);
+                Assert.assertEquals(expectedMisplacedCr, record.bMisplacedCr);
+                Assert.assertEquals(expectedMisplacedLf, record.bMisplacedLf);
                 remaining = pbin.read(remainingBytes);
                 if (remaining == -1) {
                     remaining = 0;
