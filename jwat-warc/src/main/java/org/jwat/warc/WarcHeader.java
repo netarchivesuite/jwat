@@ -48,7 +48,7 @@ public class WarcHeader {
 
     /** WARC field parser used.
      * Must be set prior to calling the various methods. */
-    protected WarcFieldParsers fieldParser;
+    protected WarcFieldParsers fieldParsers;
 
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat;
@@ -162,7 +162,7 @@ public class WarcHeader {
         WarcHeader header = new WarcHeader();
         header.major = 1;
         header.minor = 0;
-        header.fieldParser = writer.fieldParser;
+        header.fieldParsers = writer.fieldParsers;
         header.warcDateFormat = writer.warcDateFormat;
         header.diagnostics = diagnostics;
         return header;
@@ -171,7 +171,7 @@ public class WarcHeader {
     public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
         header.reader = reader;
-        header.fieldParser = reader.fieldParser;
+        header.fieldParsers = reader.fieldParsers;
         header.diagnostics = diagnostics;
         // This is only relevant for uncompressed sequentially read records
         header.startOffset = startOffset;
@@ -385,7 +385,7 @@ public class WarcHeader {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
                 case WarcConstants.FN_IDX_WARC_TYPE:
-                    warcTypeStr = fieldParser.parseString(fieldValue,
+                    warcTypeStr = fieldParsers.parseString(fieldValue,
                             WarcConstants.FN_WARC_TYPE);
                     if (warcTypeStr != null) {
                         warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
@@ -396,26 +396,26 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = fieldValue;
-                    warcRecordIdUri = fieldParser.parseUri(fieldValue,
+                    warcRecordIdUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = fieldValue;
-                    warcDate = fieldParser.parseDate(fieldValue,
+                    warcDate = fieldParsers.parseDate(fieldValue,
                             WarcConstants.FN_WARC_DATE);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_LENGTH:
                     contentLengthStr = fieldValue;
-                    contentLength = fieldParser.parseLong(fieldValue,
+                    contentLength = fieldParsers.parseLong(fieldValue,
                             WarcConstants.FN_CONTENT_LENGTH);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_TYPE:
                     contentTypeStr = fieldValue;
-                    contentType = fieldParser.parseContentType(fieldValue,
+                    contentType = fieldParsers.parseContentType(fieldValue,
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    URI tmpUri = fieldParser.parseUri(fieldValue,
+                    URI tmpUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
@@ -426,31 +426,31 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
                     warcBlockDigestStr = fieldValue;
-                    warcBlockDigest = fieldParser.parseDigest(fieldValue,
+                    warcBlockDigest = fieldParsers.parseDigest(fieldValue,
                             WarcConstants.FN_WARC_BLOCK_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
                     warcPayloadDigestStr = fieldValue;
-                    warcPayloadDigest = fieldParser.parseDigest(fieldValue,
+                    warcPayloadDigest = fieldParsers.parseDigest(fieldValue,
                             WarcConstants.FN_WARC_PAYLOAD_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
                     warcIpAddress = fieldValue;
-                    warcInetAddress = fieldParser.parseIpAddress(fieldValue,
+                    warcInetAddress = fieldParsers.parseIpAddress(fieldValue,
                             WarcConstants.FN_WARC_IP_ADDRESS);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = fieldValue;
-                    warcRefersToUri = fieldParser.parseUri(fieldValue,
+                    warcRefersToUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = fieldValue;
-                    warcTargetUriUri = fieldParser.parseUri(fieldValue,
+                    warcTargetUriUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
-                    warcTruncatedStr = fieldParser.parseString(fieldValue,
+                    warcTruncatedStr = fieldParsers.parseString(fieldValue,
                             WarcConstants.FN_WARC_TRUNCATED);
                     if (warcTruncatedStr != null) {
                         warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
@@ -461,15 +461,15 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
-                    warcWarcInfoIdUri = fieldParser.parseUri(fieldValue,
+                    warcWarcInfoIdUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
-                    warcFilename = fieldParser.parseString(fieldValue,
+                    warcFilename = fieldParsers.parseString(fieldValue,
                             WarcConstants.FN_WARC_FILENAME);
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
-                    warcProfileStr = fieldParser.parseString(fieldValue,
+                    warcProfileStr = fieldParsers.parseString(fieldValue,
                             WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
@@ -480,22 +480,22 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
                     warcIdentifiedPayloadTypeStr = fieldValue;
-                    warcIdentifiedPayloadType = fieldParser.parseContentType(fieldValue,
+                    warcIdentifiedPayloadType = fieldParsers.parseContentType(fieldValue,
                             WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValue;
-                    warcSegmentOriginIdUrl = fieldParser.parseUri(fieldValue,
+                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
                     warcSegmentNumberStr = fieldValue;
-                    warcSegmentNumber = fieldParser.parseInteger(fieldValue,
+                    warcSegmentNumber = fieldParsers.parseInteger(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_NUMBER);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
                     warcSegmentTotalLengthStr = fieldValue;
-                    warcSegmentTotalLength = fieldParser.parseLong(fieldValue,
+                    warcSegmentTotalLength = fieldParsers.parseLong(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
                     break;
                 }
@@ -523,7 +523,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, Integer integerFieldValue, String fieldValueStr) {
         if (integerFieldValue == null && fieldValueStr != null) {
-            integerFieldValue = fieldParser.parseInteger(fieldValueStr, fieldName);
+            integerFieldValue = fieldParsers.parseInteger(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && integerFieldValue != null) {
             fieldValueStr = integerFieldValue.toString();
         }
@@ -533,7 +533,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, Long longFieldValue, String fieldValueStr) {
         if (longFieldValue == null && fieldValueStr != null) {
-            longFieldValue = fieldParser.parseLong(fieldValueStr, fieldName);
+            longFieldValue = fieldParsers.parseLong(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && longFieldValue != null) {
             fieldValueStr = longFieldValue.toString();
         }
@@ -543,7 +543,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, WarcDigest digestFieldValue, String fieldValueStr) {
         if (digestFieldValue == null && fieldValueStr != null) {
-            digestFieldValue = fieldParser.parseDigest(fieldValueStr, fieldName);
+            digestFieldValue = fieldParsers.parseDigest(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && digestFieldValue != null) {
             fieldValueStr = digestFieldValue.toString();
         }
@@ -553,7 +553,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, ContentType contentTypeFieldValue, String fieldValueStr) {
         if (contentTypeFieldValue == null && fieldValueStr != null) {
-            contentTypeFieldValue = fieldParser.parseContentType(fieldValueStr, fieldName);
+            contentTypeFieldValue = fieldParsers.parseContentType(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && contentTypeFieldValue != null) {
             fieldValueStr = contentTypeFieldValue.toString();
         }
@@ -563,7 +563,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
         if (dateFieldValue == null && fieldValueStr != null) {
-            dateFieldValue = fieldParser.parseDate(fieldValueStr, fieldName);
+            dateFieldValue = fieldParsers.parseDate(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && dateFieldValue != null) {
             fieldValueStr = warcDateFormat.format(dateFieldValue);
         }
@@ -573,7 +573,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, InetAddress inetAddrFieldValue, String fieldValueStr) {
         if (inetAddrFieldValue == null && fieldValueStr != null) {
-            inetAddrFieldValue = fieldParser.parseIpAddress(fieldValueStr, fieldName);
+            inetAddrFieldValue = fieldParsers.parseIpAddress(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && inetAddrFieldValue != null) {
             fieldValueStr = inetAddrFieldValue.getHostAddress();
         }
@@ -583,7 +583,7 @@ public class WarcHeader {
 
     public HeaderLine addHeader(String fieldName, URI uriFieldValue, String fieldValueStr) {
         if (uriFieldValue == null && fieldValueStr != null) {
-            uriFieldValue = fieldParser.parseUri(fieldValueStr, fieldName);
+            uriFieldValue = fieldParsers.parseUri(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && uriFieldValue != null) {
             fieldValueStr = uriFieldValue.toString();
         }

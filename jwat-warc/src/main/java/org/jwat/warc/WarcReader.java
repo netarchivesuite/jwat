@@ -73,7 +73,7 @@ public abstract class WarcReader {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
-    /** Max size allowed for a WARC header. */
+    /** Max size allowed for a record header. */
     protected int warcHeaderMaxSize;
 
     /** Max size allowed for a payload header. */
@@ -86,7 +86,7 @@ public abstract class WarcReader {
     protected HeaderLineReader headerLineReader;
 
     /** WARC field parser used. */
-    protected WarcFieldParsers fieldParser;
+    protected WarcFieldParsers fieldParsers;
 
     /** Reader level errors and warnings or when no record is available. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
@@ -107,7 +107,7 @@ public abstract class WarcReader {
         headerLineReader.bLWS = true;
         headerLineReader.bQuotedText = true;
         headerLineReader.bEncodedWords = true;
-        fieldParser = new WarcFieldParsers();
+        fieldParsers = new WarcFieldParsers();
     }
 
     /**
@@ -259,15 +259,15 @@ public abstract class WarcReader {
     }
 
     /**
-     * Get the max size allowed for a WARC header.
-     * @return max size allowed for a WARC header
+     * Get the max size allowed for a record header.
+     * @return max size allowed for a record header
      */
     public int getWarcHeaderMaxSize() {
         return warcHeaderMaxSize;
     }
 
     /**
-     * Set the max size allowed for a WARC header.
+     * Set the max size allowed for a record header.
      * @param size max size allowed
      */
     public void setWarcHeaderMaxSize(int size) {

@@ -45,16 +45,18 @@ public class TestFieldParsers {
             in = this.getClass().getClassLoader().getResourceAsStream(emptyFieldsFile);
 
             ArcReader reader = ArcReaderFactory.getReader(in);
-            ArcRecord record;
+            ArcRecordBase record;
 
-            ArcVersionBlock version = reader.getVersionBlock();
+            // TODO
+            //ArcVersionBlock version = reader.getVersionBlock();
 
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    // TODO
+                    //RecordDebugBase.printRecord(record);
+                    //RecordDebugBase.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -102,49 +104,51 @@ public class TestFieldParsers {
             in = this.getClass().getClassLoader().getResourceAsStream(invalidFormatFieldsFile);
 
             ArcReader reader = ArcReaderFactory.getReader(in);
-            ArcRecord record;
+            ArcRecordBase record;
 
-            ArcVersionBlock version = reader.getVersionBlock();
-
-            // Test diagnostics.
-            Assert.assertNull(reader.fieldParser.parseString(null, null));
-            Assert.assertNull(reader.fieldParser.parseInteger(null, null));
-            Assert.assertNull(reader.fieldParser.parseLong(null, null));
-            Assert.assertNull(reader.fieldParser.parseContentType(null, null));
-            Assert.assertNull(reader.fieldParser.parseIpAddress(null, null));
-            Assert.assertNull(reader.fieldParser.parseUri(null, null));
-            Assert.assertNull(reader.fieldParser.parseDate(null, null));
-
-            Assert.assertEquals(reader.fieldParser.parseString("", null), "");
-            Assert.assertNull(reader.fieldParser.parseInteger("", null));
-            Assert.assertNull(reader.fieldParser.parseLong("", null));
-            Assert.assertNull(reader.fieldParser.parseContentType("", null));
-            Assert.assertNull(reader.fieldParser.parseIpAddress("", null));
-            Assert.assertNull(reader.fieldParser.parseUri("", null));
-            Assert.assertNull(reader.fieldParser.parseDate("", null));
-
-            Assert.assertNull(reader.fieldParser.parseInteger("one", null));
-            Assert.assertNull(reader.fieldParser.parseLong("very lengthy", null));
-            Assert.assertNull(reader.fieldParser.parseContentType("gif\\image", null));
-            Assert.assertNull(reader.fieldParser.parseIpAddress("a.b.c.d", null));
-            //Assert.assertNull(reader.fieldParser.parseUri("bad_uri", null));
-            //Assert.assertNull(reader.fieldParser.parseUri("<zaphod>", null));
-            Assert.assertNull(reader.fieldParser.parseDate("blue monday", null));
-
-            Assert.assertEquals("string", reader.fieldParser.parseString("string", null));
-            Assert.assertEquals(new Integer(42), reader.fieldParser.parseInteger("42", null));
-            Assert.assertEquals(new Long(421234567890L), reader.fieldParser.parseLong("421234567890", null));
-            Assert.assertEquals("text/plain", reader.fieldParser.parseContentType("text/plain", null).toStringShort());
-            Assert.assertEquals("4.3.2.1", reader.fieldParser.parseIpAddress("4.3.2.1", null).getHostAddress());
-            Assert.assertEquals("http://test/uri", reader.fieldParser.parseUri("http://test/uri", null).toString());
-            Assert.assertEquals(1141546971000L, reader.fieldParser.parseDate("20060305082251", null).getTime());
+            // TODO
+            //ArcVersionBlock version = reader.getVersionBlock();
 
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
 
+                // Test diagnostics.
+                Assert.assertNull(reader.fieldParsers.parseString(null, null));
+                Assert.assertNull(reader.fieldParsers.parseInteger(null, null));
+                Assert.assertNull(reader.fieldParsers.parseLong(null, null));
+                Assert.assertNull(reader.fieldParsers.parseContentType(null, null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress(null, null));
+                Assert.assertNull(reader.fieldParsers.parseUri(null, null));
+                Assert.assertNull(reader.fieldParsers.parseDate(null, null));
+
+                Assert.assertEquals(reader.fieldParsers.parseString("", null), "");
+                Assert.assertNull(reader.fieldParsers.parseInteger("", null));
+                Assert.assertNull(reader.fieldParsers.parseLong("", null));
+                Assert.assertNull(reader.fieldParsers.parseContentType("", null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress("", null));
+                Assert.assertNull(reader.fieldParsers.parseUri("", null));
+                Assert.assertNull(reader.fieldParsers.parseDate("", null));
+
+                Assert.assertNull(reader.fieldParsers.parseInteger("one", null));
+                Assert.assertNull(reader.fieldParsers.parseLong("very lengthy", null));
+                Assert.assertNull(reader.fieldParsers.parseContentType("gif\\image", null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress("a.b.c.d", null));
+                //Assert.assertNull(reader.fieldParsers.parseUri("bad_uri", null));
+                //Assert.assertNull(reader.fieldParsers.parseUri("<zaphod>", null));
+                Assert.assertNull(reader.fieldParsers.parseDate("blue monday", null));
+
+                Assert.assertEquals("string", reader.fieldParsers.parseString("string", null));
+                Assert.assertEquals(new Integer(42), reader.fieldParsers.parseInteger("42", null));
+                Assert.assertEquals(new Long(421234567890L), reader.fieldParsers.parseLong("421234567890", null));
+                Assert.assertEquals("text/plain", reader.fieldParsers.parseContentType("text/plain", null).toStringShort());
+                Assert.assertEquals("4.3.2.1", reader.fieldParsers.parseIpAddress("4.3.2.1", null).getHostAddress());
+                Assert.assertEquals("http://test/uri", reader.fieldParsers.parseUri("http://test/uri", null).toString());
+                Assert.assertEquals(1141546971000L, reader.fieldParsers.parseDate("20060305082251", null).getTime());
+
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    // TODO
+                    //RecordDebugBase.printRecord(record);
+                    //RecordDebugBase.printRecordErrors(record);
                 }
 
                 errors = 0;

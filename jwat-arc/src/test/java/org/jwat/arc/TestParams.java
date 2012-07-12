@@ -87,6 +87,9 @@ public class TestParams {
         str = av.toString();
         Assert.assertNotNull(str);
 
+        //ArcVersion.fromValues(0, 1);
+        //ArcVersion.fromValues(1, 2);
+
         /*
          * ArcReaderUncompressed.
          */
@@ -127,20 +130,6 @@ public class TestParams {
         Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
         Assert.assertFalse(readerUncompressed.setPayloadDigestAlgorithm("shaft1"));
         Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
-
-        readerUncompressed = new ArcReaderUncompressed();
-        try {
-            readerUncompressed.getVersionBlockFrom(null, 0);
-            Assert.fail("Exception expected!");
-        } catch (IllegalArgumentException e) {
-        }
-
-        readerUncompressed = new ArcReaderUncompressed();
-        try {
-            readerUncompressed.getVersionBlock();
-            Assert.fail("Exception expected!");
-        } catch (IllegalStateException e) {
-        }
 
         readerUncompressed = new ArcReaderUncompressed();
         try {
@@ -238,20 +227,6 @@ public class TestParams {
         Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
         Assert.assertFalse(readerCompressed.setPayloadDigestAlgorithm("shaft1"));
         Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
-
-        readerCompressed = new ArcReaderCompressed();
-        try {
-            readerCompressed.getVersionBlockFrom(null, 0);
-            Assert.fail("Exception expected!");
-        } catch (IllegalArgumentException e) {
-        }
-
-        readerCompressed = new ArcReaderCompressed();
-        try {
-            readerCompressed.getVersionBlock();
-            Assert.fail("Exception expected!");
-        } catch (IllegalStateException e) {
-        }
 
         readerCompressed = new ArcReaderCompressed();
         try {

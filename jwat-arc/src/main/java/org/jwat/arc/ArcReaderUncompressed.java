@@ -93,64 +93,23 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
-    public ArcVersionBlock getVersionBlock() throws IOException {
+    public ArcRecordBase getNextRecord() throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }
         if (in == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
-        versionBlock = ArcVersionBlock.parseVersionBlock(in, this);
-        if (versionBlock != null) {
-            startOffset = versionBlock.startOffset;
-        }
-        previousRecord = versionBlock;
-        return versionBlock;
-    }
-
-    @Override
-    public ArcVersionBlock getVersionBlockFrom(InputStream vbin, long offset)
-            throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
-        }
-        if (vbin == null) {
-            throw new IllegalArgumentException("The inputstream 'vbin' is null");
-        }
-        if (offset < -1) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than -1: " + offset);
-        }
-        ByteCountingPushBackInputStream pbin =
-                new ByteCountingPushBackInputStream(vbin,
-                        PUSHBACK_BUFFER_SIZE);
-        versionBlock = ArcVersionBlock.parseVersionBlock(pbin, this);
-        if (versionBlock != null) {
-            versionBlock.startOffset = offset;
-            startOffset = offset;
-        }
-        previousRecord = versionBlock;
-        return versionBlock;
-    }
-
-    @Override
-    public ArcRecord getNextRecord() throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
-        }
-        if (in == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
-        }
-        arcRecord = ArcRecord.parseArcRecord(in, versionBlock, this);
+        arcRecord = ArcRecordBase.parseRecord(in, this);
         if (arcRecord != null) {
-            startOffset = arcRecord.startOffset;
+            startOffset = arcRecord.header.startOffset;
         }
         previousRecord = arcRecord;
         return arcRecord;
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, long offset)
+    public ArcRecordBase getNextRecordFrom(InputStream rin, long offset)
             throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
@@ -164,11 +123,10 @@ public class ArcReaderUncompressed extends ArcReader {
                     "The 'offset' is less than -1: " + offset);
         }
         ByteCountingPushBackInputStream pbin =
-                new ByteCountingPushBackInputStream(rin,
-                        PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
+                new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE);
+        arcRecord = ArcRecordBase.parseRecord(pbin, this);
         if (arcRecord != null) {
-            arcRecord.startOffset = offset;
+            arcRecord.header.startOffset = offset;
             startOffset = offset;
         }
         previousRecord = arcRecord;
@@ -176,7 +134,7 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, long offset,
+    public ArcRecordBase getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
@@ -198,9 +156,9 @@ public class ArcReaderUncompressed extends ArcReader {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
+        arcRecord = ArcRecordBase.parseRecord(pbin, this);
         if (arcRecord != null) {
-            arcRecord.startOffset = offset;
+            arcRecord.header.startOffset = offset;
             startOffset = offset;
         }
         previousRecord = arcRecord;

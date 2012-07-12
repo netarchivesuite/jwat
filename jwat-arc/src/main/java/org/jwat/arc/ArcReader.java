@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLineReader;
 
@@ -66,7 +68,7 @@ public abstract class ArcReader {
     protected ArcVersionBlock versionBlock = null;
 
     /** Current ARC record object. */
-    protected ArcRecord arcRecord = null;
+    protected ArcRecordBase arcRecord = null;
 
     /** Previous record of either kind. */
     protected ArcRecordBase previousRecord = null;
@@ -74,20 +76,33 @@ public abstract class ArcReader {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
+    /** Max size allowed for a record header. */
+    protected int warcHeaderMaxSize;
+
+    /** Max size allowed for a payload header. */
+    protected int payloadHeaderMaxSize;
+
     /** ARC field parser used. */
-    protected ArcFieldParsers fieldParser;
+    protected ArcFieldParsers fieldParsers;
 
     /** Line reader used to read header lines. */
     protected HeaderLineReader lineReader;
+
+    /** Reader level errors and warnings or when no record is available. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+
+    public ArcVersionHeader versionHeader;
 
     /**
      * Method used to initialize a readers internal state.
      */
     protected void init() {
+        warcHeaderMaxSize = 8192;
+        payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
         lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
-        fieldParser = new ArcFieldParsers();
+        fieldParsers = new ArcFieldParsers();
     }
 
     /**
@@ -232,6 +247,38 @@ public abstract class ArcReader {
     }
 
     /**
+     * Get the max size allowed for a record header.
+     * @return max size allowed for a record header
+     */
+    public int getWarcHeaderMaxSize() {
+        return warcHeaderMaxSize;
+    }
+
+    /**
+     * Set the max size allowed for a record header.
+     * @param size max size allowed
+     */
+    public void setWarcHeaderMaxSize(int size) {
+        warcHeaderMaxSize = size;
+    }
+
+    /**
+     * Get the max size allowed for a payload header.
+     * @return max size allowed for a payload header
+     */
+    public int getPayloadHeaderMaxSize() {
+        return payloadHeaderMaxSize;
+    }
+
+    /**
+     * Set the max size allowed for a payload header.
+     * @param size max size allowed
+     */
+    public void setPayloadHeaderMaxSize(int size) {
+        payloadHeaderMaxSize = size;
+    }
+
+    /**
      * Close current record resource(s) and input stream(s).
      */
     public abstract void close();
@@ -261,7 +308,9 @@ public abstract class ArcReader {
      * @return the version block of the ARC file
      * @throws IOException io exception in reading process
      */
+    /*
     public abstract ArcVersionBlock getVersionBlock() throws IOException;
+    */
 
     /**
      * Parses and gets the version block of an ARC file from the supplied
@@ -271,15 +320,17 @@ public abstract class ArcReader {
      * @return the version block of the ARC file
      * @throws IOException io exception in reading process
      */
+    /*
     public abstract ArcVersionBlock getVersionBlockFrom(InputStream in,
                                             long offset) throws IOException;
+    */
 
     /**
      * Parses and gets the next ARC record.
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextRecord() throws IOException;
+    public abstract ArcRecordBase getNextRecord() throws IOException;
 
     /**
      * Parses and gets the next ARC record.
@@ -288,7 +339,7 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextRecordFrom(InputStream in, long offset)
+    public abstract ArcRecordBase getNextRecordFrom(InputStream in, long offset)
             throws IOException;
 
     /**
@@ -299,7 +350,7 @@ public abstract class ArcReader {
      * @return the next ARC record
      * @throws IOException io exception in reading process
      */
-    public abstract ArcRecord getNextRecordFrom(InputStream in,
+    public abstract ArcRecordBase getNextRecordFrom(InputStream in,
             long offset, int buffer_size) throws IOException;
 
     /**
@@ -316,12 +367,12 @@ public abstract class ArcReader {
      * <code>getIteratorExceptionThrown</code> method.
      * @return <code>Iterator</code> over the <code>WARC</code> records
      */
-    public Iterator<ArcRecord> iterator() {
-        return new Iterator<ArcRecord>() {
+    public Iterator<ArcRecordBase> iterator() {
+        return new Iterator<ArcRecordBase>() {
 
-            private ArcRecord next;
+            private ArcRecordBase next;
 
-            private ArcRecord current;
+            private ArcRecordBase current;
 
             @Override
             public boolean hasNext() {
@@ -337,7 +388,7 @@ public abstract class ArcReader {
             }
 
             @Override
-            public ArcRecord next() {
+            public ArcRecordBase next() {
                 if (next == null) {
                     iteratorExceptionThrown = null;
                     try {

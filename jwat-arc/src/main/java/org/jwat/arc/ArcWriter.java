@@ -23,6 +23,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+
 /**
  * Base class for ARC writer implementations.
  *
@@ -43,7 +47,20 @@ public abstract class ArcWriter {
     protected static final int S_RECORD_CLOSED = 3;
 
     /** ARC <code>DateFormat</code> as described in the IA documentation. */
-    protected DateFormat arcDateFormat = ArcDateParser.getDateFormat();
+    protected DateFormat arcDateFormat;
+
+    /** WARC field parser used. */
+    protected ArcFieldParsers fieldParsers;
+
+    /** Buffer used by streamPayload() to copy from one stream to another. */
+    protected byte[] stream_copy_buffer;
+
+    /** Configuration for throwing exception on content-length mismatch.
+     *  (Default is true) */
+    protected boolean bExceptionOnContentLengthMismatch;
+
+    /** Writer level errors and warnings or when writing byte headers. */
+    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /** Current state of writer. */
     protected int state = S_INIT;
@@ -51,14 +68,23 @@ public abstract class ArcWriter {
     /** Outputstream used to write ARC records. */
     protected OutputStream out;
 
-    /** Buffer used by streamPayload() to copy from one stream to another. */
-    protected byte[] stream_copy_buffer = new byte[8192];
+    protected ArcHeader header;
+
+    /** Content-Length from the WARC header. */
+    protected Long headerContentLength;
+
+    /** Total bytes written for current record payload. */
+    protected long payloadWrittenTotal;
 
     /**
      * Method used to initialize a readers internal state.
      * Must be called by all constructors.
      */
     protected void init() {
+        arcDateFormat = ArcDateParser.getDateFormat();
+        fieldParsers = new ArcFieldParsers();
+        stream_copy_buffer = new byte[8192];
+        bExceptionOnContentLengthMismatch = true;
     }
 
     /**
@@ -66,6 +92,24 @@ public abstract class ArcWriter {
      * @return boolean indicating whether compressed output is produced
      */
     public abstract boolean isCompressed();
+
+    /**
+     * Does this writer throw an exception if the content-length does not match
+     * the payload amount written.
+     * @return boolean indicating if an exception is thrown or not
+     */
+    public boolean exceptionOnContentLengthMismatch() {
+        return bExceptionOnContentLengthMismatch;
+    }
+
+    /**
+     * Tell the writer what to do in case of mismatch between content-length
+     * and amount payload written.
+     * @param enabled boolean indicating exception throwing on/off
+     */
+    public void setExceptionOnContentLengthMismatch(boolean enabled) {
+        bExceptionOnContentLengthMismatch = enabled;
+    }
 
     /**
      * Close ARC writer and free its resources.
@@ -83,7 +127,39 @@ public abstract class ArcWriter {
      * @throws IOException if an exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
-        // TODO
+        Diagnostics<Diagnosis> diagnosticsUsed;
+        if (headerContentLength == null) {
+            if (header != null) {
+                diagnosticsUsed = header.diagnostics;
+            } else {
+                diagnosticsUsed = diagnostics;
+            }
+            diagnosticsUsed.addError(new Diagnosis(
+                    DiagnosisType.ERROR_EXPECTED,
+                    "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
+                    "Mandatory!"));
+            if (bExceptionOnContentLengthMismatch) {
+                throw new IllegalStateException("Payload size does not match content-length!");
+            }
+        } else {
+            if (headerContentLength != payloadWrittenTotal) {
+                if (header != null) {
+                    diagnosticsUsed = header.diagnostics;
+                } else {
+                    diagnosticsUsed = diagnostics;
+                }
+                diagnosticsUsed.addError(new Diagnosis(
+                        DiagnosisType.INVALID_EXPECTED,
+                        "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
+                        Long.toString(payloadWrittenTotal),
+                        headerContentLength.toString()));
+                if (bExceptionOnContentLengthMismatch) {
+                    throw new IllegalStateException("Payload size does not match content-length!");
+                }
+            }
+        }
+        header = null;
+        headerContentLength = null;
     }
 
     /**
@@ -91,10 +167,14 @@ public abstract class ArcWriter {
      * @param header_bytes raw ARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
-    public void writeHeader(byte[] header_bytes) throws IOException {
+    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
+        }
+        if (contentLength != null && contentLength < 0) {
+            throw new IllegalArgumentException(
+                    "The 'contentLength' parameter is negative!");
         }
         if (state == S_HEADER_WRITTEN) {
             throw new IllegalStateException("Headers written back to back!");
@@ -103,6 +183,9 @@ public abstract class ArcWriter {
         }
         out.write(header_bytes);
         state = S_HEADER_WRITTEN;
+        header = null;
+        headerContentLength = contentLength;
+        payloadWrittenTotal = 0;
     }
 
     /**
@@ -118,32 +201,186 @@ public abstract class ArcWriter {
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
+        header = record.header;
+        headerContentLength = header.archiveLength;
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
+        /*
+         * URL
+         */
+        String urlStr;
+        if (header.urlUri != null) {
+            urlStr = header.urlUri.toString();
+        } else if (header.urlStr != null && header.urlStr.length() > 0) {
+            urlStr = header.urlStr;
+        } else {
+            urlStr = "-";
+        }
+        outBuf.write(urlStr.getBytes());
+        /*
+         * IP-Address
+         */
+        String ipAddressStr;
+        if (header.inetAddress != null) {
+            ipAddressStr = header.inetAddress.getHostAddress();
+        } else if (header.ipAddressStr != null && header.ipAddressStr.length() > 0) {
+            ipAddressStr = header.ipAddressStr;
+        } else {
+            ipAddressStr = "-";
+        }
+        outBuf.write(" ".getBytes());
+        outBuf.write(ipAddressStr.getBytes());
+        /*
+         * Archive-Date
+         */
+        String archiveDateStr;
+        if (header.archiveDate != null) {
+            archiveDateStr = arcDateFormat.format(header.archiveDateStr);
+        } else if (header.archiveDateStr != null && header.archiveDateStr.length() > 0) {
+            archiveDateStr = header.archiveDateStr;
+        } else {
+            archiveDateStr = "-";
+        }
+        outBuf.write(" ".getBytes());
+        outBuf.write(archiveDateStr.getBytes());
+        /*
+         * Content-Type
+         */
+        String contentTypeStr;
+        if (header.contentType != null) {
+            contentTypeStr = header.contentType.toStringShort();
+        } else if (header.contentTypeStr != null && header.contentTypeStr.length() > 0) {
+            contentTypeStr = header.contentTypeStr;
+        } else {
+            contentTypeStr = "-";
+        }
+        outBuf.write(" ".getBytes());
+        outBuf.write(contentTypeStr.getBytes());
+        /*
+         * Version 2 fields.
+         */
+        // TODO version check
+        if (true) {
+            /*
+             * Result-Code
+             */
+            String resultCodeStr;
+            if (header.resultCode != null) {
+                resultCodeStr = header.resultCode.toString();
+            } else if (header.resultCodeStr != null && header.resultCodeStr.length() > 0) {
+                resultCodeStr = header.resultCodeStr;
+            } else {
+                resultCodeStr = "-";
+            }
+            outBuf.write(" ".getBytes());
+            outBuf.write(resultCodeStr.getBytes());
+            /*
+             * Checksum
+             */
+            String checksumStr;
+            if (header.checksumStr != null && header.checksumStr.length() > 0) {
+                checksumStr = header.checksumStr;
+            } else {
+                checksumStr = "-";
+            }
+            outBuf.write(" ".getBytes());
+            outBuf.write(checksumStr.getBytes());
+            /*
+             * Location
+             */
+            String locationStr;
+            if (header.locationStr != null && header.locationStr.length() > 0) {
+                locationStr = header.locationStr;
+            } else {
+                locationStr = "-";
+            }
+            outBuf.write(" ".getBytes());
+            outBuf.write(locationStr.getBytes());
+            /*
+             * Offset
+             */
+            String offsetStr;
+            if (header.offset != null) {
+                offsetStr = header.offset.toString();
+            } else if (header.offsetStr != null && header.offsetStr.length() > 0) {
+                offsetStr = header.offsetStr;
+            } else {
+                offsetStr = "-";
+            }
+            outBuf.write(" ".getBytes());
+            outBuf.write(offsetStr.getBytes());
+            /*
+             * Filename
+             */
+            String filenameStr;
+            if (header.filenameStr != null && header.filenameStr.length() > 0) {
+                filenameStr = header.filenameStr;
+            } else {
+                filenameStr = "-";
+            }
+            outBuf.write(" ".getBytes());
+            outBuf.write(filenameStr.getBytes());
+        }
+        /*
+         * Archive-Length
+         */
+        String archiveLengthStr;
+        if (header.archiveLength != null) {
+            archiveLengthStr = header.archiveLength.toString();
+        } else if (header.archiveLengthStr != null && header.archiveLengthStr.length() > 0) {
+            archiveLengthStr = header.archiveLengthStr;
+        } else {
+            archiveLengthStr = "-";
+        }
+        outBuf.write(" ".getBytes());
+        outBuf.write(archiveLengthStr.getBytes());
+        outBuf.write("\n".getBytes());
         /*
          * End Of Header
          */
         outBuf.write("\r\n".getBytes());
-        byte[] header = outBuf.toByteArray();
-        out.write(header);
+        byte[] headerBytes = outBuf.toByteArray();
+        out.write(headerBytes);
         state = S_HEADER_WRITTEN;
-        return header;
+        payloadWrittenTotal = 0;
+        /*
+         * Version block
+         */
+        // TODO version check
+        ByteArrayOutputStream versionBuf = new ByteArrayOutputStream();
+        versionBuf.write("1 0 ".getBytes());
+        versionBuf.write("Origin code!".getBytes());
+        versionBuf.write("\n".getBytes());
+        versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
+        versionBuf.write("\n".getBytes());
+
+        versionBuf.write("1 1 ".getBytes());
+        versionBuf.write("Origin code!".getBytes());
+        versionBuf.write("\n".getBytes());
+        versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
+        versionBuf.write("\n".getBytes());
+
+        versionBuf.write("2 0 ".getBytes());
+        versionBuf.write("Origin code!".getBytes());
+        versionBuf.write("\n".getBytes());
+        versionBuf.write(ArcConstants.VERSION_2_BLOCK_DEF.getBytes());
+        versionBuf.write("\n".getBytes());
+
+        byte[] versionBytes = versionBuf.toByteArray();
+        writePayload(versionBytes);
+
+        return headerBytes;
     }
 
     /**
     *
     * @param in input stream containing payload data
-    * @param length payload length
     * @return written length of payload data
     * @throws IOException if an exception occurs while writing payload data
     */
-   public long streamPayload(InputStream in, long length) throws IOException {
+   public long streamPayload(InputStream in) throws IOException {
        if (in == null) {
            throw new IllegalArgumentException(
                    "The 'in' parameter is null!");
-       }
-       if (length < 0) {
-           throw new IllegalArgumentException(
-                   "The 'length' parameter is less than zero!");
        }
        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
            throw new IllegalStateException("Write a header before writing payload!");
@@ -156,7 +393,28 @@ public abstract class ArcWriter {
            read = in.read(stream_copy_buffer);
        }
        state = S_PAYLOAD_WRITTEN;
+       payloadWrittenTotal += written;
        return written;
+   }
+
+   public long writePayload(byte[] b) throws IOException {
+       if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
+           throw new IllegalStateException("Write a header before writing payload!");
+       }
+       out.write(b);
+       state = S_PAYLOAD_WRITTEN;
+       payloadWrittenTotal += b.length;
+       return b.length;
+   }
+
+   public long writePayload(byte[] b, int offset, int len) throws IOException {
+       if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
+           throw new IllegalStateException("Write a header before writing payload!");
+       }
+       out.write(b, offset, len);
+       state = S_PAYLOAD_WRITTEN;
+       payloadWrittenTotal += len;
+       return len;
    }
 
 }

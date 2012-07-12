@@ -61,6 +61,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
+    /** Did the reader detect a missing CR while parsing newlines. */
+    protected boolean bMissingCr = false;
+
+    /** Did the reader detect a missing LF while parsing newlines. */
+    protected boolean bMissingLf = false;
+
+    /** Did the reader detect a misplaced CR while parsing newlines. */
+    protected boolean bMisplacedCr = false;
+
+    /** Did the reader detect a misplaced LF while parsing newlines. */
+    protected boolean bMisplacedLf = false;
+
     /** Is Warc-Block-Digest valid. (Null is equal to not tested) */
     public Boolean isValidBlockDigest = null;
 
@@ -73,18 +85,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     /** WARC header. */
     public WarcHeader header;
-
-    /** Did the reader detect a missing CR while parsing newlines. */
-    protected boolean bMissingCr = false;
-
-    /** Did the reader detect a missing LF while parsing newlines. */
-    protected boolean bMissingLf = false;
-
-    /** Did the reader detect a misplaced CR while parsing newlines. */
-    protected boolean bMisplacedCr = false;
-
-    /** Did the reader detect a misplaced LF while parsing newlines. */
-    protected boolean bMisplacedLf = false;
 
     /*
      * Payload
@@ -117,7 +117,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
     public static WarcRecord createRecord(WarcWriter writer) {
         WarcRecord record = new WarcRecord();
         record.header = WarcHeader.initHeader(writer, record.diagnostics);
-        writer.fieldParser.diagnostics = record.diagnostics;
+        writer.fieldParsers.diagnostics = record.diagnostics;
         return record;
     }
 
@@ -139,7 +139,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         record.header = WarcHeader.initHeader(reader, in.getConsumed(), record.diagnostics);
         WarcHeader header = record.header;
         // Initialize WarcFieldParser to report diagnoses here.
-        reader.fieldParser.diagnostics = record.diagnostics;
+        reader.fieldParsers.diagnostics = record.diagnostics;
         if (header.parseHeader(in)) {
             /*
              * Payload processing.
@@ -197,7 +197,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 digestAlgorithm);
                         if (record.httpHeader != null) {
                             if (record.httpHeader.isValid()) {
-                                record.payload.setHttpHeader(record.httpHeader);
+                                record.payload.setPayloadHeaderWrapped(record.httpHeader);
                             } else {
                                 record.diagnostics.addError(
                                         new Diagnosis(DiagnosisType.ERROR,

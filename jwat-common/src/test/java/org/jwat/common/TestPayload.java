@@ -142,9 +142,9 @@ public class TestPayload implements PayloadOnClosedHandler {
                     payload.setOnClosedHandler( this );
                     Assert.assertEquals(this, payload.onClosedHandler);
 
-                    Assert.assertNull( payload.getHttpHeader() );
-                    payload.setHttpHeader( null );
-                    Assert.assertNull( payload.getHttpHeader() );
+                    Assert.assertNull( payload.getPayloadHeaderWrapped() );
+                    payload.setPayloadHeaderWrapped( null );
+                    Assert.assertNull( payload.getPayloadHeaderWrapped() );
 
                     in = payload.getInputStream();
                     Assert.assertEquals( payload.getInputStreamComplete(), payload.getInputStream() );
@@ -256,9 +256,9 @@ public class TestPayload implements PayloadOnClosedHandler {
                     payload.setOnClosedHandler( this );
                     Assert.assertEquals(this, payload.onClosedHandler);
 
-                    Assert.assertNull( payload.getHttpHeader() );
-                    payload.setHttpHeader( null );
-                    Assert.assertNull( payload.getHttpHeader() );
+                    Assert.assertNull( payload.getPayloadHeaderWrapped() );
+                    payload.setPayloadHeaderWrapped( null );
+                    Assert.assertNull( payload.getPayloadHeaderWrapped() );
 
                     //in = payload.getInputStream();
                     Assert.assertEquals( payload.getInputStreamComplete(), payload.getInputStream() );

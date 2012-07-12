@@ -32,58 +32,42 @@ public class RecordDebugBase {
     private RecordDebugBase() {
     }
 
-    public static void printVersionBlock(ArcVersionBlock version) {
-        System.out.println( "         url: " + version.recUrl + " - " + version.url );
-        if ( version.url != null ) {
-            System.out.println( "              " + version.url.getScheme() );
-            System.out.println( "              " + version.url.getSchemeSpecificPart() );
-        }
-        System.out.println( "      ipaddr: " + version.recIpAddress + " - " + version.inetAddress );
-        System.out.println( "        date: " + version.recArchiveDate + " - " + version.archiveDate );
-        System.out.println( "content-type: " + version.recContentType );
-        System.out.println( " result-code: " + version.recResultCode );
-        System.out.println( "    checksum: " + version.recChecksum );
-        System.out.println( "    location: " + version.recLocation );
-        System.out.println( "      offset: " + version.recOffset );
-        System.out.println( "    filename: " + version.recFilename );
-        System.out.println( "      length: " + version.recLength );
-        System.out.println( "       major: " + version.versionNumber );
-        System.out.println( "       minor: " + version.reserved );
-        System.out.println( "      origin: " + version.originCode );
-        System.out.println( version.xml );
-        System.out.println( "compl.fields: " + version.hasCompliantFields );
-        System.out.println( "       magic: " + version.isMagicArcFile );
-        System.out.println( "validVersion: " + version.isVersionValid );
-        System.out.println( "ValidFldDesc: " + version.isValidFieldDesc );
-        //System.out.println( "      errors: " + version.hasErrors() );
-        //System.out.println( "    warnings: " + version.hasWarnings() );
-    }
-
-    public static void printRecord(ArcRecord arcRecord) {
+    public static void printRecord(ArcRecordBase record) {
+        ArcHeader header = record.header;
         System.out.println( "------------" );
-        System.out.println( "         url: " + arcRecord.recUrl + " - " + arcRecord.url );
-        if ( arcRecord.url != null ) {
-            System.out.println( "              " + arcRecord.url.getScheme() );
-            System.out.println( "              " + arcRecord.url.getSchemeSpecificPart() );
+        System.out.println( "         url: " + header.urlStr + " - " + header.urlUri );
+        if ( header.urlUri != null ) {
+            System.out.println( "              " + header.urlUri.getScheme() );
+            System.out.println( "              " + header.urlUri.getSchemeSpecificPart() );
         }
-        System.out.println( "      ipaddr: " + arcRecord.recIpAddress + " - " + arcRecord.inetAddress );
-        System.out.println( "        date: " + arcRecord.recArchiveDate + " - " + arcRecord.archiveDate );
-        System.out.println( "content-type: " + arcRecord.recContentType );
-        System.out.println( " result-code: " + arcRecord.recResultCode );
-        System.out.println( "    checksum: " + arcRecord.recChecksum );
-        System.out.println( "    location: " + arcRecord.recLocation );
-        System.out.println( "      offset: " + arcRecord.recOffset );
-        System.out.println( "    filename: " + arcRecord.recFilename );
-        System.out.println( "      length: " + arcRecord.recLength );
-        if (arcRecord.httpHeader != null ) {
-            System.out.println( " result-code: " + arcRecord.httpHeader.statusCode );
-            System.out.println( "protocol-ver: " + arcRecord.httpHeader.httpVersion );
-            System.out.println( "content-type: " + arcRecord.httpHeader.contentType );
-            System.out.println( " object-size: " + arcRecord.httpHeader.payloadLength );
+        System.out.println( "      ipaddr: " + header.ipAddressStr + " - " + header.inetAddress );
+        System.out.println( "        date: " + header.archiveDateStr + " - " + header.archiveDate );
+        System.out.println( "content-type: " + header.contentTypeStr + " - " + header.contentType.toStringShort() );
+        System.out.println( " result-code: " + header.resultCodeStr + " - " + header.resultCode );
+        System.out.println( "    checksum: " + header.checksumStr );
+        System.out.println( "    location: " + header.locationStr );
+        System.out.println( "      offset: " + header.offsetStr + " - " + header.offset );
+        System.out.println( "    filename: " + header.filenameStr );
+        System.out.println( "      length: " + header.archiveLengthStr + " - " + header.archiveLength );
+        if ( record.versionHeader != null ) {
+            System.out.println( "       major: " + record.versionHeader.versionNumberStr + " - " + record.versionHeader.versionNumber );
+            System.out.println( "       minor: " + record.versionHeader.reservedStr + " - " + record.versionHeader.reserved );
+            System.out.println( "      origin: " + record.versionHeader.originCode );
+            System.out.println( "     version: " + record.versionHeader.version );
+            System.out.println( "     isValid: " + record.versionHeader.isValid() );
+            System.out.println( "validVersion: " + record.versionHeader.isVersionValid );
+            System.out.println( "ValidFldDesc: " + record.versionHeader.isValidBlockdDesc );
+        }
+        if (record.httpHeader != null ) {
+            System.out.println( " result-code: " + record.httpHeader.statusCode );
+            System.out.println( "protocol-ver: " + record.httpHeader.httpVersion );
+            System.out.println( "content-type: " + record.httpHeader.contentType );
+            System.out.println( " object-size: " + record.httpHeader.payloadLength );
+            System.out.println( "     isValid: " + record.httpHeader.isValid() );
             //saveHttpResponse( arcRecord.recUrl, arcRecord.httpResponse );
         }
-        //System.out.println( "      errors: " + arcRecord.hasErrors() );
-        //System.out.println( "    warnings: " + arcRecord.hasWarnings() );
+        System.out.println( "      errors: " + record.diagnostics.hasErrors() );
+        System.out.println( "    warnings: " + record.diagnostics.hasWarnings() );
     }
 
     public static void printStatus(int records, int errors, int warnings) {

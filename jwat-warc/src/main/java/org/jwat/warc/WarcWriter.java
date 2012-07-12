@@ -50,10 +50,10 @@ public abstract class WarcWriter {
     protected DateFormat warcDateFormat;
 
     /** WARC field parser used. */
-    protected WarcFieldParsers fieldParser;
+    protected WarcFieldParsers fieldParsers;
 
     /** Buffer used by streamPayload() to copy from one stream to another. */
-    protected byte[] stream_copy_buffer = new byte[8192];
+    protected byte[] stream_copy_buffer;
 
     /** Configuration for throwing exception on content-length mismatch.
      *  (Default is true) */
@@ -86,7 +86,8 @@ public abstract class WarcWriter {
      */
     protected void init() {
         warcDateFormat = WarcDateParser.getDateFormat();
-        fieldParser = new WarcFieldParsers();
+        fieldParsers = new WarcFieldParsers();
+        stream_copy_buffer = new byte[8192];
         bExceptionOnContentLengthMismatch = true;
     }
 
@@ -188,6 +189,7 @@ public abstract class WarcWriter {
 
     /**
      * Write a raw WARC header to the WARC output stream.
+     * Errors and warnings are reported on the writers diagnostics object.
      * @param header_bytes raw WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
@@ -214,6 +216,7 @@ public abstract class WarcWriter {
 
     /**
      * Write a WARC header to the WARC output stream.
+     * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
@@ -221,6 +224,7 @@ public abstract class WarcWriter {
 
     /**
      * Write a WARC header to the WARC output stream.
+     * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
      * @throws IOException if an exception occurs while writing header data
      */

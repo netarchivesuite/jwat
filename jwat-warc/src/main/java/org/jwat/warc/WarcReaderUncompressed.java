@@ -137,9 +137,9 @@ public class WarcReaderUncompressed extends WarcReader {
             throw new IllegalArgumentException(
                     "The 'offset' is less than -1: " + offset);
         }
-        warcRecord = WarcRecord.parseRecord(
-                new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE),
-                this);
+        ByteCountingPushBackInputStream pbin =
+                new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE);
+        warcRecord = WarcRecord.parseRecord(pbin, this);
         if (warcRecord != null) {
             warcRecord.header.startOffset = offset;
             startOffset = offset;
@@ -166,10 +166,11 @@ public class WarcReaderUncompressed extends WarcReader {
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        warcRecord = WarcRecord.parseRecord(
+        ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
-                        PUSHBACK_BUFFER_SIZE), this);
+                        PUSHBACK_BUFFER_SIZE);
+        warcRecord = WarcRecord.parseRecord(pbin, this);
         if (warcRecord != null) {
             warcRecord.header.startOffset = offset;
             startOffset = offset;

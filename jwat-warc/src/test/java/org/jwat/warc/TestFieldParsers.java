@@ -106,42 +106,42 @@ public class TestFieldParsers {
                 record.close();
 
                 // Test diagnostics.
-                Assert.assertNull(reader.fieldParser.parseInteger(null, null));
-                Assert.assertNull(reader.fieldParser.parseLong(null, null));
-                Assert.assertNull(reader.fieldParser.parseString(null, null));
-                Assert.assertNull(reader.fieldParser.parseContentType(null, null));
-                Assert.assertNull(reader.fieldParser.parseIpAddress(null, null));
-                Assert.assertNull(reader.fieldParser.parseUri(null, null));
-                Assert.assertNull(reader.fieldParser.parseDate(null, null));
-                Assert.assertNull(reader.fieldParser.parseDigest(null, null));
+                Assert.assertNull(reader.fieldParsers.parseInteger(null, null));
+                Assert.assertNull(reader.fieldParsers.parseLong(null, null));
+                Assert.assertNull(reader.fieldParsers.parseString(null, null));
+                Assert.assertNull(reader.fieldParsers.parseContentType(null, null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress(null, null));
+                Assert.assertNull(reader.fieldParsers.parseUri(null, null));
+                Assert.assertNull(reader.fieldParsers.parseDate(null, null));
+                Assert.assertNull(reader.fieldParsers.parseDigest(null, null));
 
-                Assert.assertNull(reader.fieldParser.parseInteger("", null));
-                Assert.assertNull(reader.fieldParser.parseLong("", null));
-                Assert.assertEquals(reader.fieldParser.parseString("", null), "");
-                Assert.assertNull(reader.fieldParser.parseContentType("", null));
-                Assert.assertNull(reader.fieldParser.parseIpAddress("", null));
-                Assert.assertNull(reader.fieldParser.parseUri("", null));
-                Assert.assertNull(reader.fieldParser.parseDate("", null));
-                Assert.assertNull(reader.fieldParser.parseDigest("", null));
+                Assert.assertNull(reader.fieldParsers.parseInteger("", null));
+                Assert.assertNull(reader.fieldParsers.parseLong("", null));
+                Assert.assertEquals(reader.fieldParsers.parseString("", null), "");
+                Assert.assertNull(reader.fieldParsers.parseContentType("", null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress("", null));
+                Assert.assertNull(reader.fieldParsers.parseUri("", null));
+                Assert.assertNull(reader.fieldParsers.parseDate("", null));
+                Assert.assertNull(reader.fieldParsers.parseDigest("", null));
 
-                Assert.assertNull(reader.fieldParser.parseInteger("one", null));
-                Assert.assertNull(reader.fieldParser.parseLong("very lengthy", null));
-                Assert.assertNull(reader.fieldParser.parseContentType("gif\\image", null));
-                Assert.assertNull(reader.fieldParser.parseIpAddress("a.b.c.d", null));
-                //Assert.assertNull(reader.fieldParser.parseUri("bad_uri", null));
-                //Assert.assertNull(reader.fieldParser.parseUri("<zaphod>", null));
-                Assert.assertNull(reader.fieldParser.parseUri("http://", null));
-                Assert.assertNull(reader.fieldParser.parseDate("blue monday", null));
-                Assert.assertNull(reader.fieldParser.parseDigest("sharif-1; omar", null));
+                Assert.assertNull(reader.fieldParsers.parseInteger("one", null));
+                Assert.assertNull(reader.fieldParsers.parseLong("very lengthy", null));
+                Assert.assertNull(reader.fieldParsers.parseContentType("gif\\image", null));
+                Assert.assertNull(reader.fieldParsers.parseIpAddress("a.b.c.d", null));
+                //Assert.assertNull(reader.fieldParsers.parseUri("bad_uri", null));
+                //Assert.assertNull(reader.fieldParsers.parseUri("<zaphod>", null));
+                Assert.assertNull(reader.fieldParsers.parseUri("http://", null));
+                Assert.assertNull(reader.fieldParsers.parseDate("blue monday", null));
+                Assert.assertNull(reader.fieldParsers.parseDigest("sharif-1; omar", null));
 
-                Assert.assertNotNull(reader.fieldParser.parseInteger("42", null));
-                Assert.assertNotNull(reader.fieldParser.parseLong("12345678901234", null));
-                Assert.assertNotNull(reader.fieldParser.parseString("JWAT", null));
-                Assert.assertNotNull(reader.fieldParser.parseContentType("text/plain", null));
-                Assert.assertNotNull(reader.fieldParser.parseIpAddress("127.0.0.1", null));
-                Assert.assertNotNull(reader.fieldParser.parseUri("http://jwat.org", null));
-                Assert.assertNotNull(reader.fieldParser.parseDate("2012-12-24T20:12:34Z", null));
-                Assert.assertNotNull(reader.fieldParser.parseDigest("sha1:1234567890abcdef", null));
+                Assert.assertNotNull(reader.fieldParsers.parseInteger("42", null));
+                Assert.assertNotNull(reader.fieldParsers.parseLong("12345678901234", null));
+                Assert.assertNotNull(reader.fieldParsers.parseString("JWAT", null));
+                Assert.assertNotNull(reader.fieldParsers.parseContentType("text/plain", null));
+                Assert.assertNotNull(reader.fieldParsers.parseIpAddress("127.0.0.1", null));
+                Assert.assertNotNull(reader.fieldParsers.parseUri("http://jwat.org", null));
+                Assert.assertNotNull(reader.fieldParsers.parseDate("2012-12-24T20:12:34Z", null));
+                Assert.assertNotNull(reader.fieldParsers.parseDigest("sha1:1234567890abcdef", null));
 
                 if (bDebugOutput) {
                     RecordDebugBase.printRecord(record);

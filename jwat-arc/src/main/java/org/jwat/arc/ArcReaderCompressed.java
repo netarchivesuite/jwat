@@ -123,75 +123,7 @@ public class ArcReaderCompressed extends ArcReader {
     }
 
     @Override
-    public ArcVersionBlock getVersionBlock() throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
-        }
-        if (reader == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
-        }
-        versionBlock = null;
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
-            if (bufferSize > 0) {
-                versionBlock = ArcVersionBlock.parseVersionBlock(
-                        new ByteCountingPushBackInputStream(
-                                new BufferedInputStream(
-                                        entry.getInputStream(), bufferSize),
-                                PUSHBACK_BUFFER_SIZE), this);
-            } else {
-                versionBlock = ArcVersionBlock.parseVersionBlock(
-                        new ByteCountingPushBackInputStream(
-                                entry.getInputStream(),
-                                PUSHBACK_BUFFER_SIZE), this);
-            }
-        }
-        if (versionBlock != null) {
-            versionBlock.startOffset = entry.getStartOffset();
-        }
-        previousRecord = versionBlock;
-        return versionBlock;
-    }
-
-    @Override
-    public ArcVersionBlock getVersionBlockFrom(InputStream vbin, long offset)
-            throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
-        }
-        if (vbin == null) {
-            throw new IllegalArgumentException("The inputstream 'vbin' is null");
-        }
-        if (offset < -1) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than -1: " + offset);
-        }
-        versionBlock = null;
-        GzipReader reader = new GzipReader(vbin);
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
-            if (bufferSize > 0) {
-                versionBlock = ArcVersionBlock.parseVersionBlock(
-                        new ByteCountingPushBackInputStream(
-                                new BufferedInputStream(
-                                        entry.getInputStream(), bufferSize),
-                                PUSHBACK_BUFFER_SIZE), this);
-            } else {
-                versionBlock = ArcVersionBlock.parseVersionBlock(
-                        new ByteCountingPushBackInputStream(
-                                entry.getInputStream(),
-                                PUSHBACK_BUFFER_SIZE), this);
-            }
-        }
-        if (versionBlock != null) {
-            versionBlock.startOffset = offset;
-        }
-        previousRecord = versionBlock;
-        return versionBlock;
-    }
-
-    @Override
-    public ArcRecord getNextRecord() throws IOException {
+    public ArcRecordBase getNextRecord() throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
         }
@@ -201,30 +133,28 @@ public class ArcReaderCompressed extends ArcReader {
         arcRecord = null;
         GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
+            ByteCountingPushBackInputStream pbin;
             if (bufferSize > 0) {
-                arcRecord = ArcRecord.parseArcRecord(
-                        new ByteCountingPushBackInputStream(
-                                new BufferedInputStream(
-                                        entry.getInputStream(),
-                                        bufferSize),
-                                PUSHBACK_BUFFER_SIZE),
-                        versionBlock, this);
+                pbin = new ByteCountingPushBackInputStream(
+                        new BufferedInputStream(
+                                entry.getInputStream(),
+                                bufferSize),
+                        PUSHBACK_BUFFER_SIZE);
             } else {
-                arcRecord = ArcRecord.parseArcRecord(
-                        new ByteCountingPushBackInputStream(
-                                entry.getInputStream(), PUSHBACK_BUFFER_SIZE),
-                        versionBlock, this);
+                pbin = new ByteCountingPushBackInputStream(
+                        entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
             }
+            arcRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (arcRecord != null) {
-            arcRecord.startOffset = entry.getStartOffset();
+            arcRecord.header.startOffset = entry.getStartOffset();
         }
         previousRecord = arcRecord;
         return arcRecord;
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, long offset)
+    public ArcRecordBase getNextRecordFrom(InputStream rin, long offset)
             throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
@@ -244,17 +174,17 @@ public class ArcReaderCompressed extends ArcReader {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
+            arcRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (arcRecord != null) {
-            arcRecord.startOffset = offset;
+            arcRecord.header.startOffset = offset;
         }
         previousRecord = arcRecord;
         return arcRecord;
     }
 
     @Override
-    public ArcRecord getNextRecordFrom(InputStream rin, long offset,
+    public ArcRecordBase getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
         if (previousRecord != null) {
             previousRecord.close();
@@ -282,10 +212,10 @@ public class ArcReaderCompressed extends ArcReader {
                                     entry.getInputStream(),
                                     buffer_size),
                             PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecord.parseArcRecord(pbin, versionBlock, this);
+            arcRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (arcRecord != null) {
-            arcRecord.startOffset = offset;
+            arcRecord.header.startOffset = offset;
         }
         previousRecord = arcRecord;
         return arcRecord;

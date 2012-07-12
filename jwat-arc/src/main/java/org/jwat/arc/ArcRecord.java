@@ -37,9 +37,6 @@ import org.jwat.common.Payload;
  */
 public class ArcRecord extends ArcRecordBase {
 
-    /** Pushback size used in payload. */
-    public static final int PAYLOAD_PUSHBACK_SIZE = 8192;
-
     /** Buffer size used in toString(). */
     public static final int TOSTRING_BUFFER_SIZE = 256;
 
@@ -48,6 +45,13 @@ public class ArcRecord extends ArcRecordBase {
      * from stream.
      */
     protected ArcRecord() {
+    }
+
+    public static ArcRecord create(ArcWriter writer) {
+        ArcRecord ar = new ArcRecord();
+        ar.header = ArcHeader.initHeader(writer, ar.diagnostics);
+        writer.fieldParsers.diagnostics = ar.diagnostics;
+        return ar;
     }
 
     /**
@@ -60,51 +64,21 @@ public class ArcRecord extends ArcRecordBase {
      * @return an <code>ArcRecord</code> or null if none was found.
      * @throws IOException io exception while parsing arc record
      */
-    public static ArcRecord parseArcRecord(ByteCountingPushBackInputStream in,
-                              ArcVersionBlock versionBlock, ArcReader reader)
+    public static ArcRecord parseArcRecord(ArcReader reader,
+            ArcHeader header, ByteCountingPushBackInputStream in)
                                                           throws IOException {
         ArcRecord ar = new ArcRecord();
-        ar.versionBlock = versionBlock;
-        // TODO check for actual version present!
-        ar.version = versionBlock.version;
-        ar.in = in;
+        ar.recordType = RT_ARC_RECORD;
         ar.reader = reader;
-        ar.startOffset = in.getConsumed();
-        // Initialize WarcFieldParser to report diagnoses here.
-        reader.fieldParser.diagnostics = ar.diagnostics;
-
-        // Read record line.
-        // Looping past empty lines.
-        ar.startOffset = in.getConsumed();
-        String recordLine = in.readLine();
-        while ((recordLine != null) && (recordLine.length() == 0)) {
-            ar.startOffset = in.getConsumed();
-            recordLine = in.readLine();
-        }
-        if (recordLine != null) {
-            ar.parseRecord(recordLine);
-            // Preliminary compliance status, will be updated when the
-            // payload/record is closed.
-            if (ar.diagnostics.hasErrors() || ar.diagnostics.hasWarnings()) {
-                ar.bIsCompliant = false;
-            } else {
-                ar.bIsCompliant = true;
-            }
-            ar.reader.bIsCompliant &= ar.bIsCompliant;
-        } else {
-            if (ar.diagnostics.hasErrors() || ar.diagnostics.hasWarnings()) {
-                ar.reader.bIsCompliant = false;
-                reader.errors += ar.diagnostics.getErrors().size();
-                reader.warnings += ar.diagnostics.getWarnings().size();
-            }
-            // EOF
-            ar = null;
-        }
-        if (ar != null) {
-            ar.processPayload(in, reader);
-            // Updated consumed after payload has been consumed.
-            ar.consumed = in.getConsumed() - ar.startOffset;
-        }
+        ar.header = header;
+        ar.in = in;
+        // TODO check for actual version present!
+        //ar.versionBlock = versionBlock;
+        //ar.version = versionBlock.version;
+        // Process payload.
+        ar.processPayload(in, reader);
+        // Updated consumed after payload has been consumed.
+        ar.consumed = in.getConsumed() - ar.header.startOffset;
         return ar;
     }
 
@@ -112,28 +86,28 @@ public class ArcRecord extends ArcRecordBase {
     protected void processPayload(ByteCountingPushBackInputStream in,
                                         ArcReader reader) throws IOException {
         payload = null;
-        // Digest currently not supported by ARC reader.
-        if (recLength != null && recLength > 0L) {
+        if (header.archiveLength != null && header.archiveLength > 0L) {
             String digestAlgorithm = null;
             if (reader.bBlockDigest) {
                 digestAlgorithm = reader.blockDigestAlgorithm;
             }
-            payload = Payload.processPayload(in, recLength.longValue(),
-                                  PAYLOAD_PUSHBACK_SIZE, digestAlgorithm);
+            payload = Payload.processPayload(in, header.archiveLength.longValue(),
+                    reader.payloadHeaderMaxSize, digestAlgorithm);
             payload.setOnClosedHandler(this);
-            if (HttpHeader.isSupported(protocol)
-                            && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                                    recContentType)) {
+            // HttpHeader.
+            if (HttpHeader.isSupported(header.urlProtocol)
+                    && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
+                            header.contentTypeStr)) {
                 digestAlgorithm = null;
                 if (reader.bPayloadDigest) {
                     digestAlgorithm = reader.payloadDigestAlgorithm;
                 }
                 httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
-                            payload.getInputStream(), recLength.longValue(),
+                            payload.getInputStream(), header.archiveLength.longValue(),
                             digestAlgorithm);
                 if (httpHeader != null) {
                     if (httpHeader.isValid()) {
-                        payload.setHttpHeader(httpHeader);
+                        payload.setPayloadHeaderWrapped(httpHeader);
                     } else {
                         diagnostics.addError(
                                 new Diagnosis(DiagnosisType.ERROR,
@@ -142,11 +116,11 @@ public class ArcRecord extends ArcRecordBase {
                     }
                 }
             }
-        } else if (HttpHeader.isSupported(protocol)
+        } else if (HttpHeader.isSupported(header.urlProtocol)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                                    recContentType)) {
+                                    header.contentTypeStr)) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    ARC_FILE,
+                    ArcConstants.ARC_FILE,
                     "Expected payload not found in the record block"));
         }
         return;

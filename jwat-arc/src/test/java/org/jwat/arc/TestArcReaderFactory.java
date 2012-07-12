@@ -55,8 +55,7 @@ public class TestArcReaderFactory {
         InputStream in;
 
         ArcReader reader;
-        ArcVersionBlock version;
-        ArcRecord arcRecord;
+        ArcRecordBase record;
 
         int records = 0;
         int errors = 0;
@@ -78,28 +77,38 @@ public class TestArcReaderFactory {
 
             reader = ArcReaderFactory.getReader(in);
 
-            version = reader.getVersionBlock();
+            record = reader.getNextRecord();
 
-            if (version != null) {
+            Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+            Assert.assertTrue(record.isCompliant());
+            Assert.assertNotNull(record.versionHeader);
+            Assert.assertNotNull(record.versionHeader.isValid());
+            Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+
+            if (record != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printVersionBlock(version);
+                    RecordDebugBase.printRecord(record);
                 }
 
                 boolean b = true;
                 while ( b ) {
-                    arcRecord = reader.getNextRecord();
-                    if (arcRecord != null) {
+                    record = reader.getNextRecord();
+                    if (record != null) {
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(arcRecord);
+                            RecordDebugBase.printRecord(record);
                         }
 
                         ++records;
 
-                        if (arcRecord.diagnostics.hasErrors()) {
-                            errors += arcRecord.diagnostics.getErrors().size();
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+
+                        if (record.diagnostics.hasErrors()) {
+                            errors += record.diagnostics.getErrors().size();
                         }
-                        if (arcRecord.diagnostics.hasWarnings()) {
-                            warnings += arcRecord.diagnostics.getWarnings().size();
+                        if (record.diagnostics.hasWarnings()) {
+                            warnings += record.diagnostics.getWarnings().size();
                         }
                     } else {
                         b = false;
@@ -130,28 +139,38 @@ public class TestArcReaderFactory {
 
             reader = ArcReaderFactory.getReader(in, 8192);
 
-            version = reader.getVersionBlock();
+            record = reader.getNextRecord();
 
-            if (version != null) {
+            Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+            Assert.assertTrue(record.isCompliant());
+            Assert.assertNotNull(record.versionHeader);
+            Assert.assertNotNull(record.versionHeader.isValid());
+            Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+
+            if (record != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printVersionBlock(version);
+                    RecordDebugBase.printRecord(record);
                 }
 
                 boolean b = true;
                 while ( b ) {
-                    arcRecord = reader.getNextRecord();
-                    if (arcRecord != null) {
+                    record = reader.getNextRecord();
+                    if (record != null) {
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(arcRecord);
+                            RecordDebugBase.printRecord(record);
                         }
 
                         ++records;
 
-                        if (arcRecord.diagnostics.hasErrors()) {
-                            errors += arcRecord.diagnostics.getErrors().size();
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+
+                        if (record.diagnostics.hasErrors()) {
+                            errors += record.diagnostics.getErrors().size();
                         }
-                        if (arcRecord.diagnostics.hasWarnings()) {
-                            warnings += arcRecord.diagnostics.getWarnings().size();
+                        if (record.diagnostics.hasWarnings()) {
+                            warnings += record.diagnostics.getWarnings().size();
                         }
                     } else {
                         b = false;

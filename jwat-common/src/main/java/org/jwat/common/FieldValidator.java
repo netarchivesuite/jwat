@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jwat.arc;
+package org.jwat.common;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Field validator utility class.
+ * Field validation utility class.
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class ArcFieldValidator {
+public class FieldValidator {
 
     /** Array of field names. */
     protected String[] fieldNames;
@@ -36,7 +36,7 @@ public class ArcFieldValidator {
     /**
      * Protected constructor to ensure correct instantiation.
      */
-    protected ArcFieldValidator() {
+    protected FieldValidator() {
     }
 
     /**
@@ -44,8 +44,8 @@ public class ArcFieldValidator {
      * @param fieldNames array of field names.
      * @return validator used to look field by field name->index.
      */
-    public static ArcFieldValidator prepare(String[] fieldNames) {
-        ArcFieldValidator fv = new ArcFieldValidator();
+    public static FieldValidator prepare(String[] fieldNames) {
+        FieldValidator fv = new FieldValidator();
         fv.fieldNames = fieldNames;
         for (int i = 0; i < fieldNames.length; ++i) {
             fv.fieldIdxMap.put(fieldNames[i], i);

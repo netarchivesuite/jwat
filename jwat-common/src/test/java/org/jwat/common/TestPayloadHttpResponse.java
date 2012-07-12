@@ -129,12 +129,12 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                             payload.getTotalLength(),
                             digestAlgorithm);
                     if (httpHeader != null) {
-                        payload.setHttpHeader(httpHeader);
+                        payload.setPayloadHeaderWrapped(httpHeader);
                     }
                     Assert.assertTrue(httpHeader.isValid());
                     Assert.assertNotNull(httpHeader);
-                    Assert.assertEquals(httpHeader, payload.httpHeader);
-                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
+                    Assert.assertEquals(httpHeader, payload.payloadHeaderWrapped);
+                    Assert.assertEquals(httpHeader, payload.getPayloadHeaderWrapped());
 
                     in = httpHeader.getPayloadInputStream();
                     Assert.assertEquals(in, httpHeader.getPayloadInputStream());
@@ -229,12 +229,12 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                             payload.getTotalLength(),
                             digestAlgorithm);
                     if (httpHeader != null) {
-                        payload.setHttpHeader(httpHeader);
+                        payload.setPayloadHeaderWrapped(httpHeader);
                     }
                     Assert.assertTrue(httpHeader.isValid());
                     Assert.assertNotNull(httpHeader);
-                    Assert.assertEquals(httpHeader, payload.httpHeader);
-                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
+                    Assert.assertEquals(httpHeader, payload.payloadHeaderWrapped);
+                    Assert.assertEquals(httpHeader, payload.getPayloadHeaderWrapped());
 
                     in = httpHeader.getInputStreamComplete();
                     Assert.assertEquals(in, httpHeader.getInputStreamComplete());
@@ -330,12 +330,12 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                             payload.getTotalLength(),
                             digestAlgorithm);
                     if (httpHeader != null) {
-                        payload.setHttpHeader(httpHeader);
+                        payload.setPayloadHeaderWrapped(httpHeader);
                     }
                     Assert.assertTrue(httpHeader.isValid());
                     Assert.assertNotNull(httpHeader);
-                    Assert.assertEquals(httpHeader, payload.httpHeader);
-                    Assert.assertEquals(httpHeader, payload.getHttpHeader());
+                    Assert.assertEquals(httpHeader, payload.payloadHeaderWrapped);
+                    Assert.assertEquals(httpHeader, payload.getPayloadHeaderWrapped());
 
                     in = payload.getInputStreamComplete();
                     Assert.assertEquals( httpHeader.getInputStreamComplete(), payload.getInputStreamComplete() );

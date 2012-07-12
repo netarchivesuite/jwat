@@ -31,11 +31,17 @@ public final class ArcConstants {
     protected ArcConstants() {
     }
 
+    /** Invalid ARC file property. */
+    protected static final String ARC_FILE = "ARC file";
+
+    /** Invalid ARC record property. */
+    protected static final String ARC_RECORD = "ARC record";
+
     /** An ARC version block starts with this string. */
     public static final String ARC_MAGIC_HEADER = "filedesc:";
 
-    /** Arc file magic number. */
-    public static final String ARC_SCHEME = "filedesc://";
+    /** Arc file URL URI scheme. */
+    public static final String ARC_SCHEME = "filedesc";
 
     /** Text plain content type. */
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
@@ -59,67 +65,74 @@ public final class ArcConstants {
      * Record block fields.
      */
 
-    /** Url fieldname. */
-    public static final String URL_FIELD                = "URL";
-    /** Ip-Address fieldname. */
-    public static final String IP_ADDRESS_FIELD         = "IP-address";
-    /** Date fieldname. */
-    public static final String DATE_FIELD               = "Archive-date";
-    /** Content-Type fieldname. */
-    public static final String CONTENT_TYPE_FIELD       = "Content-type";
-    /** Result-Code fieldname. */
-    public static final String RESULT_CODE_FIELD        = "Result-code";
-    /** Checksum fieldname. */
-    public static final String CHECKSUM_FIELD           = "Checksum";
-    /** Location fieldname. */
-    public static final String LOCATION_FIELD           = "Location";
-    /** Offset fieldname. */
-    public static final String OFFSET_FIELD             = "Offset";
-    /** Filename fieldname. */
-    public static final String FILENAME_FIELD           = "Filename";
-    /** Length fieldname. */
-    public static final String LENGTH_FIELD             = "Archive-length";
+    /** Url field name. */
+    public static final String FN_URL = "URL";
+    /** Ip-Address field name. */
+    public static final String FN_IP_ADDRESS = "IP-address";
+    /** Date field name. */
+    public static final String FN_ARCHIVE_DATE = "Archive-date";
+    /** Content-Type field name. */
+    public static final String FN_CONTENT_TYPE = "Content-type";
+    /** Result-Code field name. */
+    public static final String FN_RESULT_CODE = "Result-code";
+    /** Checksum field name. */
+    public static final String FN_CHECKSUM = "Checksum";
+    /** Location field name. */
+    public static final String FN_LOCATION = "Location";
+    /** Offset field name. */
+    public static final String FN_OFFSET = "Offset";
+    /** Filename field name. */
+    public static final String FN_FILENAME = "Filename";
+    /** Length field name. */
+    public static final String FN_ARCHIVE_LENGTH = "Archive-length";
 
     /** URL record field index. */
-    public static final int AF_IDX_URL = 0;
+    public static final int FN_IDX_URL = 0;
     /** Ip address record field index. */
-    public static final int AF_IDX_IPADDRESS = 1;
+    public static final int FN_IDX_IP_ADDRESS = 1;
     /** Archive date record field index. */
-    public static final int AF_IDX_ARCHIVEDATE = 2;
+    public static final int FN_IDX_ARCHIVE_DATE = 2;
     /** Content-type record field index. */
-    public static final int AF_IDX_CONTENTTYPE = 3;
+    public static final int FN_IDX_CONTENT_TYPE = 3;
     /** Result code record field index.  */
-    public static final int AF_IDX_RESULTCODE = 4;
+    public static final int FN_IDX_RESULT_CODE = 4;
     /** Checksum record field index. */
-    public static final int AF_IDX_CHECKSUM = 5;
+    public static final int FN_IDX_CHECKSUM = 5;
     /** Location record field index. */
-    public static final int AF_IDX_LOCATION = 6;
+    public static final int FN_IDX_LOCATION = 6;
     /** Offset record field index. */
-    public static final int AF_IDX_OFFSET = 7;
+    public static final int FN_IDX_OFFSET = 7;
     /** Filename record field index. */
-    public static final int AF_IDX_FILENAME = 8;
+    public static final int FN_IDX_FILENAME = 8;
 
     /**
      * Version block fields.
      */
 
-    /** Version fieldname. */
-    public static final String VERSION_FIELD            = "Version-number";
-    /** Reserved fieldname. */
-    public static final String RESERVED_FIELD           = "Reserved";
-    /** Origin fieldname. */
-    public static final String ORIGIN_FIELD             = "Origin-code";
+    /** Version field name. */
+    public static final String VERSION_FIELD = "Version-number";
+    /** Reserved field name. */
+    public static final String RESERVED_FIELD = "Reserved";
+    /** Origin field name. */
+    public static final String ORIGIN_FIELD = "Origin-code";
+
+    /** Version number version field index. */
+    public static final int FN_IDX_VERSION_NUMBER = 0;
+    /** Reserved version field index. */
+    public static final int FN_IDX_RESERVED = 1;
+    /** Origin code version field index. */
+    public static final int FN_IDX_ORIGIN_CODE = 2;
 
     /** Version-1-block fields. */
     public static final String[] VERSION_1_BLOCK_FIELDS = {
-            URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
-            LENGTH_FIELD};
+            FN_URL, FN_IP_ADDRESS, FN_ARCHIVE_DATE, FN_CONTENT_TYPE,
+            FN_ARCHIVE_LENGTH};
     /** Version-2-block fields. */
     public static final String[] VERSION_2_BLOCK_FIELDS = {
-            URL_FIELD, IP_ADDRESS_FIELD, DATE_FIELD, CONTENT_TYPE_FIELD,
-            RESULT_CODE_FIELD, CHECKSUM_FIELD, LOCATION_FIELD,
-            OFFSET_FIELD, FILENAME_FIELD,
-            LENGTH_FIELD };
+            FN_URL, FN_IP_ADDRESS, FN_ARCHIVE_DATE, FN_CONTENT_TYPE,
+            FN_RESULT_CODE, FN_CHECKSUM, FN_LOCATION,
+            FN_OFFSET, FN_FILENAME,
+            FN_ARCHIVE_LENGTH };
 
     /** Version description fields. */
     public static final String[] VERSION_DESC_FIELDS = {
@@ -140,7 +153,7 @@ public final class ArcConstants {
      * @param elts array of string to join
      * @return an array joined into a string
      */
-    private static String join(char sep, String... elts) {
+    public static String join(char sep, String... elts) {
         StringBuilder buf = new StringBuilder();
         for (String s : elts) {
             buf.append(s).append(sep);

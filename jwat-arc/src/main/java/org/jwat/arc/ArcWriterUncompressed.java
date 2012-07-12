@@ -80,8 +80,7 @@ public class ArcWriterUncompressed extends ArcWriter {
                 out.close();
                 out = null;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
         }
     }
 
@@ -108,6 +107,9 @@ public class ArcWriterUncompressed extends ArcWriter {
         }
         return writeHeader_impl(record);
         //state = S_HEADER_WRITTEN;
+        //header
+        //headerContentLength
+        //payloadWrittenTotal = 0;
     }
 
 }

@@ -38,10 +38,10 @@ public class TestWarcHeaderHelper {
 
     public WarcHeader getTestHeader() {
         WarcHeader header = new WarcHeader();
-        header.fieldParser = new WarcFieldParsers();
+        header.fieldParsers = new WarcFieldParsers();
         header.warcDateFormat = WarcDateParser.getDateFormat();
         header.diagnostics = new Diagnostics<Diagnosis>();
-        header.fieldParser.diagnostics = header.diagnostics;
+        header.fieldParsers.diagnostics = header.diagnostics;
         return header;
     }
 

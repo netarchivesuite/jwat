@@ -28,7 +28,6 @@ import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
@@ -48,14 +47,12 @@ import org.jwat.common.PayloadOnClosedHandler;
  */
 public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
+    public static final int RT_VERSION_BLOCK = 1;
+
+    public static final int RT_ARC_RECORD = 2;
+
     /** Buffer size used in toString(). */
     public static final int TOSTRING_BUFFER_SIZE = 256;
-
-    /** Invalid ARC file property. */
-    protected static final String ARC_FILE = "ARC file";
-
-    /** Invalid ARC record property. */
-    protected static final String ARC_RECORD = "ARC record";
 
     /** Is this record compliant ie. error free. */
     protected boolean bIsCompliant;
@@ -70,80 +67,22 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected ArcVersion version;
 
     /** ARC record version block. */
-    protected ArcVersionBlock versionBlock;
-
-    /** ARC record starting offset relative to the source arc file input
-     *  stream. */
-    protected long startOffset = -1L;
+    //protected ArcVersionBlock versionBlock;
 
     /** Bytes consumed while validating this record. */
     protected long consumed;
 
-    /** Validation errors. */
-    //protected List<ArcValidationError> errors = null;
-
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
-    /** Do the record fields comply in number with the one dictated by its
-     *  version. */
-    protected boolean hasCompliantFields = false;
+    public int recordType;
 
     /*
-     * Raw fields.
+     * Header-Fields.
      */
 
-    /** ARC record string field: url. */
-    public String recUrl;
-
-    /** ARC record string field: ip address. */
-    public String recIpAddress;
-
-    /** ARC record string field: archive date. */
-    public String recArchiveDate;
-
-    /** ARC record string field: content-type. */
-    public String recContentType;
-
-    /** ARC record string field: result code. */
-    public Integer recResultCode = null;
-
-    /** ARC record string field: checksum. */
-    public String recChecksum = "-";
-
-    /** ARC record string field: location. */
-    public String recLocation = "-";
-
-    /** ARC record string field: offset. */
-    public Long recOffset = null;
-
-    /** ARC record string field: filename. */
-    public String recFilename;
-
-    /** ARC record string field: length. */
-    public Long recLength;
-
-    /*
-     * Parsed fields.
-     */
-
-    /** String Url parsed and validated into an <code>URI</code> object. */
-    public URI url;
-
-    /** Url Scheme. (filedesc, http, https, dns, etc.) */
-    public String protocol;
-
-    /** IpAddress parsed and validated to a <code>InetAddress</code> object. */
-    public InetAddress inetAddress;
-
-    /** String to <code>Date</code> conversion from "YYYYMMDDhhmmss" format. */
-    public Date archiveDate;
-
-    /** Content-Type wrapper object with optional parameters. */
-    public ContentType contentType;
-
-    /** Specifies whether the network has been already validated or not. */
-    //private boolean isNetworkDocValidated = false;
+    /** WARC header. */
+    public ArcHeader header;
 
     /*
      * Payload
@@ -158,6 +97,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Payload object if any exists. */
     protected Payload payload;
 
+    protected ArcVersionHeader versionHeader;
+
     /** HTTP header content parsed from payload. */
     protected HttpHeader httpHeader;
 
@@ -171,7 +112,52 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * Creates an ARC record from the specified record description.
      * @param recordLine ARC record string
      */
-    public void parseRecord(String recordLine) {
+    public static ArcRecordBase parseRecord(ByteCountingPushBackInputStream in, ArcReader reader) throws IOException {
+        ArcRecordBase record = null;
+        // Initialize ArcHeader with required context.
+        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        ArcHeader header = ArcHeader.initHeader(reader, in.getConsumed(), diagnostics);
+        // Initialize ArcFieldParser to report diagnoses here.
+        reader.fieldParsers.diagnostics = diagnostics;
+        if (header.parseHeader(in)) {
+            if (header.urlProtocol != null && header.urlProtocol.startsWith(ArcConstants.ARC_SCHEME)) {
+                record = ArcVersionBlock.parseVersionBlock(reader, header, reader.fieldParsers, in);
+                reader.versionHeader = record.versionHeader;
+                if (record.versionHeader != null) {
+                    record.version = record.versionHeader.version;
+                }
+            }
+            if (record == null) {
+                record = ArcRecord.parseArcRecord(reader, header, in);
+            }
+        }
+        if (record != null) {
+            // Check read and computed offset value only if we're reading
+            // a plain ARC file, not a GZipped ARC.
+            if ((header.offset != null) && (header.startOffset > 0L)
+                                && (header.offset.longValue() != header.startOffset)) {
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
+                        "'" + ArcConstants.FN_OFFSET + "' value",
+                        header.offset.toString()));
+            }
+            // Preliminary compliance status, will be updated when the
+            // payload/record is closed.
+            if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
+                record.bIsCompliant = false;
+            } else {
+                record.bIsCompliant = true;
+            }
+            reader.bIsCompliant &= record.bIsCompliant;
+        } else {
+            reader.diagnostics.addAll(diagnostics);
+            if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
+                reader.bIsCompliant = false;
+                reader.errors += diagnostics.getErrors().size();
+                reader.warnings += diagnostics.getWarnings().size();
+            }
+        }
+        return record;
+        /*
         hasCompliantFields = false;
         if (recordLine != null) {
             String[] records = recordLine.split(" ", -1);
@@ -185,58 +171,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                         "URL record definition and record definition are not "
                                 + "compliant"));
             }
-            // Parse
-            recUrl = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AF_IDX_URL);
-            recIpAddress = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AF_IDX_IPADDRESS);
-            recArchiveDate = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AF_IDX_ARCHIVEDATE);
-            recContentType = ArcFieldValidator.getArrayValue(records,
-                    ArcConstants.AF_IDX_CONTENTTYPE);
-            // Validate
-            url = reader.fieldParser.parseUri(recUrl, ArcConstants.URL_FIELD);
-            if (url != null) {
-                protocol = url.getScheme();
-            }
-            inetAddress = reader.fieldParser.parseIpAddress(recIpAddress, ArcConstants.IP_ADDRESS_FIELD);
-            archiveDate = reader.fieldParser.parseDate(recArchiveDate, ArcConstants.DATE_FIELD);
-            contentType = reader.fieldParser.parseContentType(recContentType, ArcConstants.CONTENT_TYPE_FIELD);
-            // Version 2
-            if (version.equals(ArcVersion.VERSION_2)) {
-                recResultCode = reader.fieldParser.parseInteger(
-                        ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AF_IDX_RESULTCODE),
-                        ArcConstants.RESULT_CODE_FIELD, false);
-                recChecksum = reader.fieldParser.parseString(
-                        ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AF_IDX_CHECKSUM),
-                        ArcConstants.CHECKSUM_FIELD);
-                recLocation = reader.fieldParser.parseString(
-                        ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AF_IDX_LOCATION),
-                        ArcConstants.LOCATION_FIELD, true);
-                recOffset = reader.fieldParser.parseLong(
-                        ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AF_IDX_OFFSET),
-                        ArcConstants.OFFSET_FIELD);
-                recFilename = reader.fieldParser.parseString(
-                        ArcFieldValidator.getArrayValue(records,
-                                ArcConstants.AF_IDX_FILENAME),
-                        ArcConstants.FILENAME_FIELD);
-            }
-            recLength = reader.fieldParser.parseLong(
-                    ArcFieldValidator.getArrayValue(records,
-                            records.length - 1), ArcConstants.LENGTH_FIELD);
-            // Check read and computed offset value only if we're reading
-            // a plain ARC file, not a GZipped ARC.
-            if ((recOffset != null) && (startOffset > 0L)
-                                && (recOffset.longValue() != startOffset)) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
-                        "'" + ArcConstants.OFFSET_FIELD + "' value",
-                        recOffset.toString()));
-            }
         }
+        */
     }
 
     /**
@@ -244,7 +180,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the starting offset of the record
      */
     public long getStartOffset() {
-        return startOffset;
+        return header.startOffset;
     }
 
     /**
@@ -264,52 +200,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /*
     public boolean hasErrors() {
         return ((errors != null) && (!errors.isEmpty()));
-    }
-    */
-
-    /**
-     * Validation errors getter.
-     * @return validation errors list
-     */
-    /*
-    public Collection<ArcValidationError> getValidationErrors() {
-        return (hasErrors())? Collections.unmodifiableList(errors) : null;
-    }
-    */
-
-    /**
-     * Add validation error.
-     * @param errorType the error type {@link ArcErrorType}.
-     * @param field the field name
-     * @param value the error value
-     */
-    /*
-    protected void addValidationError(ArcErrorType errorType,
-                                      String field, String value) {
-        if (errors == null) {
-            errors = new LinkedList<ArcValidationError>();
-        }
-        errors.add(new ArcValidationError(errorType, field, value));
-    }
-    */
-
-    /**
-     * Checks if the ARC record has warnings.
-     * @return true/false based on whether the ARC record has warnings or not
-     */
-    /*
-    public boolean hasWarnings() {
-        return false;
-    }
-    */
-
-    /**
-     * Gets Network doc warnings.
-     * @return validation errors list/
-     */
-    /*
-    public Collection<String> getWarnings() {
-        return null;
     }
     */
 
@@ -392,7 +282,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
-            consumed = in.getConsumed() - startOffset;
+            consumed = in.getConsumed() - header.startOffset;
             reader.consumed += consumed;
             // Dont not close payload again.
             bPayloadClosed = true;
@@ -435,6 +325,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
+     * Return number of bytes consumed validating this record.
+     * @return number of bytes consumed validating this record
+     */
+    public Long getConsumed() {
+        return consumed;
+    }
+
+    /**
      * Add an error diagnosis of the given type on a specific entity with
      * optional extra information. The information varies according to the
      * diagnosis type.
@@ -467,41 +365,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      */
     protected abstract void processPayload(ByteCountingPushBackInputStream in,
                                         ArcReader reader) throws IOException;
-
-    /**
-     * isNetworkDocValidated getter.
-     * @return the isNetworkDocValidated
-     */
-    /*
-    public boolean isNetworkDocValidated() {
-        return isNetworkDocValidated;
-    }
-    */
-
-    /**
-     * Validates the network doc. Subclasses have to check the
-     * coherence of the network doc.
-     */
-    //public abstract void validateNetworkDoc();
-
-    /**
-     * Validates the network doc. This method is called when processing
-     * compressed ARC.
-     * @throws IOException io exception in parsing
-     */
-    /*
-    public final void validateNetworkDocContent(InputStream in)
-                                                    throws IOException {
-        if(payload != null && !isNetworkDocValidated){
-            boolean isValid = this.isValid(in);
-            isNetworkDocValidated = true;
-            if(!isValid){
-                this.addValidationError(ArcErrorType.INVALID, ARC_RECORD,
-                    "Non LF characters encountered after network doc");
-            }
-        }
-    }
-    */
 
     /**
      * Specifies whether this record has a payload or not.
@@ -563,7 +426,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the URL
      */
     public URI getUrl() {
-        return url;
+        return header.urlUri;
     }
 
     /**
@@ -571,7 +434,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the raw URL
      */
     public String getRawUrl() {
-        return recUrl;
+        return header.urlStr;
     }
 
     /**
@@ -579,7 +442,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the InetAddress
      */
     public InetAddress getInetAddress() {
-        return inetAddress;
+        return header.inetAddress;
     }
 
     /**
@@ -587,7 +450,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the ipAddress
      */
     public String getRawIpAddress() {
-        return recIpAddress;
+        return header.ipAddressStr;
     }
 
     /**
@@ -595,7 +458,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the archiveDate
      */
     public Date getArchiveDate() {
-        return archiveDate;
+        return header.archiveDate;
     }
 
     /**
@@ -603,7 +466,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the rawArchiveDate
      */
     public String getRawArchiveDate() {
-        return recArchiveDate;
+        return header.archiveDateStr;
     }
 
     /**
@@ -611,7 +474,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the contentType
      */
     public String getContentType() {
-        return recContentType;
+        return header.contentTypeStr;
     }
 
     /**
@@ -619,7 +482,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the resultCode
      */
     public Integer getResultCode() {
-        return recResultCode;
+        return header.resultCode;
     }
 
     /**
@@ -627,7 +490,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the checksum
      */
     public String getChecksum() {
-        return recChecksum;
+        return header.checksumStr;
     }
 
     /**
@@ -635,7 +498,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the location
      */
     public String getLocation() {
-        return recLocation;
+        return header.locationStr;
     }
 
     /**
@@ -643,15 +506,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the offset
      */
     public Long getOffset() {
-        return recOffset;
-    }
-
-    /**
-     * Return number of bytes consumed validating this record.
-     * @return number of bytes consumed validating this record
-     */
-    public Long getConsumed() {
-        return consumed;
+        return header.offset;
     }
 
     /**
@@ -659,7 +514,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the fileName
      */
     public String getFileName() {
-        return recFilename;
+        return header.filenameStr;
     }
 
     /**
@@ -667,7 +522,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the length
      */
     public Long getLength() {
-        return recLength;
+        return header.archiveLength;
     }
 
     /**
@@ -675,44 +530,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @return the protocol
      */
     public String getProtocol() {
-        return protocol;
+        return header.urlProtocol;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder(TOSTRING_BUFFER_SIZE);
-        if (recUrl != null) {
-            builder.append("url:").append(recUrl);
-        }
-        if (recIpAddress != null) {
-            builder.append(", ipAddress: ").append(recIpAddress);
-        }
-        if (recArchiveDate != null) {
-            builder.append(", archiveDate: ").append(recArchiveDate);
-        }
-        if (recContentType != null) {
-            builder.append(", contentType: ").append(recContentType);
-        }
-        if (recResultCode != null) {
-            builder.append(", resultCode: ").append(recResultCode);
-        }
-        if (recChecksum != null) {
-            builder.append(", checksum: ").append(recChecksum);
-        }
-        if (recLocation != null) {
-            builder.append(", location: ").append(recLocation);
-        }
-        if (recOffset != null) {
-            builder.append(", offset: ").append(recOffset);
-        }
-        if (recFilename != null) {
-            builder.append(", fileName: ")
-                .append(recFilename);
-            if (recLength != null) {
-                builder.append(", length: ").append(recLength);
-            }
-        }
-        return builder.toString();
+        StringBuilder sb = new StringBuilder(TOSTRING_BUFFER_SIZE);
+        header.toStringBuilder(sb);
+        return sb.toString();
     }
 
 }

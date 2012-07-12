@@ -17,15 +17,8 @@
  */
 package org.jwat.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PushbackInputStream;
-import java.io.SequenceInputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,7 +30,7 @@ import java.util.Map;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class HttpHeader {
+public class HttpHeader extends PayloadWithHeaderAbstract {
 
     /** Response header type. */
     public static final int HT_RESPONSE = 1;
@@ -57,45 +50,8 @@ public class HttpHeader {
     /** Content-type header name. */
     protected static final String CONTENT_TYPE = "Content-Type".toUpperCase();
 
-    /** Has record been closed before. */
-    protected boolean bClosed;
-
-    /** <code>InputStream</code> to read payload. */
-    protected ByteCountingPushBackInputStream in_pb;
-
-    /** Payload length. */
-    protected long totalLength;
-
-    /** Could the HTTP header be validated. */
-    protected boolean bIsValid;
-
     /** Header type of this object. */
     public int headerType;
-
-    /** Stream used to ensure we don't use more than the pushback buffer on
-     *  headers and at the same time store everything read in an array. */
-    protected MaxLengthRecordingInputStream in_flr;
-
-    /** Actual message digest algorithm used. */
-    protected MessageDigest md;
-
-    /** Automatic digesting of payload input stream. */
-    protected DigestInputStream in_digest;
-
-    /** Boolean indicating no such algorithm exception under initialization. */
-    protected boolean bNoSuchAlgorithmException;
-
-    /** HTTP payload stream returned to user. */
-    protected InputStream in_payload;
-
-    /** Sequence of the header as a stream and the payload stream. */
-    protected SequenceInputStream in_complete;
-
-    /** Object size, in bytes. */
-    public long payloadLength = 0L;
-
-    /** Validation errors and warnings. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
     /*
      * Request-Line.
@@ -192,52 +148,14 @@ public class HttpHeader {
         hh.headerType = headerType;
         hh.in_pb = pbin;
         hh.totalLength = length;
-        hh.in_flr = new MaxLengthRecordingInputStream(
-                                        hh.in_pb, hh.in_pb.getPushbackSize());
-        hh.bIsValid = hh.readHttpHeader(hh.in_flr, length);
-        if (hh.bIsValid) {
-            /*
-             * Block Digest.
-             */
-            if (digestAlgorithm != null) {
-                try {
-                    hh.md = MessageDigest.getInstance(digestAlgorithm);
-                } catch (NoSuchAlgorithmException e) {
-                    hh.bNoSuchAlgorithmException = true;
-                }
-            }
-            if (hh.md != null) {
-                hh.in_digest = new DigestInputStreamNoSkip(hh.in_pb, hh.md);
-                hh.in_payload = hh.in_digest;
-            } else {
-                hh.in_payload = hh.in_pb;
-            }
-            /*
-             * Ensure close() is not called on the payload stream!
-             */
-            hh.in_payload = new FilterInputStream(hh.in_payload) {
-                @Override
-                public void close() throws IOException {
-                }
-            };
-            hh.in_complete = new SequenceInputStream(new ByteArrayInputStream(hh.in_flr.getRecording()), hh.in_payload);
-        } else {
-            // Undo read and leave callers input stream in original state.
-            hh.in_pb.unread(hh.in_flr.getRecording());
-            hh.bClosed = true;
-        }
+        hh.digestAlgorithm = digestAlgorithm;
+        hh.diagnostics = new Diagnostics<Diagnosis>();
+        hh.initProcess();
         return hh;
     }
 
-    /**
-     * Reads the protocol response or request.
-     * Updates the payloadLength field if the response or request  is valid.
-     * @param in the input stream to parse.
-     * @param payloadLength the record length.
-     * @return boolean indicating whether the http header could be read
-     * @throws IOException io exception while reading http headers
-     */
-    protected boolean readHttpHeader(MaxLengthRecordingInputStream in, long payloadLength)
+    @Override
+    protected boolean readHeader(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
         PushbackInputStream pbin = new PushbackInputStream(in, 16);
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
@@ -429,14 +347,6 @@ public class HttpHeader {
     }
 
     /**
-     * Returns the result of the HTTP header validation.
-     * @return the result of the HTTP header validation
-     */
-    public boolean isValid() {
-        return bIsValid;
-    }
-
-    /**
      * Get a <code>List</code> of all the headers found during parsing.
      * @return <code>List</code> of <code>HeaderLine</code>
      */
@@ -490,126 +400,10 @@ public class HttpHeader {
         return contentType;
     }
 
-    /**
-     * Get the raw HTTP header as bytes.
-     * @return raw HTTP header as bytes
-     */
-    public byte[] getHeader() {
-        return in_flr.getRecording();
-    }
-
-    /**
-     * Returns the <code>MessageDigest</code> used on payload stream.
-     * @return <code>MessageDigest</code> used on payload stream
-     */
-    public MessageDigest getMessageDigest() {
-        return md;
-    }
-
-    /**
-     * Get HTTP payload length.
-     * @return HTTP payload length
-     */
-    public long getPayloadLength() {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return payloadLength;
-    }
-
-    /**
-     * Get payload total length, header and payload.
-     * @return payload total length, header and payload
-     */
-    public long getTotalLength() {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return totalLength;
-    }
-
-    /**
-     * Get the number of unavailable bytes missing due to unexpected EOF.
-     * This method always returns <code>0</code> as long as the stream is open.
-     * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException if errors occur calling available method on stream
-     */
-    public long getUnavailable() throws IOException {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return totalLength - in_pb.getConsumed();
-    }
-
-    /**
-     * Get an <code>InputStream</code> containing both the header and the
-     * payload.
-     * @return <code>InputStream</code> containing both the header and the
-     * payload.
-     */
-    public InputStream getInputStreamComplete() {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return in_complete;
-    }
-
-    /**
-     * Get an <code>InputStream</code> containing only the payload.
-     * @return <code>InputStream</code> containing only the payload.
-     */
-    public InputStream getPayloadInputStream() {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return in_payload;
-    }
-
-    /**
-     * Get payload remaining length.
-     * @return payload remaining length
-     * @throws IOException if errors occur calling available method on stream
-     */
-    public long getRemaining() throws IOException {
-        if (!bIsValid) {
-            throw new IllegalStateException("HttpHeader not valid");
-        }
-        return totalLength - in_pb.getConsumed();
-    }
-
-    /**
-     * Check to see if the HTTP header has been closed.
-     * @return boolean indicating whether this HTTP header is closed or not
-     */
-    public boolean isClosed() {
-        return bClosed;
-    }
-
-    /**
-     * Closes the this payload stream, skipping unread bytes in the process.
-     * @throws IOException io exception in closing process
-     */
-    public void close() throws IOException {
-        if (!bClosed) {
-            if (md != null) {
-                // Skip remaining unread bytes to ensure payload is completely
-                // digested. Skipping because the DigestInputStreamNoSkip
-                // has been altered to read when skipping.
-                while (in_digest.skip(totalLength) > 0) {
-                }
-            }
-            if (in_pb != null) {
-                in_pb.close();
-                in_pb = null;
-            }
-            bClosed = true;
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder(256);
-        builder.append("\nHttpResponse : [\n");
+        builder.append("\nHttpHeader : [\n");
         if (statusCode != null) {
             builder.append(", HttpResultCode: ")
                 .append(statusCode);

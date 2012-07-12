@@ -157,19 +157,18 @@ public class WarcReaderCompressed extends WarcReader {
         warcRecord = null;
         GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
+            ByteCountingPushBackInputStream pbin;
             if (bufferSize > 0) {
-                warcRecord = WarcRecord.parseRecord(
-                        new ByteCountingPushBackInputStream(
-                                new BufferedInputStream(entry.getInputStream(),
-                                bufferSize),
-                                PUSHBACK_BUFFER_SIZE), this);
+                pbin = new ByteCountingPushBackInputStream(
+                        new BufferedInputStream(
+                                entry.getInputStream(), bufferSize),
+                                PUSHBACK_BUFFER_SIZE);
             }
             else {
-                warcRecord = WarcRecord.parseRecord(
-                        new ByteCountingPushBackInputStream(
-                                entry.getInputStream(),
-                                PUSHBACK_BUFFER_SIZE), this);
+                pbin = new ByteCountingPushBackInputStream(
+                        entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
             }
+            warcRecord = WarcRecord.parseRecord(pbin, this);
         }
         if (warcRecord != null) {
             warcRecord.header.startOffset = entry.getStartOffset();
@@ -195,10 +194,10 @@ public class WarcReaderCompressed extends WarcReader {
         GzipReader reader = new GzipReader(rin);
         GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
-            warcRecord = WarcRecord.parseRecord(
+            ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
-                            entry.getInputStream(),
-                            PUSHBACK_BUFFER_SIZE), this);
+                            entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
+            warcRecord = WarcRecord.parseRecord(pbin, this);
         }
         if (warcRecord != null) {
             warcRecord.header.startOffset = offset;
@@ -229,11 +228,12 @@ public class WarcReaderCompressed extends WarcReader {
         GzipReader reader = new GzipReader(rin);
         GzipEntry entry = reader.getNextEntry();
         if (entry != null) {
-            warcRecord = WarcRecord.parseRecord(
+            ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
                                     entry.getInputStream(), buffer_size),
-                                    PUSHBACK_BUFFER_SIZE), this);
+                                    PUSHBACK_BUFFER_SIZE);
+            warcRecord = WarcRecord.parseRecord(pbin, this);
         }
         if (warcRecord != null) {
             warcRecord.header.startOffset = offset;

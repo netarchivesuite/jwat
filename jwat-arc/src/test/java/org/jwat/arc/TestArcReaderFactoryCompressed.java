@@ -49,7 +49,7 @@ public class TestArcReaderFactoryCompressed {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {299, "IAH-20080430204825-00000-blackbook.arc.gz"}
+                {300, "IAH-20080430204825-00000-blackbook.arc.gz"}
         });
     }
 
@@ -69,8 +69,7 @@ public class TestArcReaderFactoryCompressed {
         InputStream in;
 
         ArcReader reader;
-        ArcVersionBlock version;
-        ArcRecord record;
+        ArcRecordBase record;
 
         int records = 0;
         int errors = 0;
@@ -97,7 +96,6 @@ public class TestArcReaderFactoryCompressed {
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed();
-            version = reader.getVersionBlockFrom(in, 0);
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -114,6 +112,21 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
+                    switch (records) {
+                    case 1:
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                        break;
+                    default:
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+                        break;
+                    }
+
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -121,7 +134,7 @@ public class TestArcReaderFactoryCompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.url.compareTo(entry.recordId) != 0) {
+                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -158,7 +171,6 @@ public class TestArcReaderFactoryCompressed {
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed(in);
-            version = reader.getVersionBlock();
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -175,6 +187,21 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
+                    switch (records) {
+                    case 1:
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                        break;
+                    default:
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+                        break;
+                    }
+
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -182,7 +209,7 @@ public class TestArcReaderFactoryCompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.url.compareTo(entry.recordId) != 0) {
+                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -218,7 +245,6 @@ public class TestArcReaderFactoryCompressed {
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed(in, 8192);
-            version = reader.getVersionBlock();
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
@@ -235,6 +261,21 @@ public class TestArcReaderFactoryCompressed {
 
                     ++records;
 
+                    switch (records) {
+                    case 1:
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                        break;
+                    default:
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+                        break;
+                    }
+
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -242,7 +283,7 @@ public class TestArcReaderFactoryCompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.url.compareTo(entry.recordId) != 0) {
+                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -285,18 +326,32 @@ public class TestArcReaderFactoryCompressed {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             ArcReader reader = ArcReaderFactory.getReader(in);
-            ArcVersionBlock version = reader.getVersionBlock();
-            ArcRecord record;
+            ArcRecordBase record;
 
             //System.out.println(version.xml);
 
-            Iterator<ArcRecord> recordIterator = reader.iterator();
+            Iterator<ArcRecordBase> recordIterator = reader.iterator();
 
             while (recordIterator.hasNext()) {
                 record = recordIterator.next();
                 ++records;
 
-                if (record.url == null) {
+                switch (records) {
+                case 1:
+                    Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                    Assert.assertTrue(record.isCompliant());
+                    Assert.assertNotNull(record.versionHeader);
+                    Assert.assertNotNull(record.versionHeader.isValid());
+                    Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                    break;
+                default:
+                    Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                    Assert.assertTrue(record.isCompliant());
+                    Assert.assertNull(record.versionHeader);
+                    break;
+                }
+
+                if (record.header.urlUri == null) {
                     Assert.fail("Invalid arc uri");
                 }
 
@@ -308,7 +363,7 @@ public class TestArcReaderFactoryCompressed {
                 //System.out.println(reader.getOffset());
 
                 arcEntry = new ArcEntry();
-                arcEntry.recordId = record.url;
+                arcEntry.recordId = record.header.urlUri;
                 arcEntry.offset = record.getStartOffset();
                 arcEntries.add(arcEntry);
 
