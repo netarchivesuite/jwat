@@ -50,13 +50,7 @@ public enum ArcVersion {
      * @param vBType version block field type
      * @param aRType arc record field type
      */
-    ArcVersion(int major, int minor, String vBType, String aRType){
-        if (major < 1) {
-            throw new IllegalArgumentException("Parameter 'major' < 1");
-        }
-        if (minor < 0) {
-            throw new IllegalArgumentException("Parameter 'minor' < 0");
-        }
+    private ArcVersion(int major, int minor, String vBType, String aRType){
         this.major = major;
         this.minor = minor;
         this.versionBlockType = vBType;

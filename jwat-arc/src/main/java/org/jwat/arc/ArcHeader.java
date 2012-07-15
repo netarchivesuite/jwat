@@ -53,6 +53,8 @@ public class ArcHeader {
      *  stream. */
     protected long startOffset = -1L;
 
+    protected long parsedFieldsVersion;
+
     /*
      * ARC header fields.
      */
@@ -157,6 +159,7 @@ public class ArcHeader {
 
     public void parseHeaders(String[] fields) {
         if (fields.length >= ArcConstants.VERSION_1_BLOCK_FIELDS.length) {
+            parsedFieldsVersion = 1;
             /*
              * Version 1.
              */
@@ -177,20 +180,23 @@ public class ArcHeader {
             contentType = fieldParsers.parseContentType(contentTypeStr, ArcConstants.FN_CONTENT_TYPE);
             // version.equals(ArcVersion.VERSION_2)
             if (fields.length >= ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
+                parsedFieldsVersion = 2;
                 /*
                  *  Version 2.
                  */
                 resultCodeStr = fields[ArcConstants.FN_IDX_RESULT_CODE];
                 resultCode = fieldParsers.parseInteger(
-                        resultCodeStr, ArcConstants.FN_RESULT_CODE, false);
+                        resultCodeStr, ArcConstants.FN_RESULT_CODE);
 
                 checksumStr = fields[ArcConstants.FN_IDX_CHECKSUM];
                 checksumStr = fieldParsers.parseString(
                         checksumStr, ArcConstants.FN_CHECKSUM);
 
                 locationStr = fields[ArcConstants.FN_IDX_LOCATION];
-                locationStr = fieldParsers.parseString(
-                        locationStr, ArcConstants.FN_LOCATION, true);
+                if (!"-".equals(locationStr)) {
+                    locationStr = fieldParsers.parseString(
+                            locationStr, ArcConstants.FN_LOCATION);
+                }
 
                 offsetStr = fields[ArcConstants.FN_IDX_OFFSET];
                 offset = fieldParsers.parseLong(
@@ -208,7 +214,7 @@ public class ArcHeader {
 
     public void toStringBuilder(StringBuilder sb) {
         if (urlStr != null) {
-            sb.append("url:").append(urlStr);
+            sb.append("url: ").append(urlStr);
         }
         if (ipAddressStr != null) {
             sb.append(", ipAddress: ").append(ipAddressStr);
@@ -220,7 +226,7 @@ public class ArcHeader {
             sb.append(", contentType: ").append(contentTypeStr);
         }
         if (resultCode != null) {
-            sb.append(", resultCode: ").append(resultCode);
+            sb.append(", resultCode: ").append(resultCodeStr);
         }
         if (checksumStr != null) {
             sb.append(", checksum: ").append(checksumStr);
@@ -229,15 +235,21 @@ public class ArcHeader {
             sb.append(", location: ").append(locationStr);
         }
         if (offset != null) {
-            sb.append(", offset: ").append(offset);
+            sb.append(", offset: ").append(offsetStr);
         }
         if (filenameStr != null) {
-            sb.append(", fileName: ")
-                .append(filenameStr);
-            if (archiveLength != null) {
-                sb.append(", length: ").append(archiveLength);
-            }
+            sb.append(", fileName: ").append(filenameStr);
         }
+        if (archiveLength != null) {
+            sb.append(", length: ").append(archiveLengthStr);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        toStringBuilder(sb);
+        return sb.toString();
     }
 
 }

@@ -96,8 +96,8 @@ public class TestWarcRecordIerator {
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 record.close();
@@ -139,7 +139,7 @@ public class TestWarcRecordIerator {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(n_records, n_errors, n_warnings);
+                TestBaseUtils.printStatus(n_records, n_errors, n_warnings);
             }
 
             /*
@@ -164,8 +164,8 @@ public class TestWarcRecordIerator {
                 Assert.assertNull(reader.getIteratorExceptionThrown());
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 record.close();
@@ -222,7 +222,7 @@ public class TestWarcRecordIerator {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(i_records, i_errors, i_warnings);
+                TestBaseUtils.printStatus(i_records, i_errors, i_warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

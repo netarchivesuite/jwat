@@ -47,16 +47,12 @@ public class TestFieldParsers {
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;
 
-            // TODO
-            //ArcVersionBlock version = reader.getVersionBlock();
-
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
 
                 if (bDebugOutput) {
-                    // TODO
-                    //RecordDebugBase.printRecord(record);
-                    //RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -75,7 +71,7 @@ public class TestFieldParsers {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
@@ -105,9 +101,6 @@ public class TestFieldParsers {
 
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;
-
-            // TODO
-            //ArcVersionBlock version = reader.getVersionBlock();
 
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
@@ -146,9 +139,8 @@ public class TestFieldParsers {
                 Assert.assertEquals(1141546971000L, reader.fieldParsers.parseDate("20060305082251", null).getTime());
 
                 if (bDebugOutput) {
-                    // TODO
-                    //RecordDebugBase.printRecord(record);
-                    //RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -167,7 +159,7 @@ public class TestFieldParsers {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

@@ -38,6 +38,14 @@ public class Diagnostics<T> {
     protected List<T> warnings = new LinkedList<T>();
 
     /**
+     * Resets the collection of errors and warnings. Use with care.
+     */
+    public void reset() {
+        errors.clear();
+        warnings.clear();
+    }
+
+    /**
      * Does collection have an error diagnosis.
      * @return boolean indicating the presence of an error diagnosis
      */

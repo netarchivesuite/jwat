@@ -376,7 +376,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                             {DiagnosisType.UNKNOWN, "Record block digest encoding scheme", 1},
                             {DiagnosisType.UNKNOWN, "Record payload digest encoding scheme", 1}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
                     Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
                     Assert.assertEquals(expectedEnc, record.header.warcBlockDigest.encoding);
@@ -435,7 +435,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                             {DiagnosisType.UNKNOWN, "Record block digest encoding scheme", 1},
                             {DiagnosisType.UNKNOWN, "Record payload digest encoding scheme", 1}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
                     Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
                     Assert.assertEquals(expectedAlgo, record.computedBlockDigest.algorithm);
@@ -534,7 +534,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                         {DiagnosisType.UNKNOWN, "Record payload digest encoding scheme", 1},
                         {DiagnosisType.UNKNOWN, "Default payload digest encoding scheme", 1}
                 };
-                compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
                 Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
                 Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
@@ -617,7 +617,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                         {DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2},
                         {DiagnosisType.INVALID_EXPECTED, "Incorrect payload digest", 2},
                 };
-                compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                 Assert.assertEquals(expectedAlgo, record.header.warcBlockDigest.algorithm);
                 Assert.assertEquals(expectedAlgo, record.header.warcPayloadDigest.algorithm);
                 Assert.assertEquals(expectedAlgo, record.computedBlockDigest.algorithm);

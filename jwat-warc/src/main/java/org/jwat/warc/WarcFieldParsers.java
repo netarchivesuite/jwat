@@ -186,6 +186,16 @@ public class WarcFieldParsers {
                         uriStr,
                         "URI format");
             }
+            if (uri != null) {
+                String scheme = uri.getScheme();
+                if (scheme == null || scheme.length() == 0) {
+                    uri = null;
+                    // Relative URI.
+                    addInvalidExpectedError("'" + field + "' value",
+                            uriStr,
+                            "Absolute URI");
+                }
+            }
         } else {
             // Missing URI.
             addEmptyWarning("'" + field + "' field");

@@ -113,8 +113,8 @@ public class TestWarcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
-                        RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecord(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
@@ -164,7 +164,7 @@ public class TestWarcReaderFactoryCompressed {
             ram.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
@@ -201,8 +201,8 @@ public class TestWarcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
-                        RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecord(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
@@ -251,7 +251,7 @@ public class TestWarcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
@@ -288,8 +288,8 @@ public class TestWarcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
-                        RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecord(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
@@ -338,7 +338,7 @@ public class TestWarcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);

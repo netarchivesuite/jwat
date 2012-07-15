@@ -19,33 +19,10 @@ package org.jwat.warc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.Assert;
-import org.jwat.common.Diagnosis;
 
 public class TestWarcRecordHelper {
-
-    public void compareDiagnoses(Object[][] expectedDiagnoses, List<Diagnosis> diagnosisList) {
-        Diagnosis diagnosis;
-        // debug
-        /*
-        System.out.println(diagnosisList.size());
-        for (int i=0; i<diagnosisList.size(); ++i) {
-            diagnosis = diagnosisList.get(i);
-            System.out.println(diagnosis.type);
-            System.out.println(diagnosis.entity);
-            System.out.println(diagnosis.information.length);
-        }
-        */
-        Assert.assertEquals(expectedDiagnoses.length, diagnosisList.size());
-        for (int i=0; i<expectedDiagnoses.length; ++i) {
-            diagnosis = diagnosisList.get(i);
-            Assert.assertEquals(expectedDiagnoses[i][0], diagnosis.type);
-            Assert.assertEquals(expectedDiagnoses[i][1], diagnosis.entity);
-            Assert.assertEquals(expectedDiagnoses[i][2], diagnosis.information.length);
-        }
-    }
 
     public WarcRecord createRecord(WarcWriter writer, Object[][] warcHeaders, WarcDigest blockDigest, WarcDigest payloadDigest) {
         WarcRecord record = WarcRecord.createRecord(writer);

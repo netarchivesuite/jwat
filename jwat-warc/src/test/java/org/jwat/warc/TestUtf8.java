@@ -112,8 +112,8 @@ public class TestUtf8 {
                 record.close();
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -132,7 +132,7 @@ public class TestUtf8 {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

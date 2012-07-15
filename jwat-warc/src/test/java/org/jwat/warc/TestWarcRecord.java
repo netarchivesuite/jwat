@@ -212,7 +212,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.REQUIRED_INVALID, "'Content-Length' header", 1}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -229,7 +229,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                             {DiagnosisType.REQUIRED_INVALID, "'Content-Length' header", 1},
                             {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -240,7 +240,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                             {DiagnosisType.INVALID, "Data before WARC version", 0},
                             {DiagnosisType.INVALID, "Empty lines before WARC version", 0}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -250,7 +250,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.RECOMMENDED, "'Content-Type' header", 0}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -260,7 +260,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.RECOMMENDED, "'Content-Type' value", 2}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNull(record.httpHeader);
                     break;
@@ -444,7 +444,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.ERROR, "http header", 1}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNotNull(record.httpHeader);
                     Assert.assertFalse(record.httpHeader.isValid());
@@ -521,7 +521,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.ERROR, "http header", 1}
                     };
-                    compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNotNull(record.httpHeader);
                     Assert.assertFalse(record.httpHeader.isValid());
@@ -758,9 +758,9 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 Assert.assertArrayEquals(expectedBlockDigest, record.computedBlockDigest.digestBytes);
                 Assert.assertArrayEquals(expectedPayloadDigest, record.computedPayloadDigest.digestBytes);
                 expectedDiagnoses = (Object[][])expectedRecords[i][4];
-                compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
                 expectedDiagnoses = (Object[][])expectedRecords[i][5];
-                compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+                TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                 Assert.assertNotNull(record.payload);
                 Assert.assertNotNull(record.httpHeader);
                 Assert.assertTrue(record.httpHeader.isValid());

@@ -72,8 +72,8 @@ public class TestDigestFields {
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 record.close();
@@ -97,7 +97,7 @@ public class TestDigestFields {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

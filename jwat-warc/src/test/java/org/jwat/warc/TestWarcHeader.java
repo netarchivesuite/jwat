@@ -80,12 +80,17 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                         }}
                 }},
                 {"WARC-Concurrent-To", new Object[][] {
-                        {"hello_kitty", null, null, new TestHeaderCallback() {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2}
+                        }, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
                                 Assert.assertEquals(1, header.warcConcurrentToList.size());
                             }
                         }},
-                        {"hello_kitty2", null, null, new TestHeaderCallback() {
+                        {"hello_kitty2", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2},
+                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2}
+                        }, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
                                 Assert.assertEquals(2, header.warcConcurrentToList.size());
                             }
@@ -210,6 +215,8 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 Object[][] expectedWarnings = (Object[][])values[j][2];
                 TestHeaderCallback callback = (TestHeaderCallback)values[j][3];
                 headerLine = header.addHeader(fieldName, fieldValue);
+                // debug
+                //System.out.println(fieldName + ": " + fieldValue);
                 Assert.assertNotNull(headerLine);
                 Assert.assertEquals(fieldName, headerLine.name);
                 Assert.assertEquals(fieldValue, headerLine.value);

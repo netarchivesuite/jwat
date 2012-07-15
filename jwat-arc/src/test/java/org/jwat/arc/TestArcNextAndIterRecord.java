@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -89,7 +90,7 @@ public class TestArcNextAndIterRecord {
 
             if (record != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
+                    TestBaseUtils.printRecord(record);
                 }
 
                 boolean b = true;
@@ -97,7 +98,7 @@ public class TestArcNextAndIterRecord {
                     record = reader.getNextRecord();
                     if (record != null) {
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(record);
+                            TestBaseUtils.printRecord(record);
                         }
 
                         Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
@@ -119,7 +120,7 @@ public class TestArcNextAndIterRecord {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(n_records, n_errors, n_warnings);
+                    TestBaseUtils.printStatus(n_records, n_errors, n_warnings);
                 }
             }
 
@@ -136,6 +137,8 @@ public class TestArcNextAndIterRecord {
             recordIterator = reader.iterator();
 
             if (recordIterator.hasNext()) {
+                Assert.assertTrue(recordIterator.hasNext());
+
                 Assert.assertNull(reader.getIteratorExceptionThrown());
                 record = recordIterator.next();
                 Assert.assertNull(reader.getIteratorExceptionThrown());
@@ -148,15 +151,17 @@ public class TestArcNextAndIterRecord {
 
                 if (record != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
+                        TestBaseUtils.printRecord(record);
                     }
 
                     while (recordIterator.hasNext()) {
+                        Assert.assertTrue(recordIterator.hasNext());
+
                         Assert.assertNull(reader.getIteratorExceptionThrown());
                         record = recordIterator.next();
                         Assert.assertNull(reader.getIteratorExceptionThrown());
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(record);
+                            TestBaseUtils.printRecord(record);
                         }
 
                         Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
@@ -175,9 +180,24 @@ public class TestArcNextAndIterRecord {
                     Assert.assertNull(reader.getIteratorExceptionThrown());
 
                     if (bDebugOutput) {
-                        RecordDebugBase.printStatus(i_records, i_errors, i_warnings);
+                        TestBaseUtils.printStatus(i_records, i_errors, i_warnings);
                     }
                 }
+            }
+            Assert.assertNull(reader.getIteratorExceptionThrown());
+
+            Assert.assertFalse(recordIterator.hasNext());
+
+            try {
+                recordIterator.next();
+                Assert.fail("Exception expected!");
+            } catch (NoSuchElementException e) {
+            }
+
+            try {
+                recordIterator.remove();
+                Assert.fail("Exception expected!");
+            } catch (UnsupportedOperationException e) {
             }
 
             reader.close();

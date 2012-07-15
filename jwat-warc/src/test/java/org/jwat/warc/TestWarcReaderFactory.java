@@ -97,8 +97,8 @@ public class TestWarcReaderFactory {
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 record.close();
@@ -140,7 +140,7 @@ public class TestWarcReaderFactory {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
@@ -166,8 +166,8 @@ public class TestWarcReaderFactory {
 
             while ((record = reader.getNextRecord()) != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 record.close();
@@ -209,7 +209,7 @@ public class TestWarcReaderFactory {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);

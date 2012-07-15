@@ -87,8 +87,42 @@ public class TestParams {
         str = av.toString();
         Assert.assertNotNull(str);
 
-        //ArcVersion.fromValues(0, 1);
-        //ArcVersion.fromValues(1, 2);
+        Assert.assertNull(ArcVersion.fromValues(0, 0));
+        Assert.assertNull(ArcVersion.fromValues(0, 1));
+        Assert.assertNull(ArcVersion.fromValues(0, 9));
+        Assert.assertNull(ArcVersion.fromValues(1, 2));
+        Assert.assertNull(ArcVersion.fromValues(1, 9));
+        Assert.assertNull(ArcVersion.fromValues(2, 1));
+
+        Assert.assertEquals(ArcVersion.VERSION_1, ArcVersion.fromValues(1, 0));
+        Assert.assertEquals(ArcVersion.VERSION_1_1, ArcVersion.fromValues(1, 1));
+        Assert.assertEquals(ArcVersion.VERSION_2, ArcVersion.fromValues(2, 0));
+
+        /*
+        try {
+            Constructor<ArcVersion> arcVersionConstructor = ArcVersion.class.getDeclaredConstructor(int.class, int.class, String.class, String.class);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        */
+
+        /*
+        try {
+            Constructor[] constructors = ArcVersion.class.getDeclaredConstructors();
+            constructors[0].setAccessible(true);
+            constructors[0].newInstance(0, 0, null, null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        */
 
         /*
          * ArcReaderUncompressed.
@@ -130,6 +164,26 @@ public class TestParams {
         Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
         Assert.assertFalse(readerUncompressed.setPayloadDigestAlgorithm("shaft1"));
         Assert.assertNull(readerUncompressed.getPayloadDigestAlgorithm());
+
+        Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+
+        Assert.assertEquals("base32", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
 
         readerUncompressed = new ArcReaderUncompressed();
         try {
@@ -227,6 +281,26 @@ public class TestParams {
         Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
         Assert.assertFalse(readerCompressed.setPayloadDigestAlgorithm("shaft1"));
         Assert.assertNull(readerCompressed.getPayloadDigestAlgorithm());
+
+        Assert.assertEquals("base32", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+        readerUncompressed.setBlockDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getBlockDigestEncoding());
+
+        Assert.assertEquals("base32", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("BASE16");
+        Assert.assertEquals("base16", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("base64");
+        Assert.assertEquals("base64", readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding(null);
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
+        readerUncompressed.setPayloadDigestEncoding("");
+        Assert.assertNull(readerUncompressed.getPayloadDigestEncoding());
 
         readerCompressed = new ArcReaderCompressed();
         try {

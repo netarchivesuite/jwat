@@ -101,6 +101,9 @@ public class ArcFieldParsers {
                         intStr,
                         "Numeric format");
             }
+         } else {
+             // Missing mandatory value.
+             addEmptyWarning("'" + field + "' field");
          }
          return iVal;
     }
@@ -112,6 +115,7 @@ public class ArcFieldParsers {
      * @param optional specifies if the value is optional or not
      * @return an integer object holding the value of the specified string
      */
+    /*
     protected Integer parseInteger(String intStr, String field,
                                    boolean optional) {
         Integer result = this.parseInteger(intStr, field);
@@ -121,6 +125,7 @@ public class ArcFieldParsers {
         }
         return result;
     }
+    */
 
     /**
      * Returns a Long object holding the value of the specified string.
@@ -130,7 +135,7 @@ public class ArcFieldParsers {
      */
     protected Long parseLong(String longStr, String field) {
         Long lVal = null;
-         if (longStr != null && longStr.length() > 0) {
+        if (longStr != null && longStr.length() > 0) {
             try {
                 lVal = Long.valueOf(longStr);
             } catch (Exception e) {
@@ -139,11 +144,11 @@ public class ArcFieldParsers {
                         longStr,
                         "Numeric format");
             }
-         } else {
+        } else {
              // Missing mandatory value.
              addEmptyWarning("'" + field + "' field");
-         }
-         return lVal;
+        }
+        return lVal;
     }
 
     /**
@@ -208,6 +213,16 @@ public class ArcFieldParsers {
                 addInvalidExpectedError("'" + field + "' value",
                         uriStr,
                         "URI format");
+            }
+            if (uri != null) {
+                String scheme = uri.getScheme();
+                if (scheme == null || scheme.length() == 0) {
+                    uri = null;
+                    // Relative URI.
+                    addInvalidExpectedError("'" + field + "' value",
+                            uriStr,
+                            "Absolute URI");
+                }
             }
         } else {
             // Missing mandatory value.

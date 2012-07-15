@@ -104,7 +104,7 @@ public class TestArcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
+                        TestBaseUtils.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);
                     }
 
@@ -147,7 +147,7 @@ public class TestArcReaderFactoryCompressed {
             ram.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
@@ -179,7 +179,7 @@ public class TestArcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
+                        TestBaseUtils.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);
                     }
 
@@ -221,7 +221,7 @@ public class TestArcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);
@@ -253,7 +253,7 @@ public class TestArcReaderFactoryCompressed {
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
-                        RecordDebugBase.printRecord(record);
+                        TestBaseUtils.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);
                     }
 
@@ -295,7 +295,7 @@ public class TestArcReaderFactoryCompressed {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
 
             Assert.assertEquals(expected_records, records);

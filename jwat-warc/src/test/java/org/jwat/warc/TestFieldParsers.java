@@ -51,8 +51,8 @@ public class TestFieldParsers {
                 record.close();
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -71,7 +71,7 @@ public class TestFieldParsers {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
@@ -144,8 +144,8 @@ public class TestFieldParsers {
                 Assert.assertNotNull(reader.fieldParsers.parseDigest("sha1:1234567890abcdef", null));
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 errors = 0;
@@ -164,7 +164,7 @@ public class TestFieldParsers {
             in.close();
 
             if (bDebugOutput) {
-                RecordDebugBase.printStatus(records, errors, warnings);
+                TestBaseUtils.printStatus(records, errors, warnings);
             }
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");

@@ -49,13 +49,6 @@ public class TestWarcHeaderHelper {
         public abstract void callback(WarcHeader header);
     }
 
-    public void printDiagnoses(List<Diagnosis> diagnosisList) {
-        for (int i=0; i<diagnosisList.size(); ++i) {
-            diagnosis = diagnosisList.get(i);
-            System.out.println("[" + i + "]: " + diagnosis.type + " - " + diagnosis.entity + " - " + diagnosis.information.length);
-        }
-    }
-
     public void test_result(Object[][] expectedErrors, Object[][] expectedWarnings, TestHeaderCallback callback) {
         errors = header.diagnostics.getErrors();
         // debug

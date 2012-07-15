@@ -100,10 +100,10 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
              */
             versionNumberStr = versionArr[ArcConstants.FN_IDX_VERSION_NUMBER];
             versionNumber = fieldParsers.parseInteger(
-                        versionNumberStr, ArcConstants.VERSION_FIELD, false);
+                        versionNumberStr, ArcConstants.VERSION_FIELD);
             reservedStr = versionArr[ArcConstants.FN_IDX_RESERVED];
             reserved = fieldParsers.parseInteger(
-                        reservedStr, ArcConstants.RESERVED_FIELD, false);
+                        reservedStr, ArcConstants.RESERVED_FIELD);
             originCode = versionArr[ArcConstants.FN_IDX_ORIGIN_CODE];
             originCode = fieldParsers.parseString(
                         originCode, ArcConstants.ORIGIN_FIELD, false);

@@ -87,7 +87,7 @@ public class TestArcReaderFactory {
 
             if (record != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
+                    TestBaseUtils.printRecord(record);
                 }
 
                 boolean b = true;
@@ -95,7 +95,7 @@ public class TestArcReaderFactory {
                     record = reader.getNextRecord();
                     if (record != null) {
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(record);
+                            TestBaseUtils.printRecord(record);
                         }
 
                         ++records;
@@ -116,7 +116,7 @@ public class TestArcReaderFactory {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(records, errors, warnings);
+                    TestBaseUtils.printStatus(records, errors, warnings);
                 }
             }
 
@@ -149,7 +149,7 @@ public class TestArcReaderFactory {
 
             if (record != null) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
+                    TestBaseUtils.printRecord(record);
                 }
 
                 boolean b = true;
@@ -157,7 +157,7 @@ public class TestArcReaderFactory {
                     record = reader.getNextRecord();
                     if (record != null) {
                         if (bDebugOutput) {
-                            RecordDebugBase.printRecord(record);
+                            TestBaseUtils.printRecord(record);
                         }
 
                         ++records;
@@ -178,7 +178,7 @@ public class TestArcReaderFactory {
                 }
 
                 if (bDebugOutput) {
-                    RecordDebugBase.printStatus(records, errors, warnings);
+                    TestBaseUtils.printStatus(records, errors, warnings);
                 }
             }
 

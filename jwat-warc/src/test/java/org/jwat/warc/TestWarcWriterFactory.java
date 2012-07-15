@@ -107,8 +107,8 @@ public class TestWarcWriterFactory {
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 ++records;
@@ -166,8 +166,8 @@ public class TestWarcWriterFactory {
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 ++records;
@@ -265,8 +265,8 @@ public class TestWarcWriterFactory {
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 ++records;
@@ -324,8 +324,8 @@ public class TestWarcWriterFactory {
 
             while ( (record = reader.getNextRecord()) != null ) {
                 if (bDebugOutput) {
-                    RecordDebugBase.printRecord(record);
-                    RecordDebugBase.printRecordErrors(record);
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
                 }
 
                 ++records;
