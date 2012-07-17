@@ -20,7 +20,6 @@ package org.jwat.arc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
 import junit.framework.Assert;
 
@@ -34,95 +33,10 @@ public class TestParams {
 
     @Test
     public void test_parameters() throws IOException {
-        String str;
         InputStream is;
 
         ArcConstants constants = new ArcConstants();
         Assert.assertNotNull(constants);
-
-        /*
-         * Date.
-         */
-
-        Date arcDate;
-
-        arcDate = ArcDateParser.getDate(null);
-        Assert.assertNull(arcDate);
-
-        arcDate = ArcDateParser.getDate("");
-        Assert.assertNull(arcDate);
-
-        arcDate = ArcDateParser.getDate("fail");
-        Assert.assertNull(arcDate);
-
-        arcDate = ArcDateParser.getDate("yyyyMMddHHmmss");
-        Assert.assertNull(arcDate);
-
-        arcDate = ArcDateParser.getDate("20111224193000");
-        Assert.assertNotNull(arcDate);
-
-        Date date = new Date(0);
-        String dateStr = ArcDateParser.getDateFormat().format(date);
-        arcDate = ArcDateParser.getDate(dateStr);
-        Assert.assertNull(arcDate);
-
-        /*
-         * ArcVersion.
-         */
-
-        ArcVersion av;
-
-        av = ArcVersion.VERSION_1;
-        Assert.assertNotNull(av);
-        str = av.toString();
-        Assert.assertNotNull(str);
-
-        av = ArcVersion.VERSION_1_1;
-        Assert.assertNotNull(av);
-        str = av.toString();
-        Assert.assertNotNull(str);
-
-        av = ArcVersion.VERSION_2;
-        Assert.assertNotNull(av);
-        str = av.toString();
-        Assert.assertNotNull(str);
-
-        Assert.assertNull(ArcVersion.fromValues(0, 0));
-        Assert.assertNull(ArcVersion.fromValues(0, 1));
-        Assert.assertNull(ArcVersion.fromValues(0, 9));
-        Assert.assertNull(ArcVersion.fromValues(1, 2));
-        Assert.assertNull(ArcVersion.fromValues(1, 9));
-        Assert.assertNull(ArcVersion.fromValues(2, 1));
-
-        Assert.assertEquals(ArcVersion.VERSION_1, ArcVersion.fromValues(1, 0));
-        Assert.assertEquals(ArcVersion.VERSION_1_1, ArcVersion.fromValues(1, 1));
-        Assert.assertEquals(ArcVersion.VERSION_2, ArcVersion.fromValues(2, 0));
-
-        /*
-        try {
-            Constructor<ArcVersion> arcVersionConstructor = ArcVersion.class.getDeclaredConstructor(int.class, int.class, String.class, String.class);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        */
-
-        /*
-        try {
-            Constructor[] constructors = ArcVersion.class.getDeclaredConstructors();
-            constructors[0].setAccessible(true);
-            constructors[0].newInstance(0, 0, null, null);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        */
 
         /*
          * ArcReaderUncompressed.

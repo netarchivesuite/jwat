@@ -1,3 +1,20 @@
+/**
+ * Java Web Archive Toolkit - Software to read and validate ARC, WARC
+ * and GZip files. (http://jwat.org/)
+ * Copyright 2011-2012 Netarkivet.dk (http://netarkivet.dk/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jwat.arc;
 
 import java.io.ByteArrayInputStream;
@@ -44,6 +61,7 @@ public class TestArcHeader {
             header = ArcHeader.initHeader(writer, diagnostics);
 
             tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
             /*
              * Valid record V1.
              */
@@ -62,6 +80,7 @@ public class TestArcHeader {
             Assert.assertEquals(1, header.parsedFieldsVersion);
 
             tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
 
             Assert.assertEquals("http://cctr.umkc.edu:80/user/jbenz/tst.htm", header.urlStr);
             Assert.assertEquals("134.193.4.1", header.ipAddressStr);
@@ -127,11 +146,11 @@ public class TestArcHeader {
             Assert.assertFalse(header.diagnostics.hasErrors());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.EMPTY, "'URL' field", 0},
-                    {DiagnosisType.EMPTY, "'IP-address' field", 0},
-                    {DiagnosisType.EMPTY, "'Archive-date' field", 0},
-                    {DiagnosisType.EMPTY, "'Content-type' field", 0},
-                    {DiagnosisType.EMPTY, "'Archive-length' field", 0}
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_URL + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_IP_ADDRESS + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_DATE + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CONTENT_TYPE + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' field", 0}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getWarnings());
             diagnostics.reset();
@@ -153,6 +172,7 @@ public class TestArcHeader {
             Assert.assertEquals(2, header.parsedFieldsVersion);
 
             tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
 
             Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
             Assert.assertEquals("192.168.1.2", header.ipAddressStr);
@@ -207,16 +227,16 @@ public class TestArcHeader {
             Assert.assertFalse(header.diagnostics.hasErrors());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.EMPTY, "'URL' field", 0},
-                    {DiagnosisType.EMPTY, "'IP-address' field", 0},
-                    {DiagnosisType.EMPTY, "'Archive-date' field", 0},
-                    {DiagnosisType.EMPTY, "'Content-type' field", 0},
-                    {DiagnosisType.EMPTY, "'Result-code' field", 0},
-                    {DiagnosisType.EMPTY, "'Checksum' field", 0},
-                    {DiagnosisType.EMPTY, "'Location' field", 0},
-                    {DiagnosisType.EMPTY, "'Offset' field", 0},
-                    {DiagnosisType.EMPTY, "'Filename' field", 0},
-                    {DiagnosisType.EMPTY, "'Archive-length' field", 0}
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_URL + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_IP_ADDRESS + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_DATE + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CONTENT_TYPE + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_RESULT_CODE + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CHECKSUM + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_LOCATION + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_OFFSET + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_FILENAME + "' field", 0},
+                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' field", 0}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getWarnings());
             diagnostics.reset();
@@ -238,6 +258,7 @@ public class TestArcHeader {
             Assert.assertEquals(1, header.parsedFieldsVersion);
 
             tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
 
             Assert.assertEquals("4270", header.urlStr);
             Assert.assertEquals("http://cctr.umkc.edu:80/user/jbenz/tst.htm", header.ipAddressStr);
@@ -262,11 +283,11 @@ public class TestArcHeader {
             Assert.assertTrue(header.diagnostics.hasErrors());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'URL' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'IP-address' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Archive-date' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Content-type' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Archive-length' value", 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
@@ -288,6 +309,7 @@ public class TestArcHeader {
             Assert.assertEquals(2, header.parsedFieldsVersion);
 
             tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
 
             Assert.assertEquals("40", header.urlStr);
             Assert.assertEquals("http://www.antiaction.com/", header.ipAddressStr);
@@ -312,19 +334,98 @@ public class TestArcHeader {
             Assert.assertTrue(header.diagnostics.hasErrors());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'URL' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'IP-address' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Archive-date' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Content-type' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Result-code' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'Checksum' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'Location' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Offset' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'Filename' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'Archive-length' value", 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", 2},
+                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CHECKSUM + "' value", 2},
+                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_LOCATION + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", 2},
+                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_FILENAME + "' value", 2},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
+            /*
+             * Valid record v2 with "-".
+             */
+            bytes = "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum - 1234 filename 40\n".getBytes();
+
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in);
+            reader.fieldParsers.diagnostics = diagnostics;
+            header = ArcHeader.initHeader(reader, 42L, diagnostics);
+
+            pbin = ((ArcReaderUncompressed)reader).in;
+            success = header.parseHeader(pbin);
+
+            Assert.assertTrue(success);
+            Assert.assertEquals(2, header.parsedFieldsVersion);
+
+            tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
+
+            Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
+            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
+            Assert.assertEquals("20120712144000", header.archiveDateStr);
+            Assert.assertEquals("text/htlm", header.contentTypeStr);
+            Assert.assertEquals("200", header.resultCodeStr);
+            Assert.assertEquals("checksum", header.checksumStr);
+            Assert.assertEquals("-", header.locationStr);
+            Assert.assertEquals("1234", header.offsetStr);
+            Assert.assertEquals("filename", header.filenameStr);
+            Assert.assertEquals("40", header.archiveLengthStr);
+
+            Assert.assertEquals(URI.create("http://www.antiaction.com/"), header.urlUri);
+            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
+            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
+            Assert.assertEquals(ContentType.parseContentType("text/htlm"), header.contentType);
+            Assert.assertEquals(new Integer(200), header.resultCode);
+            Assert.assertEquals(new Long(1234), header.offset);
+            Assert.assertEquals(new Long(40), header.archiveLength);
+
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+            Assert.assertFalse(header.diagnostics.hasErrors());
+            /*
+             * Empty file.
+             */
+            bytes = "".getBytes();
+
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in);
+            reader.fieldParsers.diagnostics = diagnostics;
+            header = ArcHeader.initHeader(reader, 42L, diagnostics);
+
+            pbin = ((ArcReaderUncompressed)reader).in;
+            success = header.parseHeader(pbin);
+
+            Assert.assertFalse(success);
+            Assert.assertEquals(0, header.parsedFieldsVersion);
+
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+            Assert.assertFalse(header.diagnostics.hasErrors());
+            /*
+             * Newline.
+             */
+            bytes = "\n".getBytes();
+
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in);
+            reader.fieldParsers.diagnostics = diagnostics;
+            header = ArcHeader.initHeader(reader, 42L, diagnostics);
+
+            pbin = ((ArcReaderUncompressed)reader).in;
+            success = header.parseHeader(pbin);
+
+            Assert.assertFalse(success);
+            Assert.assertEquals(0, header.parsedFieldsVersion);
+
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+            Assert.assertFalse(header.diagnostics.hasErrors());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

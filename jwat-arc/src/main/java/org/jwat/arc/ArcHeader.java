@@ -139,19 +139,6 @@ public class ArcHeader {
 
             String[] fields = recordLine.split(" ", -1);
             parseHeaders(fields);
-            // Compare to expected numbers of fields.
-            // Extract mandatory version-independent header data.
-            // TODO
-            /*
-            hasCompliantFields = (records.length
-                              == versionBlock.descValidator.fieldNames.length);
-            if(!hasCompliantFields) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                        ARC_RECORD,
-                        "URL record definition and record definition are not "
-                                + "compliant"));
-            }
-            */
             return true;
         }
         return false;

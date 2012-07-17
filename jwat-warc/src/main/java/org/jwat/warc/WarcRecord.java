@@ -321,7 +321,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
             // Updated consumed after payload has been consumed.
             //consumed = in.getConsumed() - header.startOffset;
             //reader.consumed += consumed;
-            // Dont not close payload again.
+            // Don't not close payload again.
             bPayloadClosed = true;
         }
     }

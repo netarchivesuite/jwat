@@ -69,6 +69,14 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
             throw new IllegalArgumentException(
                     "The 'length' is less than zero: " + length);
         }
+        if (fieldParsers == null) {
+            throw new IllegalArgumentException(
+                    "'fieldParsers' is null");
+        }
+        if (diagnostics == null) {
+            throw new IllegalArgumentException(
+                    "'diagnostics' is null");
+        }
         ArcVersionHeader avh = new ArcVersionHeader();
         avh.in_pb = pbin;
         avh.totalLength = length;
@@ -85,6 +93,9 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
         ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
         String versionLine = pbin.readLine();
         String blockDescLine = pbin.readLine();
+        // debug
+        System.out.println(versionLine);
+        System.out.println(blockDescLine);
         /*
          * Check for version and parse if present.
          */
@@ -98,15 +109,23 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
             /*
              * Get version and origin.
              */
-            versionNumberStr = versionArr[ArcConstants.FN_IDX_VERSION_NUMBER];
-            versionNumber = fieldParsers.parseInteger(
-                        versionNumberStr, ArcConstants.VERSION_FIELD);
-            reservedStr = versionArr[ArcConstants.FN_IDX_RESERVED];
-            reserved = fieldParsers.parseInteger(
-                        reservedStr, ArcConstants.RESERVED_FIELD);
-            originCode = versionArr[ArcConstants.FN_IDX_ORIGIN_CODE];
-            originCode = fieldParsers.parseString(
-                        originCode, ArcConstants.ORIGIN_FIELD, false);
+            switch (versionArr.length) {
+            default:
+            case 3:
+                originCode = versionArr[ArcConstants.FN_IDX_ORIGIN_CODE];
+                originCode = fieldParsers.parseString(
+                            originCode, ArcConstants.FN_ORIGIN_CODE, false);
+            case 2:
+                reservedStr = versionArr[ArcConstants.FN_IDX_RESERVED];
+                reserved = fieldParsers.parseInteger(
+                            reservedStr, ArcConstants.FN_RESERVED);
+            case 1:
+                versionNumberStr = versionArr[ArcConstants.FN_IDX_VERSION_NUMBER];
+                versionNumber = fieldParsers.parseInteger(
+                            versionNumberStr, ArcConstants.FN_VERSION_NUMBER);
+            case 0:
+                break;
+            }
             /*
              *  Check version.
              */
@@ -164,6 +183,9 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     public String toString() {
         StringBuilder builder = new StringBuilder(256);
         builder.append("\nArcVersionHeader : [\n");
+        builder.append("isValid:");
+        builder.append(isValid());
+        builder.append(',');
         builder.append("versionNumber:");
         if(versionNumber != null){
             builder.append(versionNumber);
@@ -178,6 +200,9 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
         if(originCode != null){
             builder.append(originCode);
         }
+        builder.append(',');
+        builder.append("blockDescVersion:");
+        builder.append(blockDescVersion);
         builder.append("]\n");
         return builder.toString();
     }

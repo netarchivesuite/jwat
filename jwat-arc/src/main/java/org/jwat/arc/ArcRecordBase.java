@@ -157,6 +157,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
         }
         return record;
+        // Compare to expected numbers of fields.
+        // Extract mandatory version-independent header data.
+        // TODO
+        /*
+        hasCompliantFields = (records.length
+                          == versionBlock.descValidator.fieldNames.length);
+        if(!hasCompliantFields) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                    ARC_RECORD,
+                    "URL record definition and record definition are not "
+                            + "compliant"));
+        }
+        */
         /*
         hasCompliantFields = false;
         if (recordLine != null) {
@@ -284,7 +297,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             // Updated consumed after payload has been consumed.
             consumed = in.getConsumed() - header.startOffset;
             reader.consumed += consumed;
-            // Dont not close payload again.
+            // Don't not close payload again.
             bPayloadClosed = true;
         }
     }

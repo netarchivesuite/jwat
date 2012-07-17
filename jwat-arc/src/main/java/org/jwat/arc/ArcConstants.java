@@ -110,11 +110,11 @@ public final class ArcConstants {
      */
 
     /** Version field name. */
-    public static final String VERSION_FIELD = "Version-number";
+    public static final String FN_VERSION_NUMBER = "Version-number";
     /** Reserved field name. */
-    public static final String RESERVED_FIELD = "Reserved";
+    public static final String FN_RESERVED = "Reserved";
     /** Origin field name. */
-    public static final String ORIGIN_FIELD = "Origin-code";
+    public static final String FN_ORIGIN_CODE = "Origin-code";
 
     /** Version number version field index. */
     public static final int FN_IDX_VERSION_NUMBER = 0;
@@ -136,7 +136,7 @@ public final class ArcConstants {
 
     /** Version description fields. */
     public static final String[] VERSION_DESC_FIELDS = {
-        VERSION_FIELD, RESERVED_FIELD, ORIGIN_FIELD };
+        FN_VERSION_NUMBER, FN_RESERVED, FN_ORIGIN_CODE };
 
     /** Version 1 description string. */
     public static final String VERSION_1_BLOCK_DEF =
