@@ -94,8 +94,8 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
         String versionLine = pbin.readLine();
         String blockDescLine = pbin.readLine();
         // debug
-        System.out.println(versionLine);
-        System.out.println(blockDescLine);
+        //System.out.println(versionLine);
+        //System.out.println(blockDescLine);
         /*
          * Check for version and parse if present.
          */

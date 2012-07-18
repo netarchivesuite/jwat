@@ -46,8 +46,11 @@ public class Payload {
      * not any record data beyond that. Also detects unexpected EOF. */
     protected FixedLengthInputStream in_fl;
 
-    /** Actual message digest algorithm used. */
+    /** Message digest object. */
     protected MessageDigest md;
+
+    /** Digest bytes. */
+    protected byte[] digest;
 
     /** Automatic digesting of payload input stream. */
     protected DigestInputStream in_digest;
@@ -141,11 +144,14 @@ public class Payload {
     }
 
     /**
-     * Returns the <code>MessageDigest</code> used on payload stream.
-     * @return <code>MessageDigest</code> used on payload stream
+     * Returns the calculated digest.
+     * @return the calculated digest
      */
-    public MessageDigest getMessageDigest() {
-        return md;
+    public byte[] getDigest() {
+        if (digest == null && md != null) {
+            digest = md.digest();
+        }
+        return digest;
     }
 
     /**

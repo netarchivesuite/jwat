@@ -46,8 +46,11 @@ public abstract class PayloadWithHeaderAbstract {
      *  headers and at the same time store everything read in an array. */
     protected MaxLengthRecordingInputStream in_flr;
 
-    /** Actual message digest algorithm used. */
+    /** Message digest object. */
     protected MessageDigest md;
+
+    /** Digest bytes. */
+    protected byte[] digest;
 
     /** Automatic digesting of payload input stream. */
     protected DigestInputStream in_digest;
@@ -134,8 +137,11 @@ public abstract class PayloadWithHeaderAbstract {
      * Returns the <code>MessageDigest</code> used on payload stream.
      * @return <code>MessageDigest</code> used on payload stream
      */
-    public MessageDigest getMessageDigest() {
-        return md;
+    public byte[] getDigest() {
+        if (digest == null && md != null) {
+            digest = md.digest();
+        }
+        return digest;
     }
 
     /**

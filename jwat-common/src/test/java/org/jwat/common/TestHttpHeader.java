@@ -133,7 +133,7 @@ public class TestHttpHeader {
             pbin = new  ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
             httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, 0, "shit1" );
             Assert.assertFalse(httpHeader.isValid());
-            Assert.assertNull( httpHeader.getMessageDigest() );
+            Assert.assertNull( httpHeader.getDigest() );
             try {
                 httpHeader.getPayloadLength();
                 Assert.fail("Exception expected!");
@@ -283,20 +283,20 @@ public class TestHttpHeader {
                     if ( digestAlgorithm != null ) {
                         if ("sha1".equals( digestAlgorithm )) {
                             Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getMessageDigest() );
+                            Assert.assertNotNull( httpHeader.getDigest() );
 
                             md.reset();
                             byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getMessageDigest().digest();
+                            byte[] digest2 = httpHeader.getDigest();
 
                             Assert.assertArrayEquals( digest1, digest2 );
                         } else {
                             Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNull( httpHeader.getMessageDigest() );
+                            Assert.assertNull( httpHeader.getDigest() );
                         }
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                     /*
                      * HttpHeader Complete
@@ -372,20 +372,20 @@ public class TestHttpHeader {
                     if ( digestAlgorithm != null ) {
                         if ("sha1".equals(digestAlgorithm)) {
                             Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getMessageDigest() );
+                            Assert.assertNotNull( httpHeader.getDigest() );
 
                             md.reset();
                             byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getMessageDigest().digest();
+                            byte[] digest2 = httpHeader.getDigest();
 
                             Assert.assertArrayEquals( digest1, digest2 );
                         } else {
                             Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNull( httpHeader.getMessageDigest() );
+                            Assert.assertNull( httpHeader.getDigest() );
                         }
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                 } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
@@ -512,20 +512,20 @@ public class TestHttpHeader {
                     if ( digestAlgorithm != null ) {
                         if ("sha1".equals(digestAlgorithm)) {
                             Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getMessageDigest() );
+                            Assert.assertNotNull( httpHeader.getDigest() );
 
                             md.reset();
                             byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getMessageDigest().digest();
+                            byte[] digest2 = httpHeader.getDigest();
 
                             Assert.assertArrayEquals( digest1, digest2 );
                         } else {
                             Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNull( httpHeader.getMessageDigest() );
+                            Assert.assertNull( httpHeader.getDigest() );
                         }
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                     /*
                      * HttpHeader Complete
@@ -589,20 +589,20 @@ public class TestHttpHeader {
                     if ( digestAlgorithm != null ) {
                         if ("sha1".equals(digestAlgorithm)) {
                             Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getMessageDigest() );
+                            Assert.assertNotNull( httpHeader.getDigest() );
 
                             md.reset();
                             byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getMessageDigest().digest();
+                            byte[] digest2 = httpHeader.getDigest();
 
                             Assert.assertArrayEquals( digest1, digest2 );
                         } else {
                             Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNull( httpHeader.getMessageDigest() );
+                            Assert.assertNull( httpHeader.getDigest() );
                         }
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                 } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );

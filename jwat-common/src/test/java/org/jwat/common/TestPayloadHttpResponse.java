@@ -200,19 +200,19 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                      * HttpResponse Payload Digest.
                      */
                     if ( digestAlgorithm != null ) {
-                        Assert.assertNotNull( payload.getMessageDigest() );
+                        Assert.assertNotNull( payload.getDigest() );
                         mdPayload.reset();
                         byte[] digest1 = mdPayload.digest( srcArr );
-                        byte[] digest2 = payload.getMessageDigest().digest();
+                        byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                     /*
                      * Payload.
@@ -301,19 +301,19 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                      * HttpHeader Payload Digest.
                      */
                     if ( digestAlgorithm != null ) {
-                        Assert.assertNotNull( payload.getMessageDigest() );
+                        Assert.assertNotNull( payload.getDigest() );
                         mdPayload.reset();
                         byte[] digest1 = mdPayload.digest( srcArr );
-                        byte[] digest2 = payload.getMessageDigest().digest();
+                        byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpHeader.getMessageDigest() );
+                        Assert.assertNull( httpHeader.getDigest() );
                     }
                     /*
                      * Payload.
@@ -380,19 +380,19 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                      * Digest.
                      */
                     if ( digestAlgorithm != null ) {
-                        Assert.assertNotNull( payload.getMessageDigest() );
+                        Assert.assertNotNull( payload.getDigest() );
                         mdPayload.reset();
                         byte[] digest1 = mdPayload.digest( srcArr );
-                        byte[] digest2 = payload.getMessageDigest().digest();
+                        byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getMessageDigest() );
+                        Assert.assertNotNull( httpHeader.getDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getMessageDigest().digest();
+                        byte[] digest4 = httpHeader.getDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( payload.getMessageDigest() );
+                        Assert.assertNull( payload.getDigest() );
                     }
                 } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );

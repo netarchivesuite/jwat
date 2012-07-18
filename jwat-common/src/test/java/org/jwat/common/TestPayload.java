@@ -104,7 +104,7 @@ public class TestPayload implements PayloadOnClosedHandler {
 
         try {
             payload = Payload.processPayload( new ByteArrayInputStream( srcArr ), 0, 16, "shit1" );
-            Assert.assertNull( payload.getMessageDigest() );
+            Assert.assertNull( payload.getDigest() );
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -189,16 +189,16 @@ public class TestPayload implements PayloadOnClosedHandler {
                      * Digest.
                      */
                     if ( digestAlgorithm != null ) {
-                        Assert.assertNotNull( payload.getMessageDigest() );
+                        Assert.assertNotNull( payload.getDigest() );
 
-                        byte[] digest1 = payload.getMessageDigest().digest();
+                        byte[] digest1 = payload.getDigest();
 
                         md.reset();
                         byte[] digest2 = md.digest( srcArr );
 
                         Assert.assertArrayEquals( digest1, digest2 );
                     } else {
-                        Assert.assertNull( payload.getMessageDigest() );
+                        Assert.assertNull( payload.getDigest() );
                     }
                 } catch (IOException e) {
                     Assert.fail( "Exception not expected!" );
@@ -307,16 +307,16 @@ public class TestPayload implements PayloadOnClosedHandler {
                      * Digest.
                      */
                     if ( digestAlgorithm != null ) {
-                        Assert.assertNotNull( payload.getMessageDigest() );
+                        Assert.assertNotNull( payload.getDigest() );
 
-                        byte[] digest1 = payload.getMessageDigest().digest();
+                        byte[] digest1 = payload.getDigest();
 
                         md.reset();
                         byte[] digest2 = md.digest( srcArr );
 
                         Assert.assertArrayEquals( digest1, digest2 );
                     } else {
-                        Assert.assertNull( payload.getMessageDigest() );
+                        Assert.assertNull( payload.getDigest() );
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

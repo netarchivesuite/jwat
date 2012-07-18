@@ -35,6 +35,7 @@ import org.jwat.common.Digest;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
+import org.jwat.common.PayloadWithHeaderAbstract;
 
 /**
  * This abstract class represents the common base ARC data which is present in
@@ -233,10 +234,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 /*
                  * Check block digest.
                  */
-                MessageDigest md = payload.getMessageDigest();
-                if (md != null) {
+                byte[] digest = payload.getDigest();
+                if (digest != null) {
                     computedBlockDigest = new Digest();
-                    computedBlockDigest.digestBytes = md.digest();
+                    computedBlockDigest.digestBytes = digest;
                     computedBlockDigest.algorithm = reader.blockDigestAlgorithm;
                     if (reader.blockDigestEncoding != null) {
                         if ("base32".equals(reader.blockDigestEncoding)) {
@@ -256,14 +257,15 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                         }
                     }
                 }
-                if (httpHeader != null && httpHeader.isValid()) {
+                PayloadWithHeaderAbstract payloadHeaderWrapped = payload.getPayloadHeaderWrapped();
+                if (payloadHeaderWrapped != null && payloadHeaderWrapped.isValid()) {
                     /*
                      * Check payload digest.
                      */
-                    md = httpHeader.getMessageDigest();
-                    if (md != null) {
+                    digest = payloadHeaderWrapped.getDigest();
+                    if (digest != null) {
                         computedPayloadDigest = new Digest();
-                        computedPayloadDigest.digestBytes = md.digest();
+                        computedPayloadDigest.digestBytes = digest;
                         computedPayloadDigest.algorithm = reader.payloadDigestAlgorithm;
                         if (reader.payloadDigestEncoding != null) {
                             if ("base32".equals(reader.payloadDigestEncoding)) {

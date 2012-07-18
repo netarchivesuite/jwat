@@ -19,7 +19,6 @@ package org.jwat.warc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -249,11 +248,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 /*
                  * Check block digest.
                  */
-                MessageDigest md = payload.getMessageDigest();
+                byte[] digest = payload.getDigest();
                 // Check for computed block digest.
-                if (md != null) {
+                if (digest != null) {
                     computedBlockDigest = new WarcDigest();
-                    computedBlockDigest.digestBytes = md.digest();
+                    computedBlockDigest.digestBytes = digest;
                 }
                 // Auto detect encoding used in WARC header.
                 if (header.warcBlockDigest != null && header.warcBlockDigest.digestString != null) {
@@ -268,11 +267,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                     /*
                      * Check payload digest.
                      */
-                    md = httpHeader.getMessageDigest();
+                    digest = httpHeader.getDigest();
                     // Check for computed payload digest.
-                    if (md != null) {
+                    if (digest != null) {
                         computedPayloadDigest = new WarcDigest();
-                        computedPayloadDigest.digestBytes = md.digest();
+                        computedPayloadDigest.digestBytes = digest;
                     }
                     // Auto detect encoding used in WARC header.
                     if (header.warcPayloadDigest != null && header.warcPayloadDigest.digestString != null ) {

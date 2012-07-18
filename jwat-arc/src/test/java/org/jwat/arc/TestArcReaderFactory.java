@@ -39,7 +39,7 @@ public class TestArcReaderFactory {
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
                 {299, "IAH-20080430204825-00000-blackbook.arc"},
-                {299, "IAH-20080430204825-00000-blackbook.arc.gz"},
+                {299, "IAH-20080430204825-00000-blackbook.arc.gz"}
         });
     }
 

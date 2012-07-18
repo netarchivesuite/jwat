@@ -135,8 +135,7 @@ public class ArcHeader {
         }
         if (recordLine != null) {
             // debug
-            System.out.println(recordLine);
-
+            //System.out.println(recordLine);
             String[] fields = recordLine.split(" ", -1);
             parseHeaders(fields);
             return true;

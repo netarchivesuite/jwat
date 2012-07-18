@@ -162,7 +162,16 @@ public class ArcVersionBlock extends ArcRecordBase {
             versionHeader = ArcVersionHeader.processPayload(
                     payload.getInputStream(), header.archiveLength.longValue(),
                     digestAlgorithm, reader.fieldParsers, diagnostics);
-            // TODO
+            if (versionHeader != null) {
+                if (versionHeader.isValid()) {
+                    payload.setPayloadHeaderWrapped(versionHeader);
+                } else {
+                    diagnostics.addError(
+                            new Diagnosis(DiagnosisType.ERROR,
+                                    "version block",
+                                    "Unable to parse version block!"));
+                }
+            }
         }
         if ((payload == null) && ArcVersion.VERSION_1_1.equals(version)) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
