@@ -68,11 +68,11 @@ public class ArcReaderUncompressed extends ArcReader {
 
     @Override
     public void close() {
-        if (arcRecord != null) {
+        if (currentRecord != null) {
             try {
-                arcRecord.close();
+                currentRecord.close();
             } catch (IOException e) { /* ignore */ }
-            arcRecord = null;
+            currentRecord = null;
         }
         if (in != null) {
             try {
@@ -83,36 +83,56 @@ public class ArcReaderUncompressed extends ArcReader {
     }
 
     @Override
+    protected void recordClosed() {
+        consumed += currentRecord.consumed;
+    }
+
+    @Override
     public long getStartOffset() {
         return startOffset;
     }
 
     @Override
     public long getOffset() {
-        return in.getConsumed();
+        if (in != null) {
+            return in.getConsumed();
+        } else {
+            return consumed;
+        }
+    }
+
+    @Override
+    public long getConsumed() {
+        if (in != null) {
+            return in.getConsumed();
+        } else {
+            return consumed;
+        }
     }
 
     @Override
     public ArcRecordBase getNextRecord() throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
         if (in == null) {
             throw new IllegalStateException("The inputstream 'in' is null");
         }
-        arcRecord = ArcRecordBase.parseRecord(in, this);
-        if (arcRecord != null) {
-            startOffset = arcRecord.header.startOffset;
+        currentRecord = ArcRecordBase.parseRecord(in, this);
+        if (currentRecord != null) {
+            startOffset = currentRecord.header.startOffset;
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
     @Override
     public ArcRecordBase getNextRecordFrom(InputStream rin, long offset)
             throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (in != null) {
+            throw new IllegalStateException("The inputstream 'in' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -124,20 +144,22 @@ public class ArcReaderUncompressed extends ArcReader {
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecordBase.parseRecord(pbin, this);
-        if (arcRecord != null) {
-            arcRecord.header.startOffset = offset;
+        currentRecord = ArcRecordBase.parseRecord(pbin, this);
+        if (currentRecord != null) {
             startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
     @Override
     public ArcRecordBase getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (in != null) {
+            throw new IllegalStateException("The inputstream 'in' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -156,13 +178,12 @@ public class ArcReaderUncompressed extends ArcReader {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE);
-        arcRecord = ArcRecordBase.parseRecord(pbin, this);
-        if (arcRecord != null) {
-            arcRecord.header.startOffset = offset;
+        currentRecord = ArcRecordBase.parseRecord(pbin, this);
+        if (currentRecord != null) {
             startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
 }

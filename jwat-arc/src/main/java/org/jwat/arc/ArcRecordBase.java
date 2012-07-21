@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URI;
-import java.security.MessageDigest;
 import java.util.Date;
 
 import org.jwat.common.Base16;
@@ -33,6 +32,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HttpHeader;
+import org.jwat.common.NewlineParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 import org.jwat.common.PayloadWithHeaderAbstract;
@@ -48,8 +48,10 @@ import org.jwat.common.PayloadWithHeaderAbstract;
  */
 public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
+    /** Version block record type. */
     public static final int RT_VERSION_BLOCK = 1;
 
+    /** Arc record record type. */
     public static final int RT_ARC_RECORD = 2;
 
     /** Buffer size used in toString(). */
@@ -70,12 +72,20 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** ARC record version block. */
     //protected ArcVersionBlock versionBlock;
 
+    /** ARC record parsing start offset relative to the source arc file input
+     *  stream. Used to keep track of the amount of bytes consumed. */
+    protected long startOffset;
+
     /** Bytes consumed while validating this record. */
     protected long consumed;
 
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
+    /** Newline parser for counting/validating trailing newlines. */
+    public NewlineParser nlp = new NewlineParser();
+
+    /** Record type, version block or arc record. */
     public int recordType;
 
     /*
@@ -114,10 +124,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param recordLine ARC record string
      */
     public static ArcRecordBase parseRecord(ByteCountingPushBackInputStream in, ArcReader reader) throws IOException {
+        // debug
+        //System.out.println(in.getConsumed());
         ArcRecordBase record = null;
+        long startOffset = in.getConsumed();
         // Initialize ArcHeader with required context.
         Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
-        ArcHeader header = ArcHeader.initHeader(reader, in.getConsumed(), diagnostics);
+        ArcHeader header = ArcHeader.initHeader(reader, startOffset, diagnostics);
         // Initialize ArcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = diagnostics;
         if (header.parseHeader(in)) {
@@ -133,6 +146,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
         }
         if (record != null) {
+            record.startOffset = startOffset;
             // Check read and computed offset value only if we're reading
             // a plain ARC file, not a GZipped ARC.
             if ((header.offset != null) && (header.startOffset > 0L)
@@ -150,6 +164,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
+            reader.consumed += in.getConsumed() - startOffset;
             reader.diagnostics.addAll(diagnostics);
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
                 reader.bIsCompliant = false;
@@ -190,8 +205,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Returns the starting offset of the record in the containing ARC.
-     * @return the starting offset of the record
+     * Returns the parsing start offset of the record in the containing ARC.
+     * @return the parsing start offset of the record
      */
     public long getStartOffset() {
         return header.startOffset;
@@ -287,6 +302,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                     }
                 }
             }
+            // Check for trailing newlines.
+            int newlines = nlp.parseLFs(in, diagnostics);
+            if (newlines != ArcConstants.ARC_RECORD_TRAILING_NEWLINES) {
+                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "Trailing newlines",
+                        Integer.toString(newlines),
+                        "1");
+            }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
                 bIsCompliant = false;
@@ -297,10 +320,13 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
-            consumed = in.getConsumed() - header.startOffset;
-            reader.consumed += consumed;
+            consumed = in.getConsumed() - startOffset;
+            // debug
+            //System.out.println(in.getConsumed());
             // Don't not close payload again.
             bPayloadClosed = true;
+            // Callback.
+            reader.recordClosed();
         }
     }
 

@@ -68,7 +68,7 @@ public abstract class WarcReader {
     protected String payloadDigestEncoding = "base32";
 
     /** Current WARC record object. */
-    protected WarcRecord warcRecord;
+    protected WarcRecord currentRecord;
 
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
@@ -294,6 +294,11 @@ public abstract class WarcReader {
      * Close current record resource(s) and input stream(s).
      */
     public abstract void close();
+
+    /**
+     * Callback method called when the payload has been processed.
+     */
+    protected abstract void recordClosed();
 
     /**
      * Get the offset of the current or next WARC record.

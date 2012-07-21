@@ -38,6 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
 
@@ -63,7 +64,7 @@ public class TestWarcReaderFactoryCompressed {
     }
 
     @Test
-    public void test_warcreaderfactory_compressed() {
+    public void test_warcreaderfactory_compressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
@@ -84,7 +85,249 @@ public class TestWarcReaderFactoryCompressed {
             WarcEntry entry;
 
             /*
-             * getReaderUncompressed() / nextRecordFrom(in).
+             * getReaderUncompressed(in) / getNextRecord().
+             */
+
+            records = 0;
+            errors = 0;
+            warnings = 0;
+
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
+
+            reader = WarcReaderFactory.getReaderCompressed(in);
+
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
+
+                try {
+                    reader.getNextRecordFrom(in, entry.offset);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                try {
+                    reader.getNextRecordFrom(in, entry.offset, 8192);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecord()) != null) {
+                    if (bDebugOutput) {
+                        TestBaseUtils.printRecord(record);
+                        TestBaseUtils.printRecordErrors(record);
+                    }
+
+                    record.close();
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
+
+                    ++records;
+
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
+                    }
+
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                } else {
+                    Assert.fail("Location incorrect");
+                }
+            }
+
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            in.close();
+            ram.close();
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(records, errors, warnings);
+            }
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
+
+            /*
+             * getReaderUncompressed(in, buffer_size) / getNextRecord().
+             */
+
+            records = 0;
+            errors = 0;
+            warnings = 0;
+
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
+
+            reader = WarcReaderFactory.getReaderCompressed(in, 8192);
+
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
+
+                try {
+                    reader.getNextRecordFrom(in, entry.offset);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                try {
+                    reader.getNextRecordFrom(in, entry.offset, 8192);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecord()) != null) {
+                    if (bDebugOutput) {
+                        TestBaseUtils.printRecord(record);
+                        TestBaseUtils.printRecordErrors(record);
+                    }
+
+                    record.close();
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
+
+                    ++records;
+
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
+                    }
+
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                } else {
+                    Assert.fail("Location incorrect");
+                }
+            }
+
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            in.close();
+            ram.close();
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(records, errors, warnings);
+            }
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected io exception");
+        }
+    }
+
+    @Test
+    public void test_warcreaderfactory_compressed_random() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+
+        URL url;
+        String path;
+        File file;
+        RandomAccessFile ram;
+        InputStream in;
+
+        WarcReader reader;
+        WarcRecord record;
+
+        int records = 0;
+        int errors = 0;
+        int warnings = 0;
+
+        try {
+            List<WarcEntry> entries = indexWarcFile();
+            WarcEntry entry;
+
+            /*
+             * getReaderUncompressed() / getNextRecordFrom(in).
              */
 
             records = 0;
@@ -101,15 +344,21 @@ public class TestWarcReaderFactoryCompressed {
 
             reader = WarcReaderFactory.getReaderCompressed();
 
-            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
-            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestEnabled( bDigest );
             Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
 
                 ram.seek(entry.offset);
+
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
@@ -159,7 +408,17 @@ public class TestWarcReaderFactoryCompressed {
                 }
             }
 
+            record = reader.getNextRecordFrom(in, reader.getConsumed());
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             in.close();
             ram.close();
 
@@ -172,7 +431,7 @@ public class TestWarcReaderFactoryCompressed {
             Assert.assertEquals(0, warnings);
 
             /*
-             * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
+             * getReaderUncompressed() / getNextRecordFrom(in, buffer_size).
              */
 
             records = 0;
@@ -187,17 +446,23 @@ public class TestWarcReaderFactoryCompressed {
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = WarcReaderFactory.getReaderCompressed(in);
+            reader = WarcReaderFactory.getReaderCompressed();
 
-            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
-            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestEnabled( bDigest );
             Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
 
                 ram.seek(entry.offset);
+
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
 
                 if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
@@ -247,95 +512,19 @@ public class TestWarcReaderFactoryCompressed {
                 }
             }
 
-            reader.close();
-            in.close();
+            record = reader.getNextRecordFrom(in, reader.getConsumed(), 8192);
+            Assert.assertNull(record);
 
-            if (bDebugOutput) {
-                TestBaseUtils.printStatus(records, errors, warnings);
-            }
-
-            Assert.assertEquals(expected_records, records);
-            Assert.assertEquals(0, errors);
-            Assert.assertEquals(0, warnings);
-
-            /*
-             * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
-             */
-
-            records = 0;
-            errors = 0;
-            warnings = 0;
-
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
-            ram = new RandomAccessFile(file, "r");
-            in = new RandomAccessFileInputStream(ram);
-
-            reader = WarcReaderFactory.getReaderCompressed(in, 8192);
-
-            reader.setBlockDigestEnabled( true );
-            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
-            reader.setPayloadDigestEnabled( true );
-            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
-
-            for (int i=0; i<entries.size(); ++i) {
-                entry = entries.get(i);
-
-                ram.seek(entry.offset);
-
-                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
-                    if (bDebugOutput) {
-                        TestBaseUtils.printRecord(record);
-                        TestBaseUtils.printRecordErrors(record);
-                    }
-
-                    record.close();
-
-                    // Test content-type and http response/request
-                    if (record.header.contentType != null) {
-                        if ("application".equals(record.header.contentType.contentType)
-                                && "http".equals(record.header.contentType.mediaType)) {
-                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
-                                Assert.assertNotNull(record.payload);
-                                Assert.assertNotNull(record.httpHeader);
-                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
-                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
-                                Assert.assertNotNull(record.payload);
-                                Assert.assertNotNull(record.httpHeader);
-                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
-                            }
-                        }
-                    }
-
-                    if ( bDigest ) {
-                        if ( (record.payload != null && record.computedBlockDigest == null)
-                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
-                            Assert.fail( "Digest missing!" );
-                        }
-                    }
-
-                    ++records;
-
-                    if (record.diagnostics.hasErrors()) {
-                        errors += record.diagnostics.getErrors().size();
-                    }
-                    if (record.diagnostics.hasWarnings()) {
-                        warnings += record.diagnostics.getWarnings().size();
-                    }
-
-                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
-                        Assert.fail("Wrong record");
-                    }
-                } else {
-                    Assert.fail("Location incorrect");
-                }
-            }
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
 
             reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             in.close();
+            ram.close();
 
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(records, errors, warnings);
@@ -367,12 +556,12 @@ public class TestWarcReaderFactoryCompressed {
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            ByteCountingInputStream bcin = new ByteCountingInputStream(in);
+            WarcReader reader = WarcReaderFactory.getReader(bcin);
 
-            WarcReader reader = WarcReaderFactory.getReader(in);
-
-            reader.setBlockDigestEnabled( true );
+            reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
-            reader.setPayloadDigestEnabled( true );
+            reader.setPayloadDigestEnabled( bDigest );
             Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             Iterator<WarcRecord> recordIterator = reader.iterator();
@@ -434,13 +623,25 @@ public class TestWarcReaderFactoryCompressed {
                 }
             }
 
+            if (reader.getIteratorExceptionThrown() != null) {
+                reader.getIteratorExceptionThrown().printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
+            Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+
             reader.close();
-            in.close();
+            bcin.close();
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
+            Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
         } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 
-        Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
         Assert.assertEquals(0, warnings);
 

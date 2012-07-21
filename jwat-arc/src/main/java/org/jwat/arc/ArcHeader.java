@@ -53,7 +53,8 @@ public class ArcHeader {
      *  stream. */
     protected long startOffset = -1L;
 
-    protected long parsedFieldsVersion;
+    /** Which version of the record fields was parsed, 1 or 2. */
+    protected int parsedFieldsVersion;
 
     /*
      * ARC header fields.
@@ -107,9 +108,6 @@ public class ArcHeader {
 
     public static ArcHeader initHeader(ArcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         ArcHeader header = new ArcHeader();
-        // TODO
-        //header.major = 1;
-        //header.minor = 0;
         header.fieldParsers = writer.fieldParsers;
         header.warcDateFormat = writer.arcDateFormat;
         header.diagnostics = diagnostics;
@@ -129,6 +127,7 @@ public class ArcHeader {
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
         startOffset = in.getConsumed();
         String recordLine = in.readLine();
+        // TODO
         while ((recordLine != null) && (recordLine.length() == 0)) {
             startOffset = in.getConsumed();
             recordLine = in.readLine();
@@ -144,7 +143,8 @@ public class ArcHeader {
     }
 
     public void parseHeaders(String[] fields) {
-        if (fields.length >= ArcConstants.VERSION_1_BLOCK_FIELDS.length) {
+        if (fields.length == ArcConstants.VERSION_1_BLOCK_FIELDS.length
+                || fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
             parsedFieldsVersion = 1;
             /*
              * Version 1.
@@ -164,8 +164,7 @@ public class ArcHeader {
             inetAddress = fieldParsers.parseIpAddress(ipAddressStr, ArcConstants.FN_IP_ADDRESS);
             archiveDate = fieldParsers.parseDate(archiveDateStr, ArcConstants.FN_ARCHIVE_DATE);
             contentType = fieldParsers.parseContentType(contentTypeStr, ArcConstants.FN_CONTENT_TYPE);
-            // version.equals(ArcVersion.VERSION_2)
-            if (fields.length >= ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
+            if (fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
                 parsedFieldsVersion = 2;
                 /*
                  *  Version 2.
@@ -196,6 +195,14 @@ public class ArcHeader {
             archiveLength = reader.fieldParsers.parseLong(
                     archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH);
         }
+    }
+
+    /**
+     * Returns the starting offset of the record in the containing ARC.
+     * @return the starting offset of the record
+     */
+    public long getStartOffset() {
+        return startOffset;
     }
 
     public void toStringBuilder(StringBuilder sb) {

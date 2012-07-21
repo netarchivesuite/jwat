@@ -41,10 +41,10 @@ public class ByteCountingInputStream extends FilterInputStream {
     /**
      * Constructs an <code>InputStream</code> that counts the bytes
      * as it reads them.
-     * @param parent InputStream to wrap
+     * @param in InputStream to wrap
      */
-    public ByteCountingInputStream(InputStream parent) {
-        super(parent);
+    public ByteCountingInputStream(InputStream in) {
+        super(in);
     }
 
     /**

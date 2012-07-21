@@ -69,11 +69,11 @@ public class WarcReaderUncompressed extends WarcReader {
 
     @Override
     public void close() {
-        if (warcRecord != null) {
+        if (currentRecord != null) {
             try {
-                warcRecord.close();
+                currentRecord.close();
             } catch (IOException e) { /* ignore */ }
-            warcRecord = null;
+            currentRecord = null;
         }
         if (in != null) {
             consumed = in.getConsumed();
@@ -82,6 +82,11 @@ public class WarcReaderUncompressed extends WarcReader {
             } catch (IOException e) { /* ignore */ }
             in = null;
         }
+    }
+
+    @Override
+    protected void recordClosed() {
+        consumed += currentRecord.consumed;
     }
 
     @Override
@@ -109,25 +114,27 @@ public class WarcReaderUncompressed extends WarcReader {
 
     @Override
     public WarcRecord getNextRecord() throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
         if (in == null) {
-            throw new IllegalStateException(
-                    "The inputstream 'in' is null");
+            throw new IllegalStateException("The inputstream 'in' is null");
         }
-        warcRecord = WarcRecord.parseRecord(in, this);
-        if (warcRecord != null) {
-            startOffset = warcRecord.getStartOffset();
+        currentRecord = WarcRecord.parseRecord(in, this);
+        if (currentRecord != null) {
+            startOffset = currentRecord.getStartOffset();
         }
-        return warcRecord;
+        return currentRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset)
                                                         throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (in != null) {
+            throw new IllegalStateException("The inputstream 'in' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -139,19 +146,22 @@ public class WarcReaderUncompressed extends WarcReader {
         }
         ByteCountingPushBackInputStream pbin =
                 new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE);
-        warcRecord = WarcRecord.parseRecord(pbin, this);
-        if (warcRecord != null) {
-            warcRecord.header.startOffset = offset;
+        currentRecord = WarcRecord.parseRecord(pbin, this);
+        if (currentRecord != null) {
             startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        return warcRecord;
+        return currentRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (in != null) {
+            throw new IllegalStateException("The inputstream 'in' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -170,12 +180,12 @@ public class WarcReaderUncompressed extends WarcReader {
                 new ByteCountingPushBackInputStream(
                         new BufferedInputStream(rin, buffer_size),
                         PUSHBACK_BUFFER_SIZE);
-        warcRecord = WarcRecord.parseRecord(pbin, this);
-        if (warcRecord != null) {
-            warcRecord.header.startOffset = offset;
+        currentRecord = WarcRecord.parseRecord(pbin, this);
+        if (currentRecord != null) {
             startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        return warcRecord;
+        return currentRecord;
     }
 
 }

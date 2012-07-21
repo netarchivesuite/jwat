@@ -65,13 +65,13 @@ public abstract class ArcReader {
     protected String payloadDigestEncoding = "base32";
 
     /** Current ARC version block object. */
-    protected ArcVersionBlock versionBlock = null;
+    //protected ArcVersionBlock versionBlock = null;
 
     /** Current ARC record object. */
-    protected ArcRecordBase arcRecord = null;
+    //protected ArcRecordBase arcRecord = null;
 
     /** Previous record of either kind. */
-    protected ArcRecordBase previousRecord = null;
+    protected ArcRecordBase currentRecord = null;
 
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
@@ -284,6 +284,11 @@ public abstract class ArcReader {
     public abstract void close();
 
     /**
+     * Callback method called when the payload has been processed.
+     */
+    protected abstract void recordClosed();
+
+    /**
      * Get the offset of the current or next ARC record.
      * @return offset of the current of next ARC record
      */
@@ -299,31 +304,7 @@ public abstract class ArcReader {
     /** Get number of bytes consumed by this reader.
      * @return number of bytes consumed by this reader
      */
-    public long getConsumed() {
-        return consumed;
-    }
-
-    /**
-     * Parses and gets the version block of the ARC file.
-     * @return the version block of the ARC file
-     * @throws IOException io exception in reading process
-     */
-    /*
-    public abstract ArcVersionBlock getVersionBlock() throws IOException;
-    */
-
-    /**
-     * Parses and gets the version block of an ARC file from the supplied
-     * <code>InputStream</code>.
-     * @param in input stream from which to read version block
-     * @param offset offset provided by caller
-     * @return the version block of the ARC file
-     * @throws IOException io exception in reading process
-     */
-    /*
-    public abstract ArcVersionBlock getVersionBlockFrom(InputStream in,
-                                            long offset) throws IOException;
-    */
+    public abstract long getConsumed();
 
     /**
      * Parses and gets the next ARC record.

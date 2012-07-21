@@ -38,28 +38,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(Parameterized.class)
 public class TestArcReaderFactoryCompressed {
 
     private int expected_records;
+    private boolean bDigest;
     private String arcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {300, "IAH-20080430204825-00000-blackbook.arc.gz"}
+                {300, false, "IAH-20080430204825-00000-blackbook.arc.gz"},
+                {300, true, "IAH-20080430204825-00000-blackbook.arc.gz"}
         });
     }
 
-    public TestArcReaderFactoryCompressed(int records, String arcFile) {
+    public TestArcReaderFactoryCompressed(int records, boolean bDigest, String arcFile) {
         this.expected_records = records;
+        this.bDigest = bDigest;
         this.arcFile = arcFile;
     }
 
     @Test
-    public void test_arcreaderfactory_compressed() {
+    public void test_arcreaderfactory_compressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
@@ -80,82 +84,7 @@ public class TestArcReaderFactoryCompressed {
             ArcEntry entry;
 
             /*
-             * getReaderUncompressed() / nextRecordFrom(in).
-             */
-
-            records = 0;
-            errors = 0;
-            warnings = 0;
-
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
-            ram = new RandomAccessFile(file, "r");
-            in = new RandomAccessFileInputStream(ram);
-
-            reader = ArcReaderFactory.getReaderCompressed();
-
-            for (int i=0; i<entries.size(); ++i) {
-                entry = entries.get(i);
-
-                ram.seek(entry.offset);
-
-                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
-                    if (bDebugOutput) {
-                        TestBaseUtils.printRecord(record);
-                        //RecordDebugBase.printRecordErrors(record);
-                    }
-
-                    record.close();
-
-                    ++records;
-
-                    switch (records) {
-                    case 1:
-                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNotNull(record.versionHeader);
-                        Assert.assertNotNull(record.versionHeader.isValid());
-                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                        break;
-                    default:
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
-                        break;
-                    }
-
-                    if (record.diagnostics.hasErrors()) {
-                        errors += record.diagnostics.getErrors().size();
-                    }
-                    if (record.diagnostics.hasWarnings()) {
-                        warnings += record.diagnostics.getWarnings().size();
-                    }
-
-                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
-                        Assert.fail("Wrong record");
-                    }
-                } else {
-                    Assert.fail("Location incorrect");
-                }
-            }
-
-            reader.close();
-            in.close();
-            ram.close();
-
-            if (bDebugOutput) {
-                TestBaseUtils.printStatus(records, errors, warnings);
-            }
-
-            Assert.assertEquals(expected_records, records);
-            Assert.assertEquals(0, errors);
-            Assert.assertEquals(0, warnings);
-
-            /*
-             * getReaderUncompressed(in) / nextRecordFrom(in, buffer_size).
+             * getReaderCompressed(in) / getNextRecord().
              */
 
             records = 0;
@@ -172,18 +101,40 @@ public class TestArcReaderFactoryCompressed {
 
             reader = ArcReaderFactory.getReaderCompressed(in);
 
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
 
-                ram.seek(entry.offset);
+                try {
+                    reader.getNextRecordFrom(in, entry.offset);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
 
-                if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
+                try {
+                    reader.getNextRecordFrom(in, entry.offset, 8192);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecord()) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
 
                     ++records;
 
@@ -217,8 +168,19 @@ public class TestArcReaderFactoryCompressed {
                 }
             }
 
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             in.close();
+            ram.close();
 
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(records, errors, warnings);
@@ -229,7 +191,7 @@ public class TestArcReaderFactoryCompressed {
             Assert.assertEquals(0, warnings);
 
             /*
-             * getReaderUncompressed(in, buffer_size) / nextRecordFrom(in).
+             * getReaderCompressed(in, buffer_size) / getNextRecord().
              */
 
             records = 0;
@@ -246,18 +208,40 @@ public class TestArcReaderFactoryCompressed {
 
             reader = ArcReaderFactory.getReaderCompressed(in, 8192);
 
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
             for (int i=0; i<entries.size(); ++i) {
                 entry = entries.get(i);
 
-                ram.seek(entry.offset);
+                try {
+                    reader.getNextRecordFrom(in, entry.offset);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
 
-                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
+                try {
+                    reader.getNextRecordFrom(in, entry.offset, 8192);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecord()) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
                         //RecordDebugBase.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
 
                     ++records;
 
@@ -291,8 +275,251 @@ public class TestArcReaderFactoryCompressed {
                 }
             }
 
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
             in.close();
+            ram.close();
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(records, errors, warnings);
+            }
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected io exception");
+        }
+    }
+
+    @Test
+    public void test_arcreaderfactory_compressed_random() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+
+        URL url;
+        String path;
+        File file;
+        RandomAccessFile ram;
+        InputStream in;
+
+        ArcReader reader;
+        ArcRecordBase record;
+
+        int records = 0;
+        int errors = 0;
+        int warnings = 0;
+
+        try {
+            List<ArcEntry> entries = indexArcFile();
+            ArcEntry entry;
+
+            /*
+             * getReaderUncompressed() / getNextRecordFrom(in).
+             */
+
+            records = 0;
+            errors = 0;
+            warnings = 0;
+
+            url = this.getClass().getClassLoader().getResource(arcFile);
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
+
+            reader = ArcReaderFactory.getReaderCompressed();
+
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
+
+                ram.seek(entry.offset);
+
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
+                    if (bDebugOutput) {
+                        TestBaseUtils.printRecord(record);
+                        //RecordDebugBase.printRecordErrors(record);
+                    }
+
+                    record.close();
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
+
+                    ++records;
+
+                    switch (records) {
+                    case 1:
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                        break;
+                    default:
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+                        break;
+                    }
+
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
+                    }
+
+                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                } else {
+                    Assert.fail("Location incorrect");
+                }
+            }
+
+            record = reader.getNextRecordFrom(in, reader.getConsumed());
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            in.close();
+            ram.close();
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(records, errors, warnings);
+            }
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(0, errors);
+            Assert.assertEquals(0, warnings);
+
+            /*
+             * getReaderUncompressed() / getNextRecordFrom(in, buffer_size).
+             */
+
+            records = 0;
+            errors = 0;
+            warnings = 0;
+
+            url = this.getClass().getClassLoader().getResource(arcFile);
+            path = url.getFile();
+            path = path.replaceAll("%5b", "[");
+            path = path.replaceAll("%5d", "]");
+            file = new File(path);
+            ram = new RandomAccessFile(file, "r");
+            in = new RandomAccessFileInputStream(ram);
+
+            reader = ArcReaderFactory.getReaderCompressed();
+
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
+
+            for (int i=0; i<entries.size(); ++i) {
+                entry = entries.get(i);
+
+                ram.seek(entry.offset);
+
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
+                if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
+                    if (bDebugOutput) {
+                        TestBaseUtils.printRecord(record);
+                        //RecordDebugBase.printRecordErrors(record);
+                    }
+
+                    record.close();
+
+                    if ( bDigest ) {
+                        if ( (record.payload != null && record.computedBlockDigest == null)
+                                || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                            Assert.fail( "Digest missing!" );
+                        }
+                    }
+
+                    ++records;
+
+                    switch (records) {
+                    case 1:
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
+                        break;
+                    default:
+                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNull(record.versionHeader);
+                        break;
+                    }
+
+                    if (record.diagnostics.hasErrors()) {
+                        errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        warnings += record.diagnostics.getWarnings().size();
+                    }
+
+                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                        Assert.fail("Wrong record");
+                    }
+                } else {
+                    Assert.fail("Location incorrect");
+                }
+            }
+
+            record = reader.getNextRecordFrom(in, reader.getConsumed(), 8192);
+            Assert.assertNull(record);
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            reader.close();
+
+            Assert.assertEquals(ram.length(), reader.getConsumed());
+            Assert.assertEquals(ram.length(), reader.getOffset());
+
+            in.close();
+            ram.close();
 
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(records, errors, warnings);
@@ -324,11 +551,14 @@ public class TestArcReaderFactoryCompressed {
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
-
-            ArcReader reader = ArcReaderFactory.getReader(in);
+            ByteCountingInputStream bcin = new ByteCountingInputStream(in);
+            ArcReader reader = ArcReaderFactory.getReader(bcin);
             ArcRecordBase record;
 
-            //System.out.println(version.xml);
+            reader.setBlockDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
+            reader.setPayloadDigestEnabled( bDigest );
+            Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
             Iterator<ArcRecordBase> recordIterator = reader.iterator();
 
@@ -376,6 +606,13 @@ public class TestArcReaderFactoryCompressed {
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
+                if ( bDigest ) {
+                    if ( (record.payload != null && record.computedBlockDigest == null)
+                            || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
+                        Assert.fail( "Digest missing!" );
+                    }
+                }
+
                 //System.out.println(record.getStartOffset());
                 //System.out.println(reader.getStartOffset());
                 //System.out.println(reader.getOffset());
@@ -393,8 +630,16 @@ public class TestArcReaderFactoryCompressed {
                 Assert.fail("Unexpected exception!");
             }
 
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
+            Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+
             reader.close();
-            in.close();
+            bcin.close();
+
+            Assert.assertEquals(expected_records, records);
+            Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
+            Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception");

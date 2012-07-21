@@ -41,6 +41,12 @@ public class ArcReaderCompressed extends ArcReader {
     /** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
     protected int bufferSize;
 
+    /** GZip reader used for the current record, if random access methods used. */
+    protected GzipReader currentReader;
+
+    /** GZip entry for the current record, if random access methods used. */
+    protected GzipEntry currentEntry;
+
     /**
      * This constructor is used to get random access to records.
      * The records are then accessed using the getNextRecordFrom methods
@@ -90,13 +96,16 @@ public class ArcReaderCompressed extends ArcReader {
 
     @Override
     public void close() {
-        if (arcRecord != null) {
+        if (currentRecord != null) {
             try {
-                arcRecord.close();
+                currentRecord.close();
             } catch (IOException e) { /* ignore */ }
-            arcRecord = null;
+            currentRecord = null;
         }
         if (reader != null) {
+            // TODO
+            //startOffset = reader.getStartOffset();
+            consumed = reader.getOffset();
             try {
                 reader.close();
             } catch (IOException e) { /* ignore */ }
@@ -104,13 +113,31 @@ public class ArcReaderCompressed extends ArcReader {
         }
     }
 
+    @Override
+    protected void recordClosed() {
+        if (currentEntry != null) {
+            try {
+                currentEntry.close();
+                consumed += currentEntry.consumed;
+            } catch (IOException e) { /* ignore */ }
+            currentEntry = null;
+        }
+    }
+
+    /** Cached start offset used after the reader is closed. */
+    protected long startOffset = 0;
+
     /**
      * Get the current offset in the ARC <code>GzipReader</code>.
      * @return offset in ARC <code>InputStream</code>
      */
     @Override
     public long getStartOffset() {
-        return reader.getStartOffset();
+        if (reader != null) {
+            return reader.getStartOffset();
+        } else {
+            return startOffset;
+        }
     }
 
     /**
@@ -119,75 +146,98 @@ public class ArcReaderCompressed extends ArcReader {
      */
     @Override
     public long getOffset() {
-        return reader.getOffset();
+        if (reader != null) {
+            return reader.getOffset();
+        } else {
+            return consumed;
+        }
+    }
+
+    /** Get number of bytes consumed by the ARC <code>GzipReader</code>.
+     * @return number of bytes consumed by the ARC <code>GzipReader</code>
+     */
+    @Override
+    public long getConsumed() {
+        if (reader != null) {
+            return reader.getOffset();
+        } else {
+            return consumed;
+        }
     }
 
     @Override
     public ArcRecordBase getNextRecord() throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
         if (reader == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
+            throw new IllegalStateException("The GZip reader 'reader' is null");
         }
-        arcRecord = null;
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        currentRecord = null;
+        currentReader = reader;
+        currentEntry = reader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin;
             if (bufferSize > 0) {
                 pbin = new ByteCountingPushBackInputStream(
                         new BufferedInputStream(
-                                entry.getInputStream(),
+                                currentEntry.getInputStream(),
                                 bufferSize),
                         PUSHBACK_BUFFER_SIZE);
             } else {
                 pbin = new ByteCountingPushBackInputStream(
-                        entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
+                        currentEntry.getInputStream(), PUSHBACK_BUFFER_SIZE);
             }
-            arcRecord = ArcRecordBase.parseRecord(pbin, this);
+            currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
-        if (arcRecord != null) {
-            arcRecord.header.startOffset = entry.getStartOffset();
+        if (currentRecord != null) {
+            startOffset = currentEntry.getStartOffset();
+            currentRecord.header.startOffset = currentEntry.getStartOffset();
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
     @Override
     public ArcRecordBase getNextRecordFrom(InputStream rin, long offset)
             throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
-        if (offset < -1) {
-            throw new IllegalArgumentException(
-                    "The 'offset' is less than -1: " + offset);
+        if (reader != null) {
+            throw new IllegalStateException("The GZip reader 'reader' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'rin' is null");
         }
-        arcRecord = null;
-        GzipReader reader = new GzipReader(rin);
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        if (offset < -1) {
+            throw new IllegalArgumentException(
+                    "The 'offset' is less than -1: " + offset);
+        }
+        currentRecord = null;
+        currentReader = new GzipReader(rin);
+        currentEntry = currentReader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
-                            entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecordBase.parseRecord(pbin, this);
+                            currentEntry.getInputStream(), PUSHBACK_BUFFER_SIZE);
+            currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
-        if (arcRecord != null) {
-            arcRecord.header.startOffset = offset;
+        if (currentRecord != null) {
+            startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
     @Override
     public ArcRecordBase getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
-        if (previousRecord != null) {
-            previousRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (reader != null) {
+            throw new IllegalStateException("The GZip reader 'reader' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -202,23 +252,23 @@ public class ArcReaderCompressed extends ArcReader {
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        arcRecord = null;
-        GzipReader reader = new GzipReader(rin);
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        currentRecord = null;
+        currentReader = new GzipReader(rin);
+        currentEntry = currentReader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
-                                    entry.getInputStream(),
+                                    currentEntry.getInputStream(),
                                     buffer_size),
                             PUSHBACK_BUFFER_SIZE);
-            arcRecord = ArcRecordBase.parseRecord(pbin, this);
+            currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
-        if (arcRecord != null) {
-            arcRecord.header.startOffset = offset;
+        if (currentRecord != null) {
+            startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        previousRecord = arcRecord;
-        return arcRecord;
+        return currentRecord;
     }
 
 }

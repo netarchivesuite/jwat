@@ -41,6 +41,12 @@ public class WarcReaderCompressed extends WarcReader {
     /** Buffer size, if any, to use on GZip entry <code>InputStream</code>. */
     protected int bufferSize;
 
+    /** GZip reader used for the current record, if random access methods used. */
+    protected GzipReader currentReader;
+
+    /** GZip entry for the current record, if random access methods used. */
+    protected GzipEntry currentEntry;
+
     /**
      * This constructor is used to get random access to records.
      * The records are then accessed using the getNextRecordFrom methods
@@ -92,11 +98,11 @@ public class WarcReaderCompressed extends WarcReader {
 
     @Override
     public void close() {
-        if (warcRecord != null) {
+        if (currentRecord != null) {
             try {
-                warcRecord.close();
+                currentRecord.close();
             } catch (IOException e) { /* ignore */ }
-            warcRecord = null;
+            currentRecord = null;
         }
         if (reader != null) {
             startOffset = reader.getStartOffset();
@@ -105,6 +111,17 @@ public class WarcReaderCompressed extends WarcReader {
                 reader.close();
             } catch (IOException e) { /* ignore */ }
             reader = null;
+        }
+    }
+
+    @Override
+    protected void recordClosed() {
+        if (currentEntry != null) {
+            try {
+                currentEntry.close();
+                consumed += currentEntry.consumed;
+            } catch (IOException e) { /* ignore */ }
+            currentEntry = null;
         }
     }
 
@@ -137,6 +154,9 @@ public class WarcReaderCompressed extends WarcReader {
         }
     }
 
+    /** Get number of bytes consumed by the WARC <code>GzipReader</code>.
+     * @return number of bytes consumed by the WARC <code>GzipReader</code>
+     */
     @Override
     public long getConsumed() {
         if (reader != null) {
@@ -148,39 +168,44 @@ public class WarcReaderCompressed extends WarcReader {
 
     @Override
     public WarcRecord getNextRecord() throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
         }
         if (reader == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
+            throw new IllegalStateException("The GZip reader 'reader' is null");
         }
-        warcRecord = null;
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        currentRecord = null;
+        currentReader = reader;
+        currentEntry = reader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin;
             if (bufferSize > 0) {
                 pbin = new ByteCountingPushBackInputStream(
                         new BufferedInputStream(
-                                entry.getInputStream(), bufferSize),
+                                currentEntry.getInputStream(), bufferSize),
                                 PUSHBACK_BUFFER_SIZE);
             }
             else {
                 pbin = new ByteCountingPushBackInputStream(
-                        entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
+                        currentEntry.getInputStream(), PUSHBACK_BUFFER_SIZE);
             }
-            warcRecord = WarcRecord.parseRecord(pbin, this);
+            currentRecord = WarcRecord.parseRecord(pbin, this);
         }
-        if (warcRecord != null) {
-            warcRecord.header.startOffset = entry.getStartOffset();
+        if (currentRecord != null) {
+            startOffset = currentEntry.getStartOffset();
+            currentRecord.header.startOffset = currentEntry.getStartOffset();
         }
-        return warcRecord;
+        return currentRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset)
                                                         throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (reader != null) {
+            throw new IllegalStateException("The GZip reader 'reader' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -190,26 +215,30 @@ public class WarcReaderCompressed extends WarcReader {
             throw new IllegalArgumentException(
                     "The 'offset' is less than -1: " + offset);
         }
-        warcRecord = null;
-        GzipReader reader = new GzipReader(rin);
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        currentRecord = null;
+        currentReader = new GzipReader(rin);
+        currentEntry = currentReader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
-                            entry.getInputStream(), PUSHBACK_BUFFER_SIZE);
-            warcRecord = WarcRecord.parseRecord(pbin, this);
+                            currentEntry.getInputStream(), PUSHBACK_BUFFER_SIZE);
+            currentRecord = WarcRecord.parseRecord(pbin, this);
         }
-        if (warcRecord != null) {
-            warcRecord.header.startOffset = offset;
+        if (currentRecord != null) {
+            startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        return warcRecord;
+        return currentRecord;
     }
 
     @Override
     public WarcRecord getNextRecordFrom(InputStream rin, long offset,
                                         int buffer_size) throws IOException {
-        if (warcRecord != null) {
-            warcRecord.close();
+        if (currentRecord != null) {
+            currentRecord.close();
+        }
+        if (reader != null) {
+            throw new IllegalStateException("The GZip reader 'reader' is initialized");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -224,21 +253,22 @@ public class WarcReaderCompressed extends WarcReader {
                     "The 'buffer_size' is less than or equal to zero: "
                     + buffer_size);
         }
-        warcRecord = null;
-        GzipReader reader = new GzipReader(rin);
-        GzipEntry entry = reader.getNextEntry();
-        if (entry != null) {
+        currentRecord = null;
+        currentReader = new GzipReader(rin);
+        currentEntry = currentReader.getNextEntry();
+        if (currentEntry != null) {
             ByteCountingPushBackInputStream pbin =
                     new ByteCountingPushBackInputStream(
                             new BufferedInputStream(
-                                    entry.getInputStream(), buffer_size),
+                                    currentEntry.getInputStream(), buffer_size),
                                     PUSHBACK_BUFFER_SIZE);
-            warcRecord = WarcRecord.parseRecord(pbin, this);
+            currentRecord = WarcRecord.parseRecord(pbin, this);
         }
-        if (warcRecord != null) {
-            warcRecord.header.startOffset = offset;
+        if (currentRecord != null) {
+            startOffset = offset;
+            currentRecord.header.startOffset = offset;
         }
-        return warcRecord;
+        return currentRecord;
     }
 
 }

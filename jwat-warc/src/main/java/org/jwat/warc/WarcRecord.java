@@ -32,6 +32,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpHeader;
+import org.jwat.common.NewlineParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 
@@ -57,20 +58,18 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Is this record compliant ie. error free. */
     protected boolean bIsCompliant;
 
+    /** ARC record parsing start offset relative to the source arc file input
+     *  stream. Used to keep track of the amount of bytes consumed. */
+    protected long startOffset;
+
+    /** Bytes consumed while validating this record. */
+    protected long consumed;
+
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
-    /** Did the reader detect a missing CR while parsing newlines. */
-    protected boolean bMissingCr = false;
-
-    /** Did the reader detect a missing LF while parsing newlines. */
-    protected boolean bMissingLf = false;
-
-    /** Did the reader detect a misplaced CR while parsing newlines. */
-    protected boolean bMisplacedCr = false;
-
-    /** Did the reader detect a misplaced LF while parsing newlines. */
-    protected boolean bMisplacedLf = false;
+    /** Newline parser for counting/validating trailing newlines. */
+    public NewlineParser nlp = new NewlineParser();
 
     /** Is Warc-Block-Digest valid. (Null is equal to not tested) */
     public Boolean isValidBlockDigest = null;
@@ -134,6 +133,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         WarcRecord record = new WarcRecord();
         record.in = in;
         record.reader = reader;
+        record.startOffset = in.getConsumed();
         // Initialize WarcHeader with required context.
         record.header = WarcHeader.initHeader(reader, in.getConsumed(), record.diagnostics);
         WarcHeader header = record.header;
@@ -285,28 +285,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
             }
             // Check for trailing newlines.
-            int newlines = parseNewLines(in);
+            int newlines = nlp.parseCRLFs(in, diagnostics);
             if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
                 addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                         "Trailing newlines",
                         Integer.toString(newlines),
                         "2");
-            }
-            if (bMissingCr) {
-                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
-                        "Missing CR");
-            }
-            if (bMissingLf) {
-                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
-                        "Missing LF");
-            }
-            if (bMisplacedCr) {
-                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
-                        "Misplaced CR");
-            }
-            if (bMisplacedLf) {
-                addWarningDiagnosis(DiagnosisType.ERROR_EXPECTED,
-                        "Misplaced LF");
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -318,10 +302,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
-            //consumed = in.getConsumed() - header.startOffset;
-            //reader.consumed += consumed;
+            consumed = in.getConsumed() - startOffset;
             // Don't not close payload again.
             bPayloadClosed = true;
+            // Callback.
+            reader.recordClosed();
         }
     }
 
@@ -539,68 +524,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addWarning(new Diagnosis(type, entity, information));
-    }
-
-    /**
-     * Looks forward in the inputstream and counts the number of newlines
-     * found. Non newlines characters are pushed back onto the inputstream.
-     * @param in data inputstream
-     * @return newlines found in inputstream
-     * @throws IOException if an error occurs while reading data
-     */
-    protected int parseNewLines(ByteCountingPushBackInputStream in) throws IOException {
-        bMissingCr = false;
-        bMissingLf = false;
-        bMisplacedCr = false;
-        bMisplacedLf = false;
-        int newlines = 0;
-        byte[] buffer = new byte[2];
-        boolean b = true;
-        while (b) {
-            int read = in.read(buffer);
-            switch (read) {
-            case 1:
-                if (buffer[0] == '\n') {
-                    ++newlines;
-                    bMissingCr = true;
-                } else if ((buffer[0] == '\r')) {
-                    ++newlines;
-                    bMissingLf = true;
-                } else {
-                    in.unread(buffer[0]);
-                    b = false;
-                }
-                break;
-            case 2:
-                if (buffer[0] == '\r') {
-                    if (buffer[1] == '\n') {
-                        ++newlines;
-                    } else {
-                        ++newlines;
-                        bMissingLf = true;
-                        in.unread(buffer[1]);
-                    }
-                } else if (buffer[0] == '\n') {
-                    if (buffer[1] == '\r') {
-                        ++newlines;
-                        bMisplacedCr = true;
-                        bMisplacedLf = true;
-                    } else {
-                        ++newlines;
-                        bMissingCr = true;
-                        in.unread(buffer[1]);
-                    }
-                } else {
-                    in.unread(buffer);
-                    b = false;
-                }
-                break;
-            default:
-                b = false;
-                break;
-            }
-        }
-        return newlines;
     }
 
 }

@@ -61,8 +61,7 @@ public class FieldValidator {
      * @return value index in array or null
      */
     public static String getArrayValue(String[] array, int idx) {
-        return ((array.length > idx) && (array[idx] != null)
-                && (array[idx].length() != 0))? array[idx] : null;
+        return ((array.length > idx) && (array[idx] != null)) ? array[idx] : null;
     }
 
 }

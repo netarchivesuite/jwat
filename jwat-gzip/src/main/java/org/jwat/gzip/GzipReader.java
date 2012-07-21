@@ -68,7 +68,9 @@ public class GzipReader {
     protected GzipEntry gzipEntry;
 
     /** Entry offset, updated each time an entry is closed. */
-    protected long startOffset = 0;
+    protected long startOffset;
+
+    protected long consumed;
 
     /** Buffer used to read header.  */
     protected byte[] headerBytes = new byte[10];
@@ -190,6 +192,7 @@ public class GzipReader {
             crc.reset();
             inf.reset();
             gzipEntry = new GzipEntry();
+            gzipEntry.reader = this;
             gzipEntry.startOffset = startOffset;
             /*
              * Header.
@@ -395,6 +398,9 @@ public class GzipReader {
      */
     protected void readTrailer(GzipEntry entry) throws IOException {
         int read = pbin.readFully(trailerBytes);
+        entry.consumed = pbin.getConsumed() - entry.startOffset;
+        consumed += entry.consumed;
+        entry.reader = null;
         if (read == 8) {
             entry.crc32 = ((trailerBytes[3] & 255) << 24) | ((trailerBytes[2] & 255) << 16) | ((trailerBytes[1] & 255) << 8) | (trailerBytes[0] & 255);
             entry.isize = ((trailerBytes[7] & 255) << 24) | ((trailerBytes[6] & 255) << 16) | ((trailerBytes[5] & 255) << 8) | (trailerBytes[4] & 255);

@@ -37,6 +37,8 @@ public class GzipEntry {
      */
     public long startOffset = -1L;
 
+    public long consumed;
+
     /** Leading magic. */
     public int magic;
     /** Compression mode. */
@@ -87,6 +89,9 @@ public class GzipEntry {
     /** Output stream to write compressed data. */
     protected OutputStream out;
 
+    /** GZip reader responsible for reading this entry. */
+    protected GzipReader reader;
+
     /** GZip writer responsible for writing this entry. */
     protected GzipWriter writer;
 
@@ -110,6 +115,10 @@ public class GzipEntry {
             if (out != null) {
                 out.close();
                 out = null;
+            }
+            if (reader != null) {
+                consumed = reader.pbin.getConsumed() - startOffset;
+                reader.consumed += consumed;
             }
             if (writer != null) {
                 writer = null;
