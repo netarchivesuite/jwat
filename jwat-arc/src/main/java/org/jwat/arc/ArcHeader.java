@@ -51,7 +51,7 @@ public class ArcHeader {
 
     /** ARC record starting offset relative to the source arc file input
      *  stream. */
-    protected long startOffset = -1L;
+    protected long startOffset = -1;
 
     /** Which version of the record fields was parsed, 1 or 2. */
     protected int parsedFieldsVersion;
@@ -65,7 +65,7 @@ public class ArcHeader {
     /** ARC record URL validated and converted to an <code>URI</code> object. */
     public URI urlUri;
     /** URI Scheme (lowercase). (filedesc, http, https, dns, etc.) */
-    public String urlProtocol;
+    public String urlScheme;
 
     /** ARC record IP-Address field string value. */
     public String ipAddressStr;
@@ -156,9 +156,9 @@ public class ArcHeader {
             // Validate
             urlUri = fieldParsers.parseUri(urlStr, ArcConstants.FN_URL);
             if (urlUri != null) {
-                urlProtocol = urlUri.getScheme();
-                if (urlProtocol != null) {
-                    urlProtocol = urlProtocol.toLowerCase();
+                urlScheme = urlUri.getScheme();
+                if (urlScheme != null) {
+                    urlScheme = urlScheme.toLowerCase();
                 }
             }
             inetAddress = fieldParsers.parseIpAddress(ipAddressStr, ArcConstants.FN_IP_ADDRESS);
@@ -205,6 +205,10 @@ public class ArcHeader {
         return startOffset;
     }
 
+    /**
+     * Add object information to <code>StringBuilder</code>.
+     * @param sb <code>StringBuilder</code> where to add information
+     */
     public void toStringBuilder(StringBuilder sb) {
         if (urlStr != null) {
             sb.append("url: ").append(urlStr);

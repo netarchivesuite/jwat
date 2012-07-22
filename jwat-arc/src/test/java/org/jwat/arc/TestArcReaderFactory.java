@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.jwat.common.Payload;
 
 @RunWith(Parameterized.class)
 public class TestArcReaderFactory {
@@ -53,6 +54,8 @@ public class TestArcReaderFactory {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
+        Payload payload;
+        InputStream payload_in;
 
         ArcReader reader;
         ArcRecordBase record;
@@ -99,6 +102,20 @@ public class TestArcReaderFactory {
                         }
 
                         ++records;
+
+                        payload = record.getPayload();
+                        if (record.hasPayload()) {
+                            Assert.assertNotNull(payload);
+                            payload_in = record.getPayloadContent();
+                            Assert.assertNotNull(payload_in);
+                            Assert.assertEquals(payload_in, record.getPayloadContent());
+                        } else {
+                            Assert.assertNull(payload);
+                            payload_in = record.getPayloadContent();
+                            Assert.assertNull(payload_in);
+                            Assert.assertEquals(payload_in, record.getPayloadContent());
+                        }
+                        Assert.assertEquals(payload, record.getPayload());
 
                         Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
                         Assert.assertTrue(record.isCompliant());
@@ -161,6 +178,20 @@ public class TestArcReaderFactory {
                         }
 
                         ++records;
+
+                        payload = record.getPayload();
+                        if (record.hasPayload()) {
+                            Assert.assertNotNull(payload);
+                            payload_in = record.getPayloadContent();
+                            Assert.assertNotNull(payload_in);
+                            Assert.assertEquals(payload_in, record.getPayloadContent());
+                        } else {
+                            Assert.assertNull(payload);
+                            payload_in = record.getPayloadContent();
+                            Assert.assertNull(payload_in);
+                            Assert.assertEquals(payload_in, record.getPayloadContent());
+                        }
+                        Assert.assertEquals(payload, record.getPayload());
 
                         Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
                         Assert.assertTrue(record.isCompliant());

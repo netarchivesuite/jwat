@@ -35,7 +35,7 @@ import org.jwat.common.Payload;
 import org.jwat.common.PayloadWithHeaderAbstract;
 
 @RunWith(Parameterized.class)
-public class TestArcReader {
+public class TestArcReader_Digest {
 
     private String blockAlgo;
     private String blockBase;
@@ -54,7 +54,7 @@ public class TestArcReader {
         });
     }
 
-    public TestArcReader(String blockAlgo, String blockBase, String payloadAlgo, String payloadBase) {
+    public TestArcReader_Digest(String blockAlgo, String blockBase, String payloadAlgo, String payloadBase) {
         this.blockAlgo = blockAlgo;
         this.blockBase = blockBase;
         this.payloadAlgo = payloadAlgo;

@@ -70,7 +70,7 @@ public class Diagnosis {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null || !(obj instanceof Diagnosis)) {
             return false;
         }
         Diagnosis diagnosisObj = (Diagnosis)obj;

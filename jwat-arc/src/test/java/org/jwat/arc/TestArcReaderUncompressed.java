@@ -42,7 +42,7 @@ import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(Parameterized.class)
-public class TestArcReaderFactoryCompressed {
+public class TestArcReaderUncompressed {
 
     private int expected_records;
     private boolean bDigest;
@@ -51,23 +51,29 @@ public class TestArcReaderFactoryCompressed {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {300, false, "IAH-20080430204825-00000-blackbook.arc.gz"},
-                {300, true, "IAH-20080430204825-00000-blackbook.arc.gz"}
+                {300, false, "IAH-20080430204825-00000-blackbook.arc"},
+                {300, true, "IAH-20080430204825-00000-blackbook.arc"}
         });
     }
 
-    public TestArcReaderFactoryCompressed(int records, boolean bDigest, String arcFile) {
+    public TestArcReaderUncompressed(int records, boolean bDigest, String arcFile) {
         this.expected_records = records;
         this.bDigest = bDigest;
         this.arcFile = arcFile;
     }
 
+    public String getUrlPath(URL url) {
+        String path = url.getFile();
+        path = path.replaceAll("%5b", "[");
+        path = path.replaceAll("%5d", "]");
+        return path;
+    }
+
     @Test
-    public void test_arcreaderfactory_compressed_sequential() {
+    public void test_arcreaderfactory_uncompressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -76,6 +82,7 @@ public class TestArcReaderFactoryCompressed {
         ArcRecordBase record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
@@ -84,22 +91,20 @@ public class TestArcReaderFactoryCompressed {
             ArcEntry entry;
 
             /*
-             * getReaderCompressed(in) / getNextRecord().
+             * getReaderUncompressed(in) / getNextRecord().
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderCompressed(in);
+            reader = ArcReaderFactory.getReaderUncompressed(in);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -128,6 +133,9 @@ public class TestArcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -173,11 +181,13 @@ public class TestArcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -191,22 +201,20 @@ public class TestArcReaderFactoryCompressed {
             Assert.assertEquals(0, warnings);
 
             /*
-             * getReaderCompressed(in, buffer_size) / getNextRecord().
+             * getReaderUncompressed(in, buffer_size) / getNextRecord().
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderCompressed(in, 8192);
+            reader = ArcReaderFactory.getReaderUncompressed(in, 8192);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -235,6 +243,9 @@ public class TestArcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -280,11 +291,13 @@ public class TestArcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -303,11 +316,10 @@ public class TestArcReaderFactoryCompressed {
     }
 
     @Test
-    public void test_arcreaderfactory_compressed_random() {
+    public void test_arcreaderfactory_uncompressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -316,6 +328,7 @@ public class TestArcReaderFactoryCompressed {
         ArcRecordBase record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
@@ -324,22 +337,20 @@ public class TestArcReaderFactoryCompressed {
             ArcEntry entry;
 
             /*
-             * getReaderUncompressed() / getNextRecordFrom(in).
+             * getReaderUncompressed() / getNextRecordFrom(in, offset).
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderCompressed();
+            reader = ArcReaderFactory.getReaderUncompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -351,12 +362,6 @@ public class TestArcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                try {
-                    reader.getNextRecord();
-                    Assert.fail("Exception expected!");
-                } catch (IllegalStateException e) {
-                }
-
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
@@ -364,6 +369,9 @@ public class TestArcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -409,11 +417,13 @@ public class TestArcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -427,22 +437,20 @@ public class TestArcReaderFactoryCompressed {
             Assert.assertEquals(0, warnings);
 
             /*
-             * getReaderUncompressed() / getNextRecordFrom(in, buffer_size).
+             * getReaderUncompressed() / getNextRecordFrom(in, offset, buffer_size).
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderCompressed();
+            reader = ArcReaderFactory.getReaderUncompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -454,12 +462,6 @@ public class TestArcReaderFactoryCompressed {
 
                 ram.seek(entry.offset);
 
-                try {
-                    reader.getNextRecord();
-                    Assert.fail("Exception expected!");
-                } catch (IllegalStateException e) {
-                }
-
                 if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
@@ -467,6 +469,9 @@ public class TestArcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -512,11 +517,13 @@ public class TestArcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -546,13 +553,14 @@ public class TestArcReaderFactoryCompressed {
         ArcEntry arcEntry;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
         try {
             InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
-            ArcReader reader = ArcReaderFactory.getReader(bcin);
+            ArcReader reader = ArcReaderFactory.getReader(bcin, 8192);
             ArcRecordBase record;
 
             reader.setBlockDigestEnabled( bDigest );
@@ -581,16 +589,26 @@ public class TestArcReaderFactoryCompressed {
                     break;
                 }
 
+                if (bDebugOutput) {
+                    System.out.println("0x" + Long.toString(record.getStartOffset(), 16) + "(" + record.getStartOffset() + ")");
+                    System.out.println( record.header.urlStr );
+                    System.out.println( record.header.ipAddressStr );
+                    System.out.println( record.header.archiveDateStr );
+                    System.out.println( record.header.contentTypeStr );
+                    System.out.println( record.header.resultCode );
+                    System.out.println( record.header.checksumStr );
+                    System.out.println( record.header.locationStr );
+                    System.out.println( record.header.offset );
+                    System.out.println( record.header.filenameStr );
+                    System.out.println( record.header.archiveLength );
+                }
+
                 if (record.header.urlUri == null) {
                     Assert.fail("Invalid arc uri");
                 }
 
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
-
-                //System.out.println(record.getStartOffset());
-                //System.out.println(reader.getStartOffset());
-                //System.out.println(reader.getOffset());
 
                 arcEntry = new ArcEntry();
                 arcEntry.recordId = record.header.urlUri;
@@ -603,6 +621,9 @@ public class TestArcReaderFactoryCompressed {
 
                 record.close();
 
+                consumed += record.getConsumed();
+                Assert.assertEquals(record.consumed, record.getConsumed());
+
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
@@ -612,10 +633,6 @@ public class TestArcReaderFactoryCompressed {
                         Assert.fail( "Digest missing!" );
                     }
                 }
-
-                //System.out.println(record.getStartOffset());
-                //System.out.println(reader.getStartOffset());
-                //System.out.println(reader.getOffset());
 
                 if (record.diagnostics.hasErrors()) {
                     errors += record.diagnostics.getErrors().size();
@@ -630,19 +647,18 @@ public class TestArcReaderFactoryCompressed {
                 Assert.fail("Unexpected exception!");
             }
 
-            Assert.assertEquals(expected_records, records);
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(bcin.getConsumed(), consumed);
 
             reader.close();
             bcin.close();
 
-            Assert.assertEquals(expected_records, records);
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(bcin.getConsumed(), consumed);
         } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail("Unexpected exception");
+            Assert.fail("Unexpected io exception");
         }
 
         Assert.assertEquals(expected_records, records);

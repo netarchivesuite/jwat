@@ -95,7 +95,7 @@ public class ArcRecord extends ArcRecordBase {
                     reader.payloadHeaderMaxSize, digestAlgorithm);
             payload.setOnClosedHandler(this);
             // HttpHeader.
-            if (HttpHeader.isSupported(header.urlProtocol)
+            if (HttpHeader.isSupported(header.urlScheme)
                     && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                             header.contentTypeStr)) {
                 digestAlgorithm = null;
@@ -116,7 +116,7 @@ public class ArcRecord extends ArcRecordBase {
                     }
                 }
             }
-        } else if (HttpHeader.isSupported(header.urlProtocol)
+        } else if (HttpHeader.isSupported(header.urlScheme)
                             && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
                                     header.contentTypeStr)) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,

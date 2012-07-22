@@ -27,6 +27,7 @@ import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
 import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
@@ -76,7 +77,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      *  stream. Used to keep track of the amount of bytes consumed. */
     protected long startOffset;
 
-    /** Bytes consumed while validating this record. */
+    /** Uncompressed bytes consumed while validating this record. */
     protected long consumed;
 
     /** Validation errors and warnings. */
@@ -134,7 +135,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         // Initialize ArcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = diagnostics;
         if (header.parseHeader(in)) {
-            if (header.urlProtocol != null && header.urlProtocol.startsWith(ArcConstants.ARC_SCHEME)) {
+            if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
                 record = ArcVersionBlock.parseVersionBlock(reader, header, reader.fieldParsers, in);
                 reader.versionHeader = record.versionHeader;
                 if (record.versionHeader != null) {
@@ -203,34 +204,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         }
         */
     }
-
-    /**
-     * Returns the parsing start offset of the record in the containing ARC.
-     * @return the parsing start offset of the record
-     */
-    public long getStartOffset() {
-        return header.startOffset;
-    }
-
-    /**
-     * Checks if the ARC record is valid.
-     * @return true/false based on whether the ARC record is valid or not
-     */
-    /*
-    public boolean isValid() {
-        return (hasCompliantFields && !hasErrors());
-    }
-    */
-
-    /**
-     * Checks if the ARC record has errors.
-     * @return true/false based on whether the ARC record is valid or not
-     */
-    /*
-    public boolean hasErrors() {
-        return ((errors != null) && (!errors.isEmpty()));
-    }
-    */
 
     /**
      * Called when the payload object is closed and final steps in the
@@ -366,10 +339,18 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Return number of bytes consumed validating this record.
-     * @return number of bytes consumed validating this record
+     * Returns the parsing start offset of the record in the containing ARC.
+     * @return the parsing start offset of the record
      */
-    public Long getConsumed() {
+    public long getStartOffset() {
+        return header.startOffset;
+    }
+
+    /**
+     * Return number of uncompressed bytes consumed validating this record.
+     * @return number of uncompressed bytes consumed validating this record
+     */
+    public long getConsumed() {
         return consumed;
     }
 
@@ -393,9 +374,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @param entity entity examined
      * @param information optional extra information
      */
+    /*
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
+    */
 
     /**
      * Process the ARC record stream for possible payload data.
@@ -439,6 +422,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * only LF and CR characters or not.
      * @throws IOException io exception in parsing
      */
+    /*
     public boolean isValid(InputStream in) throws IOException{
         if (in == null) {
             throw new IllegalArgumentException("in");
@@ -453,6 +437,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         }
         return isValid;
     }
+    */
 
     /**
      * Version getter.
@@ -460,6 +445,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      */
     public ArcVersion getVersion() {
         return version;
+    }
+
+    /**
+     * Raw URL getter.
+     * @return the raw URL
+     */
+    public String getUrlStr() {
+        return header.urlStr;
     }
 
     /**
@@ -471,11 +464,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Raw URL getter.
-     * @return the raw URL
+     * Protocol getter.
+     * @return the protocol
      */
-    public String getRawUrl() {
-        return header.urlStr;
+    public String getScheme() {
+        return header.urlScheme;
+    }
+
+    /**
+     * IpAddress getter.
+     * @return the ipAddress
+     */
+    public String getIpAddress() {
+        return header.ipAddressStr;
     }
 
     /**
@@ -487,11 +488,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * IpAddress getter.
-     * @return the ipAddress
+     * Raw ArchiveDate getter.
+     * @return the rawArchiveDate
      */
-    public String getRawIpAddress() {
-        return header.ipAddressStr;
+    public String getArchiveDateStr() {
+        return header.archiveDateStr;
     }
 
     /**
@@ -503,19 +504,27 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Raw ArchiveDate getter.
-     * @return the rawArchiveDate
+     * Raw Content-Type getter.
+     * @return the contentType
      */
-    public String getRawArchiveDate() {
-        return header.archiveDateStr;
+    public String getContentTypeStr() {
+        return header.contentTypeStr;
     }
 
     /**
      * Content-Type getter.
      * @return the contentType
      */
-    public String getContentType() {
-        return header.contentTypeStr;
+    public ContentType getContentType() {
+        return header.contentType;
+    }
+
+    /**
+     * Raw Result-Code getter.
+     * @return the resultCode
+     */
+    public String getResultCodeStr() {
+        return header.resultCodeStr;
     }
 
     /**
@@ -543,6 +552,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
+     * Raw Offset getter.
+     * @return the offset
+     */
+    public String getOffsetStr() {
+        return header.offsetStr;
+    }
+
+    /**
      * Offset getter.
      * @return the offset
      */
@@ -559,19 +576,19 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Length getter.
+     * Raw Length getter.
      * @return the length
      */
-    public Long getLength() {
-        return header.archiveLength;
+    public String getArchiveLengthStr() {
+        return header.archiveLengthStr;
     }
 
     /**
-     * Protocol getter.
-     * @return the protocol
+     * Length getter.
+     * @return the length
      */
-    public String getProtocol() {
-        return header.urlProtocol;
+    public Long getArchiveLength() {
+        return header.archiveLength;
     }
 
     @Override

@@ -384,7 +384,7 @@ public class ContentType {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null || !(obj instanceof ContentType)) {
             return false;
         }
         ContentType contentTypeObj = (ContentType)obj;

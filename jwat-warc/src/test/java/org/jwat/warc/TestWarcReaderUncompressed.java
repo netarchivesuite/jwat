@@ -42,8 +42,18 @@ import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
 
+/**
+ * Test to check wether the getReaderUncompressed() and nextRecordFrom(in)
+ * combination of methods work for random access to WARC records.
+ * The WARC test file is first indexed and then all records are pseudo randomly
+ * checked in sequential order and the record-id is compared to check if the
+ * location points to a record and if it's the correct one according to the
+ * index.
+ *
+ * @author nicl
+ */
 @RunWith(Parameterized.class)
-public class TestWarcReaderFactoryCompressed {
+public class TestWarcReaderUncompressed {
 
     private int expected_records;
     private boolean bDigest;
@@ -52,23 +62,29 @@ public class TestWarcReaderFactoryCompressed {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {822, false, "IAH-20080430204825-00000-blackbook.warc.gz"},
-                {822, true, "IAH-20080430204825-00000-blackbook.warc.gz"}
+                {822, false, "IAH-20080430204825-00000-blackbook.warc"},
+                {822, true, "IAH-20080430204825-00000-blackbook.warc"}
         });
     }
 
-    public TestWarcReaderFactoryCompressed(int records, boolean bDigest, String warcFile) {
+    public TestWarcReaderUncompressed(int records, boolean bDigest, String warcFile) {
         this.expected_records = records;
         this.bDigest = bDigest;
         this.warcFile = warcFile;
     }
 
+    public String getUrlPath(URL url) {
+        String path = url.getFile();
+        path = path.replaceAll("%5b", "[");
+        path = path.replaceAll("%5d", "]");
+        return path;
+    }
+
     @Test
-    public void test_warcreaderfactory_compressed_sequential() {
+    public void test_warcreaderfactory_uncompressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -77,6 +93,7 @@ public class TestWarcReaderFactoryCompressed {
         WarcRecord record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
@@ -89,18 +106,16 @@ public class TestWarcReaderFactoryCompressed {
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = WarcReaderFactory.getReaderCompressed(in);
+            reader = WarcReaderFactory.getReaderUncompressed(in);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -129,6 +144,9 @@ public class TestWarcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     // Test content-type and http response/request
                     if (record.header.contentType != null) {
@@ -175,11 +193,13 @@ public class TestWarcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -197,18 +217,16 @@ public class TestWarcReaderFactoryCompressed {
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = WarcReaderFactory.getReaderCompressed(in, 8192);
+            reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -237,6 +255,9 @@ public class TestWarcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     // Test content-type and http response/request
                     if (record.header.contentType != null) {
@@ -283,11 +304,13 @@ public class TestWarcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -306,11 +329,10 @@ public class TestWarcReaderFactoryCompressed {
     }
 
     @Test
-    public void test_warcreaderfactory_compressed_random() {
+    public void test_warcreaderfactory_uncompressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
@@ -319,6 +341,7 @@ public class TestWarcReaderFactoryCompressed {
         WarcRecord record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
@@ -331,18 +354,16 @@ public class TestWarcReaderFactoryCompressed {
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = WarcReaderFactory.getReaderCompressed();
+            reader = WarcReaderFactory.getReaderUncompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -367,6 +388,9 @@ public class TestWarcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     // Test content-type and http response/request
                     if (record.header.contentType != null) {
@@ -413,11 +437,13 @@ public class TestWarcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -435,18 +461,16 @@ public class TestWarcReaderFactoryCompressed {
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
             url = this.getClass().getClassLoader().getResource(warcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = WarcReaderFactory.getReaderCompressed();
+            reader = WarcReaderFactory.getReaderUncompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -471,6 +495,9 @@ public class TestWarcReaderFactoryCompressed {
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
 
                     // Test content-type and http response/request
                     if (record.header.contentType != null) {
@@ -517,11 +544,13 @@ public class TestWarcReaderFactoryCompressed {
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(ram.length(), consumed);
 
             in.close();
             ram.close();
@@ -551,6 +580,7 @@ public class TestWarcReaderFactoryCompressed {
         WarcEntry warcEntry;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
@@ -584,6 +614,9 @@ public class TestWarcReaderFactoryCompressed {
                 warcEntries.add(warcEntry);
 
                 record.close();
+
+                consumed += record.getConsumed();
+                Assert.assertEquals(record.consumed, record.getConsumed());
 
                 // Test content-type and http response/request
                 if (record.header.contentType != null) {
@@ -628,20 +661,21 @@ public class TestWarcReaderFactoryCompressed {
                 Assert.fail("Unexpected exception!");
             }
 
-            Assert.assertEquals(expected_records, records);
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(bcin.getConsumed(), consumed);
 
             reader.close();
             bcin.close();
 
-            Assert.assertEquals(expected_records, records);
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(bcin.getConsumed(), consumed);
         } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 
+        Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
         Assert.assertEquals(0, warnings);
 

@@ -103,8 +103,7 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = null;
         }
         if (reader != null) {
-            // TODO
-            //startOffset = reader.getStartOffset();
+            startOffset = reader.getStartOffset();
             consumed = reader.getOffset();
             try {
                 reader.close();

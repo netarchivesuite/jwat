@@ -62,7 +62,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      *  stream. Used to keep track of the amount of bytes consumed. */
     protected long startOffset;
 
-    /** Bytes consumed while validating this record. */
+    /** Uncompressed bytes consumed while validating this record. */
     protected long consumed;
 
     /** Validation errors and warnings. */
@@ -311,14 +311,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Check to see if the record has been closed.
-     * @return boolean indicating whether this record is closed or not
-     */
-    public boolean isClosed() {
-        return bClosed;
-    }
-
-    /**
      * Auto-detect encoding used in WARC digest header and compare it to the
      * internal one, if it has been computed.
      * @param warcDigest digest from WARC header
@@ -411,6 +403,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
+     * Check to see if the record has been closed.
+     * @return boolean indicating whether this record is closed or not
+     */
+    public boolean isClosed() {
+        return bClosed;
+    }
+
+    /**
      * Close resources associated with the WARC record.
      * Mainly payload stream if any.
      * @throws IOException if unable to close resources
@@ -429,6 +429,14 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
+     * Returns a boolean indicating the ISO compliance status of this record.
+     * @return a boolean indicating the ISO compliance status of this record
+     */
+    public boolean isCompliant() {
+        return bIsCompliant;
+    }
+
+    /**
      * Get the record offset relative to the start of the WARC file
      * <code>InputStream</code>.
      * @return the record offset relative to the start of the WARC file
@@ -438,14 +446,12 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Return number of bytes consumed validating this record.
-     * @return number of bytes consumed validating this record
+     * Return number of uncompressed bytes consumed validating this record.
+     * @return number of uncompressed bytes consumed validating this record
      */
-    /*
-    public Long getConsumed() {
+    public long getConsumed() {
         return consumed;
     }
-    */
 
     /**
      * Get a <code>List</code> of all the non-standard WARC headers found
@@ -495,14 +501,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     }
 
     /**
-     * Returns a boolean indicating the ISO compliance status of this record.
-     * @return a boolean indicating the ISO compliance status of this record
-     */
-    public boolean isCompliant() {
-        return bIsCompliant;
-    }
-
-    /**
      * Add an error diagnosis of the given type on a specific entity with
      * optional extra information. The information varies according to the
      * diagnosis type.
@@ -522,8 +520,10 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @param entity entity examined
      * @param information optional extra information
      */
+    /*
     protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
+    */
 
 }

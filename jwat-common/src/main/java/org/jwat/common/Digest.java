@@ -65,7 +65,6 @@ public class Digest {
                 byte[] digest = md.digest(new byte[16]);
                 cachedLen = digest.length;
                 md.reset();
-                md = null;
             } catch (NoSuchAlgorithmException e) {
             }
             if (cachedLen == null) {
@@ -78,7 +77,7 @@ public class Digest {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null || !(obj instanceof Digest)) {
             return false;
         }
         Digest digestObj = (Digest)obj;

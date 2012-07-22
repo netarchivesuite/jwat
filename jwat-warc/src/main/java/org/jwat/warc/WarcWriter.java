@@ -468,7 +468,7 @@ public abstract class WarcWriter {
         if (header.warcFilename != null) {
             outBuf.write(WarcConstants.FN_WARC_FILENAME.getBytes());
             outBuf.write(": ".getBytes());
-            outBuf.write(header.warcFilename.toString().getBytes());
+            outBuf.write(header.warcFilename.getBytes());
             outBuf.write("\r\n".getBytes());
         }
         /*

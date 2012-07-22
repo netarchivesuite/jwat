@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jwat.arc;
+package org.jwat.warc;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -39,67 +39,75 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
+import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(Parameterized.class)
-public class TestArcReaderFactoryUncompressed {
+public class TestWarcReaderCompressed {
 
     private int expected_records;
     private boolean bDigest;
-    private String arcFile;
+    private String warcFile;
+    private String warcFile2;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {300, false, "IAH-20080430204825-00000-blackbook.arc"},
-                {300, true, "IAH-20080430204825-00000-blackbook.arc"}
+                {822, false, "IAH-20080430204825-00000-blackbook.warc.gz", "IAH-20080430204825-00000-blackbook.warc"},
+                {822, true, "IAH-20080430204825-00000-blackbook.warc.gz", "IAH-20080430204825-00000-blackbook.warc"}
         });
     }
 
-    public TestArcReaderFactoryUncompressed(int records, boolean bDigest, String arcFile) {
+    public TestWarcReaderCompressed(int records, boolean bDigest, String warcFile, String warcFile2) {
         this.expected_records = records;
         this.bDigest = bDigest;
-        this.arcFile = arcFile;
+        this.warcFile = warcFile;
+        this.warcFile2 = warcFile2;
+    }
+
+    public String getUrlPath(URL url) {
+        String path = url.getFile();
+        path = path.replaceAll("%5b", "[");
+        path = path.replaceAll("%5d", "]");
+        return path;
     }
 
     @Test
-    public void test_arcreaderfactory_uncompressed_sequential() {
+    public void test_warcreaderfactory_compressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
 
-        ArcReader reader;
-        ArcRecordBase record;
+        WarcReader reader;
+        WarcRecord record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
         try {
-            List<ArcEntry> entries = indexArcFile();
-            ArcEntry entry;
+            List<WarcEntry> entries = indexWarcFile();
+            WarcEntry entry;
 
             /*
              * getReaderUncompressed(in) / getNextRecord().
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderUncompressed(in);
+            reader = WarcReaderFactory.getReaderCompressed(in);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -124,10 +132,29 @@ public class TestArcReaderFactoryUncompressed {
                 if ((record = reader.getNextRecord()) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
-                        //RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -138,21 +165,6 @@ public class TestArcReaderFactoryUncompressed {
 
                     ++records;
 
-                    switch (records) {
-                    case 1:
-                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNotNull(record.versionHeader);
-                        Assert.assertNotNull(record.versionHeader.isValid());
-                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                        break;
-                    default:
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
-                        break;
-                    }
-
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -160,7 +172,7 @@ public class TestArcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -171,13 +183,18 @@ public class TestArcReaderFactoryUncompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
+            url = this.getClass().getClassLoader().getResource(warcFile2);
+            file = new File(getUrlPath(url));
+
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             in.close();
             ram.close();
@@ -195,18 +212,16 @@ public class TestArcReaderFactoryUncompressed {
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderUncompressed(in, 8192);
+            reader = WarcReaderFactory.getReaderCompressed(in, 8192);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -231,10 +246,29 @@ public class TestArcReaderFactoryUncompressed {
                 if ((record = reader.getNextRecord()) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
-                        //RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -245,21 +279,6 @@ public class TestArcReaderFactoryUncompressed {
 
                     ++records;
 
-                    switch (records) {
-                    case 1:
-                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNotNull(record.versionHeader);
-                        Assert.assertNotNull(record.versionHeader.isValid());
-                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                        break;
-                    default:
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
-                        break;
-                    }
-
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -267,7 +286,7 @@ public class TestArcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -278,13 +297,18 @@ public class TestArcReaderFactoryUncompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
+            url = this.getClass().getClassLoader().getResource(warcFile2);
+            file = new File(getUrlPath(url));
+
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             in.close();
             ram.close();
@@ -303,43 +327,41 @@ public class TestArcReaderFactoryUncompressed {
     }
 
     @Test
-    public void test_arcreaderfactory_uncompressed_random() {
+    public void test_warcreaderfactory_compressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         URL url;
-        String path;
         File file;
         RandomAccessFile ram;
         InputStream in;
 
-        ArcReader reader;
-        ArcRecordBase record;
+        WarcReader reader;
+        WarcRecord record;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
         try {
-            List<ArcEntry> entries = indexArcFile();
-            ArcEntry entry;
+            List<WarcEntry> entries = indexWarcFile();
+            WarcEntry entry;
 
             /*
-             * getReaderUncompressed() / getNextRecordFrom(in, offset).
+             * getReaderUncompressed() / getNextRecordFrom(in).
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderUncompressed();
+            reader = WarcReaderFactory.getReaderCompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -351,13 +373,38 @@ public class TestArcReaderFactoryUncompressed {
 
                 ram.seek(entry.offset);
 
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
                 if ((record = reader.getNextRecordFrom(in, entry.offset)) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
-                        //RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -368,21 +415,6 @@ public class TestArcReaderFactoryUncompressed {
 
                     ++records;
 
-                    switch (records) {
-                    case 1:
-                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNotNull(record.versionHeader);
-                        Assert.assertNotNull(record.versionHeader.isValid());
-                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                        break;
-                    default:
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
-                        break;
-                    }
-
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -390,7 +422,7 @@ public class TestArcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -401,13 +433,18 @@ public class TestArcReaderFactoryUncompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed());
             Assert.assertNull(record);
 
+            url = this.getClass().getClassLoader().getResource(warcFile2);
+            file = new File(getUrlPath(url));
+
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             in.close();
             ram.close();
@@ -421,22 +458,20 @@ public class TestArcReaderFactoryUncompressed {
             Assert.assertEquals(0, warnings);
 
             /*
-             * getReaderUncompressed() / getNextRecordFrom(in, offset, buffer_size).
+             * getReaderUncompressed() / getNextRecordFrom(in, buffer_size).
              */
 
             records = 0;
+            consumed = 0;
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            path = url.getFile();
-            path = path.replaceAll("%5b", "[");
-            path = path.replaceAll("%5d", "]");
-            file = new File(path);
+            url = this.getClass().getClassLoader().getResource(warcFile);
+            file = new File(getUrlPath(url));
             ram = new RandomAccessFile(file, "r");
             in = new RandomAccessFileInputStream(ram);
 
-            reader = ArcReaderFactory.getReaderUncompressed();
+            reader = WarcReaderFactory.getReaderCompressed();
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
@@ -448,13 +483,38 @@ public class TestArcReaderFactoryUncompressed {
 
                 ram.seek(entry.offset);
 
+                try {
+                    reader.getNextRecord();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
+
                 if ((record = reader.getNextRecordFrom(in, entry.offset, 8192)) != null) {
                     if (bDebugOutput) {
                         TestBaseUtils.printRecord(record);
-                        //RecordDebugBase.printRecordErrors(record);
+                        TestBaseUtils.printRecordErrors(record);
                     }
 
                     record.close();
+
+                    consumed += record.getConsumed();
+                    Assert.assertEquals(record.consumed, record.getConsumed());
+
+                    // Test content-type and http response/request
+                    if (record.header.contentType != null) {
+                        if ("application".equals(record.header.contentType.contentType)
+                                && "http".equals(record.header.contentType.mediaType)) {
+                            if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                            } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                                Assert.assertNotNull(record.payload);
+                                Assert.assertNotNull(record.httpHeader);
+                                Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                            }
+                        }
+                    }
 
                     if ( bDigest ) {
                         if ( (record.payload != null && record.computedBlockDigest == null)
@@ -465,21 +525,6 @@ public class TestArcReaderFactoryUncompressed {
 
                     ++records;
 
-                    switch (records) {
-                    case 1:
-                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNotNull(record.versionHeader);
-                        Assert.assertNotNull(record.versionHeader.isValid());
-                        Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                        break;
-                    default:
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
-                        break;
-                    }
-
                     if (record.diagnostics.hasErrors()) {
                         errors += record.diagnostics.getErrors().size();
                     }
@@ -487,7 +532,7 @@ public class TestArcReaderFactoryUncompressed {
                         warnings += record.diagnostics.getWarnings().size();
                     }
 
-                    if (record.header.urlUri.compareTo(entry.recordId) != 0) {
+                    if (record.header.warcRecordIdUri.compareTo(entry.recordId) != 0) {
                         Assert.fail("Wrong record");
                     }
                 } else {
@@ -498,13 +543,18 @@ public class TestArcReaderFactoryUncompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed(), 8192);
             Assert.assertNull(record);
 
+            url = this.getClass().getClassLoader().getResource(warcFile2);
+            file = new File(getUrlPath(url));
+
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             in.close();
             ram.close();
@@ -522,84 +572,71 @@ public class TestArcReaderFactoryUncompressed {
         }
     }
 
-    class ArcEntry {
+    class WarcEntry {
         URI recordId;
         long offset;
     }
 
-    public List<ArcEntry> indexArcFile() {
+    public List<WarcEntry> indexWarcFile() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        List<ArcEntry> arcEntries = new ArrayList<ArcEntry>();
-        ArcEntry arcEntry;
+        List<WarcEntry> warcEntries = new ArrayList<WarcEntry>();
+        WarcEntry warcEntry;
 
         int records = 0;
+        long consumed = 0;
         int errors = 0;
         int warnings = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
-            ArcReader reader = ArcReaderFactory.getReader(bcin, 8192);
-            ArcRecordBase record;
+            WarcReader reader = WarcReaderFactory.getReader(bcin);
 
             reader.setBlockDigestEnabled( bDigest );
             Assert.assertTrue(reader.setBlockDigestAlgorithm( "sha1" ));
             reader.setPayloadDigestEnabled( bDigest );
             Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
-            Iterator<ArcRecordBase> recordIterator = reader.iterator();
+            Iterator<WarcRecord> recordIterator = reader.iterator();
+            WarcRecord record;
 
             while (recordIterator.hasNext()) {
                 record = recordIterator.next();
                 ++records;
 
-                switch (records) {
-                case 1:
-                    Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                    Assert.assertTrue(record.isCompliant());
-                    Assert.assertNotNull(record.versionHeader);
-                    Assert.assertNotNull(record.versionHeader.isValid());
-                    Assert.assertEquals(ArcVersion.VERSION_1_1, record.versionHeader.version);
-                    break;
-                default:
-                    Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                    Assert.assertTrue(record.isCompliant());
-                    Assert.assertNull(record.versionHeader);
-                    break;
-                }
-
-                if (bDebugOutput) {
-                    System.out.println("0x" + Long.toString(record.getStartOffset(), 16) + "(" + record.getStartOffset() + ")");
-                    System.out.println( record.header.urlStr );
-                    System.out.println( record.header.ipAddressStr );
-                    System.out.println( record.header.archiveDateStr );
-                    System.out.println( record.header.contentTypeStr );
-                    System.out.println( record.header.resultCode );
-                    System.out.println( record.header.checksumStr );
-                    System.out.println( record.header.locationStr );
-                    System.out.println( record.header.offset );
-                    System.out.println( record.header.filenameStr );
-                    System.out.println( record.header.archiveLength );
-                }
-
-                if (record.header.urlUri == null) {
-                    Assert.fail("Invalid arc uri");
+                if (record.header.warcRecordIdUri == null) {
+                    Assert.fail("Invalid warc-record-id");
                 }
 
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
 
-                arcEntry = new ArcEntry();
-                arcEntry.recordId = record.header.urlUri;
-                arcEntry.offset = record.getStartOffset();
-                arcEntries.add(arcEntry);
-
-                if (bDebugOutput) {
-                    System.out.println("0x" + Long.toString(arcEntry.offset, 16) + "(" + arcEntry.offset + ") - " + arcEntry.recordId);
-                }
+                warcEntry = new WarcEntry();
+                warcEntry.recordId = record.header.warcRecordIdUri;
+                warcEntry.offset = record.getStartOffset();
+                warcEntries.add(warcEntry);
 
                 record.close();
+
+                consumed += record.getConsumed();
+                Assert.assertEquals(record.consumed, record.getConsumed());
+
+                // Test content-type and http response/request
+                if (record.header.contentType != null) {
+                    if ("application".equals(record.header.contentType.contentType)
+                            && "http".equals(record.header.contentType.mediaType)) {
+                        if ("response".equals(record.header.contentType.getParameter("msgtype"))) {
+                            Assert.assertNotNull(record.payload);
+                            Assert.assertNotNull(record.httpHeader);
+                            Assert.assertEquals(HttpHeader.HT_RESPONSE, record.httpHeader.headerType);
+                        } else if ("request".equals(record.header.contentType.getParameter("msgtype"))) {
+                            Assert.assertNotNull(record.payload);
+                            Assert.assertNotNull(record.httpHeader);
+                            Assert.assertEquals(HttpHeader.HT_REQUEST, record.httpHeader.headerType);
+                        }
+                    }
+                }
 
                 Assert.assertThat(record.getStartOffset(), is(equalTo(reader.getStartOffset())));
                 Assert.assertThat(record.getStartOffset(), is(not(equalTo(reader.getOffset()))));
@@ -609,6 +646,10 @@ public class TestArcReaderFactoryUncompressed {
                             || (record.httpHeader != null && record.computedPayloadDigest == null) ) {
                         Assert.fail( "Digest missing!" );
                     }
+                }
+
+                if (bDebugOutput) {
+                    System.out.println("0x" + Long.toString(warcEntry.offset, 16) + "(" + warcEntry.offset + ") - " + warcEntry.recordId);
                 }
 
                 if (record.diagnostics.hasErrors()) {
@@ -624,24 +665,28 @@ public class TestArcReaderFactoryUncompressed {
                 Assert.fail("Unexpected exception!");
             }
 
-            Assert.assertEquals(expected_records, records);
+            URL url = this.getClass().getClassLoader().getResource(warcFile2);
+            File file = new File(getUrlPath(url));
+
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
 
             reader.close();
             bcin.close();
 
-            Assert.assertEquals(expected_records, records);
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
+            Assert.assertEquals(file.length(), consumed);
         } catch (IOException e) {
             Assert.fail("Unexpected io exception");
         }
 
+        Assert.assertEquals(expected_records, records);
         Assert.assertEquals(0, errors);
         Assert.assertEquals(0, warnings);
 
-        return arcEntries;
+        return warcEntries;
     }
 
 }

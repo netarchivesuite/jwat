@@ -28,7 +28,7 @@ import java.util.TimeZone;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class WarcDateParser {
+public final class WarcDateParser {
 
     /** WARC <code>DateFormat</code> as specified in the WARC ISO standard. */
     private final DateFormat dateFormat;

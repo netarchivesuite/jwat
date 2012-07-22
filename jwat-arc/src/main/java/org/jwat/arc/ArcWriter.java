@@ -201,6 +201,35 @@ public abstract class ArcWriter {
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
+        /*
+         * Version block.
+         */
+        byte[] versionBytes = null;
+        if (record.recordType == ArcRecordBase.RT_VERSION_BLOCK) {
+            ByteArrayOutputStream versionBuf = new ByteArrayOutputStream();
+            versionBuf.write(Integer.toString(record.versionHeader.versionNumber).getBytes());
+            versionBuf.write(" ".getBytes());
+            versionBuf.write(Integer.toString(record.versionHeader.reserved).getBytes());
+            versionBuf.write(" ".getBytes());
+            versionBuf.write(record.versionHeader.originCode.getBytes());
+            versionBuf.write("\n".getBytes());
+            switch (record.versionHeader.blockDescVersion) {
+            case 1:
+                versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
+                versionBuf.write("\n".getBytes());
+                break;
+            case 2:
+                versionBuf.write(ArcConstants.VERSION_2_BLOCK_DEF.getBytes());
+                versionBuf.write("\n".getBytes());
+                break;
+            default:
+                throw new IllegalStateException("Invalid block description version!");
+            }
+            versionBytes = versionBuf.toByteArray();
+        }
+        /*
+         * Record line.
+         */
         header = record.header;
         headerContentLength = header.archiveLength;
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
@@ -258,8 +287,7 @@ public abstract class ArcWriter {
         /*
          * Version 2 fields.
          */
-        // TODO version check
-        if (true) {
+        if (header.parsedFieldsVersion == 2) {
             /*
              * Result-Code
              */
@@ -342,31 +370,10 @@ public abstract class ArcWriter {
         out.write(headerBytes);
         state = S_HEADER_WRITTEN;
         payloadWrittenTotal = 0;
-        /*
-         * Version block
-         */
-        // TODO version check
-        ByteArrayOutputStream versionBuf = new ByteArrayOutputStream();
-        versionBuf.write("1 0 ".getBytes());
-        versionBuf.write("Origin code!".getBytes());
-        versionBuf.write("\n".getBytes());
-        versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
-        versionBuf.write("\n".getBytes());
 
-        versionBuf.write("1 1 ".getBytes());
-        versionBuf.write("Origin code!".getBytes());
-        versionBuf.write("\n".getBytes());
-        versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
-        versionBuf.write("\n".getBytes());
-
-        versionBuf.write("2 0 ".getBytes());
-        versionBuf.write("Origin code!".getBytes());
-        versionBuf.write("\n".getBytes());
-        versionBuf.write(ArcConstants.VERSION_2_BLOCK_DEF.getBytes());
-        versionBuf.write("\n".getBytes());
-
-        byte[] versionBytes = versionBuf.toByteArray();
-        writePayload(versionBytes);
+        if (versionBytes != null) {
+            writePayload(versionBytes);
+        }
 
         return headerBytes;
     }

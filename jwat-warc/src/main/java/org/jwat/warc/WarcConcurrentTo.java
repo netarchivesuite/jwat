@@ -34,7 +34,7 @@ public class WarcConcurrentTo {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
+        if (obj == null || !(obj instanceof WarcConcurrentTo)) {
             return false;
         }
         WarcConcurrentTo concurrentToeObj = (WarcConcurrentTo)obj;

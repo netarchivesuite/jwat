@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestArcNextAndIterRecord {
+public class TestArcReader_NextAndIterRecord {
 
     private ArcVersion expected_version;
     private int expected_records;
@@ -48,7 +48,7 @@ public class TestArcNextAndIterRecord {
         });
     }
 
-    public TestArcNextAndIterRecord(ArcVersion version, int records, String arcFile) {
+    public TestArcReader_NextAndIterRecord(ArcVersion version, int records, String arcFile) {
         this.expected_version = version;
         this.expected_records = records;
         this.arcFile = arcFile;
