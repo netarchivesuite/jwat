@@ -93,8 +93,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * Header-Fields.
      */
 
-    /** WARC header. */
+    /** ARC record header. */
     public ArcHeader header;
+
+    /** ARC version header. */
+    public ArcVersionHeader versionHeader;
 
     /*
      * Payload
@@ -108,8 +111,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /** Payload object if any exists. */
     protected Payload payload;
-
-    protected ArcVersionHeader versionHeader;
 
     /** HTTP header content parsed from payload. */
     protected HttpHeader httpHeader;
