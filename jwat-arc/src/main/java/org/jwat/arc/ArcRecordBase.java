@@ -324,7 +324,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 payload.close();
             }
             payloadClosed();
-            payload = null;
             reader = null;
             in = null;
             bClosed = true;
