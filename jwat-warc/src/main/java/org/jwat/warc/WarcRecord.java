@@ -58,8 +58,8 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Is this record compliant ie. error free. */
     protected boolean bIsCompliant;
 
-    /** ARC record parsing start offset relative to the source arc file input
-     *  stream. Used to keep track of the amount of bytes consumed. */
+    /** WARC record parsing start offset relative to the source WARC file input
+     *  stream. Used to keep track of the uncompressed amount of bytes consumed. */
     protected long startOffset;
 
     /** Uncompressed bytes consumed while validating this record. */
@@ -498,6 +498,15 @@ public class WarcRecord implements PayloadOnClosedHandler {
      */
     public InputStream getPayloadContent() {
         return (payload != null) ? payload.getInputStream() : null;
+    }
+
+    /**
+     * Returns the <code>HttpHeader</code> object if identified in the payload,
+     * or null.
+     * @return the <code>HttpHeader</code> object if identified or null
+     */
+    public HttpHeader getHttpHeader() {
+        return httpHeader;
     }
 
     /**

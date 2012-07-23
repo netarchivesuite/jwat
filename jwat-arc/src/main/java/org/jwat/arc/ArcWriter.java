@@ -287,7 +287,7 @@ public abstract class ArcWriter {
         /*
          * Version 2 fields.
          */
-        if (header.parsedFieldsVersion == 2) {
+        if (header.recordFieldVersion == 2) {
             /*
              * Result-Code
              */

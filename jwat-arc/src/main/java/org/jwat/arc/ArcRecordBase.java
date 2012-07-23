@@ -73,8 +73,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** ARC record version block. */
     //protected ArcVersionBlock versionBlock;
 
-    /** ARC record parsing start offset relative to the source arc file input
-     *  stream. Used to keep track of the amount of bytes consumed. */
+    /** ARC record parsing start offset relative to the source ARC file input
+     *  stream. Used to keep track of the uncompressed amount of bytes consumed. */
     protected long startOffset;
 
     /** Uncompressed bytes consumed while validating this record. */
@@ -355,32 +355,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
-     * Add an error diagnosis of the given type on a specific entity with
-     * optional extra information. The information varies according to the
-     * diagnosis type.
-     * @param type diagnosis type
-     * @param entity entity examined
-     * @param information optional extra information
-     */
-    protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
-        diagnostics.addError(new Diagnosis(type, entity, information));
-    }
-
-    /**
-     * Add a warning diagnosis of the given type on a specific entity with
-     * optional extra information. The information varies according to the
-     * diagnosis type.
-     * @param type diagnosis type
-     * @param entity entity examined
-     * @param information optional extra information
-     */
-    /*
-    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
-        diagnostics.addWarning(new Diagnosis(type, entity, information));
-    }
-    */
-
-    /**
      * Process the ARC record stream for possible payload data.
      * @param in ARC record <code>InputStream</code>
      * @param reader <code>ArcReader</code> used, with access to user defined
@@ -415,6 +389,15 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
+     * Returns the <code>HttpHeader</code> object if identified in the payload,
+     * or null.
+     * @return the <code>HttpHeader</code> object if identified or null
+     */
+    public HttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
      * Parses the remaining input stream and validates that the characters
      * encountered are equal to LF or CR.
      * @param in <code>InputStream</code> to validate
@@ -436,6 +419,32 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
         }
         return isValid;
+    }
+    */
+
+    /**
+     * Add an error diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
+    protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
+        diagnostics.addError(new Diagnosis(type, entity, information));
+    }
+
+    /**
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
+    /*
+    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
+        diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
     */
 

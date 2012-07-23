@@ -53,26 +53,38 @@ public class WarcHeader {
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat;
 
+    /** WARC record starting offset relative to the source WARC file input
+     *  stream. The offset is correct for compressed and uncompressed streams. */
+    protected long startOffset = -1;
+
     /*
      * Version related fields.
      */
 
-    boolean bMagicIdentified;
-    boolean bVersionParsed;
-    boolean bValidVersion;
+    /** Was "WARC/" identified while looking for the version string. */
+    public boolean bMagicIdentified;
+    /** Did the version string include between 2 and 4 substrings delimited by ".". */
+    public boolean bVersionParsed;
+    /** Is the version format valid. */
+    public boolean bValidVersionFormat;
+    /** Is the version recognized. (0.17, 0.18 or 1.0) */
+    public boolean bValidVersion;
 
-    String versionStr;
-    int[] versionArr;
+    /** Raw version string. */
+    public String versionStr;
+    /** Array based on the version string split by the "." delimiter and converted to integers. */
+    public int[] versionArr;
 
-    int major = -1;
-    int minor = -1;
-
-    protected long startOffset = -1;
+    /** Major version number from WARC header. */
+    public int major = -1;
+    /** Minor version number from WARC header. */
+    public int minor = -1;
 
     /*
      * WARC header fields.
      */
 
+    /** Array used for duplicate header detection. */
     protected boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 
     boolean bMandatoryMissing;
@@ -208,7 +220,6 @@ public class WarcHeader {
             //System.out.println(wr.bMagicIdentified);
             //System.out.println(wr.bVersionParsed);
             //System.out.println(wr.major + "." + wr.minor);
-
             if (bVersionParsed && versionArr.length == 2) {
                 switch (major) {
                 case 1:
@@ -282,12 +293,14 @@ public class WarcHeader {
                             String[] tmpArr = versionStr.split("\\.", -1);        // Not optimal
                             if (tmpArr.length >= 2 && tmpArr.length <= 4) {
                                 bVersionParsed = true;
+                                bValidVersionFormat = true;
                                 versionArr = new int[tmpArr.length];
                                 for (int i=0; i<tmpArr.length; ++i) {
                                     try {
                                         versionArr[i] = Integer.parseInt(tmpArr[i]);
                                     } catch (NumberFormatException e) {
                                         versionArr[i] = -1;
+                                        bValidVersionFormat = false;
                                     }
                                 }
                                 major = versionArr[0];

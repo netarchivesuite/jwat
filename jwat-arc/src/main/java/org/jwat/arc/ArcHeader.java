@@ -45,20 +45,24 @@ public class ArcHeader {
     /** ARC <code>DateFormat</code> as specified by the ARC specifications. */
     protected DateFormat warcDateFormat;
 
-    /** Do the record fields comply in number with the one dictated by its
-     *  version. */
-    protected boolean hasCompliantFields = false;
-
-    /** ARC record starting offset relative to the source arc file input
-     *  stream. */
+    /** ARC record starting offset relative to the source ARC file input
+     *  stream. The offset is correct for compressed and uncompressed streams. */
     protected long startOffset = -1;
 
+    /*
+     * Version related fields.
+     */
+
     /** Which version of the record fields was parsed, 1 or 2. */
-    protected int parsedFieldsVersion;
+    public int recordFieldVersion;
 
     /*
      * ARC header fields.
      */
+
+    /** Do the record fields comply in number with the one dictated by its
+     *  version. */
+    protected boolean hasCompliantFields = false;
 
     /** ARC record URL field string value. */
     public String urlStr;
@@ -145,7 +149,7 @@ public class ArcHeader {
     public void parseHeaders(String[] fields) {
         if (fields.length == ArcConstants.VERSION_1_BLOCK_FIELDS.length
                 || fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
-            parsedFieldsVersion = 1;
+            recordFieldVersion = 1;
             /*
              * Version 1.
              */
@@ -165,7 +169,7 @@ public class ArcHeader {
             archiveDate = fieldParsers.parseDate(archiveDateStr, ArcConstants.FN_ARCHIVE_DATE);
             contentType = fieldParsers.parseContentType(contentTypeStr, ArcConstants.FN_CONTENT_TYPE);
             if (fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
-                parsedFieldsVersion = 2;
+                recordFieldVersion = 2;
                 /*
                  *  Version 2.
                  */

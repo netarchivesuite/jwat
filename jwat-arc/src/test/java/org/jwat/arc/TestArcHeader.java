@@ -77,7 +77,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertTrue(success);
-            Assert.assertEquals(1, header.parsedFieldsVersion);
+            Assert.assertEquals(1, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -110,7 +110,7 @@ public class TestArcHeader {
             fields = new String[4];
             header.parseHeaders(fields);
 
-            Assert.assertEquals(0, header.parsedFieldsVersion);
+            Assert.assertEquals(0, header.recordFieldVersion);
 
             Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
@@ -121,7 +121,7 @@ public class TestArcHeader {
             fields = new String[5];
             header.parseHeaders(fields);
 
-            Assert.assertEquals(1, header.parsedFieldsVersion);
+            Assert.assertEquals(1, header.recordFieldVersion);
 
             Assert.assertNull(header.urlStr);
             Assert.assertNull(header.ipAddressStr);
@@ -169,7 +169,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertTrue(success);
-            Assert.assertEquals(2, header.parsedFieldsVersion);
+            Assert.assertEquals(2, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -202,7 +202,7 @@ public class TestArcHeader {
             fields = new String[10];
             header.parseHeaders(fields);
 
-            Assert.assertEquals(2, header.parsedFieldsVersion);
+            Assert.assertEquals(2, header.recordFieldVersion);
 
             Assert.assertNull(header.urlStr);
             Assert.assertNull(header.ipAddressStr);
@@ -255,7 +255,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertTrue(success);
-            Assert.assertEquals(1, header.parsedFieldsVersion);
+            Assert.assertEquals(1, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -306,7 +306,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertTrue(success);
-            Assert.assertEquals(2, header.parsedFieldsVersion);
+            Assert.assertEquals(2, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -362,7 +362,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertTrue(success);
-            Assert.assertEquals(2, header.parsedFieldsVersion);
+            Assert.assertEquals(2, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -403,7 +403,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertFalse(success);
-            Assert.assertEquals(0, header.parsedFieldsVersion);
+            Assert.assertEquals(0, header.recordFieldVersion);
 
             Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
@@ -422,7 +422,7 @@ public class TestArcHeader {
             success = header.parseHeader(pbin);
 
             Assert.assertFalse(success);
-            Assert.assertEquals(0, header.parsedFieldsVersion);
+            Assert.assertEquals(0, header.recordFieldVersion);
 
             Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());

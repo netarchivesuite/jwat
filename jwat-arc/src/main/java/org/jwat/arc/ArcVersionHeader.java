@@ -28,28 +28,38 @@ import org.jwat.common.PayloadWithHeaderAbstract;
 
 public class ArcVersionHeader extends PayloadWithHeaderAbstract {
 
-    ArcFieldParsers fieldParsers;
+    /** ARC field parser used.
+     * Must be set prior to calling the various methods. */
+    protected ArcFieldParsers fieldParsers;
+
+    /** Is the version format valid. */
+    public boolean bValidVersionFormat;
+
+    /** Version string. */
+    public String versionStr;
 
     /** Did we find a valid version number. */
     protected boolean isVersionValid;
 
     /** Did we recognize the block description line. */
-    protected boolean isValidBlockdDesc;
+    public boolean isValidBlockdDesc;
 
-    protected int blockDescVersion;
+    public int blockDescVersion;
 
     /*
      * Fields.
      */
 
+    /** Version description field string value. */
     public String versionNumberStr;
 
-    /** Version description field. */
+    /** Version description field integer value. */
     public Integer versionNumber;
 
+    /** Reserved field value string, used for version 1.1. */
     public String reservedStr;
 
-    /** Reserved field, used for version 1.1. */
+    /** Reserved field value, used for version 1.1. */
     public Integer reserved;
 
     /** Version block origin code. */
@@ -131,6 +141,8 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
              */
             version = null;
             if (versionNumber != null && reserved != null) {
+                bValidVersionFormat = true;
+                versionStr = Integer.toString(versionNumber) + "." + Integer.toString(reserved);
                 // Check ARC version number
                 version = ArcVersion.fromValues(versionNumber.intValue(),
                         reserved.intValue());

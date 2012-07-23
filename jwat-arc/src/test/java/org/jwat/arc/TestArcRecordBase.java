@@ -64,7 +64,7 @@ public class TestArcRecordBase {
             ArcHeader header = record.header;
             Assert.assertNotNull(header);
 
-            Assert.assertEquals(2, header.parsedFieldsVersion);
+            Assert.assertEquals(2, header.recordFieldVersion);
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
