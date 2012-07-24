@@ -64,13 +64,17 @@ public class GzipReader {
     /** ISO-8859-1 validating de-/encoder. */
     protected final ISO8859_1 iso8859_1 = new ISO8859_1();
 
-    /** Current GZip entry object. */
-    protected GzipEntry gzipEntry;
+    /** Compliance status for records parsed up to now. */
+    protected boolean bIsValid = true;
+
+    /** Number of bytes consumed by this reader. */
+    protected long consumed;
 
     /** Entry offset, updated each time an entry is closed. */
     protected long startOffset;
 
-    protected long consumed;
+    /** Current GZip entry object. */
+    protected GzipEntry gzipEntry;
 
     /** Buffer used to read header.  */
     protected byte[] headerBytes = new byte[10];
@@ -158,6 +162,14 @@ public class GzipReader {
     }
 
     /**
+     * Returns a boolean indicating whether all entries parsed so far are valid.
+     * @return a boolean indicating whether all entries parsed so far are valid
+     */
+    public boolean isValid() {
+        return bIsValid;
+    }
+
+    /**
      * Returns the offset of the current or next entry depending of where in the
      * parsing it is called.
      * @return offset of current or next entry
@@ -172,7 +184,19 @@ public class GzipReader {
      * @return current offset in the input stream
      */
     public long getOffset() {
-        return pbin.getConsumed();
+        if (pbin != null) {
+            return pbin.getConsumed();
+        } else {
+            return consumed;
+        }
+    }
+
+    /**
+     * Get number of bytes consumed by this reader.
+     * @return number of bytes consumed by this reader
+     */
+    public long getConsumed() {
+        return consumed;
     }
 
     /**
@@ -369,8 +393,12 @@ public class GzipReader {
              */
             lastInput = 0;
             gzipEntry.in = new GzipEntryInputStream(this, gzipEntry);
+            if (gzipEntry.diagnostics.hasErrors() || gzipEntry.diagnostics.hasWarnings()) {
+                bIsValid = false;
+            }
         } else {
             if (pbin.read() != -1) {
+                bIsValid = false;
                 throw new EOFException("Unexpected EOF!");
             }
         }
@@ -428,6 +456,9 @@ public class GzipReader {
             }
         } else {
             throw new EOFException("Unexpected EOF!");
+        }
+        if (gzipEntry.diagnostics.hasErrors() || gzipEntry.diagnostics.hasWarnings()) {
+            bIsValid = false;
         }
     }
 

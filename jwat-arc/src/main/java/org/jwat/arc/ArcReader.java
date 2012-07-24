@@ -301,7 +301,8 @@ public abstract class ArcReader {
      */
     public abstract long getOffset();
 
-    /** Get number of bytes consumed by this reader.
+    /**
+     * Get number of bytes consumed by this reader.
      * @return number of bytes consumed by this reader
      */
     public abstract long getConsumed();

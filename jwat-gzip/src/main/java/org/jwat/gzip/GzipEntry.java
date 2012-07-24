@@ -33,10 +33,10 @@ import org.jwat.common.Diagnostics;
  */
 public class GzipEntry {
 
-    /** Starting offset of this entry in the input stream from whence it came.
-     */
+    /** Starting offset of this entry in the input stream from whence it came. */
     public long startOffset = -1L;
 
+    /** Bytes consumed while validating this entry. */
     public long consumed;
 
     /** Leading magic. */
@@ -124,6 +124,14 @@ public class GzipEntry {
                 writer = null;
             }
         }
+    }
+
+    /**
+     * Returns a boolean indicating the ISO compliance status of this record.
+     * @return a boolean indicating the ISO compliance status of this record
+     */
+    public boolean isValid() {
+        return (!diagnostics.hasErrors() && !diagnostics.hasWarnings());
     }
 
     /**
