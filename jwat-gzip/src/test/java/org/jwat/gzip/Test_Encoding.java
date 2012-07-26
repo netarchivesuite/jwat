@@ -32,7 +32,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.ISO8859_1;
 
 @RunWith(JUnit4.class)
-public class TestEncoding {
+public class Test_Encoding {
 
     protected ByteArrayOutputStream out = new ByteArrayOutputStream();
 

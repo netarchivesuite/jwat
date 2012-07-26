@@ -34,7 +34,7 @@ import org.jwat.common.RandomAccessFileInputStream;
 import org.jwat.common.RandomAccessFileOutputStream;
 
 @RunWith(JUnit4.class)
-public class TestGzipWriterCloning {
+public class TestGzipWriter_Cloning {
 
     @Test
     public void test_gzipwriter_cloning() {

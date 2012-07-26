@@ -20,16 +20,17 @@ package org.jwat.gzip;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
 
 @RunWith(JUnit4.class)
-public class TestSkippingClose {
+public class TestGzipReader_InputStream {
 
     @Test
     public void test_gzipreader() {
@@ -37,7 +38,7 @@ public class TestSkippingClose {
         ByteCountingPushBackInputStream pbin;
         GzipReader reader;
 
-        String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
+         String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
 
         try {
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
@@ -51,26 +52,49 @@ public class TestSkippingClose {
             reader = new GzipReader(pbin, 8192);
             readEntries(reader);
             pbin.close();
+
+            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            readEntriesOld(in);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
     }
 
-    protected ByteArrayOutputStream out;
+    protected ByteArrayOutputStream out = new ByteArrayOutputStream();
     protected byte[] tmpBuf = new byte[768];
     protected InputStream entryIn;
 
+    protected List<byte[]> dataList = new ArrayList<byte[]>();
+
     protected void readEntries(GzipReader reader) {
         int entries = 0;
-        String tmpStr;
+        int read;
         try {
             GzipEntry entry;
             while ((entry = reader.getNextEntry()) != null) {
+                out.reset();
                 entryIn = entry.getInputStream();
-                tmpStr = entry.toString();
-                Assert.assertNotNull(tmpStr);
+                Assert.assertFalse( entryIn.markSupported() );
+                entryIn.mark( 1 );
+                try {
+                    entryIn.reset();
+                    Assert.fail( "Exception expected!" );
+                } catch (IOException e) {
+                    Assert.fail( "Exception expected!" );
+                } catch (UnsupportedOperationException e) {
+                }
                 Assert.assertEquals(1, entryIn.available());
+                while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                entryIn.close();
+                Assert.assertEquals(0, entryIn.available());
+                Assert.assertEquals(-1, entryIn.read());
+                Assert.assertEquals(-1, entryIn.read(tmpBuf));
+                Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
+                Assert.assertEquals(0, entryIn.skip(1024));
+                entryIn.close();
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
@@ -80,12 +104,46 @@ public class TestSkippingClose {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entry.close();
+                dataList.add(out.toByteArray());
+                out.close();
+                out.reset();
                 ++entries;
             }
             reader.close();
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+        Assert.assertEquals(822, entries);
+    }
+
+    public void readEntriesOld(InputStream in) {
+        GzipInputStream gzin;
+        GzipInputStreamEntry entry;
+        InputStream gzis;
+        int entries = 0;
+        int read;
+        try {
+            gzin = new GzipInputStream(in);
+            while ((entry = gzin.getNextEntry()) != null) {
+                Assert.assertNotNull(entry);
+                out.reset();
+                gzis = gzin.getEntryInputStream();
+                while ((read = gzin.read(tmpBuf)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                gzis.close();
+                gzin.closeEntry();
+                out.close();
+                Assert.assertArrayEquals(out.toByteArray(), dataList.get(entries));
+                out.reset();
+                ++entries;
+            }
+            Assert.assertNull(entry);
+            gzin.close();
+            in.close();
+        } catch (IOException e) {
             Assert.fail("Exception not expected!");
         }
         Assert.assertEquals(822, entries);

@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4;
 import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
-public class TestInvalid {
+public class TestGzipReader_InvalidFiles {
 
     @Test
     public void test_invalid_gzip_inputstream() throws IOException {

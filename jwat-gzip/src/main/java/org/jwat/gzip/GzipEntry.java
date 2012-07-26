@@ -71,7 +71,7 @@ public class GzipEntry {
     /** Trailing CRC32. */
     public int crc32;
     /** Trailing uncompressed size modulo 2^32. */
-    public long isize;
+    public int isize;
 
     /** CRC16 Calculate(d). */
     public boolean bFhCrc;
@@ -81,7 +81,13 @@ public class GzipEntry {
     /** Computed CRC32. */
     public int comp_crc32;
     /** Computed ISize. */
-    public long comp_isize;
+    public int comp_isize;
+
+    /** Uncompressed size. */
+    public long uncompressed_size;
+
+    /** Compressed size. */
+    public long compressed_size;
 
     /** Input stream to read uncompressed data. */
     protected InputStream in;

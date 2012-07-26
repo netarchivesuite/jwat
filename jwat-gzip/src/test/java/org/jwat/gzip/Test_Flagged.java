@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class TestFlagged {
+public class Test_Flagged {
 
     protected ByteArrayOutputStream out = new ByteArrayOutputStream();
 

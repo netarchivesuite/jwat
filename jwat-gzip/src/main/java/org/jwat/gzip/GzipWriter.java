@@ -304,9 +304,11 @@ public class GzipWriter {
      * @throws IOException if an io error occurs while writing trailer
      */
     protected void writeTrailer(GzipEntry entry) throws IOException {
-        entry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
+        entry.uncompressed_size = def.getBytesRead();
+        entry.compressed_size = def.getBytesWritten();
+        entry.comp_crc32 = (int)(crc.getValue() & 0xffffffff);
         entry.crc32 = entry.comp_crc32;
-        entry.comp_isize = def.getBytesRead();
+        entry.comp_isize = (int)(def.getBytesRead() & 0xffffffff);
         entry.isize = entry.comp_isize;
         trailerBytes[0] = (byte)(entry.crc32 & 255);
         trailerBytes[1] = (byte)((entry.crc32 >> 8) & 255);

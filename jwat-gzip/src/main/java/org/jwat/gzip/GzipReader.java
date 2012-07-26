@@ -17,6 +17,7 @@
  */
 package org.jwat.gzip;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -140,8 +141,9 @@ public class GzipReader {
             throw new IllegalArgumentException(
                     "buffer_size is less or equals to zero: " + buffer_size);
         }
-        pbin = new ByteCountingPushBackInputStream(in, buffer_size);
-        inputBytes = new byte[buffer_size];
+        in = new BufferedInputStream(in, buffer_size);
+        pbin = new ByteCountingPushBackInputStream(in, DEFAULT_INPUT_BUFFER_SIZE);
+        inputBytes = new byte[DEFAULT_INPUT_BUFFER_SIZE];
     }
 
     /**
@@ -427,13 +429,15 @@ public class GzipReader {
     protected void readTrailer(GzipEntry entry) throws IOException {
         int read = pbin.readFully(trailerBytes);
         entry.consumed = pbin.getConsumed() - entry.startOffset;
+        entry.compressed_size = inf.getBytesRead();
+        entry.uncompressed_size = inf.getBytesWritten();
         consumed += entry.consumed;
         entry.reader = null;
         if (read == 8) {
             entry.crc32 = ((trailerBytes[3] & 255) << 24) | ((trailerBytes[2] & 255) << 16) | ((trailerBytes[1] & 255) << 8) | (trailerBytes[0] & 255);
             entry.isize = ((trailerBytes[7] & 255) << 24) | ((trailerBytes[6] & 255) << 16) | ((trailerBytes[5] & 255) << 8) | (trailerBytes[4] & 255);
-            entry.comp_crc32 = ((int)crc.getValue()) & 0xffffffff;
-            entry.comp_isize = inf.getBytesWritten() & 0xffffffff;
+            entry.comp_crc32 = (int)(crc.getValue() & 0xffffffff);
+            entry.comp_isize = (int)(inf.getBytesWritten() & 0xffffffff);
             if (entry.comp_crc32 != entry.crc32) {
                 entry.diagnostics.addError(
                         new Diagnosis(
