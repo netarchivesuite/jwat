@@ -665,7 +665,7 @@ public class HeaderLineReader {
             }
             break;
         case ENC_ISO8859_1:
-            // ISO-8859-1 utilizes all 8-bits and required no decoding.
+            // ISO-8859-1 utilizes all 8-bits and requires no decoding.
         case ENC_RAW:
             // Raw 8-bit character needs no decoding.
         default:

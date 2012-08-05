@@ -108,10 +108,10 @@ public class Digest {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int hashCode = 0;
         if (digestBytes != null) {
-            //hashCode ^= digestBytes.hashCode();
             Checksum checksum = new CRC32();
             checksum.update(digestBytes, 0, digestBytes.length);
             hashCode ^= checksum.getValue();

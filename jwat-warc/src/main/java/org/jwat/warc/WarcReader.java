@@ -171,10 +171,12 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the default block digest algorithm. This algorithm is only used
-     * in case no WARC payload digest header is present in the record.
+     * Tries to set the default block digest algorithm and returns a boolean
+     * indicating whether the algorithm was accepted or not. This algorithm is
+     * only used in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm block digest algorithm
-     * (null means default block digest is disabled)
+     * (null means no default block digest algorithm is selected)
+     * @return boolean indicating the validity of the algorithm supplied
      */
     public boolean setBlockDigestAlgorithm(String digestAlgorithm) {
         if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
@@ -197,10 +199,12 @@ public abstract class WarcReader {
     }
 
     /**
-     * Set the default payload digest algorithm. This algorithm is only used
-     * in case no WARC payload digest header is present in the record.
+     * Tries to set the default payload digest algorithm and returns a boolean
+     * indicating whether the algorithm was accepted or not. This algorithm is
+     * only used in case no WARC payload digest header is present in the record.
      * @param digestAlgorithm payload digest algorithm
-     * (null means default payload digest is disabled)
+     * (null means no default payload digest algorithm is selected)
+     * @return boolean indicating the validity of the algorithm supplied
      */
     public boolean setPayloadDigestAlgorithm(String digestAlgorithm) {
         if (digestAlgorithm == null || digestAlgorithm.length() == 0) {

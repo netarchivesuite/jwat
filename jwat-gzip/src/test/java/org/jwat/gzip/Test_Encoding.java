@@ -68,7 +68,7 @@ public class Test_Encoding {
 
         byte[] data = null;
         try {
-            data = "No without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
+            data = "Not without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
@@ -79,24 +79,40 @@ public class Test_Encoding {
         byte[] gzipFile = null;
 
         try {
+            /*
+             * Invalid encoding.
+             */
             GzipWriter writer = new GzipWriter(out);
             writer.writeEntryHeader(wEntry);
             wEntry.writeFrom(in);
             in.close();
             wEntry.close();
+
+            Assert.assertFalse(wEntry.diagnostics.hasErrors());
+            Assert.assertTrue(wEntry.diagnostics.hasWarnings());
+
+            Assert.assertFalse(wEntry.isCompliant());
+            Assert.assertEquals(wEntry.bIsCompliant, wEntry.isCompliant());
+            Assert.assertFalse(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
             writer.close();
             out.flush();
             out.close();
 
-            Assert.assertFalse(wEntry.diagnostics.hasErrors());
-            Assert.assertTrue(wEntry.diagnostics.hasWarnings());
+            Assert.assertFalse(wEntry.isCompliant());
+            Assert.assertEquals(wEntry.bIsCompliant, wEntry.isCompliant());
+            Assert.assertFalse(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
             Assert.assertEquals(2, wEntry.diagnostics.getWarnings().size());
             Assert.assertTrue(GzipTestHelper.containsWarning(wEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FName", 2));
             Assert.assertTrue(GzipTestHelper.containsWarning(wEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FComment", 2));
 
             gzipFile = out.toByteArray();
-
+            /*
+             * Encoding fixed in writer.
+             */
             GzipReader reader;
             reader = new GzipReader(new ByteArrayInputStream(gzipFile));
 
@@ -117,12 +133,15 @@ public class Test_Encoding {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
                 rEntry.close();
-                Assert.assertArrayEquals(data, out.toByteArray());
-                out.close();
-                out.reset();
 
                 Assert.assertFalse(rEntry.diagnostics.hasErrors());
                 Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+                Assert.assertTrue(rEntry.isCompliant());
+                Assert.assertEquals(rEntry.bIsCompliant, rEntry.isCompliant());
+
+                Assert.assertArrayEquals(data, out.toByteArray());
+                out.close();
+                out.reset();
 
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);
@@ -154,8 +173,14 @@ public class Test_Encoding {
             if (reader.getNextEntry() != null) {
                 Assert.fail("Did not expect more entries!");
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
-
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+            /*
+             * Old writer.
+             */
             GzipInputStream gzin;
             GzipInputStreamEntry entry;
             InputStream gzis;

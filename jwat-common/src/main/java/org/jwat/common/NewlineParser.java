@@ -19,6 +19,13 @@ package org.jwat.common;
 
 import java.io.IOException;
 
+/**
+ * A small class to detect and count occurrences of either LF or CRLF pairs in
+ * a push back input stream, one method each. Implemented as an object instance
+ * so the caller can access the status information.
+ *
+ * @author nicl
+ */
 public class NewlineParser {
 
     /** Did the reader detect a missing CR while parsing newlines. */
@@ -34,10 +41,10 @@ public class NewlineParser {
     public boolean bMisplacedLf = false;
 
     /**
-     * Looks forward in the inputstream and counts the number of newlines
-     * found. Non newlines characters are pushed back onto the inputstream.
-     * @param in data inputstream
-     * @return newlines found in inputstream
+     * Looks forward in the input stream and counts the number of newlines
+     * found. Non newlines characters are pushed back onto the input stream.
+     * @param in data input stream
+     * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
     public int parseLFs(ByteCountingPushBackInputStream in, Diagnostics<Diagnosis> diagnostics) throws IOException {
@@ -117,10 +124,10 @@ public class NewlineParser {
     }
 
     /**
-     * Looks forward in the inputstream and counts the number of newlines
-     * found. Non newlines characters are pushed back onto the inputstream.
-     * @param in data inputstream
-     * @return newlines found in inputstream
+     * Looks forward in the input stream and counts the number of newlines
+     * found. Non newlines characters are pushed back onto the input stream.
+     * @param in data input stream
+     * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
     public int parseCRLFs(ByteCountingPushBackInputStream in, Diagnostics<Diagnosis> diagnostics) throws IOException {

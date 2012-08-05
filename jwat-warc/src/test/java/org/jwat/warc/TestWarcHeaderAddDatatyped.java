@@ -260,7 +260,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
 
         String warcinfoIdStr = "urn:uuid:1cb0e3be-d9e2-4058-bf00-9775c75a71a6";
         URI warcinfoIdObj = URI.create(warcinfoIdStr);
-        cases = generate_header_datatype_cases(warcinfoIdObj, warcinfoIdStr, WarcConstants.FN_WARC_WARCINFO_ID, "warcWarcinfoIdStr", "warcWarcInfoIdUri");
+        cases = generate_header_datatype_cases(warcinfoIdObj, warcinfoIdStr, WarcConstants.FN_WARC_WARCINFO_ID, "warcWarcinfoIdStr", "warcWarcinfoIdUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         String segmentOriginIdStr = "urn:uuid:c4fc410a-4c7b-4bcc-a251-382b1d669f9a";

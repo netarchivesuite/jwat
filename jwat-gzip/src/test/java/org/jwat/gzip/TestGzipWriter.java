@@ -73,8 +73,18 @@ public class TestGzipWriter {
             Assert.assertFalse(entry.diagnostics.hasErrors());
             Assert.assertFalse(entry.diagnostics.hasWarnings());
 
+            Assert.assertTrue(entry.isCompliant());
+            Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
             writer.close();
             writer.close();
+
+            Assert.assertTrue(entry.isCompliant());
+            Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
             out.flush();
             out.close();
@@ -109,8 +119,18 @@ public class TestGzipWriter {
             Assert.assertFalse(entry.diagnostics.hasErrors());
             Assert.assertFalse(entry.diagnostics.hasWarnings());
 
+            Assert.assertTrue(entry.isCompliant());
+            Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
             writer.close();
             writer.close();
+
+            Assert.assertTrue(entry.isCompliant());
+            Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
             out.flush();
             out.close();

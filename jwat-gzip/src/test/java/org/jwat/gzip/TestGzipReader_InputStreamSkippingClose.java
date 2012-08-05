@@ -71,7 +71,19 @@ public class TestGzipReader_InputStreamSkippingClose {
                 tmpStr = entry.toString();
                 Assert.assertNotNull(tmpStr);
                 Assert.assertEquals(1, entryIn.available());
+
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+
                 entry.close();
+
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
+
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
@@ -82,8 +94,14 @@ public class TestGzipReader_InputStreamSkippingClose {
                 entry.close();
                 ++entries;
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");

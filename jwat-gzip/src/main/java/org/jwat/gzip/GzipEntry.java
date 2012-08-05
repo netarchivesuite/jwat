@@ -27,11 +27,15 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 
 /**
- * GZip entry container.
+ * GZip entry container. Exposes methods for accessing the entry payload's
+ * input or output stream.
  *
  * @author nicl
  */
 public class GzipEntry {
+
+    /** Is this entry compliant ie. error free. */
+    protected boolean bIsCompliant;
 
     /** Starting offset of this entry in the input stream from whence it came. */
     public long startOffset = -1L;
@@ -136,7 +140,7 @@ public class GzipEntry {
      * Returns a boolean indicating the ISO compliance status of this record.
      * @return a boolean indicating the ISO compliance status of this record
      */
-    public boolean isValid() {
+    public boolean isCompliant() {
         return (!diagnostics.hasErrors() && !diagnostics.hasWarnings());
     }
 

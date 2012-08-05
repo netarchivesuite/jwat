@@ -71,6 +71,19 @@ public class TestGzipWriter_Cloning {
             out.close();
             raf.close();
 
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
+            reader.close();
+            writer.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
@@ -87,6 +100,19 @@ public class TestGzipWriter_Cloning {
             out.flush();
             out.close();
             raf.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
+
+            reader.close();
+            writer.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+            Assert.assertTrue(writer.isCompliant());
+            Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             readEntriesOld(in);
@@ -131,9 +157,15 @@ public class TestGzipWriter_Cloning {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 ++entries;
             }
             reader.close();
@@ -192,7 +224,13 @@ public class TestGzipWriter_Cloning {
                 while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
                     out.write(tmpBuf, 0, read);
                 }
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entryIn.close();
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 Assert.assertEquals(entry.cm, refEntry.method);
                 Assert.assertEquals((entry.mtime == 0) ? -1 : entry.mtime, refEntry.getTime());
                 Assert.assertEquals(entry.os, refEntry.os);
@@ -207,8 +245,14 @@ public class TestGzipWriter_Cloning {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entryIn.close();
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
                 Assert.assertEquals(0, entryIn.available());
@@ -222,8 +266,14 @@ public class TestGzipWriter_Cloning {
                 out.reset();
                 ++entries;
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");

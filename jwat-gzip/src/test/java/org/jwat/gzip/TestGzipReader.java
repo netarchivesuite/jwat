@@ -49,19 +49,32 @@ public class TestGzipReader {
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader, Integer.MAX_VALUE);
+            reader.close();
             pbin.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
 
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
             readEntries(reader, Integer.MAX_VALUE);
+            reader.close();
             pbin.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
 
             in = this.getClass().getClassLoader().getResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader, 1);
+            reader.close();
             pbin.close();
+
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
@@ -89,9 +102,15 @@ public class TestGzipReader {
                 Assert.assertEquals(entry.cm, GzipConstants.CM_DEFLATE);
                 Assert.assertEquals(entry.crc32, entry.comp_crc32);
                 entryIn.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
                 out.close();
                 out.reset();
@@ -99,6 +118,8 @@ public class TestGzipReader {
                 Assert.assertEquals(entry.getStartOffset(), reader.getStartOffset());
                 Assert.assertThat(reader.getStartOffset(), is(not(equalTo(reader.getOffset()))));
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
             reader.close();
         } catch (IOException e) {

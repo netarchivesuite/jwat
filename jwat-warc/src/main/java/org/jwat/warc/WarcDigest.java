@@ -95,6 +95,7 @@ public class WarcDigest extends Digest {
 
     /**
      * Returns a header representation of the class state.
+     * The string includes: algorithm and digest string.
      * @return header representation of the class state
      */
     @Override
@@ -102,6 +103,11 @@ public class WarcDigest extends Digest {
         return (algorithm + ":" + digestString);
     }
 
+    /**
+     * Returns a full textual string representation of the class state.
+     * The string includes: algorithm, encoding and digest string.
+     * @return a full textual string representation of the class state
+     */
     public String toStringFull() {
         return (algorithm + ":" + encoding + ":" + digestString);
     }

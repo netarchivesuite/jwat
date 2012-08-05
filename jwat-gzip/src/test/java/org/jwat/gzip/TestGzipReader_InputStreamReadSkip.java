@@ -112,9 +112,15 @@ public class TestGzipReader_InputStreamReadSkip {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
@@ -125,9 +131,17 @@ public class TestGzipReader_InputStreamReadSkip {
                 out.close();
                 out.reset();
                 ++entries;
+                Assert.assertTrue(reader.isCompliant());
+                Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
@@ -181,9 +195,15 @@ public class TestGzipReader_InputStreamReadSkip {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
                 entryIn.close();
+                Assert.assertFalse(entry.diagnostics.hasErrors());
+                Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 entry.close();
                 Assert.assertFalse(entry.diagnostics.hasErrors());
                 Assert.assertFalse(entry.diagnostics.hasWarnings());
+                Assert.assertTrue(entry.isCompliant());
+                Assert.assertEquals(entry.bIsCompliant, entry.isCompliant());
                 Assert.assertEquals(0, entryIn.available());
                 Assert.assertEquals(-1, entryIn.read());
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
@@ -194,9 +214,17 @@ public class TestGzipReader_InputStreamReadSkip {
                 out.close();
                 out.reset();
                 ++entries;
+                Assert.assertTrue(reader.isCompliant());
+                Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");

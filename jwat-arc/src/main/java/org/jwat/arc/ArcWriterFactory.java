@@ -38,7 +38,7 @@ public class ArcWriterFactory {
     /**
      * Creates a new unbuffered <code>ArcWriter</code> from an
      * <code>OutputStream</code>.
-     * Returns a normal or compressing writer according to the arguments.
+     * Returns a compressing or non compressing writer according to the arguments.
      * @param out output stream to write to
      * @param compressed compression switch
      * @return unbuffered <code>ArcWriter</code>
@@ -58,7 +58,7 @@ public class ArcWriterFactory {
     /**
      * Creates a new buffered <code>ArcWriter</code> from an
      * <code>OutputStream</code>.
-     * Returns a normal or compressing writer according to the arguments.
+     * Returns a compressing or non compressing writer according to the arguments.
      * @param out output stream to write to
      * @param buffer_size buffer size to use
      * @param compressed compression switch
@@ -81,10 +81,10 @@ public class ArcWriterFactory {
     }
 
     /**
-     * Creates a new unbuffered normal <code>ArcWriter</code> from an
+     * Creates a new unbuffered non compressing <code>ArcWriter</code> from an
      * <code>OutputStream</code>.
      * @param out output stream to write to
-     * @return unbuffered normal <code>ArcWriter</code>
+     * @return unbuffered non compressing <code>ArcWriter</code>
      */
     public static ArcWriter getWriterUncompressed(OutputStream out) {
         if (out == null) {
@@ -95,11 +95,11 @@ public class ArcWriterFactory {
     }
 
     /**
-     * Creates a new buffered normal <code>ArcWriter</code> from an
+     * Creates a new buffered non compressing <code>ArcWriter</code> from an
      * <code>OutputStream</code>.
      * @param out output stream to write to
      * @param buffer_size buffer size to use
-     * @return buffered normal <code>ArcWriter</code>
+     * @return buffered non compressing <code>ArcWriter</code>
      */
     public static ArcWriter getWriterUncompressed(OutputStream out, int buffer_size) {
         if (out == null) {

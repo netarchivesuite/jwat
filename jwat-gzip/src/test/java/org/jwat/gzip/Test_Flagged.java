@@ -76,6 +76,8 @@ public class Test_Flagged {
 
             Assert.assertFalse(wEntry.diagnostics.hasErrors());
             Assert.assertFalse(wEntry.diagnostics.hasWarnings());
+            Assert.assertTrue(wEntry.isCompliant());
+            Assert.assertEquals(wEntry.bIsCompliant, wEntry.isCompliant());
 
             gzipFile = out.toByteArray();
 
@@ -98,6 +100,12 @@ public class Test_Flagged {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
+
+                Assert.assertFalse(rEntry.diagnostics.hasErrors());
+                Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+                Assert.assertTrue(rEntry.isCompliant());
+                Assert.assertEquals(rEntry.bIsCompliant, rEntry.isCompliant());
+
                 rEntry.close();
                 Assert.assertArrayEquals(data, out.toByteArray());
                 out.close();
@@ -105,6 +113,8 @@ public class Test_Flagged {
 
                 Assert.assertFalse(rEntry.diagnostics.hasErrors());
                 Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+                Assert.assertTrue(rEntry.isCompliant());
+                Assert.assertEquals(rEntry.bIsCompliant, rEntry.isCompliant());
 
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);
@@ -132,7 +142,11 @@ public class Test_Flagged {
             if (reader.getNextEntry() != null) {
                 Assert.fail("Did not expect more entries!");
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
 
             GzipInputStream gzin;
             GzipInputStreamEntry entry;
@@ -212,7 +226,11 @@ public class Test_Flagged {
         if (reader.getNextEntry() != null) {
             Assert.fail("Did not expect more entries!");
         }
+        Assert.assertTrue(reader.isCompliant());
+        Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         reader.close();
+        Assert.assertTrue(reader.isCompliant());
+        Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
     }
 
     @Test
@@ -254,6 +272,8 @@ public class Test_Flagged {
 
             Assert.assertFalse(wEntry.diagnostics.hasErrors());
             Assert.assertFalse(wEntry.diagnostics.hasWarnings());
+            Assert.assertTrue(wEntry.isCompliant());
+            Assert.assertEquals(wEntry.bIsCompliant, wEntry.isCompliant());
 
             gzipFile = out.toByteArray();
 
@@ -276,6 +296,12 @@ public class Test_Flagged {
                 Assert.assertEquals(-1, entryIn.read(tmpBuf));
                 Assert.assertEquals(-1, entryIn.read(tmpBuf, 0, tmpBuf.length));
                 Assert.assertEquals(0, entryIn.skip(1024));
+
+                Assert.assertFalse(rEntry.diagnostics.hasErrors());
+                Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+                Assert.assertTrue(rEntry.isCompliant());
+                Assert.assertEquals(rEntry.bIsCompliant, rEntry.isCompliant());
+
                 rEntry.close();
                 Assert.assertArrayEquals(data, out.toByteArray());
                 out.close();
@@ -283,6 +309,8 @@ public class Test_Flagged {
 
                 Assert.assertFalse(rEntry.diagnostics.hasErrors());
                 Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+                Assert.assertTrue(rEntry.isCompliant());
+                Assert.assertEquals(rEntry.bIsCompliant, rEntry.isCompliant());
 
                 Assert.assertEquals(wEntry.cm, rEntry.cm);
                 Assert.assertEquals(wEntry.flg, rEntry.flg);
@@ -309,7 +337,11 @@ public class Test_Flagged {
             if (reader.getNextEntry() != null) {
                 Assert.fail("Did not expect more entries!");
             }
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
             reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

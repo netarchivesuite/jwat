@@ -163,9 +163,11 @@ public abstract class ArcReader {
     }
 
     /**
-     * Set the optional block digest algorithm.
+     * Tries to set the optional block digest algorithm and returns a boolean
+     * indicating whether the algorithm was accepted or not.
      * @param digestAlgorithm block digest algorithm
-     * (null means optional block digest is disabled)
+     * (null means no optional block digest algorithm is selected)
+     * @return boolean indicating the validity of the algorithm supplied
      */
     public boolean setBlockDigestAlgorithm(String digestAlgorithm) {
         if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
@@ -188,9 +190,11 @@ public abstract class ArcReader {
     }
 
     /**
-     * Set the optional payload digest algorithm.
+     * Tries to set the optional payload digest algorithm and returns a boolean
+     * indicating whether the algorithm was accepted or not.
      * @param digestAlgorithm payload digest algorithm
-     * (null means optional payload digest is disabled)
+     * (null means no optional payload digest algorithm is selected)
+     * @return boolean indicating the validity of the algorithm supplied
      */
     public boolean setPayloadDigestAlgorithm(String digestAlgorithm) {
         if (digestAlgorithm == null || digestAlgorithm.length() == 0) {

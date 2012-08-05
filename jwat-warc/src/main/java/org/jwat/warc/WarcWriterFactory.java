@@ -38,7 +38,7 @@ public class WarcWriterFactory {
     /**
      * Creates a new unbuffered <code>WarcWriter</code> from an
      * <code>OutputStream</code>.
-     * Returns a normal or compressing writer according to the arguments.
+     * Returns a compressing or non compressing writer according to the arguments.
      * @param out output stream to write to
      * @param compressed compression switch
      * @return unbuffered <code>WarcWriter</code>
@@ -58,7 +58,7 @@ public class WarcWriterFactory {
     /**
      * Creates a new buffered <code>WarcWriter</code> from an
      * <code>OutputStream</code>.
-     * Returns a normal or compressing writer according to the arguments.
+     * Returns a compressing or non compressing writer according to the arguments.
      * @param out output stream to write to
      * @param buffer_size buffer size to use
      * @param compressed compression switch
@@ -81,10 +81,10 @@ public class WarcWriterFactory {
     }
 
     /**
-     * Creates a new unbuffered normal <code>WarcWriter</code> from an
+     * Creates a new unbuffered non compressing <code>WarcWriter</code> from an
      * <code>OutputStream</code>.
      * @param out output stream to write to
-     * @return unbuffered normal <code>WarcWriter</code>
+     * @return unbuffered non compressing <code>WarcWriter</code>
      */
     public static WarcWriter getWriterUncompressed(OutputStream out) {
         if (out == null) {
@@ -95,11 +95,11 @@ public class WarcWriterFactory {
     }
 
     /**
-     * Creates a new buffered normal <code>WarcWriter</code> from an
+     * Creates a new buffered non compressing <code>WarcWriter</code> from an
      * <code>OutputStream</code>.
      * @param out output stream to write to
      * @param buffer_size buffer size to use
-     * @return buffered normal <code>WarcWriter</code>
+     * @return buffered non compressing <code>WarcWriter</code>
      */
     public static WarcWriter getWriterUncompressed(OutputStream out, int buffer_size) {
         if (out == null) {

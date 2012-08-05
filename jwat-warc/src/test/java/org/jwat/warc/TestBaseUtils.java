@@ -75,7 +75,7 @@ public class TestBaseUtils {
         }
         System.out.println("      RefersTo: " + header.warcRefersToUri);
         System.out.println("     TargetUri: " + header.warcTargetUriUri);
-        System.out.println("   WarcInfo-Id: " + header.warcWarcInfoIdUri);
+        System.out.println("   WarcInfo-Id: " + header.warcWarcinfoIdUri);
         System.out.println("   BlockDigest: " + header.warcBlockDigest);
         System.out.println(" PayloadDigest: " + header.warcPayloadDigest);
         System.out.println("IdentPloadType: " + header.warcIdentifiedPayloadType);

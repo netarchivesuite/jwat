@@ -67,7 +67,6 @@ public class ArcVersionBlock extends ArcRecordBase {
             ArcHeader header, ArcFieldParsers fieldParsers,
             ByteCountingPushBackInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
-        //vb.versionBlock = vb;
         vb.recordType = RT_VERSION_BLOCK;
         vb.reader = reader;
         vb.header = header;
@@ -78,39 +77,6 @@ public class ArcVersionBlock extends ArcRecordBase {
         vb.consumed = in.getConsumed() - vb.header.startOffset;
         return vb;
     }
-
-    /**
-     * Checks if the ARC record is valid.
-     * @return true/false based on whether the ARC record is valid or not
-     */
-    /*
-    @Override
-    public boolean isValid() {
-        return (isMagicArcFile && isVersionValid && isValidFieldDesc
-                && super.isValid());
-    }
-    */
-
-    /**
-     * Checks if the processed file is an ARC file.
-     * @param recordLine First line in the version block header.
-     */
-    /*
-    protected void checkFileDesc(String recordLine) {
-        if (recordLine != null){
-            // Check file ARC magic number
-            if(recordLine.startsWith(ArcConstants.ARC_SCHEME)) {
-                isMagicArcFile = true;
-            }
-        }
-        if (!isMagicArcFile){
-            // Adding validation error
-            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                    ARC_FILE,
-                    "Invalid file magic number"));
-        }
-    }
-    */
 
     /**
      * Validates the version block content type.
@@ -134,13 +100,13 @@ public class ArcVersionBlock extends ArcRecordBase {
     }
 
     /**
-     * An ARC v1.1 version block should have a payload consisting of XML
-     * formatted
-     * metadata related to the harvesters configuration.
+     * An ARC version block payload must include a version line and a
+     * block description line and in v1.1 the rest of the payload consists
+     * of XML formatted metadata related to the harvesters configuration.
      * @param in input stream containing the payload
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @throws IOException io exception in the process of reading payload
+     * @throws IOException if an i/o exception occurs while reading the payload
      */
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in,
@@ -159,10 +125,12 @@ public class ArcVersionBlock extends ArcRecordBase {
             if (reader.bPayloadDigest) {
                 digestAlgorithm = reader.payloadDigestAlgorithm;
             }
+            // Try to read a valid ARC version block from the payload.
             versionHeader = ArcVersionHeader.processPayload(
                     payload.getInputStream(), header.archiveLength.longValue(),
                     digestAlgorithm, reader.fieldParsers, diagnostics);
             if (versionHeader != null) {
+                version = versionHeader.version;
                 if (versionHeader.isValid()) {
                     payload.setPayloadHeaderWrapped(versionHeader);
                 } else {
@@ -172,6 +140,11 @@ public class ArcVersionBlock extends ArcRecordBase {
                                     "Unable to parse version block!"));
                 }
             }
+        } else {
+            diagnostics.addError(
+                    new Diagnosis(DiagnosisType.INVALID,
+                            ArcConstants.ARC_FILE,
+                            "VersionBlock length missing!"));
         }
         if ((payload == null) && ArcVersion.VERSION_1_1.equals(version)) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
@@ -179,22 +152,6 @@ public class ArcVersionBlock extends ArcRecordBase {
                     "Required metadata payload not found in the version block"));
         }
     }
-
-    /*
-    if (vb != null) {
-        if (vb.header.archiveLength == null) {
-            // Missing length.
-            vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                    ARC_FILE,
-                    "VersionBlock length missing!"));
-        } else if (in.getCounter() > vb.header.archiveLength) {
-            // Mismatch in consumed and declare length.
-            vb.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                    ARC_FILE,
-                    "VersionBlock length to small!"));
-        }
-    }
-    */
 
     @Override
     public String toString() {

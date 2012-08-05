@@ -26,6 +26,18 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Abstract base class for payload types that include a header. The header
+ * is parse and validated. If the header is valid the header is exposed as
+ * a byte array including optionally extra data implemented as fields,
+ * the rest of the payload is exposed as the complete payload of this object.
+ * If on the other hand the header is not valid the input stream is left
+ * as is so the complete payload can be read instead.
+ * Streams are also available to read the complete payload even though the
+ * header has been identified and parsed into optional extra fields.
+ *
+ * @author nicl
+ */
 public abstract class PayloadWithHeaderAbstract {
 
     /** Has record been closed before. */

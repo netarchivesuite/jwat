@@ -55,6 +55,7 @@ public class WarcConcurrentTo {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int hashCode = 0;
         if (warcConcurrentToStr != null) {

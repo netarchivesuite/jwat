@@ -60,6 +60,9 @@ public class GzipWriter {
     /** ISO-8859-1 validating de-/encoder. */
     protected final ISO8859_1 iso8859_1 = new ISO8859_1();
 
+    /** Compliance status for records parsed up to now. */
+    protected boolean bIsCompliant = true;
+
     /** Current GZip entry object. */
     protected GzipEntry gzipEntry;
 
@@ -122,6 +125,14 @@ public class GzipWriter {
             def.end();
             def = null;
         }
+    }
+
+    /**
+     * Returns a boolean indicating whether all entries written so far are compliant.
+     * @return a boolean indicating whether all entries written so far are compliant
+     */
+    public boolean isCompliant() {
+        return bIsCompliant;
     }
 
     /**
@@ -296,6 +307,13 @@ public class GzipWriter {
         entry.writer = this;
         entry.bEof = false;
         entry.out = new GzipEntryOutputStream(this, gzipEntry);
+        // Compliance
+        if (entry.diagnostics.hasErrors() || entry.diagnostics.hasWarnings()) {
+            entry.bIsCompliant = false;
+        } else {
+            entry.bIsCompliant = true;
+        }
+        bIsCompliant &= entry.bIsCompliant;
     }
 
     /**
@@ -304,6 +322,14 @@ public class GzipWriter {
      * @throws IOException if an io error occurs while writing trailer
      */
     protected void writeTrailer(GzipEntry entry) throws IOException {
+        // Compliance
+        if (entry.diagnostics.hasErrors() || entry.diagnostics.hasWarnings()) {
+            entry.bIsCompliant = false;
+        } else {
+            entry.bIsCompliant = true;
+        }
+        bIsCompliant &= gzipEntry.bIsCompliant;
+        // Trailer
         entry.uncompressed_size = def.getBytesRead();
         entry.compressed_size = def.getBytesWritten();
         entry.comp_crc32 = (int)(crc.getValue() & 0xffffffff);

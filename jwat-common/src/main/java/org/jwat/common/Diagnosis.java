@@ -99,6 +99,7 @@ public class Diagnosis {
         return true;
     }
 
+    @Override
     public int hashCode() {
         int hashCode = type.hashCode();
         hashCode ^= entity.hashCode();

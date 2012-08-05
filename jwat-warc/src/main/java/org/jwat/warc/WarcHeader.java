@@ -36,18 +36,25 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.MaxLengthRecordingInputStream;
 
+/**
+ * Central class for working with WARC headers. This class includes support for
+ * reading and writing WARC headers. Methods are also available to validate
+ * individual headers and a WARC header as a whole.
+ *
+ * @author nicl
+ */
 public class WarcHeader {
 
     /** Associated WarcReader context.
-     * Must be set prior to calling the various methods. */
+     *  Must be set prior to calling the various methods. */
     protected WarcReader reader;
 
     /** Diagnostics used to report diagnoses.
-     * Must be set prior to calling the various methods. */
+     *  Must be set prior to calling the various methods. */
     protected Diagnostics<Diagnosis> diagnostics;
 
     /** WARC field parser used.
-     * Must be set prior to calling the various methods. */
+     *  Must be set prior to calling the various methods. */
     protected WarcFieldParsers fieldParsers;
 
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
@@ -87,65 +94,105 @@ public class WarcHeader {
     /** Array used for duplicate header detection. */
     protected boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
 
-    boolean bMandatoryMissing;
+    /** Is the header missing one of the mandatory headers. */
+    public boolean bMandatoryMissing;
 
+    /** WARC-Type field string value. */
     public String warcTypeStr;
+    /** WARC-Type converted to an integer id, if identified. */
     public Integer warcTypeIdx;
 
-    // Warcinfo record only
+    /** WARC-Filename field string value.
+     *  (warcinfo record type only) */
     public String warcFilename;
 
+    /** WARC-Record-Id field string value. */
     public String warcRecordIdStr;
+    /** WARC-Record-Id converted to an <code>URI</code> object, if valid. */
     public URI warcRecordIdUri;
 
+    /** WARC-Date field string value. */
     public String warcDateStr;
+    /** WARC-Date converted to a <code>Date</code> object, if valid. */
     public Date warcDate;
 
+    /** Content-Length field string value. */
     public String contentLengthStr;
+    /** Content-Length converted to a <code>Long</code> object, if valid. */
     public Long contentLength;
 
+    /** Content-Type field string value. */
     public String contentTypeStr;
+    /** Content-Type converted to a <code>ContentType</code> object, if valid. */
     public ContentType contentType;
 
+    /** WARC-Truncated field string value. */
     public String warcTruncatedStr;
+    /** WARC-Truncated converted to an integer id, if valid. */
     public Integer warcTruncatedIdx;
 
+    /** WARC-IP-Address field string value. */
     public String warcIpAddress;
+    /** WARC-IP-Address converted to an <code>InetAddress</code> object, if valid. */
     public InetAddress warcInetAddress;
 
+    /** List of WARC-Concurrent-To field string values and converted <code>URI</code> objects,  if valid. */
     public List<WarcConcurrentTo> warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
 
+    /** WARC-Refers-To field string value. */
     public String warcRefersToStr;
+    /** WARC-Refers-To converted to an <code>URI</code> object, if valid. */
     public URI warcRefersToUri;
 
+    /** WARC_Target-URI field string value. */
     public String warcTargetUriStr;
+    /** WARC-TargetURI converted to an <code>URI</code> object, if valid. */
     public URI warcTargetUriUri;
 
+    /** WARC-Warcinfo-Id field string value. */
     public String warcWarcinfoIdStr;
-    public URI warcWarcInfoIdUri;
+    /** WARC-Warcinfo-Id converted to an <code>URI</code> object, if valid. */
+    public URI warcWarcinfoIdUri;
 
+    /** WARC-Block-Digest field string value. */
     public String warcBlockDigestStr;
+    /** WARC-Block-Digest converted to an <code>URI</code> object, if valid. */
     public WarcDigest warcBlockDigest;
 
+    /** WARC-Payload-Digest field string value. */
     public String warcPayloadDigestStr;
+    /** WARC-Payload-Digest converted to an <code>URI</code> object, if valid. */
     public WarcDigest warcPayloadDigest;
 
+    /** WARC-Identified-Payload-Type field string value. */
     public String warcIdentifiedPayloadTypeStr;
+    /** WARC-Identified-Payload-Type converted to a <code>ContentType</code> object, if valid. */
     public ContentType warcIdentifiedPayloadType;
 
-    // revisit record only
+    /** WARC-Profile field string value.
+     *  (revisit record only) */
     public String warcProfileStr;
+    /** WARC-Profile converted to an integer id, if valid.
+     *  (revisit record only) */
     public Integer warcProfileIdx;
 
+    /** WARC-Segment-Number field string value. */
     public String warcSegmentNumberStr;
+    /** WARC-Segment-Number converted to an <code>Integer</code> object, if valid. */
     public Integer warcSegmentNumber;
 
-    // continuation record only
+    /** WARC-Segment-Origin-Id field string value.
+     *  (continuation record only) */
     public String warcSegmentOriginIdStr;
+    /** WARC-Segment-Origin-Id converted to an <code>URI</code> object, if valid.
+     *  (continuation record only) */
     public URI warcSegmentOriginIdUrl;
 
-    //continuation record only
+    /** WARC-Segment-Total-Length field string value.
+     *  (continuation record only) */
     public String warcSegmentTotalLengthStr;
+    /** WARC-Segment-Total-Length converted to a <code>Long</code> object, if valid.
+     *  (continuation record only) */
     public Long warcSegmentTotalLength;
 
     /*
@@ -170,6 +217,12 @@ public class WarcHeader {
     protected WarcHeader() {
     }
 
+    /**
+     * Create and initialize a new <code>WarcHeader</code> for writing.
+     * @param writer writer which shall be used
+     * @param diagnostics diagnostics object used by writer
+     * @return a <code>WarcHeader</code> prepared for writing
+     */
     public static WarcHeader initHeader(WarcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
         header.major = 1;
@@ -180,6 +233,13 @@ public class WarcHeader {
         return header;
     }
 
+    /**
+     * Create and initialize a new <code>WarcHeader</code> for reading.
+     * @param reader reader which shall be used
+     * @param startOffset
+     * @param diagnostics diagnostics object used by reader
+     * @return a <code>WarcHeader</code> prepared for reading
+     */
     public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
         header.reader = reader;
@@ -214,6 +274,13 @@ public class WarcHeader {
         diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
 
+    /**
+     * Try to parse a WARC header and return a boolean indicating the success or
+     * failure of this.
+     * @param in input stream with WARC data
+     * @return boolean indicating whether a header was parsed or not
+     * @throws IOException if an i/o exception occurs while parsing for a header
+     */
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
         if (parseVersion(in)) {
             // debug
@@ -263,8 +330,8 @@ public class WarcHeader {
     }
 
     /**
-     * Looks forward in the inputstream for a valid WARC version line.
-     * @param in data inputstream
+     * Looks forward in the input stream for a valid WARC version line.
+     * @param in data input stream
      * @return true, if magic WARC header found
      * @throws IOException if an error occurs while reading version data
      */
@@ -474,7 +541,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
-                    warcWarcInfoIdUri = fieldParsers.parseUri(fieldValue,
+                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
@@ -526,6 +593,14 @@ public class WarcHeader {
         headerList.add(headerLine);
     }
 
+    /**
+     * Add a String header using the supplied string and return a
+     * <code>HeaderLine</code> object corresponding to how the header would be
+     * read.
+     * @param fieldName name of field to add
+     * @param fieldValue field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, String fieldValue) {
         HeaderLine headerLine = new HeaderLine();
         headerLine.name = fieldName;
@@ -534,6 +609,19 @@ public class WarcHeader {
         return headerLine;
     }
 
+    /**
+     * Add an Integer header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>Integer</code> field value object
+     * @param fieldValueStr Integer field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, Integer integerFieldValue, String fieldValueStr) {
         if (integerFieldValue == null && fieldValueStr != null) {
             integerFieldValue = fieldParsers.parseInteger(fieldValueStr, fieldName);
@@ -544,6 +632,19 @@ public class WarcHeader {
                 integerFieldValue, null, null, null, null, null, null);
     }
 
+    /**
+     * Add a Long header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>Long</code> field value object
+     * @param fieldValueStr Long field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, Long longFieldValue, String fieldValueStr) {
         if (longFieldValue == null && fieldValueStr != null) {
             longFieldValue = fieldParsers.parseLong(fieldValueStr, fieldName);
@@ -554,6 +655,19 @@ public class WarcHeader {
                 null, longFieldValue, null, null, null, null, null);
     }
 
+    /**
+     * Add an Digest header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>Digest</code> field value object
+     * @param fieldValueStr Digest field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, WarcDigest digestFieldValue, String fieldValueStr) {
         if (digestFieldValue == null && fieldValueStr != null) {
             digestFieldValue = fieldParsers.parseDigest(fieldValueStr, fieldName);
@@ -564,6 +678,19 @@ public class WarcHeader {
                 null, null, digestFieldValue, null, null, null, null);
     }
 
+    /**
+     * Add an Content-Type header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>ContentType</code> field value object
+     * @param fieldValueStr Content-Type field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, ContentType contentTypeFieldValue, String fieldValueStr) {
         if (contentTypeFieldValue == null && fieldValueStr != null) {
             contentTypeFieldValue = fieldParsers.parseContentType(fieldValueStr, fieldName);
@@ -574,6 +701,19 @@ public class WarcHeader {
                 null, null, null, contentTypeFieldValue, null, null, null);
     }
 
+    /**
+     * Add an Date header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>Date</code> field value object
+     * @param fieldValueStr Date field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
         if (dateFieldValue == null && fieldValueStr != null) {
             dateFieldValue = fieldParsers.parseDate(fieldValueStr, fieldName);
@@ -584,6 +724,19 @@ public class WarcHeader {
                 null, null, null, null, dateFieldValue, null, null);
     }
 
+    /**
+     * Add an InetAddress header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>InetAddress</code> field value object
+     * @param fieldValueStr IP-Address field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, InetAddress inetAddrFieldValue, String fieldValueStr) {
         if (inetAddrFieldValue == null && fieldValueStr != null) {
             inetAddrFieldValue = fieldParsers.parseIpAddress(fieldValueStr, fieldName);
@@ -594,6 +747,19 @@ public class WarcHeader {
                 null, null, null, null, null, inetAddrFieldValue, null);
     }
 
+    /**
+     * Add an URI header using the supplied string and object values and return
+     * a <code>HeaderLine</code> object corresponding to how the header would be read.
+     * If both string and object values are not null they are used as is.
+     * If the string value is null and the object is not null,
+     * the object's toString method is called.
+     * If the object is null and the string is not null, the string is parsed
+     * and validated resulting in an object, if valid. 
+     * @param fieldName name of field to add
+     * @param uriFieldValue <code>URI</code> field value object
+     * @param fieldValueStr URI field value string
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, URI uriFieldValue, String fieldValueStr) {
         if (uriFieldValue == null && fieldValueStr != null) {
             uriFieldValue = fieldParsers.parseUri(fieldValueStr, fieldName);
@@ -604,6 +770,24 @@ public class WarcHeader {
                 null, null, null, null, null, null, uriFieldValue);
     }
 
+    /**
+     * Add a header with the supplied field name, data type and value and
+     * return a <code>HeaderLine</code> corresponding to how the header will
+     * be read. The data type is validated against the field data type.
+     * The values used are the field value string and the parameter
+     * corresponding to the data type.
+     * @param fieldName header field name
+     * @param fieldValueStr field value in string form
+     * @param dt data type of the field value string when converted to an object
+     * @param integerFieldValue <code>Integer</code> object field value
+     * @param longFieldValue <code>Long</code> object field value
+     * @param digestFieldValue <code>Digest</code> object field value
+     * @param contentTypeFieldValue <code>ContentType</code> object field value
+     * @param dateFieldValue <code>Date</code> object field value
+     * @param inetAddrFieldValue <code>InetAddress</code> object field value
+     * @param uriFieldValue <code>URI</code> object field value
+     * @return <code>HeaderLine</code> object corresponding to what would have been read
+     */
     public HeaderLine addHeader(String fieldName, String fieldValueStr, int dt,
             Integer integerFieldValue, Long longFieldValue,
             WarcDigest digestFieldValue, ContentType contentTypeFieldValue,
@@ -705,7 +889,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValueStr;
-                    warcWarcInfoIdUri = uriFieldValue;
+                    warcWarcinfoIdUri = uriFieldValue;
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValueStr;
@@ -847,7 +1031,7 @@ public class WarcHeader {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TRUNCATED, warcTruncatedIdx, warcTruncatedStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcInfoIdUri, warcWarcinfoIdStr);
+                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcinfoIdUri, warcWarcinfoIdStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_BLOCK_DIGEST, warcBlockDigest, warcBlockDigestStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST, warcPayloadDigest, warcPayloadDigestStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);

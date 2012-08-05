@@ -49,9 +49,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Reader instance used, required for file compliance. */
     protected WarcReader reader;
 
-    /** Bytes consumed while validating this record. */
-    //long consumed = 0;
-
     /** Input stream used to read this record. */
     protected ByteCountingPushBackInputStream in;
 
@@ -112,6 +109,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected WarcRecord() {
     }
 
+    /**
+     * Create a <code>WarcRecord</code> and prepare it for writing.
+     * @param writer writer which will be used to write the record
+     * @return a <code>WarcRecord</code> ready to be changed and then written
+     */
     public static WarcRecord createRecord(WarcWriter writer) {
         WarcRecord record = new WarcRecord();
         record.header = WarcHeader.initHeader(writer, record.diagnostics);
@@ -191,6 +193,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                                 digestAlgorithm = reader.payloadDigestAlgorithm;
                             }
                         }
+                        // Try to read a valid HTTP request/response header from the payload.
                         record.httpHeader = HttpHeader.processPayload(httpHeaderType,
                                 record.payload.getInputStream(), header.contentLength,
                                 digestAlgorithm);

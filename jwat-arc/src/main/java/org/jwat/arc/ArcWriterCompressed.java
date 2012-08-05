@@ -78,21 +78,14 @@ public class ArcWriterCompressed extends ArcWriter {
     }
 
     @Override
-    public void close() {
-        try {
-            if (entry != null) {
-                closeRecord();
-            }
-        } catch (IOException e) {
+    public void close() throws IOException {
+        if (entry != null) {
+            closeRecord();
         }
-        try {
-            if (out != null) {
-                out.flush();
-                out.close();
-                out = null;
-            }
-        }
-        catch (IOException e) {
+        if (out != null) {
+            out.flush();
+            out.close();
+            out = null;
         }
     }
 
@@ -111,11 +104,6 @@ public class ArcWriterCompressed extends ArcWriter {
 
     @Override
     public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
-        /*
-        if (entry != null) {
-            closeRecord();
-        }
-        */
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
@@ -147,11 +135,6 @@ public class ArcWriterCompressed extends ArcWriter {
 
     @Override
     public byte[] writeHeader(ArcRecordBase record) throws IOException {
-        /*
-        if (entry != null) {
-            closeRecord();
-        }
-        */
         if (record == null) {
             throw new IllegalArgumentException(
                     "The 'record' parameter is null!");
@@ -170,11 +153,10 @@ public class ArcWriterCompressed extends ArcWriter {
         entry.os = GzipConstants.OS_UNKNOWN;
         writer.writeEntryHeader(entry);
         out = entry.getOutputStream();
+        // state changed to S_HEADER_WRITTEN
+        // Sets the header and headerContentLength fields.
+        // payloadWrittenTotal is set to 0
         return writeHeader_impl(record);
-        //state = S_HEADER_WRITTEN;
-        //header
-        //headerContentLength
-        //payloadWrittenTotal = 0;
     }
 
     @Override
@@ -182,8 +164,8 @@ public class ArcWriterCompressed extends ArcWriter {
         if (entry == null) {
             throw new IllegalStateException();
         }
+        // state changed to S_PAYLOAD_WRITTEN
         return super.streamPayload(in);
-        //state = S_PAYLOAD_WRITTEN;
     }
 
     @Override
@@ -191,8 +173,8 @@ public class ArcWriterCompressed extends ArcWriter {
         if (entry == null) {
             throw new IllegalStateException();
         }
+        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b);
-        //state = S_PAYLOAD_WRITTEN;
     }
 
     @Override
@@ -200,8 +182,8 @@ public class ArcWriterCompressed extends ArcWriter {
         if (entry == null) {
             throw new IllegalStateException();
         }
+        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b, offset, len);
-        //state = S_PAYLOAD_WRITTEN;
     }
 
 }

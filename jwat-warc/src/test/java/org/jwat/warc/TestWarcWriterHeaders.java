@@ -202,7 +202,7 @@ public class TestWarcWriterHeaders {
             header.warcRecordIdUri = recordIdObj;
             header.warcRefersToUri = refersToObj;
             header.warcTargetUriUri = targetUriObj;
-            header.warcWarcInfoIdUri = warcinfoIdObj;
+            header.warcWarcinfoIdUri = warcinfoIdObj;
             header.warcSegmentOriginIdUrl = segmentOriginIdObj;
             for (int i=0; i<concurrentHeaders.length; ++i) {
                 WarcConcurrentTo concurrentTo = new WarcConcurrentTo();
@@ -345,7 +345,7 @@ public class TestWarcWriterHeaders {
                     //Assert.assertEquals(targetUriStr, header.warcTargetUriStr);
                     Assert.assertEquals(targetUriObj, header.warcTargetUriUri);
                     //Assert.assertEquals(warcinfoIdStr, header.warcWarcinfoIdStr);
-                    Assert.assertEquals(warcinfoIdObj, header.warcWarcInfoIdUri);
+                    Assert.assertEquals(warcinfoIdObj, header.warcWarcinfoIdUri);
                     //Assert.assertEquals(segmentOriginIdStr, header.warcSegmentOriginIdStr);
                     Assert.assertEquals(segmentOriginIdObj, header.warcSegmentOriginIdUrl);
                     Assert.assertEquals(concurrentHeaders.length, header.warcConcurrentToList.size());

@@ -174,16 +174,17 @@ public class WarcFieldParsers {
      */
     protected URI parseUri(String uriStr, String field) {
         URI uri = null;
-        if (uriStr != null && uriStr.length() != 0) {
-            if (uriStr.startsWith("<") && uriStr.endsWith(">")) {
-                uriStr = uriStr.substring(1, uriStr.length() - 1);
+        String uriStrClean = uriStr;
+        if (uriStrClean != null && uriStrClean.length() != 0) {
+            if (uriStrClean.startsWith("<") && uriStrClean.endsWith(">")) {
+                uriStrClean = uriStrClean.substring(1, uriStrClean.length() - 1);
             }
             try {
-                uri = new URI(uriStr);
+                uri = new URI(uriStrClean);
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",
-                        uriStr,
+                        uriStrClean,
                         "URI format");
             }
             if (uri != null) {
@@ -192,7 +193,7 @@ public class WarcFieldParsers {
                     uri = null;
                     // Relative URI.
                     addInvalidExpectedError("'" + field + "' value",
-                            uriStr,
+                            uriStrClean,
                             "Absolute URI");
                 }
             }

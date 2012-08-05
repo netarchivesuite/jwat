@@ -70,9 +70,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** ARC record version. */
     protected ArcVersion version;
 
-    /** ARC record version block. */
-    //protected ArcVersionBlock versionBlock;
-
     /** ARC record parsing start offset relative to the source ARC file input
      *  stream. Used to keep track of the uncompressed amount of bytes consumed. */
     protected long startOffset;
@@ -136,15 +133,16 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         // Initialize ArcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = diagnostics;
         if (header.parseHeader(in)) {
+            // TODO check that first record should be a filedesc:// version block.
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
                 record = ArcVersionBlock.parseVersionBlock(reader, header, reader.fieldParsers, in);
                 reader.versionHeader = record.versionHeader;
-                if (record.versionHeader != null) {
-                    record.version = record.versionHeader.version;
-                }
             }
             if (record == null) {
                 record = ArcRecord.parseArcRecord(reader, header, in);
+                if (record != null && reader.versionHeader != null) {
+                    record.version = reader.versionHeader.version;
+                }
             }
         }
         if (record != null) {

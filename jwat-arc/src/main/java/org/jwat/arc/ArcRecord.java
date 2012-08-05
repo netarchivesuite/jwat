@@ -72,9 +72,6 @@ public class ArcRecord extends ArcRecordBase {
         ar.reader = reader;
         ar.header = header;
         ar.in = in;
-        // TODO check for actual version present!
-        //ar.versionBlock = versionBlock;
-        //ar.version = versionBlock.version;
         // Process payload.
         ar.processPayload(in, reader);
         // Updated consumed after payload has been consumed.
@@ -102,6 +99,7 @@ public class ArcRecord extends ArcRecordBase {
                 if (reader.bPayloadDigest) {
                     digestAlgorithm = reader.payloadDigestAlgorithm;
                 }
+                // Try to read a valid HTTP response header from the payload.
                 httpHeader = HttpHeader.processPayload(HttpHeader.HT_RESPONSE,
                             payload.getInputStream(), header.archiveLength.longValue(),
                             digestAlgorithm);
@@ -125,28 +123,6 @@ public class ArcRecord extends ArcRecordBase {
         }
         return;
     }
-
-    /**
-     * Checks if the ARC record payload has warnings.
-     * @return true/false based on whether the ARC record has warnings or not
-     */
-    /*
-    @Override
-    public boolean hasWarnings() {
-        return ((httpResponse != null) && (httpResponse.hasWarnings()));
-    }
-    */
-
-    /**
-     * Returns the ARC record payload warnings.
-     * @return validation errors list/
-     */
-    /*
-    @Override
-    public Collection<String> getWarnings() {
-        return (hasWarnings()) ? httpResponse.getWarnings() : null;
-    }
-    */
 
     @Override
     public String toString() {

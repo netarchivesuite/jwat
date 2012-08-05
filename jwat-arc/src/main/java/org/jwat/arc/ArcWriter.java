@@ -114,7 +114,7 @@ public abstract class ArcWriter {
     /**
      * Close ARC writer and free its resources.
      */
-    public abstract void close();
+    public abstract void close() throws IOException;
 
     /**
      * Close the ARC record.
@@ -163,7 +163,7 @@ public abstract class ArcWriter {
     }
 
     /**
-     * Write a raw ARC header to the WARC output stream.
+     * Write a raw ARC header to the ARC output stream.
      * @param header_bytes raw ARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
@@ -189,14 +189,14 @@ public abstract class ArcWriter {
     }
 
     /**
-     * Write a WARC header to the ARC output stream.
+     * Write a ARC header to the ARC output stream.
      * @param record ARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
     public abstract byte[] writeHeader(ArcRecordBase record) throws IOException;
 
     /**
-     * Write an ARC header to the WARC output stream.
+     * Write an ARC header to the ARC output stream.
      * @param record ARC record to output
      * @throws IOException if an exception occurs while writing header data
      */
@@ -379,7 +379,7 @@ public abstract class ArcWriter {
     }
 
     /**
-    *
+    * TODO javadocs.
     * @param in input stream containing payload data
     * @return written length of payload data
     * @throws IOException if an exception occurs while writing payload data

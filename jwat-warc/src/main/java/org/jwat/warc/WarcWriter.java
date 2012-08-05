@@ -138,16 +138,17 @@ public abstract class WarcWriter {
     /**
      * Close WARC writer and free its resources.
      */
-    public abstract void close();
+    public abstract void close() throws IOException;
 
     /**
-     * Close the WARC record.
+     * Close the WARC record in an implementation specific way.
      * @throws IOException if an exception occurs while closing the record
      */
     public abstract void closeRecord() throws IOException;
 
     /**
-     * Close the WARC record by writing two newlines.
+     * Close the WARC record by writing two newlines and compare the amount of
+     * payload data streamed with the content-length supplied with the header.
      * @throws IOException if an exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
@@ -450,8 +451,8 @@ public abstract class WarcWriter {
          * Warc-Warcinfo-Id
          */
         String warcWarcInfoIdStr = null;
-        if (header.warcWarcInfoIdUri != null) {
-            warcWarcInfoIdStr = header.warcWarcInfoIdUri.toString();
+        if (header.warcWarcinfoIdUri != null) {
+            warcWarcInfoIdStr = header.warcWarcinfoIdUri.toString();
         } else if (header.warcWarcinfoIdStr != null) {
             warcWarcInfoIdStr = header.warcWarcinfoIdStr;
             // Warning...
@@ -568,10 +569,10 @@ public abstract class WarcWriter {
     }
 
     /**
-     *
+     * Stream the content of an input stream to the payload content.
      * @param in input stream containing payload data
-     * @return written length of payload data
-     * @throws IOException if an exception occurs while writing payload data
+     * @return number of bytes written during method invocation
+     * @throws IOException if an i/o exception occurs while writing payload data
      */
     public long streamPayload(InputStream in) throws IOException {
         if (in == null) {
@@ -593,6 +594,12 @@ public abstract class WarcWriter {
         return written;
     }
 
+    /**
+     * Append the content of a byte array to the payload content.
+     * @param b byte array with data to be written
+     * @return number of bytes written during method invocation
+     * @throws IOException if an i/o exception occurs while writing payload data
+     */
     public long writePayload(byte[] b) throws IOException {
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
             throw new IllegalStateException("Write a header before writing payload!");
@@ -603,6 +610,14 @@ public abstract class WarcWriter {
         return b.length;
     }
 
+    /**
+     * Append the partial content of a byte array to the payload content.
+     * @param b byte array with partial data to be written
+     * @param offset offset to data to be written
+     * @param len length of data to be written
+     * @return number of bytes written during method invocation
+     * @throws IOException if an i/o exception occurs while writing payload data
+     */
     public long writePayload(byte[] b, int offset, int len) throws IOException {
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
             throw new IllegalStateException("Write a header before writing payload!");

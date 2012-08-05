@@ -66,13 +66,13 @@ public class GzipReader {
     protected final ISO8859_1 iso8859_1 = new ISO8859_1();
 
     /** Compliance status for records parsed up to now. */
-    protected boolean bIsValid = true;
-
-    /** Number of bytes consumed by this reader. */
-    protected long consumed;
+    protected boolean bIsCompliant = true;
 
     /** Entry offset, updated each time an entry is closed. */
     protected long startOffset;
+
+    /** Number of bytes consumed by this reader. */
+    protected long consumed;
 
     /** Current GZip entry object. */
     protected GzipEntry gzipEntry;
@@ -164,11 +164,11 @@ public class GzipReader {
     }
 
     /**
-     * Returns a boolean indicating whether all entries parsed so far are valid.
-     * @return a boolean indicating whether all entries parsed so far are valid
+     * Returns a boolean indicating whether all entries parsed so far are compliant.
+     * @return a boolean indicating whether all entries parsed so far are compliant
      */
-    public boolean isValid() {
-        return bIsValid;
+    public boolean isCompliant() {
+        return bIsCompliant;
     }
 
     /**
@@ -395,12 +395,16 @@ public class GzipReader {
              */
             lastInput = 0;
             gzipEntry.in = new GzipEntryInputStream(this, gzipEntry);
+            // Compliance
             if (gzipEntry.diagnostics.hasErrors() || gzipEntry.diagnostics.hasWarnings()) {
-                bIsValid = false;
+                gzipEntry.bIsCompliant = false;
+            } else {
+                gzipEntry.bIsCompliant = true;
             }
+            bIsCompliant &= gzipEntry.bIsCompliant;
         } else {
             if (pbin.read() != -1) {
-                bIsValid = false;
+                bIsCompliant = false;
                 throw new EOFException("Unexpected EOF!");
             }
         }
@@ -461,9 +465,13 @@ public class GzipReader {
         } else {
             throw new EOFException("Unexpected EOF!");
         }
+        // Compliance
         if (gzipEntry.diagnostics.hasErrors() || gzipEntry.diagnostics.hasWarnings()) {
-            bIsValid = false;
+            gzipEntry.bIsCompliant = false;
+        } else {
+            gzipEntry.bIsCompliant = true;
         }
+        bIsCompliant &= gzipEntry.bIsCompliant;
     }
 
     /**
