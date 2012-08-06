@@ -47,6 +47,10 @@ public class TestDiagnosis {
         str = dt.toString();
         Assert.assertNotNull(str);
 
+        dt = DiagnosisType.ERROR;
+        str = dt.toString();
+        Assert.assertNotNull(str);
+
         dt = DiagnosisType.ERROR_EXPECTED;
         str = dt.toString();
         Assert.assertNotNull(str);
@@ -68,6 +72,10 @@ public class TestDiagnosis {
         Assert.assertNotNull(str);
 
         dt = DiagnosisType.RECOMMENDED;
+        str = dt.toString();
+        Assert.assertNotNull(str);
+
+        dt = DiagnosisType.RECOMMENDED_MISSING;
         str = dt.toString();
         Assert.assertNotNull(str);
 
@@ -106,11 +114,11 @@ public class TestDiagnosis {
         } catch (IllegalArgumentException e) {
         }
 
-        d = new Diagnosis(DiagnosisType.UNKNOWN, "Void");
+        d = new Diagnosis(DiagnosisType.EMPTY, "Void");
         Assert.assertNotNull(d);
         str = d.toString();
         Assert.assertNotNull(str);
-        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
+        Assert.assertEquals(DiagnosisType.EMPTY, d.type);
         Assert.assertEquals("Void", d.entity);
         Assert.assertEquals(0, d.information.length);
 
@@ -118,11 +126,11 @@ public class TestDiagnosis {
         Assert.assertEquals(1, messageArgs.length);
         Assert.assertEquals("Void", messageArgs[0]);
 
-        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me");
+        d = new Diagnosis(DiagnosisType.UNKNOWN, "help", "me");
         Assert.assertNotNull(d);
         str = d.toString();
         Assert.assertNotNull(str);
-        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
         Assert.assertEquals("help", d.entity);
         Assert.assertEquals(1, d.information.length);
         Assert.assertEquals("me", d.information[0]);
@@ -161,10 +169,10 @@ public class TestDiagnosis {
         Assert.assertEquals(0, ds.getErrors().size());
         Assert.assertEquals(0, ds.getWarnings().size());
 
-        d = new Diagnosis(DiagnosisType.UNKNOWN, "Void");
+        d = new Diagnosis(DiagnosisType.EMPTY, "Void");
         Assert.assertNotNull(d);
         ds.addError(d);
-        d = new Diagnosis(DiagnosisType.RECOMMENDED, "help", "me");
+        d = new Diagnosis(DiagnosisType.UNKNOWN, "help", "me");
         Assert.assertNotNull(d);
         ds.addWarning(d);
 
@@ -177,7 +185,7 @@ public class TestDiagnosis {
         Assert.assertNotNull(d);
         str = d.toString();
         Assert.assertNotNull(str);
-        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
+        Assert.assertEquals(DiagnosisType.EMPTY, d.type);
         Assert.assertEquals("Void", d.entity);
         Assert.assertEquals(0, d.information.length);
 
@@ -185,7 +193,7 @@ public class TestDiagnosis {
         Assert.assertNotNull(d);
         str = d.toString();
         Assert.assertNotNull(str);
-        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
         Assert.assertEquals("help", d.entity);
         Assert.assertEquals(1, d.information.length);
         Assert.assertEquals("me", d.information[0]);
@@ -230,7 +238,7 @@ public class TestDiagnosis {
         Assert.assertNotNull(d);
         ds.addError(d);
 
-        d = new Diagnosis(DiagnosisType.RECOMMENDED, "w_one_entity", "w_one_info");
+        d = new Diagnosis(DiagnosisType.UNKNOWN, "w_one_entity", "w_one_info");
         Assert.assertNotNull(d);
         ds.addWarning(d);
 
@@ -254,7 +262,7 @@ public class TestDiagnosis {
         Assert.assertEquals("e_one_info", d.information[0]);
 
         d = ds.getWarnings().get(0);
-        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
         Assert.assertEquals("w_one_entity", d.entity);
         Assert.assertEquals(1, d.information.length);
         Assert.assertEquals("w_one_info", d.information[0]);
@@ -307,7 +315,7 @@ public class TestDiagnosis {
         Assert.assertEquals("e_one_info", d.information[0]);
 
         d = ds.getWarnings().get(0);
-        Assert.assertEquals(DiagnosisType.RECOMMENDED, d.type);
+        Assert.assertEquals(DiagnosisType.UNKNOWN, d.type);
         Assert.assertEquals("w_one_entity", d.entity);
         Assert.assertEquals(1, d.information.length);
         Assert.assertEquals("w_one_info", d.information[0]);
@@ -340,8 +348,8 @@ public class TestDiagnosis {
         Assert.assertEquals(d1, d2);
         Assert.assertEquals(d1.hashCode(), d2.hashCode());
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+        d1 = new Diagnosis(DiagnosisType.INVALID, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.INVALID, "empty", (String[]) null);
 
         Assert.assertEquals(d1, d2);
         Assert.assertEquals(d1.hashCode(), d2.hashCode());
@@ -387,43 +395,43 @@ public class TestDiagnosis {
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.ERROR, "empty");
-        d2 = new Diagnosis(DiagnosisType.ERROR, "error");
+        d1 = new Diagnosis(DiagnosisType.INVALID, "empty");
+        d2 = new Diagnosis(DiagnosisType.INVALID, "error");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", "info");
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty");
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", "info");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty");
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty");
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", "info");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", "info");
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", (String[]) null);
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));
 
-        d1 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", (String[]) null);
-        d2 = new Diagnosis(DiagnosisType.UNKNOWN, "empty", "info");
+        d1 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", (String[]) null);
+        d2 = new Diagnosis(DiagnosisType.RECOMMENDED_MISSING, "empty", "info");
 
         Assert.assertFalse(d1.equals(d2));
         Assert.assertThat(d1.hashCode(), is(not(equalTo(d2.hashCode()))));

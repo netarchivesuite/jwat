@@ -178,7 +178,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     Assert.assertEquals(0, record.diagnostics.getErrors().size());
                     Assert.assertEquals(1, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
-                            {DiagnosisType.RECOMMENDED, "'Content-Type' header", 0}
+                            {DiagnosisType.RECOMMENDED_MISSING, "'Content-Type' header", 0}
                     };
                     TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);

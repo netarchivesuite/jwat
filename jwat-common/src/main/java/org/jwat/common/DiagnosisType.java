@@ -25,42 +25,56 @@ package org.jwat.common;
 public enum DiagnosisType {
 
     /** An entity has more than one value definition. */
-    DUPLICATE,
+    DUPLICATE(1),
 
     /** Empty entity value. */
-    EMPTY,
+    EMPTY(0),
 
     /** Entity is erroneous. */
-    ERROR,
+    ERROR(1),
 
     /** Entity is erroneous and something else was expected. */
-    ERROR_EXPECTED,
+    ERROR_EXPECTED(1),
 
     /** Invalid circumstance surrounding entity. */
-    INVALID,
+    INVALID(0),
 
     /** Invalid data encountered. */
-    INVALID_DATA,
+    INVALID_DATA(1),
 
     /** Invalid encoding encountered. */
-    INVALID_ENCODING,
+    INVALID_ENCODING(2),
 
     /** Invalid data, expected something else. */
-    INVALID_EXPECTED,
+    INVALID_EXPECTED(2),
 
     /** Entity value differs from recommended value. */
-    RECOMMENDED,
+    RECOMMENDED(2),
+
+    /** Entity value missing but is recommended. */
+    RECOMMENDED_MISSING(0),
 
     /** Required entity has an invalid value. */
-    REQUIRED_INVALID,
+    REQUIRED_INVALID(1),
 
     /** Something reserved is being used. */
-    RESERVED,
+    RESERVED(1),
 
     /** Entity is undesired. */
-    UNDESIRED_DATA,
+    UNDESIRED_DATA(1),
 
     /** Entity has an unknown value according to some specification. */
-    UNKNOWN;
+    UNKNOWN(1);
+
+    /** Minimum number of information strings expected. */
+    public final int expected_information;
+
+    /**
+     * Enum constructor.
+     * @param expected_information minimum number of information strings expected
+     */
+    private DiagnosisType(int expected_information) {
+        this.expected_information = expected_information;
+    }
 
 }

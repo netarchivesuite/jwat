@@ -616,7 +616,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>Integer</code> field value object
      * @param fieldValueStr Integer field value string
@@ -639,7 +639,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>Long</code> field value object
      * @param fieldValueStr Long field value string
@@ -662,7 +662,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>Digest</code> field value object
      * @param fieldValueStr Digest field value string
@@ -685,7 +685,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>ContentType</code> field value object
      * @param fieldValueStr Content-Type field value string
@@ -708,7 +708,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>Date</code> field value object
      * @param fieldValueStr Date field value string
@@ -731,7 +731,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>InetAddress</code> field value object
      * @param fieldValueStr IP-Address field value string
@@ -754,7 +754,7 @@ public class WarcHeader {
      * If the string value is null and the object is not null,
      * the object's toString method is called.
      * If the object is null and the string is not null, the string is parsed
-     * and validated resulting in an object, if valid. 
+     * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
      * @param uriFieldValue <code>URI</code> field value object
      * @param fieldValueStr URI field value string
@@ -973,7 +973,8 @@ public class WarcHeader {
         if (contentLength != null && contentLength.longValue() > 0L &&
                         (contentTypeStr == null || contentTypeStr.length() == 0)) {
             if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
-                addWarningDiagnosis(DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
+                addWarningDiagnosis(DiagnosisType.RECOMMENDED_MISSING,
+                        "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
             }
         }
 

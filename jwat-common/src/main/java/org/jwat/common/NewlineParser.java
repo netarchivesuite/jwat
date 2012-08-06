@@ -110,15 +110,15 @@ public class NewlineParser {
         */
         if (bMissingLf) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing LF"));
+                    "Missing LF", "Sequence of LFs"));
         }
         if (bMisplacedCr) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced CR"));
+                    "Misplaced CR", "Sequence of LFs"));
         }
         if (bMisplacedLf) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced LF"));
+                    "Misplaced LF", "Sequence of LFs"));
         }
         return newlines;
     }
@@ -184,19 +184,19 @@ public class NewlineParser {
         }
         if (bMissingCr) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing CR"));
+                    "Missing CR", "Sequence of CRLFs"));
         }
         if (bMissingLf) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing LF"));
+                    "Missing LF", "Sequence of CRLFs"));
         }
         if (bMisplacedCr) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced CR"));
+                    "Misplaced CR", "Sequence of CRLFs"));
         }
         if (bMisplacedLf) {
             diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced LF"));
+                    "Misplaced LF", "Sequence of CRLFs"));
         }
         return newlines;
     }

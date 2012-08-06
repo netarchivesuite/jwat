@@ -52,6 +52,10 @@ public class Diagnosis {
         this.type = type;
         this.entity = entity;
         this.information = information;
+        if (type.expected_information > 0 && (information == null
+                || information.length < type.expected_information)) {
+            throw new IllegalArgumentException("Missing information!");
+        }
     }
 
     /**

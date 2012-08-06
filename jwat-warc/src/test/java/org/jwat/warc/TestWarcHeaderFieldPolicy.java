@@ -89,7 +89,7 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     //{"Content-Type", "application/warc-fields"},
                     {"Content-Length", "483"},
                     }, null, new Object[][] {
-                        {DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
                     }, null
             },
             {new Object[][] {
@@ -112,7 +112,7 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     }, new Object[][] {
                         {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", 1}
                     }, new Object[][] {
-                        {DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
                     }, null
             },
             {new Object[][] {
@@ -125,7 +125,7 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                         {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", 1}
                     }, new Object[][] {
                         {DiagnosisType.EMPTY, "'" + WarcConstants.FN_CONTENT_TYPE + "' field", 0},
-                        {DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
                     }, null
             },
             {new Object[][] {
