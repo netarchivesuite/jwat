@@ -78,7 +78,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected long consumed;
 
     /** Validation errors and warnings. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public Diagnostics<Diagnosis> diagnostics;
 
     /** Newline parser for counting/validating trailing newlines. */
     public NewlineParser nlp = new NewlineParser();
@@ -138,11 +138,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         if (header.parseHeader(in)) {
             // TODO check that first record should be a filedesc:// version block.
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
-                record = ArcVersionBlock.parseVersionBlock(reader, header, reader.fieldParsers, in);
+                record = ArcVersionBlock.parseVersionBlock(reader, diagnostics, header, reader.fieldParsers, in);
                 reader.versionHeader = record.versionHeader;
             }
             if (record == null) {
-                record = ArcRecord.parseArcRecord(reader, header, in);
+                record = ArcRecord.parseArcRecord(reader, diagnostics, header, in);
                 if (record != null && reader.versionHeader != null) {
                     record.version = reader.versionHeader.version;
                 }

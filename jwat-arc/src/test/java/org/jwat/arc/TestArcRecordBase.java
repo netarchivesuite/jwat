@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ContentType;
+import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
 public class TestArcRecordBase {
@@ -109,8 +110,13 @@ public class TestArcRecordBase {
             Assert.assertEquals(header.offset, record.getOffset());
             Assert.assertEquals(header.archiveLength, record.getArchiveLength());
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertTrue(header.diagnostics.hasWarnings());
+
+            Object[][] expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
             record.close();
             reader.close();

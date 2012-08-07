@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 
@@ -65,11 +66,13 @@ public class ArcRecord extends ArcRecordBase {
      * @throws IOException io exception while parsing arc record
      */
     public static ArcRecord parseArcRecord(ArcReader reader,
+            Diagnostics<Diagnosis> diagnostics,
             ArcHeader header, ByteCountingPushBackInputStream in)
                                                           throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.recordType = RT_ARC_RECORD;
         ar.reader = reader;
+        ar.diagnostics = diagnostics;
         ar.header = header;
         ar.in = in;
         // Process payload.

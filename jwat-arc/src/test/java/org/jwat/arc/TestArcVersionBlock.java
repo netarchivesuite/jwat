@@ -237,6 +237,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2},
                     {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
@@ -511,6 +512,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
                     {DiagnosisType.ERROR_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());

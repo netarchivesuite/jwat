@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
 import org.jwat.common.Payload;
 
 /**
@@ -64,11 +65,13 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @throws IOException io exception in the process of reading version block
      */
     public static ArcVersionBlock parseVersionBlock(ArcReader reader,
+            Diagnostics<Diagnosis> diagnostics,
             ArcHeader header, ArcFieldParsers fieldParsers,
             ByteCountingPushBackInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.recordType = RT_VERSION_BLOCK;
         vb.reader = reader;
+        vb.diagnostics = diagnostics;
         vb.header = header;
         vb.in = in;
         // Process payload.
