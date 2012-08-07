@@ -37,6 +37,9 @@ public final class ArcConstants {
     /** Invalid ARC record property. */
     protected static final String ARC_RECORD = "ARC record";
 
+    /** Invalid ARC version block property. */
+    protected static final String ARC_VERSION_BLOCK = "ARC version block";
+
     /** Trailing newlines after each record as per the ARC documentation. */
     public static final int ARC_RECORD_TRAILING_NEWLINES = 1;
 

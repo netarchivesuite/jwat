@@ -120,6 +120,7 @@ public class ArcReaderUncompressed extends ArcReader {
         }
         currentRecord = ArcRecordBase.parseRecord(in, this);
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = currentRecord.header.startOffset;
         }
         return currentRecord;
@@ -146,6 +147,7 @@ public class ArcReaderUncompressed extends ArcReader {
                 new ByteCountingPushBackInputStream(rin, PUSHBACK_BUFFER_SIZE);
         currentRecord = ArcRecordBase.parseRecord(pbin, this);
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }
@@ -180,6 +182,7 @@ public class ArcReaderUncompressed extends ArcReader {
                         PUSHBACK_BUFFER_SIZE);
         currentRecord = ArcRecordBase.parseRecord(pbin, this);
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }

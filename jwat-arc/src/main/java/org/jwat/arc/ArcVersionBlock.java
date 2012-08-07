@@ -82,7 +82,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * Validates the version block content type.
      * Errors and/or warnings are reported on the diagnostics object.
      */
-    protected void valdateContentType() {
+    protected void validateContentType() {
         if (header.contentType == null) {
             // Version block content-type is required.
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
@@ -112,6 +112,7 @@ public class ArcVersionBlock extends ArcRecordBase {
     protected void processPayload(ByteCountingPushBackInputStream in,
                                         ArcReader reader) throws IOException {
         payload = null;
+        validateContentType();
         if (header.archiveLength != null && header.archiveLength > 0L) {
             String digestAlgorithm = null;
             if (reader.bBlockDigest) {
@@ -136,7 +137,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                 } else {
                     diagnostics.addError(
                             new Diagnosis(DiagnosisType.ERROR,
-                                    "version block",
+                                    ArcConstants.ARC_VERSION_BLOCK,
                                     "Unable to parse version block!"));
                 }
             }
@@ -146,10 +147,23 @@ public class ArcVersionBlock extends ArcRecordBase {
                             ArcConstants.ARC_FILE,
                             "VersionBlock length missing!"));
         }
-        if ((payload == null) && ArcVersion.VERSION_1_1.equals(version)) {
-            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    ArcConstants.ARC_FILE,
-                    "Required metadata payload not found in the version block"));
+        if (versionHeader != null && versionHeader.isValid()) {
+            if (ArcVersion.VERSION_1_1.equals(version)) {
+                if ((versionHeader.getRemaining() == 0)) {
+                    bHasEmptyPayload = true;
+                    diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                            ArcConstants.ARC_FILE,
+                            "Expected metadata payload not found in the version block"));
+                }
+            } else {
+                if (versionHeader.getRemaining() == 0) {
+                    bHasEmptyPayload = true;
+                } else {
+                    diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA,
+                            "version block metadata payload",
+                            "Metadata payload must not be present in this version"));
+                }
+            }
         }
     }
 

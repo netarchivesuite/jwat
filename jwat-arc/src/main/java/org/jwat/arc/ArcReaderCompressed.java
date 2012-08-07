@@ -190,6 +190,7 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = currentEntry.getStartOffset();
             currentRecord.header.startOffset = currentEntry.getStartOffset();
         }
@@ -223,6 +224,7 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }
@@ -264,6 +266,7 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
+            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }

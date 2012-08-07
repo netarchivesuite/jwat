@@ -109,6 +109,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Payload object if any exists. */
     protected Payload payload;
 
+    /** Has all the payload data been processed while reading the record header. */
+    protected boolean bHasEmptyPayload;
+
     /** HTTP header content parsed from payload. */
     protected HttpHeader httpHeader;
 
@@ -329,6 +332,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     }
 
     /**
+     * Post process record after the record has been read but before it is
+     * returned to caller.
+     */
+    /*
+    public abstract void postProcess() throws IOException;
+    */
+
+    /**
      * Returns a boolean indicating the standard compliance of this record.
      * @return a boolean indicating the standard compliance of this record
      */
@@ -368,6 +379,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      */
     public boolean hasPayload() {
         return (payload != null);
+    }
+
+    /**
+     * Specifies whether this record has had all it's payload processed already.
+     * @return true/false whether this record's payload has been completely processed
+     */
+    public boolean hasEmptyPayload() {
+        return bHasEmptyPayload;
     }
 
     /**
