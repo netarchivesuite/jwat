@@ -57,6 +57,9 @@ public enum DiagnosisType {
     /** Required entity has an invalid value. */
     REQUIRED_INVALID(1),
 
+    /** Entity value missing but is required. */
+    REQUIRED_MISSING(0),
+
     /** Something reserved is being used. */
     RESERVED(1),
 

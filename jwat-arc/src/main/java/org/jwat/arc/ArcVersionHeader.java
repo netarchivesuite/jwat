@@ -128,11 +128,11 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
             case 2:
                 reservedStr = versionArr[ArcConstants.FN_IDX_RESERVED];
                 reserved = fieldParsers.parseInteger(
-                            reservedStr, ArcConstants.FN_RESERVED);
+                            reservedStr, ArcConstants.FN_RESERVED, false);
             case 1:
                 versionNumberStr = versionArr[ArcConstants.FN_IDX_VERSION_NUMBER];
                 versionNumber = fieldParsers.parseInteger(
-                            versionNumberStr, ArcConstants.FN_VERSION_NUMBER);
+                            versionNumberStr, ArcConstants.FN_VERSION_NUMBER, false);
             case 0:
                 break;
             }

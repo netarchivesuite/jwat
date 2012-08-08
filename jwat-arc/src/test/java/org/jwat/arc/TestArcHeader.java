@@ -142,17 +142,18 @@ public class TestArcHeader {
             Assert.assertNull(header.offset);
             Assert.assertNull(header.archiveLength);
 
-            Assert.assertTrue(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_URL + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_IP_ADDRESS + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_DATE + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CONTENT_TYPE + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' field", 0}
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
             };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getWarnings());
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+
             diagnostics.reset();
             /*
              * Valid record v2.
@@ -223,10 +224,11 @@ public class TestArcHeader {
             Assert.assertNull(header.offset);
             Assert.assertNull(header.archiveLength);
 
-            Assert.assertTrue(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
+                    /*
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_URL + "' field", 0},
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_IP_ADDRESS + "' field", 0},
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_DATE + "' field", 0},
@@ -236,9 +238,9 @@ public class TestArcHeader {
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_LOCATION + "' field", 0},
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_OFFSET + "' field", 0},
                     {DiagnosisType.EMPTY, "'" + ArcConstants.FN_FILENAME + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' field", 0}
+                    */
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
             };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getWarnings());
             diagnostics.reset();
             /*
              * Invalid record V1.
@@ -279,8 +281,8 @@ public class TestArcHeader {
             Assert.assertNull(header.offset);
             Assert.assertNull(header.archiveLength);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
@@ -373,7 +375,7 @@ public class TestArcHeader {
             Assert.assertEquals("text/htlm", header.contentTypeStr);
             Assert.assertEquals("200", header.resultCodeStr);
             Assert.assertEquals("checksum", header.checksumStr);
-            Assert.assertEquals("-", header.locationStr);
+            Assert.assertEquals(null, header.locationStr);
             Assert.assertEquals("1234", header.offsetStr);
             Assert.assertEquals("filename", header.filenameStr);
             Assert.assertEquals("40", header.archiveLengthStr);
@@ -388,6 +390,62 @@ public class TestArcHeader {
 
             Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
+            /*
+             * v2 all "-"
+             */
+            bytes = "- - - - - - - - - -\n".getBytes();
+
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in);
+            reader.fieldParsers.diagnostics = diagnostics;
+            header = ArcHeader.initHeader(reader, 42L, diagnostics);
+
+            pbin = ((ArcReaderUncompressed)reader).in;
+            success = header.parseHeader(pbin);
+
+            Assert.assertTrue(success);
+            Assert.assertEquals(2, header.recordFieldVersion);
+
+            tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
+
+            Assert.assertNull(header.urlStr);
+            Assert.assertNull(header.ipAddressStr);
+            Assert.assertNull(header.archiveDateStr);
+            Assert.assertNull(header.contentTypeStr);
+            Assert.assertNull(header.resultCodeStr);
+            Assert.assertNull(header.checksumStr);
+            Assert.assertNull(header.locationStr);
+            Assert.assertNull(header.offsetStr);
+            Assert.assertNull(header.filenameStr);
+            Assert.assertNull(header.archiveLengthStr);
+
+            Assert.assertNull(header.urlUri);
+            Assert.assertNull(header.inetAddress);
+            Assert.assertNull(header.archiveDate);
+            Assert.assertNull(header.contentType);
+            Assert.assertNull(header.resultCode);
+            Assert.assertNull(header.offset);
+            Assert.assertNull(header.archiveLength);
+
+            Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
+                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
+                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
             /*
              * Empty file.
              */

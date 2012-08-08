@@ -44,9 +44,11 @@ public class ArcFieldParsers {
      * Add a warning diagnosis on the given entity stating that it is empty.
      * @param entity entity examined
      */
+    /*
     protected void addEmptyWarning(String entity) {
         diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
     }
+    */
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid
@@ -60,26 +62,24 @@ public class ArcFieldParsers {
     }
 
     /**
-     * Parses a string.
-     * @param str the value to parse
-     * @param field field name
-     * @return the parsed value
+     * Add an error diagnosis on the given entity stating that it is required
+     * but is missing.
+     * @param entity entity examined
      */
-    protected String parseString(String str, String field) {
-        return parseString(str, field, false);
+    protected void addRequiredMissingError(String entity) {
+        diagnostics.addError(new Diagnosis(DiagnosisType.REQUIRED_MISSING, entity));
     }
 
     /**
      * Parses a string.
      * @param str the value to parse
      * @param field field name
-     * @param optional specifies if the value is optional or not
+     * @param nullable allow empty or null value
      * @return the parsed value
      */
-    protected String parseString(String str, String field, boolean optional) {
-        if (((str == null) || (str.trim().length() == 0))
-            && (!optional)) {
-            addEmptyWarning("'" + field + "' field");
+    protected String parseString(String str, String field, boolean nullable) {
+        if ((!nullable) && ((str == null) || (str.trim().length() == 0))) {
+            addRequiredMissingError("'" + field + "' value");
         }
         return str;
     }
@@ -88,9 +88,10 @@ public class ArcFieldParsers {
      * Returns an Integer object holding the value of the specified string.
      * @param intStr the value to parse.
      * @param field field name
+     * @param nullable allow empty or null value
      * @return an integer object holding the value of the specified string
      */
-    protected Integer parseInteger(String intStr, String field) {
+    protected Integer parseInteger(String intStr, String field, boolean nullable) {
          Integer iVal = null;
          if (intStr != null && intStr.length() > 0) {
             try {
@@ -101,39 +102,21 @@ public class ArcFieldParsers {
                         intStr,
                         "Numeric format");
             }
-         } else {
+         } else if (!nullable) {
              // Missing mandatory value.
-             addEmptyWarning("'" + field + "' field");
+             addRequiredMissingError("'" + field + "' value");
          }
          return iVal;
     }
 
     /**
-     * Returns an Integer object holding the value of the specified string.
-     * @param intStr the value to parse.
-     * @param field field name
-     * @param optional specifies if the value is optional or not
-     * @return an integer object holding the value of the specified string
-     */
-    /*
-    protected Integer parseInteger(String intStr, String field,
-                                   boolean optional) {
-        Integer result = this.parseInteger(intStr, field);
-        if((result == null) && (!optional)){
-            // Missing integer value.
-            addEmptyWarning("'" + field + "' field");
-        }
-        return result;
-    }
-    */
-
-    /**
      * Returns a Long object holding the value of the specified string.
      * @param longStr the value to parse.
      * @param field field name
+     * @param nullable allow empty or null value
      * @return a long object holding the value of the specified string
      */
-    protected Long parseLong(String longStr, String field) {
+    protected Long parseLong(String longStr, String field, boolean nullable) {
         Long lVal = null;
         if (longStr != null && longStr.length() > 0) {
             try {
@@ -144,9 +127,9 @@ public class ArcFieldParsers {
                         longStr,
                         "Numeric format");
             }
-        } else {
+        } else if (!nullable) {
              // Missing mandatory value.
-             addEmptyWarning("'" + field + "' field");
+            addRequiredMissingError("'" + field + "' value");
         }
         return lVal;
     }
@@ -155,9 +138,10 @@ public class ArcFieldParsers {
      * Parses ARC record content type.
      * @param contentTypeStr ARC record content type
      * @param field field name
+     * @param nullable allow empty or null value
      * @return ARC record content type
      */
-    protected ContentType parseContentType(String contentTypeStr, String field) {
+    protected ContentType parseContentType(String contentTypeStr, String field, boolean nullable) {
         ContentType contentType = null;
         if (contentTypeStr != null && contentTypeStr.length() != 0) {
             contentType = ContentType.parseContentType(contentTypeStr);
@@ -167,9 +151,9 @@ public class ArcFieldParsers {
                         contentTypeStr,
                         ArcConstants.CONTENT_TYPE_FORMAT);
             }
-        } else {
+        } else if (!nullable) {
             // Missing content-type.
-            addEmptyWarning("'" + field + "' field");
+            addRequiredMissingError("'" + field + "' value");
         }
         return contentType;
     }
@@ -178,9 +162,10 @@ public class ArcFieldParsers {
      * Parses ARC record IP address.
      * @param ipAddress the IP address to parse
      * @param field field name
+     * @param nullable allow empty or null value
      * @return the IP address
      */
-    protected InetAddress parseIpAddress(String ipAddress, String field) {
+    protected InetAddress parseIpAddress(String ipAddress, String field, boolean nullable) {
         InetAddress inetAddr = null;
         if (ipAddress != null && ipAddress.length() > 0) {
             inetAddr = IPAddressParser.getAddress(ipAddress);
@@ -190,9 +175,9 @@ public class ArcFieldParsers {
                         ipAddress,
                         "IPv4 or IPv6 format");
             }
-        } else {
+        } else if (!nullable) {
             // Missing mandatory value.
-            addEmptyWarning("'" + field + "' field");
+            addRequiredMissingError("'" + field + "' value");
         }
         return inetAddr;
     }
@@ -201,9 +186,10 @@ public class ArcFieldParsers {
      * Returns an URL object holding the value of the specified string.
      * @param uriStr the URL to parse
      * @param field field name
+     * @param nullable allow empty or null value
      * @return an URL object holding the value of the specified string
      */
-    protected URI parseUri(String uriStr, String field) {
+    protected URI parseUri(String uriStr, String field, boolean nullable) {
         URI uri = null;
         if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
@@ -224,9 +210,9 @@ public class ArcFieldParsers {
                             "Absolute URI");
                 }
             }
-        } else {
+        } else if (!nullable) {
             // Missing mandatory value.
-            addEmptyWarning("'" + field + "' field");
+            addRequiredMissingError("'" + field + "' value");
         }
         return uri;
     }
@@ -235,9 +221,10 @@ public class ArcFieldParsers {
      * Parses ARC record date.
      * @param dateStr the date to parse.
      * @param field field name
+     * @param nullable allow empty or null value
      * @return the formatted date.
      */
-    protected Date parseDate(String dateStr, String field) {
+    protected Date parseDate(String dateStr, String field, boolean nullable) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
                 date = ArcDateParser.getDate(dateStr);
@@ -247,9 +234,9 @@ public class ArcFieldParsers {
                             dateStr,
                             ArcConstants.ARC_DATE_FORMAT);
                 }
-        } else {
+        } else if (!nullable) {
             // Missing mandatory value.
-            addEmptyWarning("'" + field + "' field");
+            addRequiredMissingError("'" + field + "' value");
         }
         return date;
     }
