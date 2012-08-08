@@ -106,7 +106,7 @@ public class ArcHeader {
     public String filenameStr;
 
     /** ARC record archive-length field string value. */
-    protected String archiveLengthStr;
+    public String archiveLengthStr;
     /** Archive-length validated and converted into a <code>Long</code> object. */
     public Long archiveLength;
 
@@ -226,7 +226,7 @@ public class ArcHeader {
         if (contentTypeStr != null) {
             sb.append(", contentType: ").append(contentTypeStr);
         }
-        if (resultCode != null) {
+        if (resultCodeStr != null) {
             sb.append(", resultCode: ").append(resultCodeStr);
         }
         if (checksumStr != null) {
@@ -235,13 +235,13 @@ public class ArcHeader {
         if (locationStr != null) {
             sb.append(", location: ").append(locationStr);
         }
-        if (offset != null) {
+        if (offsetStr != null) {
             sb.append(", offset: ").append(offsetStr);
         }
         if (filenameStr != null) {
             sb.append(", fileName: ").append(filenameStr);
         }
-        if (archiveLength != null) {
+        if (archiveLengthStr != null) {
             sb.append(", length: ").append(archiveLengthStr);
         }
     }
