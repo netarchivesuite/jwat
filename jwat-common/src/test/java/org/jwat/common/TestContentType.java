@@ -329,6 +329,7 @@ public class TestContentType {
     public void test_contenttype_equals_hashcode() {
         ContentType ct1;
         ContentType ct2;
+        String str = "42";
 
         /*
          * Nulls.
@@ -349,6 +350,8 @@ public class TestContentType {
 
         Assert.assertFalse(ct1.equals(null));
         Assert.assertFalse(ct2.equals(null));
+        Assert.assertFalse(ct1.equals(str));
+        Assert.assertFalse(ct2.equals(str));
 
         /*
          * Null vs. partial.

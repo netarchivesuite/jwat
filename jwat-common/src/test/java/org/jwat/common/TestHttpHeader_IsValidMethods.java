@@ -170,7 +170,9 @@ public class TestHttpHeader_IsValidMethods {
                 {true, "GET / HTTP/1.0",
                     "GET", "/", "HTTP/1.0", 1, 0},
                 {true, "GET / HTTP/1.1",
-                    "GET", "/", "HTTP/1.1", 1, 1}
+                    "GET", "/", "HTTP/1.1", 1, 1},
+                {true, "GET http://bits.wikimedia.org/en.wikipedia.org/load.php?debug=false&lang=en&modules=ext.UserBuckets%2CmarkAsHelpful%7Cext.UserBuckets.AccountCreationUserBucket%7Cext.articleFeedback.startup%7Cext.articleFeedbackv5.startup%7Cext.gadget.wmfFR2011Style%7Cjquery.autoEllipsis%2CcheckboxShiftClick%2CclickTracking%2CcollapsibleTabs%2Ccookie%2CdelayedBind%2ChighlightText%2Cjson%2CmakeCollapsible%2CmessageBox%2CmwPrototypes%2Cplaceholder%2Csuggestions%2CtabIndex%7Cmediawiki.language%2Cuser%2Cutil%7Cmediawiki.legacy.ajax%2Cmwsuggest%2Cwikibits%7Cmediawiki.page.ready&skin=vector&version=20120118T020454Z&* HTTP/1.1",
+                    "GET", "http://bits.wikimedia.org/en.wikipedia.org/load.php?debug=false&lang=en&modules=ext.UserBuckets%2CmarkAsHelpful%7Cext.UserBuckets.AccountCreationUserBucket%7Cext.articleFeedback.startup%7Cext.articleFeedbackv5.startup%7Cext.gadget.wmfFR2011Style%7Cjquery.autoEllipsis%2CcheckboxShiftClick%2CclickTracking%2CcollapsibleTabs%2Ccookie%2CdelayedBind%2ChighlightText%2Cjson%2CmakeCollapsible%2CmessageBox%2CmwPrototypes%2Cplaceholder%2Csuggestions%2CtabIndex%7Cmediawiki.language%2Cuser%2Cutil%7Cmediawiki.legacy.ajax%2Cmwsuggest%2Cwikibits%7Cmediawiki.page.ready&skin=vector&version=20120118T020454Z&*", "HTTP/1.1", 1, 1}
         };
         for (int i=0; i<cases.length; ++i) {
             boolean expected = (Boolean)cases[i][0];

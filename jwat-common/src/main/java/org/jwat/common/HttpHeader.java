@@ -160,7 +160,11 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
                             throws IOException {
         PushbackInputStream pbin = new PushbackInputStream(in, 16);
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
-        hlr.encoding = HeaderLineReader.ENC_UTF8;
+        hlr.bNameValue = false;
+        hlr.encoding = HeaderLineReader.ENC_ISO8859_1;
+        hlr.bLWS = false;
+        hlr.bQuotedText = false;
+        hlr.bEncodedWords = false;
         boolean bValidHttpHeader = false;
         HeaderLine line = hlr.readLine(pbin);
         int bfErrors = 0;
@@ -174,6 +178,10 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
                 throw new IllegalStateException("Invalid headerType!");
             }
         }
+        hlr.bNameValue = true;
+        hlr.bLWS = true;
+        hlr.bQuotedText = true;
+        hlr.bEncodedWords = true;
         HeaderLine tmpLine;
         boolean bLoop = bValidHttpHeader;
         while (bLoop) {

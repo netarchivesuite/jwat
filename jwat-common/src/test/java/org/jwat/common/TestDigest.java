@@ -36,6 +36,9 @@ public class TestDigest {
         Assert.assertEquals(16, Digest.digestAlgorithmLength("MD5"));
         Assert.assertEquals(20, Digest.digestAlgorithmLength("SHA1"));
         Assert.assertEquals(-1, Digest.digestAlgorithmLength("SHAFT1"));
+        Assert.assertEquals(16, Digest.digestAlgorithmLength("MD5"));
+        Assert.assertEquals(20, Digest.digestAlgorithmLength("SHA1"));
+        Assert.assertEquals(-1, Digest.digestAlgorithmLength("SHAFT1"));
         try {
             Digest.digestAlgorithmLength(null);
             Assert.fail("Exception expected!");
@@ -76,6 +79,7 @@ public class TestDigest {
     public void test_digest_equals_hashcode() {
         Digest d1;
         Digest d2;
+        String str = "42";
 
         /*
          * Nulls.
@@ -98,6 +102,8 @@ public class TestDigest {
 
         Assert.assertFalse(d1.equals(null));
         Assert.assertFalse(d2.equals(null));
+        Assert.assertFalse(d1.equals(str));
+        Assert.assertFalse(d2.equals(str));
 
         /*
          * Source null - Obj cycling.

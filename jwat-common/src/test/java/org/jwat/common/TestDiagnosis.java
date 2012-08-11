@@ -156,6 +156,28 @@ public class TestDiagnosis {
         Assert.assertEquals("me", messageArgs[1]);
         Assert.assertEquals("NOW!", messageArgs[2]);
 
+        d = new Diagnosis(DiagnosisType.EMPTY, "entity", (String[])null);
+        Assert.assertNotNull(d);
+        d = new Diagnosis(DiagnosisType.EMPTY, "entity", new String[] {});
+        Assert.assertNotNull(d);
+        d = new Diagnosis(DiagnosisType.EMPTY, "entity", "info1");
+        Assert.assertNotNull(d);
+        d = new Diagnosis(DiagnosisType.EMPTY, "entity", "info1", "info2");
+        Assert.assertNotNull(d);
+
+        try {
+            d = new Diagnosis(DiagnosisType.ERROR, "entity", (String[])null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        try {
+            d = new Diagnosis(DiagnosisType.ERROR, "entity", new String[] {});
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {}
+        d = new Diagnosis(DiagnosisType.ERROR, "entity", "info1");
+        Assert.assertNotNull(d);
+        d = new Diagnosis(DiagnosisType.ERROR, "entity", "info1", "info2");
+        Assert.assertNotNull(d);
+
         /*
          * Diagnostics.
          */
@@ -255,6 +277,24 @@ public class TestDiagnosis {
         Assert.assertEquals(1, ds.getErrors().size());
         Assert.assertEquals(1, ds.getWarnings().size());
 
+        Assert.assertTrue(ds2.hasErrors());
+        Assert.assertTrue(ds2.hasWarnings());
+        Assert.assertEquals(1, ds2.getErrors().size());
+        Assert.assertEquals(1, ds2.getWarnings().size());
+
+        ds.addAll(ds);
+        ds2.addAll(ds2);
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(1, ds.getErrors().size());
+        Assert.assertEquals(1, ds.getWarnings().size());
+
+        Assert.assertTrue(ds2.hasErrors());
+        Assert.assertTrue(ds2.hasWarnings());
+        Assert.assertEquals(1, ds2.getErrors().size());
+        Assert.assertEquals(1, ds2.getWarnings().size());
+
         d = ds.getErrors().get(0);
         Assert.assertEquals(DiagnosisType.ERROR, d.type);
         Assert.assertEquals("e_one_entity", d.entity);
@@ -331,12 +371,41 @@ public class TestDiagnosis {
         Assert.assertEquals("w_two_entity", d.entity);
         Assert.assertEquals(1, d.information.length);
         Assert.assertEquals("w_two_info", d.information[0]);
+
+        /*
+         * reset.
+         */
+
+        Assert.assertTrue(ds.hasErrors());
+        Assert.assertTrue(ds.hasWarnings());
+        Assert.assertEquals(2, ds.getErrors().size());
+        Assert.assertEquals(2, ds.getWarnings().size());
+
+        ds.reset();
+
+        Assert.assertFalse(ds.hasErrors());
+        Assert.assertFalse(ds.hasWarnings());
+        Assert.assertEquals(0, ds.getErrors().size());
+        Assert.assertEquals(0, ds.getWarnings().size());
+
+        Assert.assertTrue(ds2.hasErrors());
+        Assert.assertTrue(ds2.hasWarnings());
+        Assert.assertEquals(1, ds2.getErrors().size());
+        Assert.assertEquals(1, ds2.getWarnings().size());
+
+        ds2.reset();
+
+        Assert.assertFalse(ds2.hasErrors());
+        Assert.assertFalse(ds2.hasWarnings());
+        Assert.assertEquals(0, ds2.getErrors().size());
+        Assert.assertEquals(0, ds2.getWarnings().size());
     }
 
     @Test
     public void test_digest_equals_hashcode() {
         Diagnosis d1;
         Diagnosis d2;
+        String str = "42";
 
         /*
          * Equals.
@@ -384,6 +453,8 @@ public class TestDiagnosis {
 
         Assert.assertFalse(d1.equals(null));
         Assert.assertFalse(d2.equals(null));
+        Assert.assertFalse(d1.equals(str));
+        Assert.assertFalse(d2.equals(str));
 
         /*
          * Different.

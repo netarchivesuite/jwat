@@ -50,6 +50,7 @@ public class ArcRecord extends ArcRecordBase {
 
     public static ArcRecord create(ArcWriter writer) {
         ArcRecord ar = new ArcRecord();
+        ar.diagnostics = new Diagnostics<Diagnosis>();
         ar.header = ArcHeader.initHeader(writer, ar.diagnostics);
         writer.fieldParsers.diagnostics = ar.diagnostics;
         return ar;

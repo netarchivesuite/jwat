@@ -35,6 +35,7 @@ public class TestWarcConcurrentTo {
     public void test_warc_concurrentto_equals_hashcode() {
         WarcConcurrentTo ct1;
         WarcConcurrentTo ct2;
+        String str = "42";
 
         /*
          * Nulls.
@@ -55,6 +56,8 @@ public class TestWarcConcurrentTo {
 
         Assert.assertFalse(ct1.equals(null));
         Assert.assertFalse(ct2.equals(null));
+        Assert.assertFalse(ct1.equals(str));
+        Assert.assertFalse(ct2.equals(str));
 
         /*
          * Reference String.

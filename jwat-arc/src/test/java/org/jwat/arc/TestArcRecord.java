@@ -44,6 +44,8 @@ public class TestArcRecord {
             out.reset();
             writer = ArcWriterFactory.getWriter(out, false);
 
+            writer.setExceptionOnContentLengthMismatch(false);
+
             mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
             mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
             mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
@@ -70,6 +72,10 @@ public class TestArcRecord {
             writer.writeHeader(record);
 
             writer.writePayload(payload);
+
+            writer.closeRecord();
+
+            writer.close();
 
             System.out.println(out);
 

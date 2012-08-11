@@ -50,6 +50,7 @@ public class ArcVersionBlock extends ArcRecordBase {
 
     public static ArcVersionBlock create(ArcWriter writer) {
         ArcVersionBlock vb = new ArcVersionBlock();
+        vb.diagnostics = new Diagnostics<Diagnosis>();
         vb.header = ArcHeader.initHeader(writer, vb.diagnostics);
         writer.fieldParsers.diagnostics = vb.diagnostics;
         return vb;

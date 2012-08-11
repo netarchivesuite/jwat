@@ -49,6 +49,9 @@ public final class ArcConstants {
     /** Arc file URL URI scheme. */
     public static final String ARC_SCHEME = "filedesc";
 
+    /** End mark used after each record consisting of one line feed. */
+    protected static byte[] endMark = "\n".getBytes();
+
     /** Text plain content type. */
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
 

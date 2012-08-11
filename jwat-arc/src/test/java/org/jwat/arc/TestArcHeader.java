@@ -153,7 +153,6 @@ public class TestArcHeader {
                     {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
-
             diagnostics.reset();
             /*
              * Valid record v2.
@@ -228,19 +227,18 @@ public class TestArcHeader {
             Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    /*
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_URL + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_IP_ADDRESS + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_ARCHIVE_DATE + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CONTENT_TYPE + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_RESULT_CODE + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_CHECKSUM + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_LOCATION + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_OFFSET + "' field", 0},
-                    {DiagnosisType.EMPTY, "'" + ArcConstants.FN_FILENAME + "' field", 0},
-                    */
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
+                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
+                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
+                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
                     {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
             };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
             /*
              * Invalid record V1.

@@ -128,6 +128,7 @@ public abstract class ArcWriter {
      */
     protected void closeRecord_impl() throws IOException {
         Diagnostics<Diagnosis> diagnosticsUsed;
+        out.write(ArcConstants.endMark);
         if (headerContentLength == null) {
             if (header != null) {
                 diagnosticsUsed = header.diagnostics;
@@ -365,7 +366,6 @@ public abstract class ArcWriter {
         /*
          * End Of Header
          */
-        outBuf.write("\r\n".getBytes());
         byte[] headerBytes = outBuf.toByteArray();
         out.write(headerBytes);
         state = S_HEADER_WRITTEN;
