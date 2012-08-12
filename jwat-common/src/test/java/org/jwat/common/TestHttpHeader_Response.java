@@ -58,25 +58,30 @@ public class TestHttpHeader_Response {
         this.digestAlgorithm = digestAlgorithm;
     }
 
-    public static byte[] responseHeaderArr;
-
-    static {
-        String responseHeader = "";
-        responseHeader += "HTTP/1.1 200 OK\r\n";
-        responseHeader += "Date: Wed, 30 Apr 2008 20:53:30 GMT\r\n";
-        responseHeader += "Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g\r\n";
-        responseHeader += "X-Powered-By: PHP/5.0.5-2ubuntu1.4\r\n";
-        responseHeader += "Connection: close\r\n";
-        responseHeader += "Content-Type: text/html; charset=UTF-8\r\n";
-        responseHeader += "\r\n";
-        responseHeaderArr = responseHeader.getBytes();
-    }
-
     /**
      * Test http response parsing.
      */
     @Test
     public void test_httpheader_response() {
+        Object[][] test_cases = new Object[][] {
+                {("HTTP/1.1 200 OK\r\n"
+                        + "Date: Wed, 30 Apr 2008 20:53:30 GMT\r\n"
+                        + "Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g\r\n"
+                        + "X-Powered-By: PHP/5.0.5-2ubuntu1.4\r\n"
+                        + "Connection: close\r\n"
+                        + "Content-Type: text/html; charset=UTF-8\r\n"
+                        + "\r\n"
+                ).getBytes(), new Object[] {
+                        "HTTP/1.1", new Integer(1), new Integer(1), "200", new Integer(200), "text/html; charset=UTF-8"
+                }, new String[][] {
+                        {"Date", "Wed, 30 Apr 2008 20:53:30 GMT"},
+                        {"Server", "Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g"},
+                        {"X-Powered-By", "PHP/5.0.5-2ubuntu1.4"},
+                        {"Connection", "close"},
+                        {"Content-Type", "text/html; charset=UTF-8"}
+                }}
+        };
+
         SecureRandom random = new SecureRandom();
 
         byte[] payloadArr;
@@ -100,199 +105,197 @@ public class TestHttpHeader_Response {
             e.printStackTrace();
         }
 
-        for ( int r=0; r<runs; ++r) {
-            for ( int n=min; n<max; ++n ) {
-                payloadArr = new byte[ n ];
-                random.nextBytes( payloadArr );
+        for ( int c=0; c<test_cases.length; ++c) {
+            byte[] responseHeaderArr = (byte[])test_cases[c][0];
+            Object[] requestHeaderValues = (Object[])test_cases[c][1];
+            String[][] headerLines = (String[][])test_cases[c][2];
 
-                try {
-                    srcOut.reset();
-                    srcOut.write( responseHeaderArr );
-                    srcOut.write( payloadArr );
-                    srcArr = srcOut.toByteArray();
-                    /*
-                     * HttpHeader Payload.
-                     */
-                    pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
-                    httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, srcArr.length, digestAlgorithm );
+            for ( int r=0; r<runs; ++r) {
+                for ( int n=min; n<max; ++n ) {
+                    payloadArr = new byte[ n ];
+                    random.nextBytes( payloadArr );
 
-                    Assert.assertTrue(httpHeader.isValid());
-                    Assert.assertEquals(HttpHeader.HT_RESPONSE, httpHeader.headerType);
+                    try {
+                        srcOut.reset();
+                        srcOut.write( responseHeaderArr );
+                        srcOut.write( payloadArr );
+                        srcArr = srcOut.toByteArray();
+                        /*
+                         * HttpHeader Payload.
+                         */
+                        pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
+                        httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, srcArr.length, digestAlgorithm );
 
-                    in = httpHeader.getPayloadInputStream();
-                    Assert.assertEquals(in, httpHeader.getPayloadInputStream());
-                    Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
+                        Assert.assertTrue(httpHeader.isValid());
+                        Assert.assertEquals(HttpHeader.HT_RESPONSE, httpHeader.headerType);
 
-                    dstOut.reset();
+                        in = httpHeader.getPayloadInputStream();
+                        Assert.assertEquals(in, httpHeader.getPayloadInputStream());
+                        Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
 
-                    remaining = httpHeader.getTotalLength() - httpHeader.getHeader().length;
-                    read = 0;
-                    while ( remaining > 0 && read != -1 ) {
-                        dstOut.write(tmpBuf, 0, read);
-                        remaining -= read;
+                        dstOut.reset();
 
-                        read = random.nextInt( 15 ) + 1;
-                        read = in.read(tmpBuf, 0, read);
-                    }
+                        remaining = httpHeader.getTotalLength() - httpHeader.getHeader().length;
+                        read = 0;
+                        while ( remaining > 0 && read != -1 ) {
+                            dstOut.write(tmpBuf, 0, read);
+                            remaining -= read;
 
-                    Assert.assertEquals( 0, remaining );
-                    Assert.assertEquals( 0, httpHeader.getUnavailable() );
-                    Assert.assertEquals( 0, httpHeader.getRemaining() );
+                            read = random.nextInt( 15 ) + 1;
+                            read = in.read(tmpBuf, 0, read);
+                        }
 
-                    Assert.assertArrayEquals(responseHeaderArr, httpHeader.getHeader());
+                        Assert.assertEquals( 0, remaining );
+                        Assert.assertEquals( 0, httpHeader.getUnavailable() );
+                        Assert.assertEquals( 0, httpHeader.getRemaining() );
 
-                    dstArr = dstOut.toByteArray();
-                    Assert.assertEquals( payloadArr.length, dstArr.length );
-                    Assert.assertArrayEquals( payloadArr, dstArr );
+                        Assert.assertArrayEquals(responseHeaderArr, httpHeader.getHeader());
 
-                    in.close();
+                        dstArr = dstOut.toByteArray();
+                        Assert.assertEquals( payloadArr.length, dstArr.length );
+                        Assert.assertArrayEquals( payloadArr, dstArr );
 
-                    Assert.assertEquals( "HTTP/1.1", httpHeader.getProtocolVersion() );
-                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMajor );
-                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMinor );
-                    Assert.assertEquals( "200", httpHeader.getProtocolStatusCodeStr() );
-                    Assert.assertEquals( new Integer(200), httpHeader.getProtocolStatusCode() );
-                    Assert.assertEquals( "text/html; charset=UTF-8", httpHeader.getProtocolContentType() );
-                    Assert.assertEquals( null, httpHeader.method );
-                    Assert.assertEquals( null, httpHeader.requestUri);
-                    Assert.assertEquals( n, httpHeader.getPayloadLength() );
+                        in.close();
 
-                    httpHeader.close();
+                        Assert.assertEquals( requestHeaderValues[0], httpHeader.getProtocolVersion() );
+                        Assert.assertEquals( requestHeaderValues[1], httpHeader.httpVersionMajor );
+                        Assert.assertEquals( requestHeaderValues[2], httpHeader.httpVersionMinor );
+                        Assert.assertEquals( requestHeaderValues[3], httpHeader.getProtocolStatusCodeStr() );
+                        Assert.assertEquals( requestHeaderValues[4], httpHeader.getProtocolStatusCode() );
+                        Assert.assertEquals( requestHeaderValues[5], httpHeader.getProtocolContentType() );
+                        Assert.assertEquals( null, httpHeader.method );
+                        Assert.assertEquals( null, httpHeader.requestUri);
+                        Assert.assertEquals( n, httpHeader.getPayloadLength() );
 
-                    Assert.assertNotNull( httpHeader.toString() );
+                        httpHeader.close();
 
-                    String[][] headerLines = new String[][] {
-                            {"Date", "Wed, 30 Apr 2008 20:53:30 GMT"},
-                            {"Server", "Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g"},
-                            {"X-Powered-By", "PHP/5.0.5-2ubuntu1.4"},
-                            {"Connection", "close"},
-                            {"Content-Type", "text/html; charset=UTF-8"}
-                    };
+                        Assert.assertNotNull( httpHeader.toString() );
 
-                    List<HeaderLine> headerList = httpHeader.getHeaderList();
-                    Assert.assertEquals(headerLines.length, headerList.size());
-                    Assert.assertNull(httpHeader.getHeader(null));
-                    Assert.assertNull(httpHeader.getHeader(""));
-                    for (int i=0; i<headerLines.length; ++i) {
-                        HeaderLine hl = headerList.get(i);
-                        Assert.assertEquals(headerLines[i][0], hl.name);
-                        Assert.assertEquals(headerLines[i][1], hl.value);
-                        Assert.assertEquals(hl, httpHeader.getHeader(headerLines[i][0].toUpperCase()));
-                    }
+                        List<HeaderLine> headerList = httpHeader.getHeaderList();
+                        Assert.assertEquals(headerLines.length, headerList.size());
+                        Assert.assertNull(httpHeader.getHeader(null));
+                        Assert.assertNull(httpHeader.getHeader(""));
+                        for (int i=0; i<headerLines.length; ++i) {
+                            HeaderLine hl = headerList.get(i);
+                            Assert.assertEquals(headerLines[i][0], hl.name);
+                            Assert.assertEquals(headerLines[i][1], hl.value);
+                            Assert.assertEquals(hl, httpHeader.getHeader(headerLines[i][0].toUpperCase()));
+                        }
 
-                    /*
-                     * HttpResponse Payload Digest.
-                     */
-                    if ( digestAlgorithm != null ) {
-                        if ("sha1".equals( digestAlgorithm )) {
-                            Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getDigest() );
+                        /*
+                         * HttpResponse Payload Digest.
+                         */
+                        if ( digestAlgorithm != null ) {
+                            if ("sha1".equals( digestAlgorithm )) {
+                                Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
+                                Assert.assertNotNull( httpHeader.getDigest() );
 
-                            md.reset();
-                            byte[] digest1 = md.digest( payloadArr );
+                                md.reset();
+                                byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getDigest();
+                                byte[] digest2 = httpHeader.getDigest();
 
-                            Assert.assertArrayEquals( digest1, digest2 );
+                                Assert.assertArrayEquals( digest1, digest2 );
+                            } else {
+                                Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
+                                Assert.assertNull( httpHeader.getDigest() );
+                            }
                         } else {
-                            Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
                             Assert.assertNull( httpHeader.getDigest() );
                         }
-                    } else {
-                        Assert.assertNull( httpHeader.getDigest() );
-                    }
-                    /*
-                     * HttpHeader Complete
-                     */
-                    pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
-                    httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, srcArr.length, digestAlgorithm );
+                        /*
+                         * HttpHeader Complete
+                         */
+                        pbin = new ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
+                        httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, srcArr.length, digestAlgorithm );
 
-                    Assert.assertTrue(httpHeader.isValid());
-                    Assert.assertEquals(HttpHeader.HT_RESPONSE, httpHeader.headerType);
+                        Assert.assertTrue(httpHeader.isValid());
+                        Assert.assertEquals(HttpHeader.HT_RESPONSE, httpHeader.headerType);
 
-                    in = httpHeader.getInputStreamComplete();
-                    Assert.assertEquals(in, httpHeader.getInputStreamComplete());
-                    Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
+                        in = httpHeader.getInputStreamComplete();
+                        Assert.assertEquals(in, httpHeader.getInputStreamComplete());
+                        Assert.assertEquals( srcArr.length, httpHeader.getTotalLength() );
 
-                    dstOut.reset();
+                        dstOut.reset();
 
-                    remaining = httpHeader.getTotalLength();
-                    read = 0;
-                    while ( remaining > 0 && read != -1 ) {
-                        dstOut.write(tmpBuf, 0, read);
-                        remaining -= read;
+                        remaining = httpHeader.getTotalLength();
+                        read = 0;
+                        while ( remaining > 0 && read != -1 ) {
+                            dstOut.write(tmpBuf, 0, read);
+                            remaining -= read;
 
-                        read = random.nextInt( 15 ) + 1;
-                        read = in.read(tmpBuf, 0, read);
-                    }
+                            read = random.nextInt( 15 ) + 1;
+                            read = in.read(tmpBuf, 0, read);
+                        }
 
-                    Assert.assertEquals( 0, remaining );
-                    Assert.assertEquals( 0, httpHeader.getUnavailable() );
-                    Assert.assertEquals( 0, httpHeader.getRemaining() );
+                        Assert.assertEquals( 0, remaining );
+                        Assert.assertEquals( 0, httpHeader.getUnavailable() );
+                        Assert.assertEquals( 0, httpHeader.getRemaining() );
 
-                    Assert.assertArrayEquals(responseHeaderArr, httpHeader.getHeader());
+                        Assert.assertArrayEquals(responseHeaderArr, httpHeader.getHeader());
 
-                    dstArr = dstOut.toByteArray();
-                    Assert.assertEquals( srcArr.length, dstArr.length );
-                    Assert.assertArrayEquals( srcArr, dstArr );
+                        dstArr = dstOut.toByteArray();
+                        Assert.assertEquals( srcArr.length, dstArr.length );
+                        Assert.assertArrayEquals( srcArr, dstArr );
 
-                    Assert.assertFalse(httpHeader.isClosed());
-                    in.close();
-                    Assert.assertFalse(httpHeader.isClosed());
+                        Assert.assertFalse(httpHeader.isClosed());
+                        in.close();
+                        Assert.assertFalse(httpHeader.isClosed());
 
-                    Assert.assertEquals( "HTTP/1.1", httpHeader.getProtocolVersion() );
-                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMajor );
-                    Assert.assertEquals( new Integer(1), httpHeader.httpVersionMinor );
-                    Assert.assertEquals( "200", httpHeader.getProtocolStatusCodeStr() );
-                    Assert.assertEquals( new Integer(200), httpHeader.getProtocolStatusCode() );
-                    Assert.assertEquals( "text/html; charset=UTF-8", httpHeader.getProtocolContentType() );
-                    Assert.assertEquals( null, httpHeader.method );
-                    Assert.assertEquals( null, httpHeader.requestUri);
-                    Assert.assertEquals( n, httpHeader.getPayloadLength() );
+                        Assert.assertEquals( requestHeaderValues[0], httpHeader.getProtocolVersion() );
+                        Assert.assertEquals( requestHeaderValues[1], httpHeader.httpVersionMajor );
+                        Assert.assertEquals( requestHeaderValues[2], httpHeader.httpVersionMinor );
+                        Assert.assertEquals( requestHeaderValues[3], httpHeader.getProtocolStatusCodeStr() );
+                        Assert.assertEquals( requestHeaderValues[4], httpHeader.getProtocolStatusCode() );
+                        Assert.assertEquals( requestHeaderValues[5], httpHeader.getProtocolContentType() );
+                        Assert.assertEquals( null, httpHeader.method );
+                        Assert.assertEquals( null, httpHeader.requestUri);
+                        Assert.assertEquals( n, httpHeader.getPayloadLength() );
 
-                    httpHeader.close();
-                    Assert.assertTrue(httpHeader.isClosed());
+                        httpHeader.close();
+                        Assert.assertTrue(httpHeader.isClosed());
 
-                    Assert.assertNotNull( httpHeader.toString() );
+                        Assert.assertNotNull( httpHeader.toString() );
 
-                    in.close();
-                    httpHeader.close();
+                        in.close();
+                        httpHeader.close();
 
-                    headerList = httpHeader.getHeaderList();
-                    Assert.assertEquals(headerLines.length, headerList.size());
-                    Assert.assertNull(httpHeader.getHeader(null));
-                    Assert.assertNull(httpHeader.getHeader(""));
-                    for (int i=0; i<headerLines.length; ++i) {
-                        HeaderLine hl = headerList.get(i);
-                        Assert.assertEquals(headerLines[i][0], hl.name);
-                        Assert.assertEquals(headerLines[i][1], hl.value);
-                        Assert.assertEquals(hl, httpHeader.getHeader(headerLines[i][0].toUpperCase()));
-                    }
+                        headerList = httpHeader.getHeaderList();
+                        Assert.assertEquals(headerLines.length, headerList.size());
+                        Assert.assertNull(httpHeader.getHeader(null));
+                        Assert.assertNull(httpHeader.getHeader(""));
+                        for (int i=0; i<headerLines.length; ++i) {
+                            HeaderLine hl = headerList.get(i);
+                            Assert.assertEquals(headerLines[i][0], hl.name);
+                            Assert.assertEquals(headerLines[i][1], hl.value);
+                            Assert.assertEquals(hl, httpHeader.getHeader(headerLines[i][0].toUpperCase()));
+                        }
 
-                    /*
-                     * HttpHeader Payload Digest.
-                     */
-                    if ( digestAlgorithm != null ) {
-                        if ("sha1".equals(digestAlgorithm)) {
-                            Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                            Assert.assertNotNull( httpHeader.getDigest() );
+                        /*
+                         * HttpHeader Payload Digest.
+                         */
+                        if ( digestAlgorithm != null ) {
+                            if ("sha1".equals(digestAlgorithm)) {
+                                Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
+                                Assert.assertNotNull( httpHeader.getDigest() );
 
-                            md.reset();
-                            byte[] digest1 = md.digest( payloadArr );
+                                md.reset();
+                                byte[] digest1 = md.digest( payloadArr );
 
-                            byte[] digest2 = httpHeader.getDigest();
+                                byte[] digest2 = httpHeader.getDigest();
 
-                            Assert.assertArrayEquals( digest1, digest2 );
+                                Assert.assertArrayEquals( digest1, digest2 );
+                            } else {
+                                Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
+                                Assert.assertNull( httpHeader.getDigest() );
+                            }
                         } else {
-                            Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
                             Assert.assertNull( httpHeader.getDigest() );
                         }
-                    } else {
-                        Assert.assertNull( httpHeader.getDigest() );
+                    } catch (IOException e) {
+                        Assert.fail( "Exception not expected!" );
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    Assert.fail( "Exception not expected!" );
-                    e.printStackTrace();
                 }
             }
         }

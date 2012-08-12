@@ -196,7 +196,11 @@ public class TestContentType {
         Assert.assertEquals("utf8", value);
 
         str = ct.toString();
-        Assert.assertEquals("application/http; msgtype=request; charset=utf8", str);
+        // toString() may no order parameters the same on all JVM implementations.
+        boolean b1 = "application/http; msgtype=request; charset=utf8".equals(str);
+        boolean b2 = "application/http; charset=utf8; msgtype=request".equals(str);
+        Assert.assertTrue(b1 || b2);
+
         str = ct.toStringShort();
         Assert.assertEquals("application/http", str);
 
