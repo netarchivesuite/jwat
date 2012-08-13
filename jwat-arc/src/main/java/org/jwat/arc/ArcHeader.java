@@ -26,6 +26,7 @@ import java.util.Date;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 
 public class ArcHeader {
@@ -129,21 +130,41 @@ public class ArcHeader {
     }
 
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
-        startOffset = in.getConsumed();
-        String recordLine = in.readLine();
-        // TODO
-        while ((recordLine != null) && (recordLine.length() == 0)) {
+        boolean bHeaderParsed = false;
+        boolean bInvalidDataBeforeVersion = false;
+        boolean bEmptyLinesBeforeVersion = false;
+        boolean bSeekRecord = true;
+        while (bSeekRecord) {
             startOffset = in.getConsumed();
-            recordLine = in.readLine();
+            String recordLine = in.readLine();
+            if (recordLine != null) {
+                String[] fields = recordLine.split(" ", -1);
+                if (fields.length > 0) {
+                    if (fields.length == ArcConstants.VERSION_1_BLOCK_NUMBER_FIELDS
+                            || fields.length == ArcConstants.VERSION_2_BLOCK_NUMBER_FIELDS) {
+                        // debug
+                        //System.out.println(recordLine);
+                        parseHeaders(fields);
+                        bHeaderParsed = true;
+                        bSeekRecord = false;
+                    } else {
+                        bInvalidDataBeforeVersion = true;
+                    }
+                } else {
+                    bEmptyLinesBeforeVersion = true;
+                }
+            }
+            else {
+                bSeekRecord = false;
+            }
         }
-        if (recordLine != null) {
-            // debug
-            //System.out.println(recordLine);
-            String[] fields = recordLine.split(" ", -1);
-            parseHeaders(fields);
-            return true;
+        if (bInvalidDataBeforeVersion) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID, "Data before ARC record"));
         }
-        return false;
+        if (bEmptyLinesBeforeVersion) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID, "Empty lines before ARC record"));
+        }
+        return bHeaderParsed;
     }
 
     public void parseHeaders(String[] fields) {
@@ -181,7 +202,9 @@ public class ArcHeader {
             if ("-".equals(contentTypeStr)) {
                 contentTypeStr = null;
             }
-            contentType = fieldParsers.parseContentType(contentTypeStr, ArcConstants.FN_CONTENT_TYPE, false);
+            if (!ArcConstants.CONTENT_TYPE_NO_TYPE.equalsIgnoreCase(contentTypeStr)) {
+                contentType = fieldParsers.parseContentType(contentTypeStr, ArcConstants.FN_CONTENT_TYPE, false);
+            }
 
             if (fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {
                 recordFieldVersion = 2;
@@ -194,6 +217,11 @@ public class ArcHeader {
                 }
                 resultCode = fieldParsers.parseInteger(
                         resultCodeStr, ArcConstants.FN_RESULT_CODE, false);
+                if (resultCode != null && (resultCode < 100 || resultCode > 999)) {
+                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "'" + ArcConstants.FN_RESULT_CODE + "' value",
+                            "A number between 100 and 999"));
+                }
 
                 checksumStr = fields[ArcConstants.FN_IDX_CHECKSUM];
                 if ("-".equals(checksumStr)) {
@@ -215,6 +243,11 @@ public class ArcHeader {
                 }
                 offset = fieldParsers.parseLong(
                         offsetStr, ArcConstants.FN_OFFSET, false);
+                if (offset != null && offset < 0) {
+                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "'" + ArcConstants.FN_OFFSET + "' value",
+                            "A non negative number"));
+                }
 
                 filenameStr = fields[ArcConstants.FN_IDX_FILENAME];
                 if ("-".equals(filenameStr)) {
@@ -229,6 +262,11 @@ public class ArcHeader {
             }
             archiveLength = reader.fieldParsers.parseLong(
                     archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
+            if (archiveLength != null && archiveLength < 0) {
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value",
+                        "A non negative number"));
+            }
         }
     }
 

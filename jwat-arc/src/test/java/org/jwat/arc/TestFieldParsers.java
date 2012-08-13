@@ -107,6 +107,15 @@ public class TestFieldParsers {
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;
 
+            Assert.assertFalse(reader.bStrict);
+            Assert.assertFalse(reader.isStrict());
+            reader.setStrict(false);
+            Assert.assertFalse(reader.bStrict);
+            Assert.assertFalse(reader.isStrict());
+            reader.setStrict(true);
+            Assert.assertTrue(reader.bStrict);
+            Assert.assertTrue(reader.isStrict());
+
             while ((record = reader.getNextRecord()) != null) {
                 record.close();
 

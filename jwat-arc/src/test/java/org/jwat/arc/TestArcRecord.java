@@ -87,7 +87,7 @@ public class TestArcRecord {
 
             record = reader.getNextRecord();
             // TODO wrong
-            Assert.assertNotNull(record);
+            Assert.assertNull(record);
 
             reader.close();
         } catch (IOException e) {

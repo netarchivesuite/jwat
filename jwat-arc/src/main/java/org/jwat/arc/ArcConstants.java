@@ -136,12 +136,19 @@ public final class ArcConstants {
     public static final String[] VERSION_1_BLOCK_FIELDS = {
             FN_URL, FN_IP_ADDRESS, FN_ARCHIVE_DATE, FN_CONTENT_TYPE,
             FN_ARCHIVE_LENGTH};
+
     /** Version-2-block fields. */
     public static final String[] VERSION_2_BLOCK_FIELDS = {
             FN_URL, FN_IP_ADDRESS, FN_ARCHIVE_DATE, FN_CONTENT_TYPE,
             FN_RESULT_CODE, FN_CHECKSUM, FN_LOCATION,
             FN_OFFSET, FN_FILENAME,
             FN_ARCHIVE_LENGTH };
+
+    /** Number of fields in a version 1 block. */
+    public static final int VERSION_1_BLOCK_NUMBER_FIELDS = VERSION_1_BLOCK_FIELDS.length;
+
+    /** Number of fields in a version 2 block. */
+    public static final int VERSION_2_BLOCK_NUMBER_FIELDS = VERSION_2_BLOCK_FIELDS.length;
 
     /** Version description fields. */
     public static final String[] VERSION_DESC_FIELDS = {

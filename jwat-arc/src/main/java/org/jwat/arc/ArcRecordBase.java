@@ -86,6 +86,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Record type, version block or arc record. */
     public int recordType;
 
+    public int trailingNewLines;
+
     /*
      * Header-Fields.
      */
@@ -120,6 +122,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /** Computed payload digest. */
     public Digest computedPayloadDigest;
+
+    public byte[] excessiveMetadata;
 
     /**
      * Creates an ARC record from the specified record description.
@@ -278,12 +282,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 }
             }
             // Check for trailing newlines.
-            int newlines = nlp.parseLFs(in, diagnostics);
-            if (newlines != ArcConstants.ARC_RECORD_TRAILING_NEWLINES) {
-                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                        "Trailing newlines",
-                        Integer.toString(newlines),
-                        "1");
+            trailingNewLines = nlp.parseLFs(in, diagnostics);
+            if (trailingNewLines != ArcConstants.ARC_RECORD_TRAILING_NEWLINES) {
+                if (reader.bStrict) {
+                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                            "Trailing newlines",
+                            Integer.toString(trailingNewLines),
+                            "1");
+                }
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -422,8 +428,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * only LF and CR characters or not.
      * @throws IOException io exception in parsing
      */
-    /*
-    public boolean isValid(InputStream in) throws IOException{
+    public boolean isValidStreamOfCRLF(InputStream in) throws IOException{
         if (in == null) {
             throw new IllegalArgumentException("in");
         }
@@ -437,7 +442,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         }
         return isValid;
     }
-    */
 
     /**
      * Add an error diagnosis of the given type on a specific entity with

@@ -102,23 +102,25 @@ public class NewlineParser {
                 break;
             }
         }
-        /*
-        if (bMissingCr) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing CR"));
-        }
-        */
-        if (bMissingLf) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing LF", "Sequence of LFs"));
-        }
-        if (bMisplacedCr) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced CR", "Sequence of LFs"));
-        }
-        if (bMisplacedLf) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced LF", "Sequence of LFs"));
+        if (diagnostics != null) {
+            /*
+            if (bMissingCr) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing CR"));
+            }
+            */
+            if (bMissingLf) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing LF", "Sequence of LFs"));
+            }
+            if (bMisplacedCr) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced CR", "Sequence of LFs"));
+            }
+            if (bMisplacedLf) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced LF", "Sequence of LFs"));
+            }
         }
         return newlines;
     }
@@ -182,21 +184,23 @@ public class NewlineParser {
                 break;
             }
         }
-        if (bMissingCr) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing CR", "Sequence of CRLFs"));
-        }
-        if (bMissingLf) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Missing LF", "Sequence of CRLFs"));
-        }
-        if (bMisplacedCr) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced CR", "Sequence of CRLFs"));
-        }
-        if (bMisplacedLf) {
-            diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    "Misplaced LF", "Sequence of CRLFs"));
+        if (diagnostics != null) {
+            if (bMissingCr) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing CR", "Sequence of CRLFs"));
+            }
+            if (bMissingLf) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Missing LF", "Sequence of CRLFs"));
+            }
+            if (bMisplacedCr) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced CR", "Sequence of CRLFs"));
+            }
+            if (bMisplacedLf) {
+                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                        "Misplaced LF", "Sequence of CRLFs"));
+            }
         }
         return newlines;
     }

@@ -34,6 +34,8 @@ import org.jwat.common.HeaderLineReader;
  */
 public abstract class ArcReader {
 
+    protected boolean bStrict = false;
+
     /** Compliance status for records parsed up to now. */
     protected boolean bIsCompliant = true;
 
@@ -112,6 +114,14 @@ public abstract class ArcReader {
      */
     public boolean isCompliant() {
         return bIsCompliant;
+    }
+
+    public void setStrict(boolean bStrict) {
+        this.bStrict = bStrict;
+    }
+
+    public boolean isStrict() {
+        return bStrict;
     }
 
     /**

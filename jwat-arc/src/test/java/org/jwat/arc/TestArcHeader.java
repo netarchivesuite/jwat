@@ -480,6 +480,53 @@ public class TestArcHeader {
             Assert.assertFalse(success);
             Assert.assertEquals(0, header.recordFieldVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID, "Data before ARC record", 0}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
+            /*
+             * Valid record v2 content-type=no-type.
+             */
+            bytes = "http://www.antiaction.com/ 192.168.1.2 20120712144000 no-type 200 checksum location 1234 filename 40\n".getBytes();
+
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in);
+            reader.fieldParsers.diagnostics = diagnostics;
+            header = ArcHeader.initHeader(reader, 42L, diagnostics);
+
+            pbin = ((ArcReaderUncompressed)reader).in;
+            success = header.parseHeader(pbin);
+
+            Assert.assertTrue(success);
+            Assert.assertEquals(2, header.recordFieldVersion);
+
+            tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
+
+            Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
+            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
+            Assert.assertEquals("20120712144000", header.archiveDateStr);
+            Assert.assertEquals("no-type", header.contentTypeStr);
+            Assert.assertEquals("200", header.resultCodeStr);
+            Assert.assertEquals("checksum", header.checksumStr);
+            Assert.assertEquals("location", header.locationStr);
+            Assert.assertEquals("1234", header.offsetStr);
+            Assert.assertEquals("filename", header.filenameStr);
+            Assert.assertEquals("40", header.archiveLengthStr);
+
+            Assert.assertEquals(URI.create("http://www.antiaction.com/"), header.urlUri);
+            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
+            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
+            Assert.assertNull(header.contentType);
+            Assert.assertEquals(new Integer(200), header.resultCode);
+            Assert.assertEquals(new Long(1234), header.offset);
+            Assert.assertEquals(new Long(40), header.archiveLength);
+
             Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
         } catch (IOException e) {

@@ -17,7 +17,10 @@
  */
 package org.jwat.arc;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
@@ -50,6 +53,7 @@ public class ArcVersionBlock extends ArcRecordBase {
 
     public static ArcVersionBlock create(ArcWriter writer) {
         ArcVersionBlock vb = new ArcVersionBlock();
+        vb.trailingNewLines = 1;
         vb.diagnostics = new Diagnostics<Diagnosis>();
         vb.header = ArcHeader.initHeader(writer, vb.diagnostics);
         writer.fieldParsers.diagnostics = vb.diagnostics;
@@ -163,9 +167,32 @@ public class ArcVersionBlock extends ArcRecordBase {
                 if (versionHeader.getRemaining() == 0) {
                     bHasEmptyPayload = true;
                 } else {
-                    diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA,
-                            "version block metadata payload",
-                            "Metadata payload must not be present in this version"));
+                    if (!reader.bStrict) {
+                        // I'm going on a limb here that IA's ARC writer will
+                        // not write in excess of 4GB useless newlines.
+                        ByteArrayOutputStream out_payload = new ByteArrayOutputStream(
+                                (int)versionHeader.getRemaining());
+                        InputStream in_payload = versionHeader.getPayloadInputStream();
+                        int read;
+                        byte[] tmpBuf = new byte[1024];
+                        while ((read = in_payload.read(tmpBuf)) != -1) {
+                            out_payload.write(tmpBuf, 0, read);
+                        }
+                        in_payload.close();
+                        out_payload.close();
+                        excessiveMetadata = out_payload.toByteArray();
+                        ByteArrayInputStream in_newlines = new ByteArrayInputStream(excessiveMetadata);
+                        if (!isValidStreamOfCRLF(in_newlines)) {
+                            diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA,
+                                    "version block metadata payload",
+                                    "Metadata payload must not be present in this version"));
+                        }
+                        in_newlines.close();
+                    } else {
+                        diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA,
+                                "version block metadata payload",
+                                "Metadata payload must not be present in this version"));
+                    }
                 }
             }
         }
