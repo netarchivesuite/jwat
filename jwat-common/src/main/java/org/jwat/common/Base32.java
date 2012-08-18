@@ -52,6 +52,7 @@ public class Base32 {
     /**
      * Decodes an encoded string.
      * @param in encoded string.
+     * @param bStrict if true checks for the correct number of trailing "="
      * @return decoded string or null
      */
     public static String decodeToString(String in, boolean bStrict) {
@@ -142,7 +143,7 @@ public class Base32 {
         case 3:
             // In state 3 1 bit must have also been written in the next byte.
         case 6:
-            // In state 6 2 bit must have also been written in the next byte.
+            // In state 6 2 bits must have also been written in the next byte.
             return null;
         default:
             if ( bStrict ) {
@@ -162,6 +163,7 @@ public class Base32 {
     /**
      * Decodes an encoded string.
      * @param in encoded string.
+     * @param bStrict if true checks for the correct number of trailing "="
      * @return decoded byte array or null
      */
     public static byte[] decodeToArray(String in, boolean bStrict) {
@@ -252,7 +254,7 @@ public class Base32 {
         case 3:
             // In state 3 1 bit must have also been written in the next byte.
         case 6:
-            // In state 6 2 bit must have also been written in the next byte.
+            // In state 6 2 bits must have also been written in the next byte.
             return null;
         default:
             if ( bStrict ) {

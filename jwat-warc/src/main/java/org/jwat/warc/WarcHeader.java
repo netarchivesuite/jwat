@@ -61,7 +61,7 @@ public class WarcHeader {
     protected DateFormat warcDateFormat;
 
     /** WARC record starting offset relative to the source WARC file input
-     *  stream. The offset is correct for compressed and uncompressed streams. */
+     *  stream. The offset is correct for both compressed and uncompressed streams. */
     protected long startOffset = -1;
 
     /*
@@ -225,6 +225,7 @@ public class WarcHeader {
      */
     public static WarcHeader initHeader(WarcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
+        // Set default version to "1.0".
         header.major = 1;
         header.minor = 0;
         header.fieldParsers = writer.fieldParsers;
@@ -236,7 +237,7 @@ public class WarcHeader {
     /**
      * Create and initialize a new <code>WarcHeader</code> for reading.
      * @param reader reader which shall be used
-     * @param startOffset
+     * @param startOffset start offset of header
      * @param diagnostics diagnostics object used by reader
      * @return a <code>WarcHeader</code> prepared for reading
      */
@@ -343,6 +344,7 @@ public class WarcHeader {
         HeaderLine line;
         String tmpStr;
         boolean bSeekMagic = true;
+        // Loop until when have found something that looks like a version line.
         while (bSeekMagic) {
             // This is only relevant for uncompressed sequentially read records
             startOffset = in.getConsumed();
@@ -460,7 +462,7 @@ public class WarcHeader {
         WarcConcurrentTo warcConcurrentTo;
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
-            // Recognized WARC field name.
+            // WARC field name defined in WARC specification.
             if (!seen[fn_idx] || WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
@@ -795,13 +797,14 @@ public class WarcHeader {
             URI uriFieldValue) {
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
+            // Implicit cast from integer to long, if needed.
             if (WarcConstants.FN_IDX_DT[fn_idx] == WarcConstants.FDT_LONG
                     && dt == WarcConstants.FDT_INTEGER) {
                 longFieldValue = (long)integerFieldValue;
                 dt = WarcConstants.FDT_LONG;
             }
             if (dt == WarcConstants.FN_IDX_DT[fn_idx]) {
-                // Recognized WARC field name.
+                // WARC field name defined in WARC specification.
                 if (seen[fn_idx] && !WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                     // Duplicate field.
                     addErrorDiagnosis(DiagnosisType.DUPLICATE,
@@ -920,7 +923,7 @@ public class WarcHeader {
     }
 
     /**
-     * Validate the WARC header relative to the WARC-Type and according the
+     * Validate the WARC header relative to the WARC-Type and according to the
      * WARC ISO standard.
      */
     protected void checkFields() {
@@ -979,7 +982,7 @@ public class WarcHeader {
         }
 
         /*
-         * Warc record type dependent policies.
+         * WARC record type dependent policies.
          */
 
         if (warcTypeIdx != null) {
@@ -988,7 +991,6 @@ public class WarcHeader {
              */
 
             if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
-                // !WarcConstants.CT_APP_WARC_FIELDS.equalsIgnoreCase(contentTypeStr)) {
                 if (contentType != null &&
                         (!contentType.contentType.equals("application")
                         || !contentType.mediaType.equals("warc-fields"))) {
@@ -1048,39 +1050,39 @@ public class WarcHeader {
     /**
      * Given a WARC record type and a WARC field looks up the policy in a
      * matrix build from the WARC ISO standard.
-     * @param rtype WARC record type id
-     * @param ftype WARC field type id
+     * @param recordType WARC record type id
+     * @param fieldType WARC field type id
      * @param fieldObj WARC field
      * @param valueStr WARC raw field value
      */
-    protected void checkFieldPolicy(int rtype, int ftype, Object fieldObj, String valueStr) {
-        int policy = WarcConstants.field_policy[rtype][ftype];
+    protected void checkFieldPolicy(int recordType, int fieldType, Object fieldObj, String valueStr) {
+        int policy = WarcConstants.field_policy[recordType][fieldType];
         switch (policy) {
         case WarcConstants.POLICY_MANDATORY:
             if (fieldObj == null) {
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
                         valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL:
             if (fieldObj == null) {
                 addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
                         valueStr);
             }
             break;
         case WarcConstants.POLICY_SHALL_NOT:
             if (fieldObj != null) {
                 addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
                         valueStr);
             }
             break;
         case WarcConstants.POLICY_MAY_NOT:
             if (fieldObj != null) {
                 addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[ftype] + "' value",
+                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
                         valueStr);
             }
             break;

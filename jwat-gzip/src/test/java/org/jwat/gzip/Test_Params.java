@@ -142,7 +142,7 @@ public class Test_Params {
         try {
             entry.writeFrom(null);
             Assert.fail("Exception expected!");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
         }
 
         writer.writeEntryHeader(entry);

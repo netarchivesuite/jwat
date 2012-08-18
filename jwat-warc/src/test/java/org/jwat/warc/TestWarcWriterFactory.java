@@ -278,7 +278,7 @@ public class TestWarcWriterFactory {
                     warnings += record.diagnostics.getWarnings().size();
                 }
 
-                writer.writeHeader(record.header.headerBytes, record.header.contentLength);
+                writer.writeRawHeader(record.header.headerBytes, record.header.contentLength);
 
                 if ( record.hasPayload() ) {
                     Payload payload = record.getPayload();

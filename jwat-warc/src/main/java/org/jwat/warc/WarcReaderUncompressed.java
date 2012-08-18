@@ -25,6 +25,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 
 /**
  * WARC Reader implementation for reading uncompressed files.
+ * Use WarcReaderFactory to get an instance of this class.
  *
  * @author nicl
  */
@@ -118,7 +119,8 @@ public class WarcReaderUncompressed extends WarcReader {
             currentRecord.close();
         }
         if (in == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is null");
         }
         currentRecord = WarcRecord.parseRecord(in, this);
         if (currentRecord != null) {
@@ -134,7 +136,8 @@ public class WarcReaderUncompressed extends WarcReader {
             currentRecord.close();
         }
         if (in != null) {
-            throw new IllegalStateException("The inputstream 'in' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -161,7 +164,8 @@ public class WarcReaderUncompressed extends WarcReader {
             currentRecord.close();
         }
         if (in != null) {
-            throw new IllegalStateException("The inputstream 'in' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(

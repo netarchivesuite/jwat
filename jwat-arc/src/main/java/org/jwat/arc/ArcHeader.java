@@ -29,6 +29,12 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 
+/**
+ * Class for parsing and validating the common ARC record header present in
+ * both ARC records and ARC version blocks.
+ *
+ * @author nicl
+ */
 public class ArcHeader {
 
     /** Associated WarcReader context.
@@ -47,14 +53,14 @@ public class ArcHeader {
     protected DateFormat warcDateFormat;
 
     /** ARC record starting offset relative to the source ARC file input
-     *  stream. The offset is correct for compressed and uncompressed streams. */
+     *  stream. The offset is correct for both compressed and uncompressed streams. */
     protected long startOffset = -1;
 
     /*
      * Version related fields.
      */
 
-    /** Which version of the record fields was parsed, 1 or 2. */
+    /** Which version of the record fields was parsed, 1.x or 2.0. */
     public int recordFieldVersion;
 
     /*
@@ -111,6 +117,12 @@ public class ArcHeader {
     /** Archive-length validated and converted into a <code>Long</code> object. */
     public Long archiveLength;
 
+    /**
+     * Create and initialize a new <code>ArcHeader</code> for writing.
+     * @param writer writer which shall be used
+     * @param diagnostics diagnostics object used by writer
+     * @return a <code>ArcHeader</code> prepared for writing
+     */
     public static ArcHeader initHeader(ArcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         ArcHeader header = new ArcHeader();
         header.fieldParsers = writer.fieldParsers;
@@ -119,6 +131,13 @@ public class ArcHeader {
         return header;
     }
 
+    /**
+     * Create and initialize a new <code>ArcHeader</code> for reading.
+     * @param reader reader which shall be used
+     * @param startOffset start offset of header
+     * @param diagnostics diagnostics object used by reader
+     * @return a <code>ArcHeader</code> prepared for reading
+     */
     public static ArcHeader initHeader(ArcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         ArcHeader header = new ArcHeader();
         header.reader = reader;
@@ -129,6 +148,17 @@ public class ArcHeader {
         return header;
     }
 
+    /**
+     * Tries to read lines from the input stream to determine if they could
+     * be possible ARC record header lines. Returns true if a line was
+     * encountered with delimited fields matching either a v1.x or v2.0
+     * description block. False is no ARC record header candidate was found
+     * in the remaining input stream.
+     * @param in input stream supposedly containing ARC records
+     * @return true if an ARC record header was parsed and validated
+     * @throws IOException if an i/o exception occurs while trying to read an
+     * ARC record header
+     */
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
         boolean bHeaderParsed = false;
         boolean bInvalidDataBeforeVersion = false;
@@ -167,6 +197,12 @@ public class ArcHeader {
         return bHeaderParsed;
     }
 
+    /**
+     * Examines an array of strings to determine if it could be an ARC record
+     * header. If the number of fields is not equal to that of either v1.x or
+     * v2.0 nothing is parsed.
+     * @param fields array of possible ARC record header fields
+     */
     public void parseHeaders(String[] fields) {
         if (fields.length == ArcConstants.VERSION_1_BLOCK_FIELDS.length
                 || fields.length == ArcConstants.VERSION_2_BLOCK_FIELDS.length) {

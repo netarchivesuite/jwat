@@ -73,7 +73,7 @@ public abstract class PayloadWithHeaderAbstract {
     /** Payload stream returned to user. */
     protected InputStream in_payload;
 
-    /** Sequence of the header as a stream and the payload stream. */
+    /** Sequence of the header as a stream combined with the payload stream. */
     protected SequenceInputStream in_complete;
 
     /** Object size, in bytes. */

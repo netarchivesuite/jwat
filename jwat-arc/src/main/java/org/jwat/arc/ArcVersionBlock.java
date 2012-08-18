@@ -29,13 +29,11 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.Payload;
 
 /**
- * This class represents a parsed ARC version block including possible
+ * This class represents an ARC version block and header including possible
  * validation and format warnings/errors encountered in the process.
- * This class also contains the specific ARC version block parser which is
- * intended to be called by the <code>ARCReader</code>.
+ * This class also contains the specific ARC version block payload parser.
  * Any metadata present in the ARC version block is accessible
- * through the payload object. Currently the payload is automatically loaded
- * into a string which is accessible through the version block api.
+ * through the payload object.
  *
  * @author lbihanic, selghissassi, nicl
  */
@@ -51,6 +49,11 @@ public class ArcVersionBlock extends ArcRecordBase {
     protected ArcVersionBlock() {
     }
 
+    /**
+     * Create and initialize a new <code>ArcVersionBlock</code> for writing.
+     * @param writer writer which shall be used
+     * @return an <code>ArcVersionBlock</code> prepared for writing
+     */
     public static ArcVersionBlock create(ArcWriter writer) {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.trailingNewLines = 1;
@@ -61,13 +64,17 @@ public class ArcVersionBlock extends ArcRecordBase {
     }
 
     /**
-     * Creates new <code>VersionBlock</code> based on data read from input
-     * stream.
-     * @param in <code>InputStream</code> used to read version block
+     * Creates a new <code>VersionBlock</code> based on the supplied header and
+     * the version block in the payload, if present.
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @return an <code>ArcVersionBlock</code> or null if none was found.
-     * @throws IOException io exception in the process of reading version block
+     * @param diagnostics diagnostics used to report errors and/or warnings
+     * @param header record header that has already been processed
+     * @param fieldParsers parser used to read and validate fields
+     * @param in <code>InputStream</code> used to read version block
+     * @return an <code>ArcVersionBlock</code>
+     * @throws IOException if an i/o exception occurs in the process of reading
+     * version block
      */
     public static ArcVersionBlock parseVersionBlock(ArcReader reader,
             Diagnostics<Diagnosis> diagnostics,
@@ -79,9 +86,7 @@ public class ArcVersionBlock extends ArcRecordBase {
         vb.diagnostics = diagnostics;
         vb.header = header;
         vb.in = in;
-        // Process payload.
         vb.processPayload(in, reader);
-        // Updated consumed after payload has been consumed.
         vb.consumed = in.getConsumed() - vb.header.startOffset;
         return vb;
     }

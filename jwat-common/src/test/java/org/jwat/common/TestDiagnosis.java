@@ -282,6 +282,8 @@ public class TestDiagnosis {
         Assert.assertEquals(1, ds2.getErrors().size());
         Assert.assertEquals(1, ds2.getWarnings().size());
 
+        ds.addAll(null);
+        ds2.addAll(null);
         ds.addAll(ds);
         ds2.addAll(ds2);
 

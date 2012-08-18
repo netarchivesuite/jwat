@@ -649,8 +649,8 @@ public class TestArcVersionBlock {
             Assert.assertFalse(reader.diagnostics.hasErrors());
             Assert.assertFalse(reader.diagnostics.hasWarnings());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

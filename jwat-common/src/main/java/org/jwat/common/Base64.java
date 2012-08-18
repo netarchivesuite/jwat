@@ -51,6 +51,7 @@ public class Base64 {
     /**
      * Decodes an encoded string.
      * @param in encoded string.
+     * @param bStrict if true checks for the correct number of trailing "="
      * @return decoded string or null
      */
     public static String decodeToString(String in, boolean bStrict) {
@@ -138,6 +139,7 @@ public class Base64 {
     /**
      * Decodes an encoded string.
      * @param in encoded string.
+     * @param bStrict if true checks for the correct number of trailing "="
      * @return decoded byte array or null
      */
     public static byte[] decodeToArray(String in, boolean bStrict) {

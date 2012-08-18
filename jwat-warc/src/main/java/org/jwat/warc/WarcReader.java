@@ -33,20 +33,9 @@ import org.jwat.common.HeaderLineReader;
  */
 public abstract class WarcReader {
 
-    /** Compliance status for records parsed up to now. */
-    protected boolean bIsCompliant = true;
-
-    /** Number of bytes consumed by this reader. */
-    protected long consumed = 0;
-
-    /** Aggregated number of errors encountered while parsing. */
-    protected int errors = 0;
-
-    /** Aggregate number of warnings encountered while parsing. */
-    protected int warnings = 0;
-
-    /** Block Digest enabled/disabled. */
-    protected boolean bBlockDigest = false;
+    /*
+     * Settings.
+     */
 
     /** Default block digest algorithm to use if none is present in the
      *  record. */
@@ -67,11 +56,8 @@ public abstract class WarcReader {
      *  if none is detected from the record. */
     protected String payloadDigestEncoding = "base32";
 
-    /** Current WARC record object. */
-    protected WarcRecord currentRecord;
-
-    /** Exception thrown while using the iterator. */
-    protected Exception iteratorExceptionThrown;
+    /** Block Digest enabled/disabled. */
+    protected boolean bBlockDigest = false;
 
     /** Max size allowed for a record header. */
     protected int warcHeaderMaxSize;
@@ -88,8 +74,30 @@ public abstract class WarcReader {
     /** WARC field parser used. */
     protected WarcFieldParsers fieldParsers;
 
+    /*
+     * State.
+     */
+
     /** Reader level errors and warnings or when no record is available. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+
+    /** Compliance status for records parsed up to now. */
+    protected boolean bIsCompliant = true;
+
+    /** Number of bytes consumed by this reader. */
+    protected long consumed = 0;
+
+    /** Aggregated number of errors encountered while parsing. */
+    protected int errors = 0;
+
+    /** Aggregate number of warnings encountered while parsing. */
+    protected int warnings = 0;
+
+    /** Current WARC record object. */
+    protected WarcRecord currentRecord;
+
+    /** Exception thrown while using the iterator. */
+    protected Exception iteratorExceptionThrown;
 
     /**
      * Method used to initialize a readers internal state.

@@ -46,6 +46,13 @@ public abstract class WarcWriter {
     /** State after record has been closed. */
     protected static final int S_RECORD_CLOSED = 3;
 
+    /*
+     * Settings.
+     */
+
+    /** Block Digesting enabled/disabled. */
+    //protected boolean bDigestBlock = false;
+
     /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
     protected DateFormat warcDateFormat;
 
@@ -58,6 +65,10 @@ public abstract class WarcWriter {
     /** Configuration for throwing exception on content-length mismatch.
      *  (Default is true) */
     protected boolean bExceptionOnContentLengthMismatch;
+
+    /*
+     * State.
+     */
 
     /** Writer level errors and warnings or when writing byte headers. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
@@ -76,9 +87,6 @@ public abstract class WarcWriter {
 
     /** Total bytes written for current record payload. */
     protected long payloadWrittenTotal;
-
-    /** Block Digesting enabled/disabled. */
-    //protected boolean bDigestBlock = false;
 
     /**
      * Method used to initialize a readers internal state.
@@ -137,51 +145,46 @@ public abstract class WarcWriter {
 
     /**
      * Close WARC writer and free its resources.
+     * @throws IOException if an i/o exception occurs while closing the writer
      */
     public abstract void close() throws IOException;
 
     /**
      * Close the WARC record in an implementation specific way.
-     * @throws IOException if an exception occurs while closing the record
+     * @throws IOException if an i/o exception occurs while closing the record
      */
     public abstract void closeRecord() throws IOException;
 
     /**
-     * Close the WARC record by writing two newlines and compare the amount of
+     * Closes the WARC record by writing two newlines and comparing the amount of
      * payload data streamed with the content-length supplied with the header.
-     * @throws IOException if an exception occurs while closing the record
+     * @throws IOException if an i/o exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
-        Diagnostics<Diagnosis> diagnosticsUsed;
+        Diagnosis diagnosis = null;
         out.write(WarcConstants.endMark);
         if (headerContentLength == null) {
-            if (header != null) {
-                diagnosticsUsed = header.diagnostics;
-            } else {
-                diagnosticsUsed = diagnostics;
-            }
-            diagnosticsUsed.addError(new Diagnosis(
+            diagnosis = new Diagnosis(
                     DiagnosisType.ERROR_EXPECTED,
                     "'" + WarcConstants.FN_CONTENT_LENGTH + "' header",
-                    "Mandatory!"));
-            if (bExceptionOnContentLengthMismatch) {
-                throw new IllegalStateException("Payload size does not match content-length!");
-            }
+                    "Mandatory!");
         } else {
             if (headerContentLength != payloadWrittenTotal) {
-                if (header != null) {
-                    diagnosticsUsed = header.diagnostics;
-                } else {
-                    diagnosticsUsed = diagnostics;
-                }
-                diagnosticsUsed.addError(new Diagnosis(
+                diagnosis = new Diagnosis(
                         DiagnosisType.INVALID_EXPECTED,
                         "'" + WarcConstants.FN_CONTENT_LENGTH + "' header",
                         Long.toString(payloadWrittenTotal),
-                        headerContentLength.toString()));
-                if (bExceptionOnContentLengthMismatch) {
-                    throw new IllegalStateException("Payload size does not match content-length!");
-                }
+                        headerContentLength.toString());
+            }
+        }
+        if (diagnosis != null) {
+            if (header != null) {
+                header.diagnostics.addError(diagnosis);
+            } else {
+                diagnostics.addError(diagnosis);
+            }
+            if (bExceptionOnContentLengthMismatch) {
+                throw new IllegalStateException("Payload size does not match content-length!");
             }
         }
         header = null;
@@ -189,12 +192,14 @@ public abstract class WarcWriter {
     }
 
     /**
-     * Write a raw WARC header to the WARC output stream.
+     * Write a raw WARC header to the WARC output stream. Closes any previously
+     * written record that has not been closed prior to this call.
      * Errors and warnings are reported on the writers diagnostics object.
-     * @param header_bytes raw WARC record to output
-     * @throws IOException if an exception occurs while writing header data
+     * @param header_bytes raw WARC header to output
+     * @param contentLength the expected content-length to be written and validated
+     * @throws IOException if an i/o exception occurs while writing header data
      */
-    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
+    public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
@@ -219,15 +224,18 @@ public abstract class WarcWriter {
      * Write a WARC header to the WARC output stream.
      * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
-     * @throws IOException if an exception occurs while writing header data
+     * @return byte array version of header as it was written
+     * @throws IOException if an i/o exception occurs while writing header data
      */
     public abstract byte[] writeHeader(WarcRecord record) throws IOException;
 
     /**
      * Write a WARC header to the WARC output stream.
+     * The WARC header is not required to be valid.
      * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
-     * @throws IOException if an exception occurs while writing header data
+     * @return byte array version of header as it was written
+     * @throws IOException if an i/o exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
         header = record.header;

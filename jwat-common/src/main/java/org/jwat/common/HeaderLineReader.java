@@ -146,8 +146,8 @@ public class HeaderLineReader {
     public static final int E_BIT_MISPLACED_CR = 1 << 1;
     /** Bit denoting a missing CR. */
     public static final int E_BIT_MISSING_CR = 1 << 2;
-    /** Bit denoting an excessive CR. */
-    public static final int E_BIT_EXCESSIVE_CR = 1 << 3;
+    /** Bit denoting an unexpected CR. */
+    public static final int E_BIT_UNEXPECTED_CR = 1 << 3;
     /** Bit denoting an invalid UTF-8 encoded character. */
     public static final int E_BIT_INVALID_UTF8_ENCODING = 1 << 4;
     /** Bit denoting an invalid US-ASCII character. */
@@ -184,7 +184,7 @@ public class HeaderLineReader {
     public int bfErrors;
 
     /**
-     * Prohibit explicit construction.
+     * Prohibit public construction.
      */
     protected HeaderLineReader() {
     }
@@ -198,8 +198,9 @@ public class HeaderLineReader {
     }
 
     /**
-     * Returns a reader to read normal lines.
-     * The reader is pre-configured to expect US-ASCII characters.
+     * Returns a reader initialized to read normal lines.
+     * Normal lines being lines with no LWS or key:value headers.
+     * The reader is configured to expect US-ASCII characters.
      * @return a reader to read normal lines
      */
     public static HeaderLineReader getLineReader() {
@@ -210,9 +211,10 @@ public class HeaderLineReader {
     }
 
     /**
-     * Returns a reader to read header lines.
-     * The reader is pre- configured to expect ISO-8859-1 encoding, LWS,
-     * quoted text and encoded words.
+     * Returns a reader initialized to read header lines.
+     * The reader is configured to expect ISO-8859-1 encoding, LWS,
+     * quoted text and encoded words. Besides reading key:value headers it will
+     * also read and return normal lines as defined in the method above.
      * @return a reader to read header lines
      */
     public static HeaderLineReader getHeaderLineReader() {
@@ -232,7 +234,7 @@ public class HeaderLineReader {
      * from public fields on the reader.
      * @param in <code>InputStream</code> with characters
      * @return result wrapped in a <code>HeaderLine</code> object
-     * @throws IOException if an io error occurs in the underlying input stream
+     * @throws IOException if an i/o error occurs in the underlying input stream
      */
     public HeaderLine readLine(PushbackInputStream in) throws IOException {
         HeaderLine headerLine = new HeaderLine();
@@ -606,6 +608,7 @@ public class HeaderLineReader {
                     bLoop = false;
                     break;
                 case '?':
+                    //  Unread "=?", so it can be parsed as an EncodedWord which always starts with "=?"
                     in.unread('?');
                     in.unread('=');
                     bytesOut.unread('?');
@@ -648,7 +651,7 @@ public class HeaderLineReader {
         switch (encoding) {
         case ENC_UTF8:
             c = utf8.readUtf8(c, in);
-            bytesOut.write(utf8.chars);
+            bytesOut.write(utf8.chars_read);
             bValidChar = utf8.bValidChar;
             if (c != -1) {
                 if (!bValidChar) {
@@ -682,8 +685,8 @@ public class HeaderLineReader {
         switch (eol) {
         case EOL_LF:
             if (!bCr) {
-                // Excessive CR.
-                bfErrors |= E_BIT_EXCESSIVE_CR;
+                // Unexpected CR.
+                bfErrors |= E_BIT_UNEXPECTED_CR;
             }
             break;
         case EOL_CRLF:
@@ -733,8 +736,8 @@ public class HeaderLineReader {
         if ((bfErrors & E_BIT_MISSING_CR) != 0) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Missing CR"));
         }
-        if ((bfErrors & E_BIT_EXCESSIVE_CR) != 0) {
-            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Excessive CR"));
+        if ((bfErrors & E_BIT_UNEXPECTED_CR) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Unexpected CR"));
         }
         if ((bfErrors & E_BIT_INVALID_UTF8_ENCODING) != 0) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid UTF-8 encoded character"));

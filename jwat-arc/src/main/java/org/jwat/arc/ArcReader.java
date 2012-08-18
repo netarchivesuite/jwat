@@ -34,19 +34,14 @@ import org.jwat.common.HeaderLineReader;
  */
 public abstract class ArcReader {
 
+    /*
+     * Settings.
+     */
+
+    /** Strict mode enabled or disabled.
+     *  Non strict mode allows newlines when there should be no xml metadata.
+     *  Non strict mode allows a varied number of newlines between records. */
     protected boolean bStrict = false;
-
-    /** Compliance status for records parsed up to now. */
-    protected boolean bIsCompliant = true;
-
-    /** Number of bytes consumed by this reader. */
-    protected long consumed = 0;
-
-    /** Aggregated number of errors encountered while parsing. */
-    protected int errors = 0;
-
-    /** Aggregate number of warnings encountered while parsing. */
-    protected int warnings = 0;
 
     /** Block Digest enabled/disabled. */
     protected boolean bBlockDigest = false;
@@ -66,20 +61,8 @@ public abstract class ArcReader {
     /** Encoding scheme used to encode payload digest into a string. */
     protected String payloadDigestEncoding = "base32";
 
-    /** Current ARC version block object. */
-    //protected ArcVersionBlock versionBlock = null;
-
-    /** Current ARC record object. */
-    //protected ArcRecordBase arcRecord = null;
-
-    /** Previous record of either kind. */
-    protected ArcRecordBase currentRecord = null;
-
-    /** Exception thrown while using the iterator. */
-    protected Exception iteratorExceptionThrown;
-
     /** Max size allowed for a record header. */
-    protected int warcHeaderMaxSize;
+    protected int arcHeaderMaxSize;
 
     /** Max size allowed for a payload header. */
     protected int payloadHeaderMaxSize;
@@ -90,16 +73,39 @@ public abstract class ArcReader {
     /** Line reader used to read header lines. */
     protected HeaderLineReader lineReader;
 
+    /*
+     * State.
+     */
+
     /** Reader level errors and warnings or when no record is available. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
 
+    /** Compliance status for records parsed up to now. */
+    protected boolean bIsCompliant = true;
+
+    /** Number of bytes consumed by this reader. */
+    protected long consumed = 0;
+
+    /** Aggregated number of errors encountered while parsing. */
+    protected int errors = 0;
+
+    /** Aggregate number of warnings encountered while parsing. */
+    protected int warnings = 0;
+
+    /** Version header from version block. */
     public ArcVersionHeader versionHeader;
+
+    /** Current record of either kind. */
+    protected ArcRecordBase currentRecord = null;
+
+    /** Exception thrown while using the iterator. */
+    protected Exception iteratorExceptionThrown;
 
     /**
      * Method used to initialize a readers internal state.
      */
     protected void init() {
-        warcHeaderMaxSize = 8192;
+        arcHeaderMaxSize = 8192;
         payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
@@ -116,10 +122,18 @@ public abstract class ArcReader {
         return bIsCompliant;
     }
 
+    /**
+     * Set the readers strict mode on/off.
+     * @param bStrict strict mode on/off
+     */
     public void setStrict(boolean bStrict) {
         this.bStrict = bStrict;
     }
 
+    /**
+     * Get the readers strict mode setting.
+     * @return readers strict mode setting
+     */
     public boolean isStrict() {
         return bStrict;
     }
@@ -264,16 +278,16 @@ public abstract class ArcReader {
      * Get the max size allowed for a record header.
      * @return max size allowed for a record header
      */
-    public int getWarcHeaderMaxSize() {
-        return warcHeaderMaxSize;
+    public int getArcHeaderMaxSize() {
+        return arcHeaderMaxSize;
     }
 
     /**
      * Set the max size allowed for a record header.
      * @param size max size allowed
      */
-    public void setWarcHeaderMaxSize(int size) {
-        warcHeaderMaxSize = size;
+    public void setArcHeaderMaxSize(int size) {
+        arcHeaderMaxSize = size;
     }
 
     /**

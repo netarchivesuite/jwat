@@ -28,6 +28,7 @@ import org.jwat.gzip.GzipWriter;
 
 /**
  * WARC Writer implementation for writing GZip compressed files.
+ * Use WarcWriterFactory to get an instance of this class.
  *
  * @author nicl
  */
@@ -56,8 +57,7 @@ public class WarcWriterCompressed extends WarcWriter {
      * Construct a buffered WARC writer used to write compressed records.
      * @param out outputstream to stream to
      * @param buffer_size outputstream buffer size
-     * @throws IllegalArgumentException if out is null.
-     * @throws IllegalArgumentException if buffer_size <= 0.
+     * @throws IllegalArgumentException if out is null or buffer_size <= 0
      */
     WarcWriterCompressed(OutputStream out, int buffer_size) {
         if (out == null) {
@@ -102,8 +102,12 @@ public class WarcWriterCompressed extends WarcWriter {
         }
     }
 
+    /*
+     * In this class "out" is the GZip output stream of the current GZip entry.
+     * @see org.jwat.warc.WarcWriter#writeHeader(byte[], java.lang.Long)
+     */
     @Override
-    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
+    public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");
@@ -133,6 +137,13 @@ public class WarcWriterCompressed extends WarcWriter {
         payloadWrittenTotal = 0;
     }
 
+    /*
+     * In this class "out" is the GZip output stream of the current GZip entry.
+     * state changed to S_HEADER_WRITTEN
+     * Sets the header and headerContentLength fields.
+     * payloadWrittenTotal is set to 0
+     * @see org.jwat.warc.WarcWriter#writeHeader(org.jwat.warc.WarcRecord)
+     */
     @Override
     public byte[] writeHeader(WarcRecord record) throws IOException {
         if (record == null) {
@@ -153,36 +164,42 @@ public class WarcWriterCompressed extends WarcWriter {
         entry.os = GzipConstants.OS_UNKNOWN;
         writer.writeEntryHeader(entry);
         out = entry.getOutputStream();
-        // state changed to S_HEADER_WRITTEN
-        // Sets the header and headerContentLength fields.
-        // payloadWrittenTotal is set to 0
         return writeHeader_impl(record);
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN;
+     * @see org.jwat.warc.WarcWriter#streamPayload(java.io.InputStream)
+     */
     @Override
     public long streamPayload(InputStream in) throws IOException {
         if (entry == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Write a header before writing payload!");
         }
         return super.streamPayload(in);
-        //state = S_PAYLOAD_WRITTEN;
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN
+     * @see org.jwat.warc.WarcWriter#writePayload(byte[])
+     */
     @Override
     public long writePayload(byte[] b) throws IOException {
         if (entry == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Write a header before writing payload!");
         }
-        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b);
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN
+     * @see org.jwat.warc.WarcWriter#writePayload(byte[], int, int)
+     */
     @Override
     public long writePayload(byte[] b, int offset, int len) throws IOException {
         if (entry == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Write a header before writing payload!");
         }
-        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b, offset, len);
     }
 

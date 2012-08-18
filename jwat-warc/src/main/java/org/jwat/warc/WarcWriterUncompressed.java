@@ -23,6 +23,7 @@ import java.io.OutputStream;
 
 /**
  * WARC Writer implementation for writing uncompressed files.
+ * Use WarcWriterFactory to get an instance of this class.
  *
  * @author nicl
  */
@@ -45,8 +46,7 @@ public class WarcWriterUncompressed extends WarcWriter {
      * Construct a buffered WARC writer used to write uncompressed records.
      * @param out outputstream to stream to
      * @param buffer_size outputstream buffer size
-     * @throws IllegalArgumentException if out is null.
-     * @throws IllegalArgumentException if buffer_size <= 0.
+     * @throws IllegalArgumentException if out is null or buffer_size <= 0
      */
     WarcWriterUncompressed(OutputStream out, int buffer_size) {
         if (out == null) {
@@ -88,6 +88,12 @@ public class WarcWriterUncompressed extends WarcWriter {
         }
     }
 
+    /*
+     * state changed to S_HEADER_WRITTEN
+     * Sets the header and headerContentLength fields.
+     * payloadWrittenTotal is set to 0
+     * @see org.jwat.warc.WarcWriter#writeHeader(org.jwat.warc.WarcRecord)
+     */
     @Override
     public byte[] writeHeader(WarcRecord record) throws IOException {
         if (record == null) {
@@ -99,9 +105,6 @@ public class WarcWriterUncompressed extends WarcWriter {
         } else if (state == S_PAYLOAD_WRITTEN) {
             closeRecord_impl();
         }
-        // state changed to S_HEADER_WRITTEN
-        // Sets the header and headerContentLength fields.
-        // payloadWrittenTotal is set to 0
         return writeHeader_impl(record);
     }
 

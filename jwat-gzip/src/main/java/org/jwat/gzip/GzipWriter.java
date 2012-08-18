@@ -82,7 +82,6 @@ public class GzipWriter {
     /**
      * Construct a GZip writer with a default input buffer size of 1024.
      * @param out output stream of GZip file
-     * @param in input stream of GZip file
      */
     public GzipWriter(OutputStream out) {
         if (out == null) {
@@ -317,9 +316,9 @@ public class GzipWriter {
     }
 
     /**
-     * Computes the CRC32 and iSize values and Writes the GZip entry trailer.
+     * Computes the CRC32 and iSize values and then writes the GZip entry trailer.
      * @param entry GZip entry object
-     * @throws IOException if an io error occurs while writing trailer
+     * @throws IOException if an i/o error occurs while writing trailer
      */
     protected void writeTrailer(GzipEntry entry) throws IOException {
         // Compliance
@@ -479,7 +478,7 @@ public class GzipWriter {
 
         @Override
         public void flush() throws IOException {
-            // Flush is performed in the close method.
+            // Flush is performed in the <code>GzipWriter</code> close method.
         }
 
         @Override

@@ -46,10 +46,14 @@ public abstract class ArcWriter {
     /** State after record has been closed. */
     protected static final int S_RECORD_CLOSED = 3;
 
+    /*
+     * Settings.
+     */
+
     /** ARC <code>DateFormat</code> as described in the IA documentation. */
     protected DateFormat arcDateFormat;
 
-    /** WARC field parser used. */
+    /** ARC field parser used. */
     protected ArcFieldParsers fieldParsers;
 
     /** Buffer used by streamPayload() to copy from one stream to another. */
@@ -58,6 +62,10 @@ public abstract class ArcWriter {
     /** Configuration for throwing exception on content-length mismatch.
      *  (Default is true) */
     protected boolean bExceptionOnContentLengthMismatch;
+
+    /*
+     * State.
+     */
 
     /** Writer level errors and warnings or when writing byte headers. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
@@ -70,7 +78,7 @@ public abstract class ArcWriter {
 
     protected ArcHeader header;
 
-    /** Content-Length from the WARC header. */
+    /** Content-Length from the ARC header. */
     protected Long headerContentLength;
 
     /** Total bytes written for current record payload. */
@@ -113,18 +121,20 @@ public abstract class ArcWriter {
 
     /**
      * Close ARC writer and free its resources.
+     * @throws IOException if an i/o exception occurs while closing the writer
      */
     public abstract void close() throws IOException;
 
     /**
-     * Close the ARC record.
-     * @throws IOException if an exception occurs while closing the record
+     * Close the ARC record in an implementation specific way.
+     * @throws IOException if an i/o exception occurs while closing the record
      */
     public abstract void closeRecord() throws IOException;
 
     /**
-     * Close the ARC record, implementation.
-     * @throws IOException if an exception occurs while closing the record
+     * Closes the ARC record by writing one newline and comparing the amount of
+     * payload data streamed with the content-length supplied with the header.
+     * @throws IOException if an i/o exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
         Diagnostics<Diagnosis> diagnosticsUsed;
@@ -164,8 +174,11 @@ public abstract class ArcWriter {
     }
 
     /**
-     * Write a raw ARC header to the ARC output stream.
+     * Write a raw ARC header to the ARC output stream. Closes any previously
+     * written record that has not been closed prior to this call.
+     * Errors and warnings are reported on the writers diagnostics object.
      * @param header_bytes raw ARC record to output
+     * @param contentLength the expected content-length to be written and validated
      * @throws IOException if an exception occurs while writing header data
      */
     public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
@@ -191,14 +204,19 @@ public abstract class ArcWriter {
 
     /**
      * Write a ARC header to the ARC output stream.
+     * Errors and warnings are reported on the records diagnostics object.
      * @param record ARC record to output
+     * @return byte array version of header as it was written
      * @throws IOException if an exception occurs while writing header data
      */
     public abstract byte[] writeHeader(ArcRecordBase record) throws IOException;
 
     /**
      * Write an ARC header to the ARC output stream.
+     * The WARC header is not required to be valid.
+     * Errors and warnings are reported on the records diagnostics object.
      * @param record ARC record to output
+     * @return byte array version of header as it was written
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
@@ -379,11 +397,11 @@ public abstract class ArcWriter {
     }
 
     /**
-    * TODO javadocs.
-    * @param in input stream containing payload data
-    * @return written length of payload data
-    * @throws IOException if an exception occurs while writing payload data
-    */
+     * Stream the content of an input stream to the payload content.
+     * @param in input stream containing payload data
+     * @return number of bytes written during method invocation
+     * @throws IOException if an i/o exception occurs while writing payload data
+     */
    public long streamPayload(InputStream in) throws IOException {
        if (in == null) {
            throw new IllegalArgumentException(
@@ -404,6 +422,12 @@ public abstract class ArcWriter {
        return written;
    }
 
+   /**
+    * Append the content of a byte array to the payload content.
+    * @param b byte array with data to be written
+    * @return number of bytes written during method invocation
+    * @throws IOException if an i/o exception occurs while writing payload data
+    */
    public long writePayload(byte[] b) throws IOException {
        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
            throw new IllegalStateException("Write a header before writing payload!");
@@ -414,6 +438,14 @@ public abstract class ArcWriter {
        return b.length;
    }
 
+   /**
+    * Append the partial content of a byte array to the payload content.
+    * @param b byte array with partial data to be written
+    * @param offset offset to data to be written
+    * @param len length of data to be written
+    * @return number of bytes written during method invocation
+    * @throws IOException if an i/o exception occurs while writing payload data
+    */
    public long writePayload(byte[] b, int offset, int len) throws IOException {
        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
            throw new IllegalStateException("Write a header before writing payload!");

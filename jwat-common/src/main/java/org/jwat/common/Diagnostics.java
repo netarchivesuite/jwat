@@ -66,7 +66,7 @@ public class Diagnostics<T> {
      * @param diagnostics other diagnostics with errors/warnings
      */
     public void addAll(Diagnostics<T> diagnostics) {
-        if (diagnostics != this) {
+        if (diagnostics != null && diagnostics != this) {
             errors.addAll(diagnostics.errors);
             warnings.addAll(diagnostics.warnings);
         }

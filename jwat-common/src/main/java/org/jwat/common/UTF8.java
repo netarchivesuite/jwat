@@ -43,7 +43,7 @@ public class UTF8 {
     public int utf8_c;
 
     /** Bytes read in the decoding process. */
-    public byte[] chars;
+    public byte[] chars_read;
 
     /** UTF-8 validity status on last read character. */
     public boolean bValidChar = false;
@@ -97,7 +97,7 @@ public class UTF8 {
                 if (c == -1) {
                     // EOF.
                     bValidChar = false;
-                    chars = charsOut.toByteArray();
+                    chars_read = charsOut.toByteArray();
                     return -1;
                 } else {
                     charsOut.write(c);
@@ -135,7 +135,7 @@ public class UTF8 {
             }
             c = utf8_c;
         }
-        chars = charsOut.toByteArray();
+        chars_read = charsOut.toByteArray();
         return c;
     }
 

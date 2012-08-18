@@ -26,6 +26,13 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.MaxLengthRecordingInputStream;
 import org.jwat.common.PayloadWithHeaderAbstract;
 
+/**
+ * This class can be used to post process a payload object to parse and
+ * validate a suspected ARC version block header. Any metadata present is
+ * preserved and exposed as payload of the ARC version block object.
+ *
+ * @author nicl
+ */
 public class ArcVersionHeader extends PayloadWithHeaderAbstract {
 
     /** ARC field parser used.
@@ -44,6 +51,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     /** Did we recognize the block description line. */
     public boolean isValidBlockdDesc;
 
+    /** Version of the block description. Last line in the version block. */
     public int blockDescVersion;
 
     /*
@@ -68,6 +76,18 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     /** ARC record version. */
     public ArcVersion version;
 
+    /**
+     * Method called to parse and validate an ARC version block.
+     * This method never returns null so validity and extra state information
+     * is kept even in failure.
+     * @param pbin payload input stream
+     * @param length length of payload
+     * @param digestAlgorithm digest algorithm for payload minus header
+     * @param fieldParsers parser used for the different field types
+     * @param diagnostics object used to report errors and/or warnings
+     * @return <code>ArcVersionHeader</code> object
+     * @throws IOException if an i/o exception occurs while parsing the version block
+     */
     public static ArcVersionHeader processPayload(ByteCountingPushBackInputStream pbin,
             long length, String digestAlgorithm, ArcFieldParsers fieldParsers,
             Diagnostics<Diagnosis> diagnostics) throws IOException {

@@ -41,16 +41,6 @@ public class ArcFieldParsers {
     protected Diagnostics<Diagnosis> diagnostics;
 
     /**
-     * Add a warning diagnosis on the given entity stating that it is empty.
-     * @param entity entity examined
-     */
-    /*
-    protected void addEmptyWarning(String entity) {
-        diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
-    }
-    */
-
-    /**
      * Add an error diagnosis on the given entity stating that it is invalid
      * and something else was expected. The optional information should provide
      * more details and/or format information.
@@ -71,11 +61,11 @@ public class ArcFieldParsers {
     }
 
     /**
-     * Parses a string.
-     * @param str the value to parse
+     * Validates that the string is not null if nullable is true.
+     * @param str the value to validate
      * @param field field name
      * @param nullable allow empty or null value
-     * @return the parsed value
+     * @return the original value
      */
     protected String parseString(String str, String field, boolean nullable) {
         if ((!nullable) && ((str == null) || (str.trim().length() == 0))) {
@@ -89,7 +79,8 @@ public class ArcFieldParsers {
      * @param intStr the value to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return an integer object holding the value of the specified string
+     * @return an integer object holding the value of the specified string or null,
+     * if unable to parse the value as an integer
      */
     protected Integer parseInteger(String intStr, String field, boolean nullable) {
          Integer iVal = null;
@@ -114,7 +105,8 @@ public class ArcFieldParsers {
      * @param longStr the value to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return a long object holding the value of the specified string
+     * @return a long object holding the value of the specified string or null,
+     * if unable to parse the value as a Long
      */
     protected Long parseLong(String longStr, String field, boolean nullable) {
         Long lVal = null;
@@ -135,11 +127,12 @@ public class ArcFieldParsers {
     }
 
     /**
-     * Parses ARC record content type.
+     * Parse and validate a content type.
      * @param contentTypeStr ARC record content type
      * @param field field name
      * @param nullable allow empty or null value
-     * @return ARC record content type
+     * @return content type or null, if unable to extract the
+     * content-type
      */
     protected ContentType parseContentType(String contentTypeStr, String field, boolean nullable) {
         ContentType contentType = null;
@@ -159,11 +152,12 @@ public class ArcFieldParsers {
     }
 
     /**
-     * Parses ARC record IP address.
+     * Parse and validate an IP address.
      * @param ipAddress the IP address to parse
      * @param field field name
      * @param nullable allow empty or null value
-     * @return the IP address
+     * @return the IP address or null, if unable to parse the value as an
+     * IP-address
      */
     protected InetAddress parseIpAddress(String ipAddress, String field, boolean nullable) {
         InetAddress inetAddr = null;
@@ -187,7 +181,8 @@ public class ArcFieldParsers {
      * @param uriStr the URL to parse
      * @param field field name
      * @param nullable allow empty or null value
-     * @return an URL object holding the value of the specified string
+     * @return an URL object holding the value of the specified string or null,
+     * if unable to parse the value as an URL object
      */
     protected URI parseUri(String uriStr, String field, boolean nullable) {
         URI uri = null;
@@ -222,7 +217,8 @@ public class ArcFieldParsers {
      * @param dateStr the date to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return the formatted date.
+     * @return the formatted date or null, if unable to parse the value as an
+     * ARC record date
      */
     protected Date parseDate(String dateStr, String field, boolean nullable) {
         Date date = null;

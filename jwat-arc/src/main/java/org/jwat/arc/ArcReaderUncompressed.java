@@ -116,7 +116,8 @@ public class ArcReaderUncompressed extends ArcReader {
             currentRecord.close();
         }
         if (in == null) {
-            throw new IllegalStateException("The inputstream 'in' is null");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is null");
         }
         currentRecord = ArcRecordBase.parseRecord(in, this);
         if (currentRecord != null) {
@@ -133,7 +134,8 @@ public class ArcReaderUncompressed extends ArcReader {
             currentRecord.close();
         }
         if (in != null) {
-            throw new IllegalStateException("The inputstream 'in' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -161,7 +163,8 @@ public class ArcReaderUncompressed extends ArcReader {
             currentRecord.close();
         }
         if (in != null) {
-            throw new IllegalStateException("The inputstream 'in' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'in' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(

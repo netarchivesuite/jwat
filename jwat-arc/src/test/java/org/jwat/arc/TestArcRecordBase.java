@@ -118,6 +118,129 @@ public class TestArcRecordBase {
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
+            /*
+             * isValidStreamOfCRLF
+             */
+
+            ByteArrayInputStream bain;
+            try {
+                record.isValidStreamOfCRLF(null);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+
+            bain = new ByteArrayInputStream(new byte[0]);
+            Assert.assertTrue(record.isValidStreamOfCRLF(bain));
+
+            bain = new ByteArrayInputStream(new byte[] {0x0a});
+            Assert.assertTrue(record.isValidStreamOfCRLF(bain));
+
+            bain = new ByteArrayInputStream(new byte[] {0x0d});
+            Assert.assertTrue(record.isValidStreamOfCRLF(bain));
+
+            bain = new ByteArrayInputStream(new byte[] {0x0a, 0x0d});
+            Assert.assertTrue(record.isValidStreamOfCRLF(bain));
+
+            bain = new ByteArrayInputStream(new byte[] {'a'});
+            Assert.assertFalse(record.isValidStreamOfCRLF(bain));
+
+            bain = new ByteArrayInputStream(new byte[] {0x0a, 0x0d, 'a'});
+            Assert.assertFalse(record.isValidStreamOfCRLF(bain));
+
+            record.close();
+            reader.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_arcrecordbase_payload_truncated() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        String tmpStr;
+        try {
+            out.reset();
+            out.write("2 0 InternetArchive".getBytes());
+            out.write("\n".getBytes());
+            out.write(ArcConstants.VERSION_2_BLOCK_DEF.getBytes());
+            out.write("\n".getBytes());
+            byte[] versionblock = out.toByteArray();
+
+            out.reset();
+            out.write("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename ".getBytes());
+            out.write(Integer.toString(versionblock.length).getBytes());
+            out.write("\n".getBytes());
+            byte[] recordline = out.toByteArray();
+
+            out.reset();
+            out.write(recordline);
+            out.write(versionblock);
+            out.write("\n".getBytes());
+
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+
+            ArcReader reader = ArcReaderFactory.getReader(in);
+
+            ArcRecordBase record = reader.getNextRecord();
+            Assert.assertNotNull(record);
+            ArcHeader header = record.header;
+            Assert.assertNotNull(header);
+
+            Assert.assertEquals(2, header.recordFieldVersion);
+
+            tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
+
+            Assert.assertEquals("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz", header.urlStr);
+            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
+            Assert.assertEquals("20120712144000", header.archiveDateStr);
+            Assert.assertEquals("text/htlm", header.contentTypeStr);
+            Assert.assertEquals("200", header.resultCodeStr);
+            Assert.assertEquals("checksum", header.checksumStr);
+            Assert.assertEquals("location", header.locationStr);
+            Assert.assertEquals("1234", header.offsetStr);
+            Assert.assertEquals("filename", header.filenameStr);
+            Assert.assertEquals(Integer.toString(versionblock.length), header.archiveLengthStr);
+
+            Assert.assertEquals(URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"), header.urlUri);
+            Assert.assertEquals("filedesc", header.urlScheme);
+            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
+            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
+            Assert.assertEquals(ContentType.parseContentType("text/htlm"), header.contentType);
+            Assert.assertEquals(new Integer(200), header.resultCode);
+            Assert.assertEquals(new Long(1234), header.offset);
+            Assert.assertEquals(new Long(versionblock.length), header.archiveLength);
+
+            Assert.assertEquals(header.urlStr, record.getUrlStr());
+            Assert.assertEquals(header.ipAddressStr, record.getIpAddress());
+            Assert.assertEquals(header.archiveDateStr, record.getArchiveDateStr());
+            Assert.assertEquals(header.contentTypeStr, record.getContentTypeStr());
+            Assert.assertEquals(header.resultCodeStr, record.getResultCodeStr());
+            Assert.assertEquals(header.checksumStr, record.getChecksum());
+            Assert.assertEquals(header.locationStr, record.getLocation());
+            Assert.assertEquals(header.offsetStr, record.getOffsetStr());
+            Assert.assertEquals(header.filenameStr, record.getFileName());
+            Assert.assertEquals(header.archiveLengthStr, record.getArchiveLengthStr());
+
+            Assert.assertEquals(header.urlUri, record.getUrl());
+            Assert.assertEquals(header.urlScheme, record.getScheme());
+            Assert.assertEquals(header.inetAddress, record.getInetAddress());
+            Assert.assertEquals(header.archiveDate, record.getArchiveDate());
+            Assert.assertEquals(header.contentType, record.getContentType());
+            Assert.assertEquals(header.resultCode, record.getResultCode());
+            Assert.assertEquals(header.offset, record.getOffset());
+            Assert.assertEquals(header.archiveLength, record.getArchiveLength());
+
+            Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertTrue(header.diagnostics.hasWarnings());
+
+            Object[][] expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+
             record.close();
             reader.close();
             in.close();

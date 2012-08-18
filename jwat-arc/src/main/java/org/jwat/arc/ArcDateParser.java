@@ -52,7 +52,7 @@ public final class ArcDateParser {
     /**
      * Parses a date.
      * @param dateStr date to parse
-     * @return the formatted date
+     * @return the formatted date or null if unable to parse date
      */
     private Date parseDate(String dateStr) {
         Date date = null;

@@ -83,7 +83,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("header/line", diagnosis.entity);
         Assert.assertEquals("Missing CR", diagnosis.information[0]);
 
-        bf_errors = HeaderLineReader.E_BIT_EXCESSIVE_CR;
+        bf_errors = HeaderLineReader.E_BIT_UNEXPECTED_CR;
         diagnostics = new Diagnostics<Diagnosis>();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
@@ -94,7 +94,7 @@ public class TestHeaderLineReader {
         diagnosis = diagnostics.getErrors().get(0);
         Assert.assertEquals(DiagnosisType.ERROR, diagnosis.type);
         Assert.assertEquals("header/line", diagnosis.entity);
-        Assert.assertEquals("Excessive CR", diagnosis.information[0]);
+        Assert.assertEquals("Unexpected CR", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING;
         diagnostics = new Diagnostics<Diagnosis>();

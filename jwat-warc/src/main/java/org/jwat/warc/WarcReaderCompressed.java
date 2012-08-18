@@ -27,6 +27,7 @@ import org.jwat.gzip.GzipReader;
 
 /**
  * WARC Reader implementation for reading GZip compressed files.
+ * Use WarcReaderFactory to get an instance of this class.
  *
  * @author nicl
  */
@@ -172,7 +173,8 @@ public class WarcReaderCompressed extends WarcReader {
             currentRecord.close();
         }
         if (reader == null) {
-            throw new IllegalStateException("The GZip reader 'reader' is null");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is null");
         }
         currentRecord = null;
         currentReader = reader;
@@ -205,7 +207,8 @@ public class WarcReaderCompressed extends WarcReader {
             currentRecord.close();
         }
         if (reader != null) {
-            throw new IllegalStateException("The GZip reader 'reader' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -238,7 +241,8 @@ public class WarcReaderCompressed extends WarcReader {
             currentRecord.close();
         }
         if (reader != null) {
-            throw new IllegalStateException("The GZip reader 'reader' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(

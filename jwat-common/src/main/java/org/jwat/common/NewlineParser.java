@@ -44,6 +44,7 @@ public class NewlineParser {
      * Looks forward in the input stream and counts the number of newlines
      * found. Non newlines characters are pushed back onto the input stream.
      * @param in data input stream
+     * @param diagnostics object used to report errors and/or warnings
      * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
@@ -54,8 +55,8 @@ public class NewlineParser {
         bMisplacedLf = false;
         int newlines = 0;
         byte[] buffer = new byte[2];
-        boolean b = true;
-        while (b) {
+        boolean bLoop = true;
+        while (bLoop) {
             int read = in.read(buffer);
             switch (read) {
             case 1:
@@ -67,7 +68,7 @@ public class NewlineParser {
                     bMisplacedCr = true;
                 } else {
                     in.unread(buffer[0]);
-                    b = false;
+                    bLoop = false;
                 }
                 break;
             case 2:
@@ -94,21 +95,15 @@ public class NewlineParser {
                     }
                 } else {
                     in.unread(buffer);
-                    b = false;
+                    bLoop = false;
                 }
                 break;
             default:
-                b = false;
+                bLoop = false;
                 break;
             }
         }
         if (diagnostics != null) {
-            /*
-            if (bMissingCr) {
-                diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                        "Missing CR"));
-            }
-            */
             if (bMissingLf) {
                 diagnostics.addWarning(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
                         "Missing LF", "Sequence of LFs"));
@@ -129,6 +124,7 @@ public class NewlineParser {
      * Looks forward in the input stream and counts the number of newlines
      * found. Non newlines characters are pushed back onto the input stream.
      * @param in data input stream
+     * @param diagnostics object used to report errors and/or warnings
      * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
@@ -139,9 +135,10 @@ public class NewlineParser {
         bMisplacedLf = false;
         int newlines = 0;
         byte[] buffer = new byte[2];
-        boolean b = true;
-        while (b) {
+        boolean bLoop = true;
+        while (bLoop) {
             int read = in.read(buffer);
+            // Switch on the number of bytes we were able to read (0-2).
             switch (read) {
             case 1:
                 if (buffer[0] == '\n') {
@@ -152,7 +149,7 @@ public class NewlineParser {
                     bMissingLf = true;
                 } else {
                     in.unread(buffer[0]);
-                    b = false;
+                    bLoop = false;
                 }
                 break;
             case 2:
@@ -176,11 +173,11 @@ public class NewlineParser {
                     }
                 } else {
                     in.unread(buffer);
-                    b = false;
+                    bLoop = false;
                 }
                 break;
             default:
-                b = false;
+                bLoop = false;
                 break;
             }
         }

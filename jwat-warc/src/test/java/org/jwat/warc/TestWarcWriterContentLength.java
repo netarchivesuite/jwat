@@ -193,7 +193,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(true);
 
-            writer.writeHeader(recordHeader, null);
+            writer.writeRawHeader(recordHeader, null);
             try {
                 writer.closeRecord();
                 Assert.fail("Exception expected!");
@@ -217,7 +217,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(true);
 
-            writer.writeHeader(recordHeader, 1024L);
+            writer.writeRawHeader(recordHeader, 1024L);
             writer.writePayload(payload, 0, 10);
             writer.writePayload(payload, 10, payload.length - 10);
             try {
@@ -243,7 +243,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(true);
 
-            writer.writeHeader(recordHeader, (long)payload.length * 2);
+            writer.writeRawHeader(recordHeader, (long)payload.length * 2);
             writer.writePayload(payload);
             writer.writePayload(payload);
             writer.closeRecord();
@@ -386,7 +386,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(false);
 
-            writer.writeHeader(recordHeader, null);
+            writer.writeRawHeader(recordHeader, null);
             writer.closeRecord();
 
             Assert.assertFalse(record.diagnostics.hasErrors());
@@ -406,7 +406,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(false);
 
-            writer.writeHeader(recordHeader, 1024L);
+            writer.writeRawHeader(recordHeader, 1024L);
             writer.writePayload(payload, 0, 10);
             writer.writePayload(payload, 10, payload.length - 10);
             writer.closeRecord();
@@ -428,7 +428,7 @@ public class TestWarcWriterContentLength {
             writer = WarcWriterFactory.getWriter(out, compress);
             writer.setExceptionOnContentLengthMismatch(false);
 
-            writer.writeHeader(recordHeader, (long)payload.length * 2);
+            writer.writeRawHeader(recordHeader, (long)payload.length * 2);
             writer.writePayload(payload);
             writer.writePayload(payload);
             writer.closeRecord();

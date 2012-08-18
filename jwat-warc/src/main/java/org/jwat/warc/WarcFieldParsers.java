@@ -60,10 +60,10 @@ public class WarcFieldParsers {
     }
 
     /**
-     * Parses a string.
-     * @param str the value to parse
+     * Validates that the string is not null.
+     * @param str the value to validate
      * @param field field name
-     * @return the parsed value
+     * @return the original value
      */
     protected String parseString(String str, String field) {
         if (((str == null) || (str.trim().length() == 0))) {
@@ -76,7 +76,8 @@ public class WarcFieldParsers {
      * Returns an Integer object holding the value of the specified string.
      * @param intStr the value to parse.
      * @param field field name
-     * @return an integer object holding the value of the specified string
+     * @return an integer object holding the value of the specified string or null,
+     * if unable to parse the value as an integer
      */
     protected Integer parseInteger(String intStr, String field) {
          Integer iVal = null;
@@ -100,7 +101,8 @@ public class WarcFieldParsers {
      * Returns a Long object holding the value of the specified string.
      * @param longStr the value to parse.
      * @param field field name
-     * @return a long object holding the value of the specified string
+     * @return a long object holding the value of the specified string or null,
+     * if unable to parse the value as a Long
      */
     protected Long parseLong(String longStr, String field) {
         Long lVal = null;
@@ -124,7 +126,8 @@ public class WarcFieldParsers {
      * Parse and validate content-type string with optional parameters.
      * @param contentTypeStr content-type string to parse
      * @param field field name
-     * @return content-type wrapper object or null
+     * @return content type or null, if unable to extract the
+     * content-type
      */
     protected ContentType parseContentType(String contentTypeStr, String field) {
         ContentType contentType = null;
@@ -144,10 +147,11 @@ public class WarcFieldParsers {
     }
 
     /**
-     * Parses WARC record IP address.
+     * Parse and validate an IP address.
      * @param ipAddress the IP address to parse
      * @param field field name
-     * @return the IP address
+     * @return the IP address or null, if unable to parse the value as an
+     * IP-address
      */
     protected InetAddress parseIpAddress(String ipAddress, String field) {
         InetAddress inetAddr = null;
@@ -167,10 +171,11 @@ public class WarcFieldParsers {
     }
 
     /**
-     * Returns an URL object holding the value of the specified string.
+     * Returns an URI object holding the value of the specified string.
      * @param uriStr the URL to parse
      * @param field field name
-     * @return an URL object holding the value of the specified string
+     * @return an URI object holding the value of the specified string or null,
+     * if unable to parse the value as an URI object
      */
     protected URI parseUri(String uriStr, String field) {
         URI uri = null;
@@ -208,7 +213,8 @@ public class WarcFieldParsers {
      * Parses WARC record date.
      * @param dateStr the date to parse.
      * @param field field name
-     * @return the formatted date.
+     * @return the formatted date or null, if unable to parse the value as a
+     * WARC record date
      */
     protected Date parseDate(String dateStr, String field) {
         Date date = null;
@@ -231,7 +237,8 @@ public class WarcFieldParsers {
      * Parse and validate WARC digest string.
      * @param labelledDigest WARC digest string to parse
      * @param field field name
-     * @return digest wrapper object or null
+     * @return digest wrapper object or null, if unable to parse the value as a
+     * WARC Digest
      */
     protected WarcDigest parseDigest(String labelledDigest, String field) {
         WarcDigest digest = null;

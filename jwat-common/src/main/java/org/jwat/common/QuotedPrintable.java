@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * Class used to decode and validate a Quoted-Printable string as specified
- * in RFC 822.
+ * in RFC 2047 (Section 4.2).
  *
  * @author nicl
  */
@@ -46,8 +46,10 @@ public class QuotedPrintable {
         while (idx < encoded_text.length()) {
             c = encoded_text.charAt(idx++);
             if (c == '_') {
+                // Underscore is shorthand for <space>.
                 bytesOut.write(' ');
             } else if (c == '=') {
+                // "=" followed by two hexadecimal digits.
                 if ((idx + 2) <= encoded_text.length()) {
                     c = encoded_text.charAt(idx++);
                     c = Base16.decodeTab[c];

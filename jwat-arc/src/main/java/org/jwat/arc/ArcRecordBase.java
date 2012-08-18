@@ -40,10 +40,11 @@ import org.jwat.common.PayloadWithHeaderAbstract;
 
 /**
  * This abstract class represents the common base ARC data which is present in
- * both a record or version block. This includes possible common
- * validation and format warnings/errors encountered in the process.
- * This class also contains the common parts of the ARC parser which are
- * intended to be called by extending classes.
+ * both a record or version block. The parser in this class is responsible for
+ * parsing the general record line and determining if the rest of the record
+ * should be processed as an ARC record or an ARC version block.
+ * This includes possible common validation and format warnings/errors
+ * encountered in the process.
  *
  * @author lbihanic, selghissassi, nicl
  */
@@ -86,6 +87,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Record type, version block or arc record. */
     public int recordType;
 
+    /** Trailing newlines after record. */
     public int trailingNewLines;
 
     /*
@@ -123,11 +125,17 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Computed payload digest. */
     public Digest computedPayloadDigest;
 
+    /** This array is used to store metadata which should not be present.
+     *  Only available for forensic purposes. */
     public byte[] excessiveMetadata;
 
     /**
-     * Creates an ARC record from the specified record description.
-     * @param recordLine ARC record string
+     * Reads from the input stream and tries to parse and identify an
+     * <code>ArcRecord</code> or <code>ArcVersionBlock</code> record.
+     * @param in input stream with ARC record data
+     * @param reader ARC reader used with access to overall configuration and status
+     * @return <code>ArcRecord</code>, <code>ArcVersionBlock</code> or null
+     * @throws IOException i/o exception while parsing ARC record data
      */
     public static ArcRecordBase parseRecord(ByteCountingPushBackInputStream in, ArcReader reader) throws IOException {
         // debug
@@ -139,6 +147,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         ArcHeader header = ArcHeader.initHeader(reader, startOffset, diagnostics);
         // Initialize ArcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = diagnostics;
+        // Returns true if a record has been processed.
+        // And false if only garbage has been processed.
         if (header.parseHeader(in)) {
             // TODO check that first record should be a filedesc:// version block.
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
@@ -152,6 +162,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 }
             }
         }
+        // Record identified above.
         if (record != null) {
             record.startOffset = startOffset;
             // Check read and computed offset value only if we're reading
@@ -171,6 +182,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
+            // Transfer errors/warnings identified in the header parser
+            // to the reader since we are not returning a record.
             reader.consumed += in.getConsumed() - startOffset;
             reader.diagnostics.addAll(diagnostics);
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -214,7 +227,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /**
      * Called when the payload object is closed and final steps in the
      * validation process can be performed.
-     * @throws IOException io exception in final validation processing
+     * @throws IOException i/o exception in final validation processing
      */
     @Override
     public void payloadClosed() throws IOException {
@@ -288,7 +301,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                     addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                             "Trailing newlines",
                             Integer.toString(trailingNewLines),
-                            "1");
+                            Integer.toString(ArcConstants.ARC_RECORD_TRAILING_NEWLINES));
                 }
             }
             // isCompliant status update.
@@ -430,7 +443,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      */
     public boolean isValidStreamOfCRLF(InputStream in) throws IOException{
         if (in == null) {
-            throw new IllegalArgumentException("in");
+            throw new IllegalArgumentException("'in' is null!");
         }
         boolean isValid = true;
         int b;

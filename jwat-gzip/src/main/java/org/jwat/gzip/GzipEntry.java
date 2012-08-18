@@ -129,6 +129,7 @@ public class GzipEntry {
             if (reader != null) {
                 consumed = reader.pbin.getConsumed() - startOffset;
                 reader.consumed += consumed;
+                reader = null;
             }
             if (writer != null) {
                 writer = null;
@@ -154,19 +155,25 @@ public class GzipEntry {
 
     /**
      * Returns an input stream which must be used to read compressed data
-     * after it has been uncompressed. Null is entry is being written.
-     * @return input stream to read uncompressed data
+     * after it has been uncompressed or null, if the entry is being written.
+     * @return input stream to read uncompressed data or null
      */
     public InputStream getInputStream() {
+        if (reader == null) {
+            throw new IllegalStateException("Not in reading state!");
+        }
         return in;
     }
 
     /**
-     * Returns an output stream which can be used to compress data.
-     * Null uf the entry is being read.
-     * @return output stream to write uncompressed data
+     * Returns an output stream which can be used to compress data or null,
+     * if the entry is being read.
+     * @return output stream to write uncompressed data or null
      */
     public OutputStream getOutputStream() {
+        if (writer == null) {
+            throw new IllegalStateException("Not in writing state!");
+        }
         return out;
     }
 
@@ -174,13 +181,14 @@ public class GzipEntry {
      * Read from input stream and write compressed data on output stream.
      * This method writes the compressed data read from the input stream
      * and closes the entry. Use @see(#getOutputStream) for more control.
-     * Using this method together with the OutputStream will end in tears.
+     * This method closes the GZip entry before returning thus rendering
+     * the OutputStream invalid.
      * @param in input stream with uncompressed data
      * @throws IOException if an io error occurs while transferring
      */
     public void writeFrom(InputStream in) throws IOException {
         if (writer == null) {
-            throw new IllegalArgumentException("Not in writing state!");
+            throw new IllegalStateException("Not in writing state!");
         }
         if (in == null) {
             throw new IllegalArgumentException("in is null!");
@@ -196,7 +204,8 @@ public class GzipEntry {
             throw new IOException(e);
         }
         writer.writeTrailer(this);
-        // Unusable with OutputStream.
+        // Subsequent getOutputStream calls will return null because the GZip
+        // entry is considered closed after the trailer has been written.
         out = null;
     }
 

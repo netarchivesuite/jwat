@@ -102,6 +102,10 @@ public class ArcWriterCompressed extends ArcWriter {
         }
     }
 
+    /*
+     * In this class "out" is the GZip output stream of the current GZip entry.
+     * @see org.jwat.arc.ArcWriter#writeHeader(byte[], java.lang.Long)
+     */
     @Override
     public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
@@ -133,6 +137,13 @@ public class ArcWriterCompressed extends ArcWriter {
         payloadWrittenTotal = 0;
     }
 
+    /*
+     * In this class "out" is the GZip output stream of the current GZip entry.
+     * state changed to S_HEADER_WRITTEN
+     * Sets the header and headerContentLength fields.
+     * payloadWrittenTotal is set to 0
+     * @see org.jwat.arc.ArcWriter#writeHeader(org.jwat.arc.ArcRecordBase)
+     */
     @Override
     public byte[] writeHeader(ArcRecordBase record) throws IOException {
         if (record == null) {
@@ -153,36 +164,42 @@ public class ArcWriterCompressed extends ArcWriter {
         entry.os = GzipConstants.OS_UNKNOWN;
         writer.writeEntryHeader(entry);
         out = entry.getOutputStream();
-        // state changed to S_HEADER_WRITTEN
-        // Sets the header and headerContentLength fields.
-        // payloadWrittenTotal is set to 0
         return writeHeader_impl(record);
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN
+     * @see org.jwat.arc.ArcWriter#streamPayload(java.io.InputStream)
+     */
     @Override
     public long streamPayload(InputStream in) throws IOException {
         if (entry == null) {
             throw new IllegalStateException();
         }
-        // state changed to S_PAYLOAD_WRITTEN
         return super.streamPayload(in);
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN
+     * @see org.jwat.arc.ArcWriter#writePayload(byte[])
+     */
     @Override
     public long writePayload(byte[] b) throws IOException {
         if (entry == null) {
             throw new IllegalStateException();
         }
-        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b);
     }
 
+    /*
+     * state changed to S_PAYLOAD_WRITTEN
+     * @see org.jwat.arc.ArcWriter#writePayload(byte[], int, int)
+     */
     @Override
     public long writePayload(byte[] b, int offset, int len) throws IOException {
         if (entry == null) {
             throw new IllegalStateException();
         }
-        // state changed to S_PAYLOAD_WRITTEN
         return super.writePayload(b, offset, len);
     }
 

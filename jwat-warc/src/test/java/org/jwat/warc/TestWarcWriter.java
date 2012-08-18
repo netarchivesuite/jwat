@@ -304,10 +304,10 @@ public class TestWarcWriter {
              * Test header bytes written back to back.
              */
 
-            writer.writeHeader(recordHeader, null);
+            writer.writeRawHeader(recordHeader, null);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
             try {
-                writer.writeHeader(recordHeader, null);
+                writer.writeRawHeader(recordHeader, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalStateException e) {
             }
@@ -327,7 +327,7 @@ public class TestWarcWriter {
             // Hack!
             writer.headerContentLength = (long) (payload.length * 2);
 
-            writer.writeHeader(recordHeader, null);
+            writer.writeRawHeader(recordHeader, null);
             Assert.assertEquals(WarcWriter.S_HEADER_WRITTEN, writer.state);
         } catch (IOException e) {
         }

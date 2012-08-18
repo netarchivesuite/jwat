@@ -122,7 +122,7 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     /**
      * Reads the HTTP protocol response or request and returns it as an object.
      * It is important to understand that the maximum size of a parsed header
-     * is equals to the size of the PushbackInputStream's buffer!
+     * is equal to the size of the PushbackInputStream's buffer!
      * @param headerType HTTP header type to parse, request or response
      * @param pbin payload input stream
      * @param length payload length

@@ -94,6 +94,11 @@ public class TestGzipReader {
             Assert.assertEquals(0, reader.getOffset());
             while ((entry = reader.getNextEntry()) != null && (entries < max_entries)) {
                 out.reset();
+                try {
+                    entry.getOutputStream();
+                    Assert.fail("Exception expected!");
+                } catch (IllegalStateException e) {
+                }
                 entryIn = entry.getInputStream();
                 while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
                     out.write(tmpBuf, 0, read);

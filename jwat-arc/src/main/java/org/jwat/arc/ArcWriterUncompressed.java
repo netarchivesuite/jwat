@@ -88,6 +88,12 @@ public class ArcWriterUncompressed extends ArcWriter {
         }
     }
 
+    /*
+     * state changed to S_HEADER_WRITTEN
+     * Sets the header and headerContentLength fields.
+     * payloadWrittenTotal is set to 0
+     * @see org.jwat.arc.ArcWriter#writeHeader(org.jwat.arc.ArcRecordBase)
+     */
     @Override
     public byte[] writeHeader(ArcRecordBase record) throws IOException {
         if (record == null) {
@@ -99,9 +105,6 @@ public class ArcWriterUncompressed extends ArcWriter {
         } else if (state == S_PAYLOAD_WRITTEN) {
             closeRecord_impl();
         }
-        // state changed to S_HEADER_WRITTEN
-        // Sets the header and headerContentLength fields.
-        // payloadWrittenTotal is set to 0
         return writeHeader_impl(record);
     }
 

@@ -217,7 +217,6 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } else {
                 record.bIsCompliant = true;
             }
-            //wr.consumed = in.getConsumed() - header.startOffset;
             record.reader.bIsCompliant &= record.bIsCompliant;
         } else {
             if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
@@ -293,7 +292,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                         "Trailing newlines",
                         Integer.toString(newlines),
-                        "2");
+                        Integer.toString(WarcConstants.WARC_RECORD_TRAILING_NEWLINES));
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -318,6 +317,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * internal one, if it has been computed.
      * @param warcDigest digest from WARC header
      * @param computedDigest internally compute digest
+     * @param digestName used to identify the digest ("block" or "payload")
      * @return WARC digest validity indication
      */
     protected Boolean processWarcDigest(WarcDigest warcDigest, WarcDigest computedDigest, String digestName) {
@@ -375,6 +375,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * @param computedDigest internally compute digest
      * @param digestAlgorithm default algorithm
      * @param digestEncoding default encoding
+     * @param digestName used to identify the digest ("block" or "payload")
      */
     protected void processComputedDigest(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding, String digestName) {
         if (computedDigest.algorithm == null) {
@@ -523,19 +524,5 @@ public class WarcRecord implements PayloadOnClosedHandler {
     protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addError(new Diagnosis(type, entity, information));
     }
-
-    /**
-     * Add a warning diagnosis of the given type on a specific entity with
-     * optional extra information. The information varies according to the
-     * diagnosis type.
-     * @param type diagnosis type
-     * @param entity entity examined
-     * @param information optional extra information
-     */
-    /*
-    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
-        diagnostics.addWarning(new Diagnosis(type, entity, information));
-    }
-    */
 
 }

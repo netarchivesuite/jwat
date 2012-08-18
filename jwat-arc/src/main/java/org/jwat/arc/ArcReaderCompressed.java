@@ -170,7 +170,8 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord.close();
         }
         if (reader == null) {
-            throw new IllegalStateException("The GZip reader 'reader' is null");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is null");
         }
         currentRecord = null;
         currentReader = reader;
@@ -204,7 +205,8 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord.close();
         }
         if (reader != null) {
-            throw new IllegalStateException("The GZip reader 'reader' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(
@@ -238,7 +240,8 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord.close();
         }
         if (reader != null) {
-            throw new IllegalStateException("The GZip reader 'reader' is initialized");
+            throw new IllegalStateException(
+                    "This reader has been initialized with an incompatible constructor, 'reader' is not null");
         }
         if (rin == null) {
             throw new IllegalArgumentException(

@@ -137,6 +137,7 @@ public class Payload {
 
     /**
      * Set optional handler to be called when payload is closed.
+     * This method should not be called by the payload consumer.
      * @param onClosedHandler on closed handler implementation
      */
     public void setOnClosedHandler(PayloadOnClosedHandler onClosedHandler) {
@@ -182,6 +183,7 @@ public class Payload {
 
     /**
      * Set <code>PayloadHeaderWrapper</code> object in case of recognized payload content.
+     * This method should not be called by the payload consumer.
      * @param payloadHeaderWrapped <code>PayloadHeaderWrapper</code> object
      */
     public void setPayloadHeaderWrapped(PayloadWithHeaderAbstract payloadHeaderWrapped) {

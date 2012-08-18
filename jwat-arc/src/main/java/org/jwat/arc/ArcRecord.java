@@ -27,10 +27,9 @@ import org.jwat.common.HttpHeader;
 import org.jwat.common.Payload;
 
 /**
- * This class represents a parsed ARC record header including possible
+ * This class represents an ARC record and header including possible
  * validation and format warnings/errors encountered in the process.
- * This class also contains the specific ARC record parser which is
- * intended to be called by the <code>ARCReader</code>.
+ * This class also contains the specific ARC record payload processing.
  * The payload of the ARC record is accessible through a wrapped payload
  * object.
  *
@@ -48,6 +47,11 @@ public class ArcRecord extends ArcRecordBase {
     protected ArcRecord() {
     }
 
+    /**
+     * Create and initialize a new <code>ArcRecord</code> for writing.
+     * @param writer writer which shall be used
+     * @return an <code>ArcRecord</code> prepared for writing
+     */
     public static ArcRecord create(ArcWriter writer) {
         ArcRecord ar = new ArcRecord();
         ar.trailingNewLines = 1;
@@ -58,14 +62,15 @@ public class ArcRecord extends ArcRecordBase {
     }
 
     /**
-     * Creates new <code>ArcRecord</code> based on data read from input
-     * stream.
-     * @param in <code>InputStream</code> used to read record header
-     * @param versionBlock ARC file <code>VersionBlock</code>
+     * Creates a new <code>ArcRecord</code> based on the supplied header and
+     * starts processing the payload, if present.
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @return an <code>ArcRecord</code> or null if none was found.
-     * @throws IOException io exception while parsing arc record
+     * @param diagnostics diagnostics used to report errors and/or warnings
+     * @param header record header that has already been processed
+     * @param in <code>InputStream</code> used to read possible payload
+     * @return an <code>ArcRecord</code>
+     * @throws IOException i/o exception while processing possible payload
      */
     public static ArcRecord parseArcRecord(ArcReader reader,
             Diagnostics<Diagnosis> diagnostics,
@@ -77,9 +82,7 @@ public class ArcRecord extends ArcRecordBase {
         ar.diagnostics = diagnostics;
         ar.header = header;
         ar.in = in;
-        // Process payload.
         ar.processPayload(in, reader);
-        // Updated consumed after payload has been consumed.
         ar.consumed = in.getConsumed() - ar.header.startOffset;
         return ar;
     }
