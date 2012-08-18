@@ -58,6 +58,17 @@ public class TestGzipWriter {
         entry.os = GzipConstants.OS_AMIGA;
 
         try {
+            entry.getOutputStream();
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
+        try {
+            entry.getInputStream();
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
+
+        try {
             /*
              * writeFrom().
              */
@@ -74,6 +85,12 @@ public class TestGzipWriter {
 
             writer = new GzipWriter(out);
             writer.writeEntryHeader(entry);
+
+            try {
+                entry.getInputStream();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             //in = new FileInputStream(in_file);
@@ -120,6 +137,12 @@ public class TestGzipWriter {
             writer = new GzipWriter(out);
             writer.writeEntryHeader(entry);
             cout = entry.getOutputStream();
+
+            try {
+                entry.getInputStream();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             tmpBuf = new byte[16384];
@@ -171,6 +194,12 @@ public class TestGzipWriter {
             writer = new GzipWriter(out);
             writer.writeEntryHeader(entry);
             cout = entry.getOutputStream();
+
+            try {
+                entry.getInputStream();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
             tmpBuf = new byte[1024];

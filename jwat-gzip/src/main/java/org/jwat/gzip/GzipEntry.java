@@ -191,7 +191,7 @@ public class GzipEntry {
             throw new IllegalStateException("Not in writing state!");
         }
         if (in == null) {
-            throw new IllegalArgumentException("in is null!");
+            throw new IllegalArgumentException("'in' is null!");
         }
         byte[] tmpBuf = new byte[512];
         int read;

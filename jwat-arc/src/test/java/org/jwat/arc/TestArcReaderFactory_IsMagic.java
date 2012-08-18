@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
 
 @RunWith(JUnit4.class)
-public class TestMagic {
+public class TestArcReaderFactory_IsMagic {
 
     @Test
     public void test_magicbytes() {

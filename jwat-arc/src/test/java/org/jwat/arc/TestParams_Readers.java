@@ -29,10 +29,10 @@ import org.junit.runners.JUnit4;
 import org.jwat.gzip.GzipReader;
 
 @RunWith(JUnit4.class)
-public class TestParams {
+public class TestParams_Readers {
 
     @Test
-    public void test_parameters() throws IOException {
+    public void test_params_readers() throws IOException {
         InputStream is;
 
         ArcConstants constants = new ArcConstants();

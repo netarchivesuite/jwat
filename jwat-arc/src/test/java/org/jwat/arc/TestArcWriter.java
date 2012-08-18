@@ -31,7 +31,16 @@ import org.junit.runners.JUnit4;
 public class TestArcWriter {
 
     @Test
-    public void test_arcwriter_misc() {
+    public void test_arcwriter_compressed() {
+        test_arc_writer_states(true);
+    }
+
+    @Test
+    public void test_arcwriter_uncompressed() {
+        test_arc_writer_states(false);
+    }
+
+    public void test_arc_writer_states(boolean compress) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ArcWriter writer;
         ArcRecordBase record;
@@ -41,7 +50,7 @@ public class TestArcWriter {
 
         try {
             out.reset();
-            writer = ArcWriterFactory.getWriter(out, false);
+            writer = ArcWriterFactory.getWriter(out, compress);
 
             record = ArcVersionBlock.create(writer);
             record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
