@@ -35,6 +35,7 @@ public final class ArcDateParser {
     /** Basic <code>DateFormat</code> is not thread safe. */
     private static final ThreadLocal<ArcDateParser> DateParserTL =
         new ThreadLocal<ArcDateParser>() {
+        @Override
         public ArcDateParser initialValue() {
             return new ArcDateParser();
         }

@@ -36,6 +36,7 @@ public final class WarcDateParser {
     /** Basic <code>DateFormat</code> is not thread safe. */
     private static final ThreadLocal<WarcDateParser> DateParserTL =
         new ThreadLocal<WarcDateParser>() {
+        @Override
         public WarcDateParser initialValue() {
             return new WarcDateParser();
         }

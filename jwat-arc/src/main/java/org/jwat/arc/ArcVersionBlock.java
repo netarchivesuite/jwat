@@ -191,6 +191,8 @@ public class ArcVersionBlock extends ArcRecordBase {
                             diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA,
                                     "version block metadata payload",
                                     "Metadata payload must not be present in this version"));
+                        } else {
+                            bHasEmptyPayload = true;
                         }
                         in_newlines.close();
                     } else {

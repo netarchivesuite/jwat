@@ -168,8 +168,8 @@ public class ArcHeader {
             startOffset = in.getConsumed();
             String recordLine = in.readLine();
             if (recordLine != null) {
-                String[] fields = recordLine.split(" ", -1);
-                if (fields.length > 0) {
+                if (recordLine.length() > 0) {
+                    String[] fields = recordLine.split(" ", -1);
                     if (fields.length == ArcConstants.VERSION_1_BLOCK_NUMBER_FIELDS
                             || fields.length == ArcConstants.VERSION_2_BLOCK_NUMBER_FIELDS) {
                         // debug
@@ -256,6 +256,7 @@ public class ArcHeader {
                 if (resultCode != null && (resultCode < 100 || resultCode > 999)) {
                     diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
                             "'" + ArcConstants.FN_RESULT_CODE + "' value",
+                            resultCodeStr,
                             "A number between 100 and 999"));
                 }
 
@@ -282,6 +283,7 @@ public class ArcHeader {
                 if (offset != null && offset < 0) {
                     diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
                             "'" + ArcConstants.FN_OFFSET + "' value",
+                            offsetStr,
                             "A non negative number"));
                 }
 
@@ -301,6 +303,7 @@ public class ArcHeader {
             if (archiveLength != null && archiveLength < 0) {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
                         "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value",
+                        archiveLengthStr,
                         "A non negative number"));
             }
         }

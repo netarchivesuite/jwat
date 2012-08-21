@@ -87,7 +87,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     /** Record type, version block or arc record. */
     public int recordType;
 
-    /** Trailing newlines after record. */
+    /** Number of trailing newlines after record. */
     public int trailingNewLines;
 
     /*

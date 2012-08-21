@@ -654,4 +654,130 @@ public class TestArcVersionBlock {
         }
     }
 
+    @Test
+    public void test_arcversionblock_strict() {
+        String vbData;
+        //String mdData;
+        String arcData;
+        byte[] bytes;
+        ByteArrayInputStream in;
+        ArcReader reader;
+        ArcRecordBase record;
+        String tmpStr;
+        Object[][] expectedDiagnoses;
+
+        try {
+            /*
+             * Not strict.
+             */
+            vbData = "1 0 InternetArchive\n";
+            vbData += "URL IP-address Archive-date Content-type Archive-length\n";
+            vbData += "\n";
+            arcData = "filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/binary " + vbData.length() + "\n";
+            arcData += vbData;
+            arcData += "\n";
+            arcData += "\n";
+
+            bytes = arcData.getBytes();
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in, 1024);
+            reader.setStrict(false);
+
+            record = reader.getNextRecord();
+            Assert.assertNotNull(record);
+            tmpStr = record.toString();
+            Assert.assertNotNull(tmpStr);
+            record.close();
+            Assert.assertEquals(1, record.header.recordFieldVersion);
+            Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+            Assert.assertEquals(2, record.trailingNewLines);
+            Assert.assertEquals(ArcVersion.VERSION_1, record.version);
+            Assert.assertEquals(record.version, record.getVersion());
+            Assert.assertFalse(record.isCompliant());
+            Assert.assertFalse(record.diagnostics.hasErrors());
+            Assert.assertTrue(record.diagnostics.hasWarnings());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+
+            Assert.assertTrue(record.hasPayload());
+            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertNotNull(record.payload);
+            Assert.assertEquals(record.payload, record.getPayload());
+            Assert.assertNotNull(record.getPayloadContent());
+            Assert.assertNull(record.httpHeader);
+            Assert.assertEquals(record.httpHeader, record.getHttpHeader());
+
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            reader.close();
+            Assert.assertFalse(reader.isCompliant());
+            Assert.assertFalse(reader.diagnostics.hasErrors());
+            Assert.assertFalse(reader.diagnostics.hasWarnings());
+            /*
+             * Strict.
+             */
+            vbData = "1 0 InternetArchive\n";
+            vbData += "URL IP-address Archive-date Content-type Archive-length\n";
+            vbData += "\n";
+            arcData = "filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/binary " + vbData.length() + "\n";
+            arcData += vbData;
+            arcData += "\n";
+            arcData += "\n";
+
+            bytes = arcData.getBytes();
+            in = new ByteArrayInputStream(bytes);
+
+            reader = ArcReaderFactory.getReader(in, 1024);
+            reader.setStrict(true);
+
+            record = reader.getNextRecord();
+            Assert.assertNotNull(record);
+            tmpStr = record.toString();
+            Assert.assertNotNull(tmpStr);
+            record.close();
+            Assert.assertEquals(1, record.header.recordFieldVersion);
+            Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+            Assert.assertEquals(2, record.trailingNewLines);
+            Assert.assertEquals(ArcVersion.VERSION_1, record.version);
+            Assert.assertEquals(record.version, record.getVersion());
+            Assert.assertFalse(record.isCompliant());
+            Assert.assertTrue(record.diagnostics.hasErrors());
+            Assert.assertTrue(record.diagnostics.hasWarnings());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1},
+                    {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
+
+            Assert.assertTrue(record.hasPayload());
+            Assert.assertFalse(record.hasEmptyPayload());
+            Assert.assertNotNull(record.payload);
+            Assert.assertEquals(record.payload, record.getPayload());
+            Assert.assertNotNull(record.getPayloadContent());
+            Assert.assertNull(record.httpHeader);
+            Assert.assertEquals(record.httpHeader, record.getHttpHeader());
+
+            record = reader.getNextRecord();
+            Assert.assertNull(record);
+
+            reader.close();
+            Assert.assertFalse(reader.isCompliant());
+            Assert.assertFalse(reader.diagnostics.hasErrors());
+            Assert.assertFalse(reader.diagnostics.hasWarnings());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
 }

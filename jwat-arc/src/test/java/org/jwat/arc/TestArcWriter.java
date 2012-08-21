@@ -52,6 +52,8 @@ public class TestArcWriter {
             out.reset();
             writer = ArcWriterFactory.getWriter(out, compress);
 
+            //payload = "".getBytes
+
             record = ArcVersionBlock.create(writer);
             record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
             record.header.ipAddressStr = "0.0.0.0";
@@ -59,6 +61,14 @@ public class TestArcWriter {
             record.header.contentTypeStr = "text/plain";
             record.header.archiveLengthStr = "76";
             writer.writeHeader(record);
+
+            record = ArcRecord.create(writer);
+            record.header.urlStr = "http://cctr.umkc.edu:80/user/jbenz/tst.htm";
+            record.header.ipAddressStr = "134.193.4.1";
+            record.header.archiveDateStr = "19970417175710";
+            record.header.contentTypeStr = "text/html";
+            record.header.archiveLengthStr = "4270";
+            //writer.writeHeader(record);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

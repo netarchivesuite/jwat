@@ -74,6 +74,9 @@ public class WarcRecord implements PayloadOnClosedHandler {
     /** Is Warc-Payload-Digest valid. (Null is equal to not tested) */
     public Boolean isValidPayloadDigest = null;
 
+    /** Number of trailing newlines after record. */
+    public int trailingNewlines;
+
     /*
      * Header-Fields.
      */
@@ -287,11 +290,11 @@ public class WarcRecord implements PayloadOnClosedHandler {
                 }
             }
             // Check for trailing newlines.
-            int newlines = nlp.parseCRLFs(in, diagnostics);
-            if (newlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
+            trailingNewlines = nlp.parseCRLFs(in, diagnostics);
+            if (trailingNewlines != WarcConstants.WARC_RECORD_TRAILING_NEWLINES) {
                 addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                         "Trailing newlines",
-                        Integer.toString(newlines),
+                        Integer.toString(trailingNewlines),
                         Integer.toString(WarcConstants.WARC_RECORD_TRAILING_NEWLINES));
             }
             // isCompliant status update.

@@ -47,8 +47,8 @@ public class TestArcHeader {
         ArcHeader header;
         boolean success;
         String tmpStr;
+        Object[][] test_cases;
         String[] fields;
-        Object[][] expectedDiagnoses;
         try {
             /*
              * Writer.
@@ -63,476 +63,396 @@ public class TestArcHeader {
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
             /*
-             * Valid record V1.
+             * Test cases, parseHeaders().
              */
-            bytes = "http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html 4270\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(1, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("http://cctr.umkc.edu:80/user/jbenz/tst.htm", header.urlStr);
-            Assert.assertEquals("134.193.4.1", header.ipAddressStr);
-            Assert.assertEquals("19970417175710", header.archiveDateStr);
-            Assert.assertEquals("text/html", header.contentTypeStr);
-            Assert.assertNull(header.resultCodeStr);
-            Assert.assertNull(header.checksumStr);
-            Assert.assertNull(header.locationStr);
-            Assert.assertNull(header.offsetStr);
-            Assert.assertNull(header.filenameStr);
-            Assert.assertEquals("4270", header.archiveLengthStr);
-
-            Assert.assertEquals(URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"), header.urlUri);
-            Assert.assertEquals(InetAddress.getByName("134.193.4.1"), header.inetAddress);
-            Assert.assertEquals(ArcDateParser.getDate("19970417175710"), header.archiveDate);
-            Assert.assertEquals(ContentType.parseContentType("text/html"), header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertEquals(new Long(4270), header.archiveLength);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
-            /*
-             * Invalid number of fields.
-             */
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-            fields = new String[4];
-            header.parseHeaders(fields);
-
-            Assert.assertEquals(0, header.recordFieldVersion);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
-            /*
-             * Null fields v1.
-             */
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-            fields = new String[5];
-            header.parseHeaders(fields);
-
-            Assert.assertEquals(1, header.recordFieldVersion);
-
-            Assert.assertNull(header.urlStr);
-            Assert.assertNull(header.ipAddressStr);
-            Assert.assertNull(header.archiveDateStr);
-            Assert.assertNull(header.contentTypeStr);
-            Assert.assertNull(header.resultCodeStr);
-            Assert.assertNull(header.checksumStr);
-            Assert.assertNull(header.locationStr);
-            Assert.assertNull(header.offsetStr);
-            Assert.assertNull(header.filenameStr);
-            Assert.assertNull(header.archiveLengthStr);
-
-            Assert.assertNull(header.urlUri);
-            Assert.assertNull(header.inetAddress);
-            Assert.assertNull(header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertNull(header.archiveLength);
-
-            Assert.assertTrue(header.diagnostics.hasErrors());
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+            test_cases = new Object[][] {
+                    /*
+                     * Invalid number of fields.
+                     */
+                    {0, "".getBytes(), new String[4], new Object[][] {}, new Object[][] {}
+                    },
+                    /*
+                     * Null fields v1.
+                     */
+                    {1, "".getBytes(), new String[5], new Object[][] {
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+                    }, new Object[][] {}},
+                    /*
+                     * Null fields v2.
+                     */
+                    {2, "".getBytes(), new String[10], new Object[][] {
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
+                        //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
+                        //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
+                        {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+                    }, new Object[][] {}}
             };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
+            for (int i=0; i<test_cases.length; ++i) {
+                bytes = (byte[])test_cases[i][1];
+                in = new ByteArrayInputStream(bytes);
+                reader = ArcReaderFactory.getReader(in);
+                reader.fieldParsers.diagnostics = diagnostics;
+                header = ArcHeader.initHeader(reader, 42L, diagnostics);
+                fields = (String[])test_cases[i][2];
+                header.parseHeaders(fields);
+                Assert.assertEquals(test_cases[i][0], header.recordFieldVersion);
+                String[] expected_fieldStrings = new String[] {null, null, null, null, null, null, null, null, null, null};
+                Object[] expected_fieldObjects = new Object[] {null, null, null, null, null, null, null};
+                Object[][] expected_errors = (Object[][])test_cases[i][3];
+                Object[][] expected_warnings = (Object[][])test_cases[i][4];
+                check_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
+                diagnostics.reset();
+            }
             /*
-             * Valid record v2.
+             * Test cases, parseHeader().
              */
-            bytes = "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename 40\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
-            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
-            Assert.assertEquals("20120712144000", header.archiveDateStr);
-            Assert.assertEquals("text/htlm", header.contentTypeStr);
-            Assert.assertEquals("200", header.resultCodeStr);
-            Assert.assertEquals("checksum", header.checksumStr);
-            Assert.assertEquals("location", header.locationStr);
-            Assert.assertEquals("1234", header.offsetStr);
-            Assert.assertEquals("filename", header.filenameStr);
-            Assert.assertEquals("40", header.archiveLengthStr);
-
-            Assert.assertEquals(URI.create("http://www.antiaction.com/"), header.urlUri);
-            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
-            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
-            Assert.assertEquals(ContentType.parseContentType("text/htlm"), header.contentType);
-            Assert.assertEquals(new Integer(200), header.resultCode);
-            Assert.assertEquals(new Long(1234), header.offset);
-            Assert.assertEquals(new Long(40), header.archiveLength);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
-            /*
-             * Null fields v2.
-             */
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-            fields = new String[10];
-            header.parseHeaders(fields);
-
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            Assert.assertNull(header.urlStr);
-            Assert.assertNull(header.ipAddressStr);
-            Assert.assertNull(header.archiveDateStr);
-            Assert.assertNull(header.contentTypeStr);
-            Assert.assertNull(header.resultCodeStr);
-            Assert.assertNull(header.checksumStr);
-            Assert.assertNull(header.locationStr);
-            Assert.assertNull(header.offsetStr);
-            Assert.assertNull(header.filenameStr);
-            Assert.assertNull(header.archiveLengthStr);
-
-            Assert.assertNull(header.urlUri);
-            Assert.assertNull(header.inetAddress);
-            Assert.assertNull(header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertNull(header.archiveLength);
-
-            Assert.assertTrue(header.diagnostics.hasErrors());
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
-                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
-                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+            test_cases = new Object[][] {
+                    /*
+                     * Empty file.
+                     */
+                    {false, 0, "".getBytes(), new String[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {}, new Object[][] {}},
+                    /*
+                     * Newline.
+                     */
+                    {false, 0, "\n".getBytes(), new String[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {
+                            {DiagnosisType.INVALID, "Empty lines before ARC record", 0}
+                    }, new Object[][] {}},
+                    /*
+                     * Garbage.
+                     */
+                    {false, 0, "garbage\n".getBytes(), new String[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {
+                            {DiagnosisType.INVALID, "Data before ARC record", 0}
+                    }, new Object[][] {}},
+                    /*
+                     * v2 all "-"
+                     */
+                    {true, 2, "- - - - - - - - - -\n".getBytes(), new String[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
+                            //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
+                            //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
+                            {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
+                    }, new Object[][] {}},
+                    /*
+                     * Valid record V1.
+                     */
+                    {true, 1, bytes = "http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html 4270\n".getBytes(), new String[] {
+                        "http://cctr.umkc.edu:80/user/jbenz/tst.htm",
+                        "134.193.4.1",
+                        "19970417175710",
+                        "text/html",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "4270"
+                    }, new Object[] {
+                        URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
+                        InetAddress.getByName("134.193.4.1"),
+                        ArcDateParser.getDate("19970417175710"),
+                        ContentType.parseContentType("text/html"),
+                        null,
+                        null,
+                        new Long(4270)
+                    }, new Object[][] {}, new Object[][] {}},
+                    /*
+                     * Valid record v2.
+                     */
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename 40\n".getBytes(), new String[] {
+                        "http://www.antiaction.com/",
+                        "192.168.1.2",
+                        "20120712144000",
+                        "text/htlm",
+                        "200",
+                        "checksum",
+                        "location",
+                        "1234",
+                        "filename",
+                        "40"
+                    }, new Object[] {
+                        URI.create("http://www.antiaction.com/"),
+                        InetAddress.getByName("192.168.1.2"),
+                        ArcDateParser.getDate("20120712144000"),
+                        ContentType.parseContentType("text/htlm"),
+                        new Integer(200),
+                        new Long(1234),
+                        new Long(40),
+                    }, new Object[][] {}, new Object[][] {}},
+                    /*
+                     * Invalid record V1.
+                     */
+                    {true, 1, "4270 http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html\n".getBytes(), new String[] {
+                        "4270",
+                        "http://cctr.umkc.edu:80/user/jbenz/tst.htm",
+                        "134.193.4.1",
+                        "19970417175710",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "text/html"
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
+                    }, new Object[][] {}},
+                    /*
+                     * Invalid record v2.
+                     */
+                    {true, 2, "40 http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename\n".getBytes(), new String[] {
+                        "40",
+                        "http://www.antiaction.com/",
+                        "192.168.1.2",
+                        "20120712144000",
+                        "text/htlm",
+                        "200",
+                        "checksum",
+                        "location",
+                        "1234",
+                        "filename"
+                    }, new Object[] {
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    }, new Object[][] {
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
+                    }, new Object[][] {}},
+                    /*
+                     * Valid record v2 with "-".
+                     */
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum - 1234 filename 40\n".getBytes(), new String[] {
+                        "http://www.antiaction.com/",
+                        "192.168.1.2",
+                        "20120712144000",
+                        "text/htlm",
+                        "200",
+                        "checksum",
+                        null,
+                        "1234",
+                        "filename",
+                        "40"
+                    }, new Object[] {
+                        URI.create("http://www.antiaction.com/"),
+                        InetAddress.getByName("192.168.1.2"),
+                        ArcDateParser.getDate("20120712144000"),
+                        ContentType.parseContentType("text/htlm"),
+                        new Integer(200),
+                        new Long(1234),
+                        new Long(40)
+                    }, new Object[][] {}, new Object[][] {}},
+                    /*
+                     * Semi-valid record v2 content-type=no-type, result-code out of bounds, minus offset, length.
+                     */
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 no-type 99 checksum location -4321 filename -42\n".getBytes(), new String[] {
+                        "http://www.antiaction.com/",
+                        "192.168.1.2",
+                        "20120712144000",
+                        "no-type",
+                        "99",
+                        "checksum",
+                        "location",
+                        "-4321",
+                        "filename",
+                        "-42"
+                    }, new Object[] {
+                        URI.create("http://www.antiaction.com/"),
+                        InetAddress.getByName("192.168.1.2"),
+                        ArcDateParser.getDate("20120712144000"),
+                        null,
+                        new Integer(99),
+                        new Long(-4321),
+                        new Long(-42)
+                    }, new Object[][] {
+                        {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
+                    }, new Object[][] {}},
+                    /*
+                     * Semi-valid record v2 content-type=no-type, result-code out of bounds.
+                     */
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 no-type 1000 checksum location 4321 filename 42\n".getBytes(), new String[] {
+                        "http://www.antiaction.com/",
+                        "192.168.1.2",
+                        "20120712144000",
+                        "no-type",
+                        "1000",
+                        "checksum",
+                        "location",
+                        "4321",
+                        "filename",
+                        "42"
+                    }, new Object[] {
+                        URI.create("http://www.antiaction.com/"),
+                        InetAddress.getByName("192.168.1.2"),
+                        ArcDateParser.getDate("20120712144000"),
+                        null,
+                        new Integer(1000),
+                        new Long(4321),
+                        new Long(42)
+                    }, new Object[][] {
+                        {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", 2}
+                    }, new Object[][] {}}
             };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
-            /*
-             * Invalid record V1.
-             */
-            bytes = "4270 http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(1, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("4270", header.urlStr);
-            Assert.assertEquals("http://cctr.umkc.edu:80/user/jbenz/tst.htm", header.ipAddressStr);
-            Assert.assertEquals("134.193.4.1", header.archiveDateStr);
-            Assert.assertEquals("19970417175710", header.contentTypeStr);
-            Assert.assertNull(header.resultCodeStr);
-            Assert.assertNull(header.checksumStr);
-            Assert.assertNull(header.locationStr);
-            Assert.assertNull(header.offsetStr);
-            Assert.assertNull(header.filenameStr);
-            Assert.assertEquals("text/html", header.archiveLengthStr);
-
-            Assert.assertNull(header.urlUri);
-            Assert.assertNull(header.inetAddress);
-            Assert.assertNull(header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertNull(header.archiveLength);
-
-            Assert.assertTrue(header.diagnostics.hasErrors());
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
-            };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
-            diagnostics.reset();
-            /*
-             * Invalid record v2.
-             */
-            bytes = "40 http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("40", header.urlStr);
-            Assert.assertEquals("http://www.antiaction.com/", header.ipAddressStr);
-            Assert.assertEquals("192.168.1.2", header.archiveDateStr);
-            Assert.assertEquals("20120712144000", header.contentTypeStr);
-            Assert.assertEquals("text/htlm", header.resultCodeStr);
-            Assert.assertEquals("200", header.checksumStr);
-            Assert.assertEquals("checksum", header.locationStr);
-            Assert.assertEquals("location", header.offsetStr);
-            Assert.assertEquals("1234", header.filenameStr);
-            Assert.assertEquals("filename", header.archiveLengthStr);
-
-            Assert.assertNull(header.urlUri);
-            Assert.assertNull(header.inetAddress);
-            Assert.assertNull(header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertNull(header.archiveLength);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertTrue(header.diagnostics.hasErrors());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CHECKSUM + "' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_LOCATION + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", 2},
-                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_FILENAME + "' value", 2},
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2}
-            };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
-            diagnostics.reset();
-            /*
-             * Valid record v2 with "-".
-             */
-            bytes = "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum - 1234 filename 40\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
-            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
-            Assert.assertEquals("20120712144000", header.archiveDateStr);
-            Assert.assertEquals("text/htlm", header.contentTypeStr);
-            Assert.assertEquals("200", header.resultCodeStr);
-            Assert.assertEquals("checksum", header.checksumStr);
-            Assert.assertEquals(null, header.locationStr);
-            Assert.assertEquals("1234", header.offsetStr);
-            Assert.assertEquals("filename", header.filenameStr);
-            Assert.assertEquals("40", header.archiveLengthStr);
-
-            Assert.assertEquals(URI.create("http://www.antiaction.com/"), header.urlUri);
-            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
-            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
-            Assert.assertEquals(ContentType.parseContentType("text/htlm"), header.contentType);
-            Assert.assertEquals(new Integer(200), header.resultCode);
-            Assert.assertEquals(new Long(1234), header.offset);
-            Assert.assertEquals(new Long(40), header.archiveLength);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
-            /*
-             * v2 all "-"
-             */
-            bytes = "- - - - - - - - - -\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertNull(header.urlStr);
-            Assert.assertNull(header.ipAddressStr);
-            Assert.assertNull(header.archiveDateStr);
-            Assert.assertNull(header.contentTypeStr);
-            Assert.assertNull(header.resultCodeStr);
-            Assert.assertNull(header.checksumStr);
-            Assert.assertNull(header.locationStr);
-            Assert.assertNull(header.offsetStr);
-            Assert.assertNull(header.filenameStr);
-            Assert.assertNull(header.archiveLengthStr);
-
-            Assert.assertNull(header.urlUri);
-            Assert.assertNull(header.inetAddress);
-            Assert.assertNull(header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertNull(header.resultCode);
-            Assert.assertNull(header.offset);
-            Assert.assertNull(header.archiveLength);
-
-            Assert.assertTrue(header.diagnostics.hasErrors());
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_URL + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_RESULT_CODE + "' value", 0},
-                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CHECKSUM + "' value", 0},
-                    //{DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_LOCATION + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_OFFSET + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_FILENAME + "' value", 0},
-                    {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 0}
-            };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
-            diagnostics.reset();
-            /*
-             * Empty file.
-             */
-            bytes = "".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertFalse(success);
-            Assert.assertEquals(0, header.recordFieldVersion);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
-            /*
-             * Newline.
-             */
-            bytes = "\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertFalse(success);
-            Assert.assertEquals(0, header.recordFieldVersion);
-
-            Assert.assertTrue(header.diagnostics.hasErrors());
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-
-            expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID, "Data before ARC record", 0}
-            };
-            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
-            diagnostics.reset();
-            /*
-             * Valid record v2 content-type=no-type.
-             */
-            bytes = "http://www.antiaction.com/ 192.168.1.2 20120712144000 no-type 200 checksum location 1234 filename 40\n".getBytes();
-
-            in = new ByteArrayInputStream(bytes);
-
-            reader = ArcReaderFactory.getReader(in);
-            reader.fieldParsers.diagnostics = diagnostics;
-            header = ArcHeader.initHeader(reader, 42L, diagnostics);
-
-            pbin = ((ArcReaderUncompressed)reader).in;
-            success = header.parseHeader(pbin);
-
-            Assert.assertTrue(success);
-            Assert.assertEquals(2, header.recordFieldVersion);
-
-            tmpStr = header.toString();
-            Assert.assertNotNull(tmpStr);
-
-            Assert.assertEquals("http://www.antiaction.com/", header.urlStr);
-            Assert.assertEquals("192.168.1.2", header.ipAddressStr);
-            Assert.assertEquals("20120712144000", header.archiveDateStr);
-            Assert.assertEquals("no-type", header.contentTypeStr);
-            Assert.assertEquals("200", header.resultCodeStr);
-            Assert.assertEquals("checksum", header.checksumStr);
-            Assert.assertEquals("location", header.locationStr);
-            Assert.assertEquals("1234", header.offsetStr);
-            Assert.assertEquals("filename", header.filenameStr);
-            Assert.assertEquals("40", header.archiveLengthStr);
-
-            Assert.assertEquals(URI.create("http://www.antiaction.com/"), header.urlUri);
-            Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
-            Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
-            Assert.assertNull(header.contentType);
-            Assert.assertEquals(new Integer(200), header.resultCode);
-            Assert.assertEquals(new Long(1234), header.offset);
-            Assert.assertEquals(new Long(40), header.archiveLength);
-
-            Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+            for (int i=0; i<test_cases.length; ++i) {
+                bytes = (byte[])test_cases[i][2];
+                in = new ByteArrayInputStream(bytes);
+                reader = ArcReaderFactory.getReader(in);
+                reader.fieldParsers.diagnostics = diagnostics;
+                header = ArcHeader.initHeader(reader, 42L, diagnostics);
+                pbin = ((ArcReaderUncompressed)reader).in;
+                success = header.parseHeader(pbin);
+                tmpStr = header.toString();
+                Assert.assertNotNull(tmpStr);
+                Assert.assertEquals(test_cases[i][0], success);
+                Assert.assertEquals(test_cases[i][1], header.recordFieldVersion);
+                String[] expected_fieldStrings = (String[])test_cases[i][3];
+                Object[] expected_fieldObjects = (Object[])test_cases[i][4];
+                Object[][] expected_errors = (Object[][])test_cases[i][5];
+                Object[][] expected_warnings = (Object[][])test_cases[i][6];
+                check_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
+                diagnostics.reset();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
+    }
+
+    public void check_header(ArcHeader header, String[] expected_fieldStrings, Object[] expected_fieldObjects, Object[][] expected_errors, Object[][] expected_warnings) {
+        Assert.assertEquals(expected_fieldStrings[0], header.urlStr);
+        Assert.assertEquals(expected_fieldStrings[1], header.ipAddressStr);
+        Assert.assertEquals(expected_fieldStrings[2], header.archiveDateStr);
+        Assert.assertEquals(expected_fieldStrings[3], header.contentTypeStr);
+        Assert.assertEquals(expected_fieldStrings[4], header.resultCodeStr);
+        Assert.assertEquals(expected_fieldStrings[5], header.checksumStr);
+        Assert.assertEquals(expected_fieldStrings[6], header.locationStr);
+        Assert.assertEquals(expected_fieldStrings[7], header.offsetStr);
+        Assert.assertEquals(expected_fieldStrings[8], header.filenameStr);
+        Assert.assertEquals(expected_fieldStrings[9], header.archiveLengthStr);
+        Assert.assertEquals(expected_fieldObjects[0], header.urlUri);
+        Assert.assertEquals(expected_fieldObjects[1], header.inetAddress);
+        Assert.assertEquals(expected_fieldObjects[2], header.archiveDate);
+        Assert.assertEquals(expected_fieldObjects[3], header.contentType);
+        Assert.assertEquals(expected_fieldObjects[4], header.resultCode);
+        Assert.assertEquals(expected_fieldObjects[5], header.offset);
+        Assert.assertEquals(expected_fieldObjects[6], header.archiveLength);
+        TestBaseUtils.compareDiagnoses(expected_errors, header.diagnostics.getErrors());
+        TestBaseUtils.compareDiagnoses(expected_warnings, header.diagnostics.getWarnings());
     }
 
 }
