@@ -90,7 +90,7 @@ public class TestGzipReader {
         int read;
         try {
             GzipEntry entry;
-            Assert.assertEquals(0, reader.getStartOffset());
+            Assert.assertEquals(-1, reader.getStartOffset());
             Assert.assertEquals(0, reader.getOffset());
             while ((entry = reader.getNextEntry()) != null && (entries < max_entries)) {
                 out.reset();

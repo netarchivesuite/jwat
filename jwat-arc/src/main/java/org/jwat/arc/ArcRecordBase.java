@@ -73,7 +73,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
 
     /** ARC record parsing start offset relative to the source ARC file input
      *  stream. Used to keep track of the uncompressed amount of bytes consumed. */
-    protected long startOffset;
+    protected long startOffset = -1;
 
     /** Uncompressed bytes consumed while validating this record. */
     protected long consumed;

@@ -39,7 +39,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
+import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.RandomAccessFileInputStream;
+import org.jwat.gzip.GzipEntry;
+import org.jwat.gzip.GzipReader;
 
 @RunWith(Parameterized.class)
 public class TestArcReaderCompressed {
@@ -690,6 +693,68 @@ public class TestArcReaderCompressed {
         Assert.assertEquals(0, warnings);
 
         return arcEntries;
+    }
+
+    @Test
+    public void test_arcreadercompressed_exceptions() {
+        ArcReaderCompressed reader = ArcReaderFactory.getReaderCompressed();
+
+        InputStream in = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        GzipReader gzipReader = new GzipReader(in) {
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        ArcRecordBase record = new ArcRecordBase() {
+            @Override
+            protected void processPayload(ByteCountingPushBackInputStream in,
+                    ArcReader reader) throws IOException {
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        GzipEntry gzipEntry = new GzipEntry() {
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+
+        Assert.assertNull(reader.reader);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.reader = gzipReader;
+        reader.close();
+        Assert.assertNull(reader.reader);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.currentRecord = record;
+        reader.close();
+        Assert.assertNull(reader.reader);
+        Assert.assertNull(reader.currentRecord);
+
+        try {
+            reader.recordClosed();
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
+
+        Assert.assertNull(reader.currentEntry);
+        reader.currentEntry = gzipEntry;
+        reader.recordClosed();
+        Assert.assertNull(reader.currentEntry);
     }
 
 }

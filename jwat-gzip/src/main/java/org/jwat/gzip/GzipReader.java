@@ -69,7 +69,7 @@ public class GzipReader {
     protected boolean bIsCompliant = true;
 
     /** Entry offset, updated each time an entry is closed. */
-    protected long startOffset;
+    protected long startOffset = -1;
 
     /** Number of bytes consumed by this reader. */
     protected long consumed;
@@ -172,9 +172,8 @@ public class GzipReader {
     }
 
     /**
-     * Returns the offset of the current or next entry depending of where in the
-     * parsing it is called.
-     * @return offset of current or next entry
+     * Returns the offset of the current entry or -1 if none have been read.
+     * @return the offset of the current entry or -1
      */
     public long getStartOffset() {
         return startOffset;
@@ -210,13 +209,13 @@ public class GzipReader {
     public GzipEntry getNextEntry() throws IOException {
         if (gzipEntry != null) {
             gzipEntry.close();
-            startOffset = pbin.getConsumed();
             gzipEntry = null;
         }
         int read = pbin.readFully(headerBytes);
         if (read == 10) {
             crc.reset();
             inf.reset();
+            startOffset = pbin.getConsumed() - 10;
             gzipEntry = new GzipEntry();
             gzipEntry.reader = this;
             gzipEntry.startOffset = startOffset;

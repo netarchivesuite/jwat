@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
+import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(Parameterized.class)
@@ -666,6 +667,61 @@ public class TestArcReaderUncompressed {
         Assert.assertEquals(0, warnings);
 
         return arcEntries;
+    }
+
+    @Test
+    public void test_arcreaderuncompressed_exceptions() {
+        ArcReaderUncompressed reader = ArcReaderFactory.getReaderUncompressed();
+
+        InputStream in = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 42) {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        ArcRecordBase record = new ArcRecordBase() {
+            @Override
+            protected void processPayload(ByteCountingPushBackInputStream in,
+                    ArcReader reader) throws IOException {
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.in = pbin;
+        reader.close();
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.currentRecord = record;
+        reader.close();
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        try {
+            reader.recordClosed();
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
     }
 
 }

@@ -317,8 +317,8 @@ public abstract class ArcReader {
     protected abstract void recordClosed();
 
     /**
-     * Get the offset of the current or next ARC record.
-     * @return offset of the current of next ARC record
+     * Get the offset of the current ARC record or -1 if none have been read.
+     * @return offset of the current ARC record or -1
      */
     public abstract long getStartOffset();
 

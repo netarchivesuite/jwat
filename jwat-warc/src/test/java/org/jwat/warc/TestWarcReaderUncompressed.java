@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
+import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
 
@@ -680,6 +681,57 @@ public class TestWarcReaderUncompressed {
         Assert.assertEquals(0, warnings);
 
         return warcEntries;
+    }
+
+    @Test
+    public void test_arcreaderuncompressed_exceptions() {
+        WarcReaderUncompressed reader = WarcReaderFactory.getReaderUncompressed();
+
+        InputStream in = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 42) {
+            @Override
+            public int read() throws IOException {
+                return 0;
+            }
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+        WarcRecord record = new WarcRecord() {
+            @Override
+            public void close() throws IOException {
+                throw new IOException();
+            }
+        };
+
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.in = pbin;
+        reader.close();
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        reader.currentRecord = record;
+        reader.close();
+        Assert.assertNull(reader.in);
+        Assert.assertNull(reader.currentRecord);
+
+        try {
+            reader.recordClosed();
+            Assert.fail("Exception expected!");
+        } catch (IllegalStateException e) {
+        }
     }
 
 }

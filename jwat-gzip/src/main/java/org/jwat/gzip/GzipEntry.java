@@ -38,7 +38,7 @@ public class GzipEntry {
     protected boolean bIsCompliant;
 
     /** Starting offset of this entry in the input stream from whence it came. */
-    public long startOffset = -1L;
+    public long startOffset = -1;
 
     /** Bytes consumed while validating this entry. */
     public long consumed;

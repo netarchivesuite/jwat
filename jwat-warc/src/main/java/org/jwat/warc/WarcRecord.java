@@ -57,7 +57,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
 
     /** WARC record parsing start offset relative to the source WARC file input
      *  stream. Used to keep track of the uncompressed amount of bytes consumed. */
-    protected long startOffset;
+    protected long startOffset = -1;
 
     /** Uncompressed bytes consumed while validating this record. */
     protected long consumed;

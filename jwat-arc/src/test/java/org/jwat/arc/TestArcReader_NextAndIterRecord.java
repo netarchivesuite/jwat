@@ -17,6 +17,13 @@
  */
 package org.jwat.arc;
 
+//import static org.hamcrest.CoreMatchers.is;
+//import static org.hamcrest.Matchers.lessThanOrEqualTo;
+//import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.core.Is.is;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,10 +48,11 @@ public class TestArcReader_NextAndIterRecord {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {ArcVersion.VERSION_1_1, 101, "1-1-20110922131213-00000-svc-VirtualBox.arc"},
-                {ArcVersion.VERSION_1_1, 238, "4-3-20111004123336-00000-svc-VirtualBox.arc"},
-                {ArcVersion.VERSION_1_1, 299, "IAH-20080430204825-00000-blackbook.arc"},
-                {ArcVersion.VERSION_1, 5, "small_BNF.arc"}
+                {ArcVersion.VERSION_1_1, 102, "1-1-20110922131213-00000-svc-VirtualBox.arc"},
+                {ArcVersion.VERSION_1_1, 239, "4-3-20111004123336-00000-svc-VirtualBox.arc"},
+                {ArcVersion.VERSION_1_1, 300, "IAH-20080430204825-00000-blackbook.arc"},
+                {ArcVersion.VERSION_1_1, 300, "IAH-20080430204825-00000-blackbook.arc.gz"},
+                {ArcVersion.VERSION_1, 6, "small_BNF.arc"}
         });
     }
 
@@ -64,6 +72,8 @@ public class TestArcReader_NextAndIterRecord {
         Iterator<ArcRecordBase> recordIterator;
         ArcRecordBase record;
 
+        int recordNumber;
+
         int n_records = 0;
         int n_errors = 0;
         int n_warnings = 0;
@@ -80,52 +90,75 @@ public class TestArcReader_NextAndIterRecord {
             in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
-            record = reader.getNextRecord();
 
-            Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-            Assert.assertTrue(record.isCompliant());
-            Assert.assertNotNull(record.versionHeader);
-            Assert.assertNotNull(record.versionHeader.isValid());
-            Assert.assertEquals(expected_version, record.versionHeader.version);
+            recordNumber = 0;
 
-            if (record != null) {
-                if (bDebugOutput) {
-                    TestBaseUtils.printRecord(record);
-                }
+            long[] offsets = new long[expected_records + 1];
+            long offset1;
+            long offset2;
 
-                boolean b = true;
-                while ( b ) {
-                    record = reader.getNextRecord();
-                    if (record != null) {
-                        if (bDebugOutput) {
-                            TestBaseUtils.printRecord(record);
-                        }
+            boolean b = true;
+            while ( b ) {
+                record = reader.getNextRecord();
+                if (record != null) {
+                    if (bDebugOutput) {
+                        TestBaseUtils.printRecord(record);
+                    }
 
+                    ++recordNumber;
+                    if (recordNumber == 1) {
+                        Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                        Assert.assertTrue(record.isCompliant());
+                        Assert.assertNotNull(record.versionHeader);
+                        Assert.assertNotNull(record.versionHeader.isValid());
+                        Assert.assertEquals(expected_version, record.versionHeader.version);
+                    } else {
                         Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
                         Assert.assertTrue(record.isCompliant());
                         Assert.assertNull(record.versionHeader);
-
-                        ++n_records;
-
-                        if (record.diagnostics.hasErrors()) {
-                            n_errors += record.diagnostics.getErrors().size();
-                        }
-                        if (record.diagnostics.hasWarnings()) {
-                            n_warnings += record.diagnostics.getWarnings().size();
-                        }
                     }
-                    else {
-                        b = false;
+
+                    Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                    Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                    Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                    offset1 = reader.getOffset();
+
+                    record.close();
+
+                    Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                    Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                    Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                    offset2 = reader.getOffset();
+
+                    offsets[recordNumber] = offset2;
+
+                    Assert.assertThat(offset1, is(greaterThan(offsets[recordNumber - 1])));
+                    Assert.assertThat(offset2, is(lessThanOrEqualTo(offsets[recordNumber])));
+
+                    ++n_records;
+
+                    if (record.diagnostics.hasErrors()) {
+                        n_errors += record.diagnostics.getErrors().size();
+                    }
+                    if (record.diagnostics.hasWarnings()) {
+                        n_warnings += record.diagnostics.getWarnings().size();
                     }
                 }
-
-                if (bDebugOutput) {
-                    TestBaseUtils.printStatus(n_records, n_errors, n_warnings);
+                else {
+                    b = false;
                 }
+            }
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(n_records, n_errors, n_warnings);
             }
 
             reader.close();
             in.close();
+
+            Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getConsumed());
 
             /*
              * Iterator.
@@ -136,57 +169,63 @@ public class TestArcReader_NextAndIterRecord {
             reader = ArcReaderFactory.getReader(in);
             recordIterator = reader.iterator();
 
-            if (recordIterator.hasNext()) {
-                Assert.assertTrue(recordIterator.hasNext());
+            recordNumber = 0;
 
+            while (recordIterator.hasNext()) {
+                Assert.assertTrue(recordIterator.hasNext());
                 Assert.assertNull(reader.getIteratorExceptionThrown());
                 record = recordIterator.next();
                 Assert.assertNull(reader.getIteratorExceptionThrown());
 
-                Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
-                Assert.assertTrue(record.isCompliant());
-                Assert.assertNotNull(record.versionHeader);
-                Assert.assertNotNull(record.versionHeader.isValid());
-                Assert.assertEquals(expected_version, record.versionHeader.version);
+                if (bDebugOutput) {
+                    TestBaseUtils.printRecord(record);
+                }
 
-                if (record != null) {
-                    if (bDebugOutput) {
-                        TestBaseUtils.printRecord(record);
-                    }
+                ++recordNumber;
+                if (recordNumber == 1) {
+                    Assert.assertEquals(ArcRecordBase.RT_VERSION_BLOCK, record.recordType);
+                    Assert.assertTrue(record.isCompliant());
+                    Assert.assertNotNull(record.versionHeader);
+                    Assert.assertNotNull(record.versionHeader.isValid());
+                    Assert.assertEquals(expected_version, record.versionHeader.version);
+                } else {
+                    Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
+                    Assert.assertTrue(record.isCompliant());
+                    Assert.assertNull(record.versionHeader);
+                }
 
-                    while (recordIterator.hasNext()) {
-                        Assert.assertTrue(recordIterator.hasNext());
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                offset1 = reader.getOffset();
 
-                        Assert.assertNull(reader.getIteratorExceptionThrown());
-                        record = recordIterator.next();
-                        Assert.assertNull(reader.getIteratorExceptionThrown());
-                        if (bDebugOutput) {
-                            TestBaseUtils.printRecord(record);
-                        }
+                record.close();
 
-                        Assert.assertEquals(ArcRecordBase.RT_ARC_RECORD, record.recordType);
-                        Assert.assertTrue(record.isCompliant());
-                        Assert.assertNull(record.versionHeader);
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                offset2 = reader.getOffset();
 
-                        ++i_records;
+                Assert.assertThat(offset1, is(greaterThan(offsets[recordNumber - 1])));
+                Assert.assertThat(offset2, is(lessThanOrEqualTo(offsets[recordNumber])));
 
-                        if (record.diagnostics.hasErrors()) {
-                            i_errors += record.diagnostics.getErrors().size();
-                        }
-                        if (record.diagnostics.hasWarnings()) {
-                            i_warnings += record.diagnostics.getWarnings().size();
-                        }
-                    }
-                    Assert.assertNull(reader.getIteratorExceptionThrown());
+                ++i_records;
 
-                    if (bDebugOutput) {
-                        TestBaseUtils.printStatus(i_records, i_errors, i_warnings);
-                    }
+                if (record.diagnostics.hasErrors()) {
+                    i_errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    i_warnings += record.diagnostics.getWarnings().size();
                 }
             }
             Assert.assertNull(reader.getIteratorExceptionThrown());
 
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(i_records, i_errors, i_warnings);
+            }
+
             Assert.assertFalse(recordIterator.hasNext());
+            Assert.assertNull(reader.getIteratorExceptionThrown());
 
             try {
                 recordIterator.next();
@@ -202,6 +241,10 @@ public class TestArcReader_NextAndIterRecord {
 
             reader.close();
             in.close();
+
+            Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getConsumed());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

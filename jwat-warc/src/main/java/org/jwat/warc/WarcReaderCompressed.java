@@ -123,15 +123,18 @@ public class WarcReaderCompressed extends WarcReader {
                 consumed += currentEntry.consumed;
             } catch (IOException e) { /* ignore */ }
             currentEntry = null;
+        } else {
+            throw new IllegalStateException("Should never happen!");
         }
     }
 
     /** Cached start offset used after the reader is closed. */
-    protected long startOffset = 0;
+    protected long startOffset = -1;
 
     /**
-     * Get the current offset in the WARC <code>GzipReader</code>.
-     * @return offset in WARC <code>InputStream</code>
+     * Get the offset of the current WARC record from the GZip entry or -1 if
+     * no records have been read yet.
+     * @return offset of the current WARC record from the GZip entry or -1
      */
     @Override
     public long getStartOffset() {

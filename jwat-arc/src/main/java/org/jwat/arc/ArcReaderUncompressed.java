@@ -37,7 +37,7 @@ public class ArcReaderUncompressed extends ArcReader {
     protected ByteCountingPushBackInputStream in;
 
     /** Start offset of current or next valid record. */
-    protected long startOffset = 0;
+    protected long startOffset = -1;
 
     /**
      * This constructor is used to get random access to records.
@@ -84,7 +84,11 @@ public class ArcReaderUncompressed extends ArcReader {
 
     @Override
     protected void recordClosed() {
-        consumed += currentRecord.consumed;
+        if (currentRecord != null) {
+            consumed += currentRecord.consumed;
+        } else {
+            throw new IllegalStateException("Should never happen!");
+        }
     }
 
     @Override

@@ -87,7 +87,11 @@ public class WarcReaderUncompressed extends WarcReader {
 
     @Override
     protected void recordClosed() {
-        consumed += currentRecord.consumed;
+        if (currentRecord != null) {
+            consumed += currentRecord.consumed;
+        } else {
+            throw new IllegalStateException("Should never happen!");
+        }
     }
 
     @Override

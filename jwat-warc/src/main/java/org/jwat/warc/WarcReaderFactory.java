@@ -51,7 +51,7 @@ public class WarcReaderFactory {
      * Check head of <code>PushBackInputStream</code> for a WARC magic number.
      * @param pbin <code>PushBackInputStream</code> with WARC records
      * @return boolean indicating presence of a WARC magic number
-     * @throws IOException if an io error occurs while examining head of stream
+     * @throws IOException if an i/o error occurs while examining head of stream
      */
     public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] magicBytes = new byte[WarcConstants.WARC_MAGIC_HEADER.length()];
@@ -73,7 +73,7 @@ public class WarcReaderFactory {
      * @param buffer_size buffer size to use
      * @return appropriate <code>WarcReader</code> based on data read from
      * <code>InputStream</code>
-     * @throws IOException if an exception occurs during initialization
+     * @throws IOException if an i/o exception occurs during initialization
      */
     public static WarcReader getReader(InputStream in, int buffer_size)
                                                         throws IOException {
@@ -104,7 +104,7 @@ public class WarcReaderFactory {
      * @param in WARC File represented as <code>InputStream</code> 
      * @return appropriate <code>WarcReader</code> based on data read from
      * <code>InputStream</code>
-     * @throws IOException if an exception occurs during initialization
+     * @throws IOException if an i/o exception occurs during initialization
      */
     public static WarcReader getReader(InputStream in) throws IOException {
         if (in == null) {
@@ -125,7 +125,7 @@ public class WarcReaderFactory {
      * @return <code>WarcReader</code> for uncompressed records read from
      * <code>InputStream</code>
      */
-    public static WarcReader getReaderUncompressed() {
+    public static WarcReaderUncompressed getReaderUncompressed() {
         return new WarcReaderUncompressed();
     }
 
@@ -135,9 +135,9 @@ public class WarcReaderFactory {
      * @param in WARC File represented as <code>InputStream</code> 
      * @return <code>WarcReader</code> for uncompressed records read from
      * <code>InputStream</code>
-     * @throws IOException io exception while initializing reader
+     * @throws IOException i/o exception while initializing reader
      */
-    public static WarcReader getReaderUncompressed(InputStream in)
+    public static WarcReaderUncompressed getReaderUncompressed(InputStream in)
                                                         throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
@@ -156,9 +156,9 @@ public class WarcReaderFactory {
      * @param buffer_size buffer size to use
      * @return <code>WarcReader</code> for uncompressed records read from
      * <code>InputStream</code>
-     * @throws IOException io exception while initializing reader
+     * @throws IOException i/o exception while initializing reader
      */
-    public static WarcReader getReaderUncompressed(InputStream in,
+    public static WarcReaderUncompressed getReaderUncompressed(InputStream in,
                                         int buffer_size) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
@@ -182,7 +182,7 @@ public class WarcReaderFactory {
      * @return <code>WarcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
      */
-    public static WarcReader getReaderCompressed() {
+    public static WarcReaderCompressed getReaderCompressed() {
         return new WarcReaderCompressed();
     }
 
@@ -192,9 +192,9 @@ public class WarcReaderFactory {
      * @param in WARC File represented as <code>InputStream</code> 
      * @return <code>WarcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
-     * @throws IOException io exception while initializing reader
+     * @throws IOException i/o exception while initializing reader
      */
-    public static WarcReader getReaderCompressed(InputStream in)
+    public static WarcReaderCompressed getReaderCompressed(InputStream in)
                                                         throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(
@@ -211,9 +211,9 @@ public class WarcReaderFactory {
      * @param buffer_size buffer size to use
      * @return <code>WarcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
-     * @throws IOException io exception while initializing reader
+     * @throws IOException i/o exception while initializing reader
      */
-    public static WarcReader getReaderCompressed(InputStream in,
+    public static WarcReaderCompressed getReaderCompressed(InputStream in,
                                         int buffer_size) throws IOException {
         if (in == null) {
             throw new IllegalArgumentException(

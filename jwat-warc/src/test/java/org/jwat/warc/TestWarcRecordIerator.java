@@ -17,6 +17,13 @@
  */
 package org.jwat.warc;
 
+//import static org.hamcrest.CoreMatchers.is;
+//import static org.hamcrest.Matchers.lessThanOrEqualTo;
+//import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.core.Is.is;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,6 +87,12 @@ public class TestWarcRecordIerator {
         int i_errors = 0;
         int i_warnings = 0;
 
+        int recordNumber = 0;
+
+        long[] offsets = new long[expected_records + 1];
+        long offset1;
+        long offset2;
+
         try {
             /*
              * getNextArcRecord.
@@ -100,7 +113,23 @@ public class TestWarcRecordIerator {
                     TestBaseUtils.printRecordErrors(record);
                 }
 
+                ++recordNumber;
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                offset1 = reader.getOffset();
+
                 record.close();
+
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                offset2 = reader.getOffset();
+
+                offsets[recordNumber] = offset2;
+
+                Assert.assertThat(offset1, is(greaterThan(offsets[recordNumber - 1])));
+                Assert.assertThat(offset2, is(lessThanOrEqualTo(offsets[recordNumber])));
 
                 // Test content-type and http response/request
                 if (record.header.contentType != null) {
@@ -138,6 +167,10 @@ public class TestWarcRecordIerator {
             reader.close();
             in.close();
 
+            Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getConsumed());
+
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(n_records, n_errors, n_warnings);
             }
@@ -155,6 +188,8 @@ public class TestWarcRecordIerator {
             reader.setPayloadDigestEnabled( true );
             Assert.assertTrue(reader.setPayloadDigestAlgorithm( "sha1" ));
 
+            recordNumber = 0;
+
             recordIterator = reader.iterator();
             while (recordIterator.hasNext()) {
                 Assert.assertTrue(recordIterator.hasNext());
@@ -168,7 +203,21 @@ public class TestWarcRecordIerator {
                     TestBaseUtils.printRecordErrors(record);
                 }
 
+                ++recordNumber;
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                offset1 = reader.getOffset();
+
                 record.close();
+
+                Assert.assertEquals(offsets[recordNumber - 1], record.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+                Assert.assertEquals(offsets[recordNumber - 1], record.header.getStartOffset());
+                offset2 = reader.getOffset();
+
+                Assert.assertThat(offset1, is(greaterThan(offsets[recordNumber - 1])));
+                Assert.assertThat(offset2, is(lessThanOrEqualTo(offsets[recordNumber])));
 
                 // Test content-type and http response/request
                 if (record.header.contentType != null) {
@@ -220,6 +269,10 @@ public class TestWarcRecordIerator {
 
             reader.close();
             in.close();
+
+            Assert.assertEquals(offsets[recordNumber - 1], reader.getStartOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getOffset());
+            Assert.assertEquals(offsets[recordNumber], reader.getConsumed());
 
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(i_records, i_errors, i_warnings);

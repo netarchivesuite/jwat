@@ -276,6 +276,14 @@ public class WarcHeader {
     }
 
     /**
+     * Returns the starting offset of the record in the containing WARC.
+     * @return the starting offset of the record
+     */
+    public long getStartOffset() {
+        return startOffset;
+    }
+
+    /**
      * Try to parse a WARC header and return a boolean indicating the success or
      * failure of this.
      * @param in input stream with WARC data
