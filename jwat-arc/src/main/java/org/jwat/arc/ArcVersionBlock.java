@@ -151,7 +151,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                     diagnostics.addError(
                             new Diagnosis(DiagnosisType.ERROR,
                                     ArcConstants.ARC_VERSION_BLOCK,
-                                    "Unable to parse version block!"));
+                                    "Version block is not valid!"));
                 }
             }
         } else {

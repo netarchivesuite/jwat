@@ -83,8 +83,15 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -103,8 +110,15 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -123,11 +137,12 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
@@ -149,8 +164,14 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(1, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -169,8 +190,14 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(2, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -189,8 +216,14 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -209,8 +242,14 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -229,8 +268,14 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -249,12 +294,13 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_VERSION_NUMBER + "' value", 2},
-                    {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
@@ -276,20 +322,45 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESERVED + "' value", 2},
-                    {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
+            /*
+             * V1.0 invalid block desc.
+             */
+            bytes = "1 0 InternetArchive\nAtomic Twister!\n".getBytes();
+            length = (long)bytes.length;
+            in = new ByteArrayInputStream(bytes);
+            pbin = new ByteCountingPushBackInputStream(in, 8192);
 
+            header = ArcVersionHeader.processPayload(pbin, length, digestAlgorithm, fieldParsers, diagnostics);
+            Assert.assertFalse(header.isValid());
+            Assert.assertTrue(header.isVersionValid);
+            Assert.assertEquals(ArcVersion.VERSION_1, header.version);
+            Assert.assertFalse(header.isValidBlockdDesc);
+            Assert.assertEquals(0, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
+
+            tmpStr = header.toString();
+            Assert.assertNotNull(tmpStr);
             /*
              * V1.0 incomplete.
              */
@@ -305,19 +376,18 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID, ArcConstants.ARC_RECORD, 1}
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
-
-
             /*
              * V1.0 too long.
              */
@@ -333,11 +403,12 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.isValidBlockdDesc);
             Assert.assertEquals(0, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertTrue(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID, ArcConstants.ARC_RECORD, 1}
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
             diagnostics.reset();
@@ -359,8 +430,14 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(1, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -379,8 +456,14 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(2, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -399,8 +482,14 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(2, header.blockDescVersion);
 
+            Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
-            Assert.assertFalse(header.diagnostics.hasErrors());
+
+            expectedDiagnoses = new Object[][] {
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedDiagnoses, header.diagnostics.getErrors());
+            diagnostics.reset();
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -419,8 +508,8 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(1, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -439,8 +528,8 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(1, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
@@ -459,8 +548,8 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.isValidBlockdDesc);
             Assert.assertEquals(2, header.blockDescVersion);
 
-            Assert.assertFalse(header.diagnostics.hasWarnings());
             Assert.assertFalse(header.diagnostics.hasErrors());
+            Assert.assertFalse(header.diagnostics.hasWarnings());
 
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);

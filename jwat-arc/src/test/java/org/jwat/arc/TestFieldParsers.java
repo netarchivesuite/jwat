@@ -131,6 +131,7 @@ public class TestFieldParsers {
                             {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
                             {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
                             {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", 2},
+                            {DiagnosisType.ERROR_EXPECTED, ArcConstants.ARC_FILE, 1},
                             {DiagnosisType.INVALID_EXPECTED, "Trailing newlines", 2}
                     };
                     TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());

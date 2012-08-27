@@ -302,7 +302,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
+                    {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
+                    {DiagnosisType.INVALID_EXPECTED, "URL record does not match the version block definition", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 

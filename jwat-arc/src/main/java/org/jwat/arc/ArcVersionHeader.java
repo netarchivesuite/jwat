@@ -133,7 +133,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
             String[] versionArr = versionLine.split(" ", -1);
             if (versionArr.length != ArcConstants.VERSION_DESC_FIELDS.length) {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                        ArcConstants.ARC_RECORD,
+                        ArcConstants.ARC_VERSION_BLOCK,
                         "Invalid version description"));
             }
             /*
@@ -171,15 +171,19 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
             if (!isVersionValid) {
                 // Add validation error
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                        ArcConstants.ARC_FILE,
-                        "Invalid version : [version number : " + versionNumber
-                        + ",reserved : " + reserved +']'));
+                        ArcConstants.ARC_VERSION_BLOCK,
+                        "Invalid version: [version number: " + versionNumber
+                        + ", reserved: " + reserved +']'));
             }
+        } else {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR,
+                    ArcConstants.ARC_VERSION_BLOCK,
+                    "Version line empty"));
         }
         /*
          * Identify block description.
          */
-        if (blockDescLine != null) {
+        if (blockDescLine != null && blockDescLine.length() > 0) {
             if (ArcConstants.VERSION_1_BLOCK_DEF.equals(blockDescLine)) {
                 isValidBlockdDesc = true;
                 blockDescVersion = 1;
@@ -188,10 +192,13 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
                 blockDescVersion = 2;
             } else {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                        ArcConstants.ARC_FILE,
-                        "Unsupported version block definition -> "
-                                + "Using version-1-block definition"));
+                        ArcConstants.ARC_VERSION_BLOCK,
+                        "Unsupported version block definition"));
             }
+        } else {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR,
+                    ArcConstants.ARC_VERSION_BLOCK,
+                    "Block definition empty"));
         }
         boolean bIsValidVersionBlock = (version != null) && (blockDescVersion > 0);
         if (bIsValidVersionBlock) {
@@ -206,6 +213,11 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
                     bIsValidVersionBlock = false;
                 }
                 break;
+            }
+            if (!bIsValidVersionBlock) {
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
+                        ArcConstants.ARC_VERSION_BLOCK,
+                        "Version number does not match the block definition"));
             }
         }
         return bIsValidVersionBlock;

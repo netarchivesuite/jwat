@@ -86,6 +86,9 @@ public abstract class ArcReader {
     /** Number of bytes consumed by this reader. */
     protected long consumed = 0;
 
+    /** Records parsed. */
+    protected int records = 0;
+
     /** Aggregated number of errors encountered while parsing. */
     protected int errors = 0;
 
@@ -111,6 +114,20 @@ public abstract class ArcReader {
         lineReader.bNameValue = false;
         lineReader.encoding = HeaderLineReader.ENC_US_ASCII;
         fieldParsers = new ArcFieldParsers();
+    }
+
+    /**
+     * Reset reader for reuse.
+     */
+    public void reset() {
+        diagnostics.reset();
+        bIsCompliant = true;
+        consumed = 0;
+        records = 0;
+        errors = 0;
+        warnings = 0;
+        versionHeader = null;
+        currentRecord = null;
     }
 
     /**

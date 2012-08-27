@@ -138,8 +138,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * @throws IOException i/o exception while parsing ARC record data
      */
     public static ArcRecordBase parseRecord(ByteCountingPushBackInputStream in, ArcReader reader) throws IOException {
-        // debug
-        //System.out.println(in.getConsumed());
         ArcRecordBase record = null;
         long startOffset = in.getConsumed();
         // Initialize ArcHeader with required context.
@@ -150,7 +148,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         // Returns true if a record has been processed.
         // And false if only garbage has been processed.
         if (header.parseHeader(in)) {
-            // TODO check that first record should be a filedesc:// version block.
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
                 record = ArcVersionBlock.parseVersionBlock(reader, diagnostics, header, reader.fieldParsers, in);
                 reader.versionHeader = record.versionHeader;
@@ -164,6 +161,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
         }
         // Record identified above.
         if (record != null) {
+            ++reader.records;
             record.startOffset = startOffset;
             // Check read and computed offset value only if we're reading
             // a plain ARC file, not a GZipped ARC.
@@ -172,6 +170,26 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
                         "'" + ArcConstants.FN_OFFSET + "' value",
                         header.offset.toString()));
+            }
+            if (reader.records == 1) {
+                if (record.recordType == ArcRecordBase.RT_ARC_RECORD) {
+                    diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                            ArcConstants.ARC_FILE,
+                            "Expected a version block as the first record."));
+                }
+            } else {
+                if (record.recordType == ArcRecordBase.RT_VERSION_BLOCK) {
+                    diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
+                            ArcConstants.ARC_FILE,
+                            "Expected an ARC record not version block."));
+                }
+            }
+            if (reader.versionHeader != null && reader.versionHeader.blockDescVersion > 0
+                    && record.header.recordFieldVersion != reader.versionHeader.blockDescVersion) {
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "URL record does not match the version block definition",
+                        Integer.toString(record.header.recordFieldVersion),
+                        Integer.toString(reader.versionHeader.blockDescVersion)));
             }
             // Preliminary compliance status, will be updated when the
             // payload/record is closed.
@@ -193,35 +211,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
         }
         return record;
-        // Compare to expected numbers of fields.
-        // Extract mandatory version-independent header data.
-        // TODO
-        /*
-        hasCompliantFields = (records.length
-                          == versionBlock.descValidator.fieldNames.length);
-        if(!hasCompliantFields) {
-            diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                    ARC_RECORD,
-                    "URL record definition and record definition are not "
-                            + "compliant"));
-        }
-        */
-        /*
-        hasCompliantFields = false;
-        if (recordLine != null) {
-            String[] records = recordLine.split(" ", -1);
-            // Compare to expected numbers of fields.
-            // Extract mandatory version-independent header data.
-            hasCompliantFields = (records.length
-                              == versionBlock.descValidator.fieldNames.length);
-            if(!hasCompliantFields) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID,
-                        ARC_RECORD,
-                        "URL record definition and record definition are not "
-                                + "compliant"));
-            }
-        }
-        */
     }
 
     /**
@@ -315,8 +304,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             reader.bIsCompliant &= bIsCompliant;
             // Updated consumed after payload has been consumed.
             consumed = in.getConsumed() - startOffset;
-            // debug
-            //System.out.println(in.getConsumed());
             // Don't not close payload again.
             bPayloadClosed = true;
             // Callback.

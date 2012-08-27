@@ -81,6 +81,32 @@ public class TestArcReader {
         } catch (NoSuchElementException e) {
         }
         Assert.assertNotNull(reader.iteratorExceptionThrown);
+
+        Assert.assertTrue(reader.bIsCompliant);
+        Assert.assertEquals(0, reader.consumed);
+        Assert.assertEquals(0, reader.records);
+        Assert.assertEquals(0, reader.errors);
+        Assert.assertEquals(0, reader.warnings);
+
+        reader.bIsCompliant = false;
+        reader.consumed = 1;
+        reader.records = 2;
+        reader.errors = 3;
+        reader.warnings = 4;
+
+        Assert.assertFalse(reader.bIsCompliant);
+        Assert.assertEquals(1, reader.consumed);
+        Assert.assertEquals(2, reader.records);
+        Assert.assertEquals(3, reader.errors);
+        Assert.assertEquals(4, reader.warnings);
+
+        reader.reset();
+
+        Assert.assertTrue(reader.bIsCompliant);
+        Assert.assertEquals(0, reader.consumed);
+        Assert.assertEquals(0, reader.records);
+        Assert.assertEquals(0, reader.errors);
+        Assert.assertEquals(0, reader.warnings);
     }
 
 }
