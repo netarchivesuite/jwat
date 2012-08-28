@@ -87,6 +87,9 @@ public abstract class WarcReader {
     /** Number of bytes consumed by this reader. */
     protected long consumed = 0;
 
+    /** Records parsed. */
+    protected int records = 0;
+
     /** Aggregated number of errors encountered while parsing. */
     protected int errors = 0;
 
@@ -116,6 +119,19 @@ public abstract class WarcReader {
         headerLineReader.bQuotedText = true;
         headerLineReader.bEncodedWords = true;
         fieldParsers = new WarcFieldParsers();
+    }
+
+    /**
+     * Reset reader for reuse.
+     */
+    public void reset() {
+        diagnostics.reset();
+        bIsCompliant = true;
+        consumed = 0;
+        records = 0;
+        errors = 0;
+        warnings = 0;
+        currentRecord = null;
     }
 
     /**

@@ -18,6 +18,7 @@
 package org.jwat.arc;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
@@ -54,6 +55,9 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     /** Version of the block description. Last line in the version block. */
     public int blockDescVersion;
 
+    /** Block description line. */
+    public String blockDesc;
+
     /*
      * Fields.
      */
@@ -75,6 +79,43 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
 
     /** ARC record version. */
     public ArcVersion version;
+
+    // TODO
+    public static ArcVersionHeader create(ArcVersion version, String originCode) {
+        ArcVersionHeader versionHeader = new ArcVersionHeader();
+        versionHeader.versionNumber = version.major;
+        versionHeader.reserved = version.minor;
+        versionHeader.originCode = originCode;
+        switch (version) {
+        case VERSION_1:
+        case VERSION_1_1:
+            versionHeader.blockDescVersion = 1;
+            versionHeader.blockDesc = ArcConstants.VERSION_1_BLOCK_DEF;
+            break;
+        case VERSION_2:
+            versionHeader.blockDescVersion = 2;
+            versionHeader.blockDesc = ArcConstants.VERSION_2_BLOCK_DEF;
+            break;
+        }
+        versionHeader.bValidVersionFormat = true;
+        versionHeader.isVersionValid = true;
+        versionHeader.isValidBlockdDesc = true;
+        return versionHeader;
+    }
+
+    // TODO
+    public void rebuild() throws UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Integer.toString(versionNumber));
+        sb.append(" ");
+        sb.append(Integer.toString(reserved));
+        sb.append(" ");
+        sb.append(originCode);
+        sb.append("\n");
+        sb.append(blockDesc);
+        sb.append("\n");
+        header = sb.toString().getBytes("ISO8859-1");
+    }
 
     /**
      * Method called to parse and validate an ARC version block.

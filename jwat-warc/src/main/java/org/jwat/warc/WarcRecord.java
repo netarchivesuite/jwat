@@ -145,6 +145,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
         // Initialize WarcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = record.diagnostics;
         if (header.parseHeader(in)) {
+            ++reader.records;
             /*
              * Payload processing.
              */

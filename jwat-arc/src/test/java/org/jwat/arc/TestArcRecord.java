@@ -202,7 +202,7 @@ public class TestArcRecord {
                 out.close();
 
                 // debug
-                System.out.println(out);
+                //System.out.println(out);
 
                 in = new ByteArrayInputStream(out.toByteArray());
                 reader = ArcReaderFactory.getReader(in, 1024);

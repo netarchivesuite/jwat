@@ -221,32 +221,6 @@ public abstract class ArcWriter {
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
         /*
-         * Version block.
-         */
-        byte[] versionBytes = null;
-        if (record.recordType == ArcRecordBase.RT_VERSION_BLOCK) {
-            ByteArrayOutputStream versionBuf = new ByteArrayOutputStream();
-            versionBuf.write(Integer.toString(record.versionHeader.versionNumber).getBytes());
-            versionBuf.write(" ".getBytes());
-            versionBuf.write(Integer.toString(record.versionHeader.reserved).getBytes());
-            versionBuf.write(" ".getBytes());
-            versionBuf.write(record.versionHeader.originCode.getBytes());
-            versionBuf.write("\n".getBytes());
-            switch (record.versionHeader.blockDescVersion) {
-            case 1:
-                versionBuf.write(ArcConstants.VERSION_1_BLOCK_DEF.getBytes());
-                versionBuf.write("\n".getBytes());
-                break;
-            case 2:
-                versionBuf.write(ArcConstants.VERSION_2_BLOCK_DEF.getBytes());
-                versionBuf.write("\n".getBytes());
-                break;
-            default:
-                throw new IllegalStateException("Invalid block description version!");
-            }
-            versionBytes = versionBuf.toByteArray();
-        }
-        /*
          * Record line.
          */
         header = record.header;
@@ -282,7 +256,7 @@ public abstract class ArcWriter {
          */
         String archiveDateStr;
         if (header.archiveDate != null) {
-            archiveDateStr = arcDateFormat.format(header.archiveDateStr);
+            archiveDateStr = arcDateFormat.format(header.archiveDate);
         } else if (header.archiveDateStr != null && header.archiveDateStr.length() > 0) {
             archiveDateStr = header.archiveDateStr;
         } else {
@@ -388,11 +362,6 @@ public abstract class ArcWriter {
         out.write(headerBytes);
         state = S_HEADER_WRITTEN;
         payloadWrittenTotal = 0;
-
-        if (versionBytes != null) {
-            writePayload(versionBytes);
-        }
-
         return headerBytes;
     }
 

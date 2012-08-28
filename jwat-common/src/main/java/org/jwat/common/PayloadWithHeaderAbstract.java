@@ -58,6 +58,9 @@ public abstract class PayloadWithHeaderAbstract {
      *  headers and at the same time store everything read in an array. */
     protected MaxLengthRecordingInputStream in_flr;
 
+    /** The raw header read as bytes. */
+    protected byte[] header;
+
     /** Message digest object. */
     protected MessageDigest md;
 
@@ -111,10 +114,14 @@ public abstract class PayloadWithHeaderAbstract {
                 public void close() throws IOException {
                 }
             };
-            in_complete = new SequenceInputStream(new ByteArrayInputStream(in_flr.getRecording()), in_payload);
+            header = in_flr.getRecording();
+            in_complete = new SequenceInputStream(new ByteArrayInputStream(header), in_payload);
+            in_flr = null;
         } else {
             // Undo read and leave callers input stream in original state.
-            in_pb.unread(in_flr.getRecording());
+            header = in_flr.getRecording();
+            in_pb.unread(header);
+            in_flr = null;
             bClosed = true;
         }
     }
@@ -142,7 +149,7 @@ public abstract class PayloadWithHeaderAbstract {
      * @return raw header as bytes
      */
     public byte[] getHeader() {
-        return in_flr.getRecording();
+        return header;
     }
 
     /**

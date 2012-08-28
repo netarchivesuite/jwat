@@ -340,7 +340,6 @@ public class TestArcRecordBase {
         ByteArrayInputStream in;
         ArcReader reader;
         ArcRecordBase record;
-        ArcHeader header;
         Object[][] expectedDiagnoses;
         try {
             out.reset();
@@ -516,72 +515,6 @@ public class TestArcRecordBase {
         out.write(Integer.toString(payload.length).getBytes());
         out.write("\n".getBytes());
         return out.toByteArray();
-    }
-
-    @Test
-    public void test_arcrecord() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ArcWriter writer;
-        ArcRecordBase record;
-        byte[] recordHeader;
-        ByteArrayInputStream in;
-        byte[] payload;
-
-        String mdData;
-        try {
-            out.reset();
-            writer = ArcWriterFactory.getWriter(out, false);
-
-            writer.setExceptionOnContentLengthMismatch(false);
-
-            mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
-            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
-            mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
-            mdData += "<arc:hostname>blackbook</arc:hostname>\r\n";
-            mdData += "<arc:ip>192.168.1.13</arc:ip>\r\n";
-            mdData += "<dcterms:isPartOf>archive.org-shallow</dcterms:isPartOf>\r\n";
-            mdData += "<dc:description>archive.org shallow</dc:description>\r\n";
-            mdData += "<arc:operator>Admin</arc:operator>\r\n";
-            mdData += "<ns0:date xmlns:ns0=\"http://purl.org/dc/elements/1.1/\" xsi:type=\"dcterms:W3CDTF\">2008-04-30T20:48:24+00:00</ns0:date>\r\n";
-            mdData += "<arc:http-header-user-agent>Mozilla/5.0 (compatible; heritrix/1.14.0 +http://crawler.archive.org)</arc:http-header-user-agent>\r\n";
-            mdData += "<arc:http-header-from>archive-crawler-agent@lists.sourceforge.net</arc:http-header-from>\r\n";
-            mdData += "<arc:robots>classic</arc:robots>\r\n";
-            mdData += "<dc:format>ARC file version 1.1</dc:format>\r\n";
-            mdData += "<dcterms:conformsTo xsi:type=\"dcterms:URI\">http://www.archive.org/web/researcher/ArcFileFormat.php</dcterms:conformsTo>\r\n";
-            mdData += "</arcmetadata>\r\n";
-            payload = mdData.getBytes();
-
-            record = ArcVersionBlock.create(writer);
-            record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
-            record.header.ipAddressStr = "0.0.0.0";
-            record.header.archiveDateStr = "20011005200622";
-            record.header.contentTypeStr = "text/plain";
-            record.header.archiveLengthStr = "76";
-            writer.writeHeader(record);
-
-            writer.writePayload(payload);
-
-            writer.closeRecord();
-
-            writer.close();
-
-            System.out.println(out);
-
-            in = new ByteArrayInputStream(out.toByteArray());
-            ArcReader reader = ArcReaderFactory.getReader(in, 1024);
-
-            record = reader.getNextRecord();
-            Assert.assertNotNull(record);
-
-            record = reader.getNextRecord();
-            // TODO wrong
-            Assert.assertNull(record);
-
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Assert.fail("Unexpected exception!");
-        }
     }
 
 }

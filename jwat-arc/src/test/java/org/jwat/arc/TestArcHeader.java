@@ -111,7 +111,7 @@ public class TestArcHeader {
                 Object[] expected_fieldObjects = new Object[] {null, null, null, null, null, null, null};
                 Object[][] expected_errors = (Object[][])test_cases[i][3];
                 Object[][] expected_warnings = (Object[][])test_cases[i][4];
-                check_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
+                TestBaseUtils.assert_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
                 diagnostics.reset();
             }
             /*
@@ -424,35 +424,13 @@ public class TestArcHeader {
                 Object[] expected_fieldObjects = (Object[])test_cases[i][4];
                 Object[][] expected_errors = (Object[][])test_cases[i][5];
                 Object[][] expected_warnings = (Object[][])test_cases[i][6];
-                check_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
+                TestBaseUtils.assert_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
                 diagnostics.reset();
             }
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
-    }
-
-    public void check_header(ArcHeader header, String[] expected_fieldStrings, Object[] expected_fieldObjects, Object[][] expected_errors, Object[][] expected_warnings) {
-        Assert.assertEquals(expected_fieldStrings[0], header.urlStr);
-        Assert.assertEquals(expected_fieldStrings[1], header.ipAddressStr);
-        Assert.assertEquals(expected_fieldStrings[2], header.archiveDateStr);
-        Assert.assertEquals(expected_fieldStrings[3], header.contentTypeStr);
-        Assert.assertEquals(expected_fieldStrings[4], header.resultCodeStr);
-        Assert.assertEquals(expected_fieldStrings[5], header.checksumStr);
-        Assert.assertEquals(expected_fieldStrings[6], header.locationStr);
-        Assert.assertEquals(expected_fieldStrings[7], header.offsetStr);
-        Assert.assertEquals(expected_fieldStrings[8], header.filenameStr);
-        Assert.assertEquals(expected_fieldStrings[9], header.archiveLengthStr);
-        Assert.assertEquals(expected_fieldObjects[0], header.urlUri);
-        Assert.assertEquals(expected_fieldObjects[1], header.inetAddress);
-        Assert.assertEquals(expected_fieldObjects[2], header.archiveDate);
-        Assert.assertEquals(expected_fieldObjects[3], header.contentType);
-        Assert.assertEquals(expected_fieldObjects[4], header.resultCode);
-        Assert.assertEquals(expected_fieldObjects[5], header.offset);
-        Assert.assertEquals(expected_fieldObjects[6], header.archiveLength);
-        TestBaseUtils.compareDiagnoses(expected_errors, header.diagnostics.getErrors());
-        TestBaseUtils.compareDiagnoses(expected_warnings, header.diagnostics.getWarnings());
     }
 
 }

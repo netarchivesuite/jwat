@@ -33,6 +33,28 @@ public class TestBaseUtils {
     private TestBaseUtils() {
     }
 
+    public static void assert_header(ArcHeader header, String[] expected_fieldStrings, Object[] expected_fieldObjects, Object[][] expected_errors, Object[][] expected_warnings) {
+        Assert.assertEquals(expected_fieldStrings[0], header.urlStr);
+        Assert.assertEquals(expected_fieldStrings[1], header.ipAddressStr);
+        Assert.assertEquals(expected_fieldStrings[2], header.archiveDateStr);
+        Assert.assertEquals(expected_fieldStrings[3], header.contentTypeStr);
+        Assert.assertEquals(expected_fieldStrings[4], header.resultCodeStr);
+        Assert.assertEquals(expected_fieldStrings[5], header.checksumStr);
+        Assert.assertEquals(expected_fieldStrings[6], header.locationStr);
+        Assert.assertEquals(expected_fieldStrings[7], header.offsetStr);
+        Assert.assertEquals(expected_fieldStrings[8], header.filenameStr);
+        Assert.assertEquals(expected_fieldStrings[9], header.archiveLengthStr);
+        Assert.assertEquals(expected_fieldObjects[0], header.urlUri);
+        Assert.assertEquals(expected_fieldObjects[1], header.inetAddress);
+        Assert.assertEquals(expected_fieldObjects[2], header.archiveDate);
+        Assert.assertEquals(expected_fieldObjects[3], header.contentType);
+        Assert.assertEquals(expected_fieldObjects[4], header.resultCode);
+        Assert.assertEquals(expected_fieldObjects[5], header.offset);
+        Assert.assertEquals(expected_fieldObjects[6], header.archiveLength);
+        TestBaseUtils.compareDiagnoses(expected_errors, header.diagnostics.getErrors());
+        TestBaseUtils.compareDiagnoses(expected_warnings, header.diagnostics.getWarnings());
+    }
+
     public static void compareDiagnoses(Object[][] expectedDiagnoses, List<Diagnosis> diagnosisList) {
         Diagnosis diagnosis;
         // debug
@@ -43,6 +65,9 @@ public class TestBaseUtils {
             System.out.println(diagnosis.type);
             System.out.println(diagnosis.entity);
             System.out.println(diagnosis.information.length);
+            for (int j=0; j<diagnosis.information.length; ++j) {
+                System.out.println(diagnosis.information[j]);
+            }
         }
         */
         Assert.assertEquals(expectedDiagnoses.length, diagnosisList.size());
