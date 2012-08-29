@@ -52,7 +52,7 @@ public class ArcRecord extends ArcRecordBase {
      * @param writer writer which shall be used
      * @return an <code>ArcRecord</code> prepared for writing
      */
-    public static ArcRecord create(ArcWriter writer) {
+    public static ArcRecord createRecord(ArcWriter writer) {
         ArcRecord ar = new ArcRecord();
         ar.trailingNewLines = 1;
         ar.diagnostics = new Diagnostics<Diagnosis>();

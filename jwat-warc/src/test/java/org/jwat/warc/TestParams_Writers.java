@@ -39,8 +39,6 @@ public class TestParams_Writers {
 
             WarcWriter writer;
             out = null;
-            byte[] headerArr = null;
-            WarcRecord record = null;
 
             try {
                 writer = new WarcWriterUncompressed(null);
@@ -73,7 +71,7 @@ public class TestParams_Writers {
             Assert.assertFalse(writer.isCompressed());
 
             try {
-                writer.writeRawHeader(headerArr, null);
+                writer.writeRawHeader(null, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -83,7 +81,7 @@ public class TestParams_Writers {
             } catch (IllegalArgumentException e) {
             }
             try {
-                writer.writeHeader(record);
+                writer.writeHeader(null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -103,7 +101,13 @@ public class TestParams_Writers {
             } catch (IllegalStateException e) {
             }
 
-            writer.close();
+            writer.writeRawHeader(new byte[1], null);
+            // Content-Length mismatch.
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             /*
              * WarcWriterCompressed.
@@ -142,7 +146,7 @@ public class TestParams_Writers {
             Assert.assertTrue(writer.isCompressed());
 
             try {
-                writer.writeRawHeader(headerArr, null);
+                writer.writeRawHeader(null, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -152,7 +156,7 @@ public class TestParams_Writers {
             } catch (IllegalArgumentException e) {
             }
             try {
-                writer.writeHeader(record);
+                writer.writeHeader(null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -172,7 +176,13 @@ public class TestParams_Writers {
             } catch (IllegalStateException e) {
             }
 
-            writer.close();
+            writer.writeRawHeader(new byte[1], null);
+            // Content-Length mismatch.
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             /*
              * WarcWriterFactory.
@@ -276,6 +286,15 @@ public class TestParams_Writers {
 
             WarcWriterFactory warcWriterFactory = new WarcWriterFactory();
             Assert.assertNotNull(warcWriterFactory);
+
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.exceptionOnContentLengthMismatch());
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
+            writer.setExceptionOnContentLengthMismatch(true);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

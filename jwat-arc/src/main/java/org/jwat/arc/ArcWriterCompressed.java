@@ -107,7 +107,7 @@ public class ArcWriterCompressed extends ArcWriter {
      * @see org.jwat.arc.ArcWriter#writeHeader(byte[], java.lang.Long)
      */
     @Override
-    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
+    public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");

@@ -80,7 +80,13 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     /** ARC record version. */
     public ArcVersion version;
 
-    // TODO
+    /**
+     * Create a version header and initialize it using the version and origin
+     * code arguments.
+     * @param version version to initialize this header according to
+     * @param originCode origin code
+     * @return an initialized version header object ready for writing
+     */
     public static ArcVersionHeader create(ArcVersion version, String originCode) {
         ArcVersionHeader versionHeader = new ArcVersionHeader();
         versionHeader.versionNumber = version.major;
@@ -103,7 +109,12 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
         return versionHeader;
     }
 
-    // TODO
+    /**
+     * Use the information contained in this object to rebuild the byte array
+     * representation of the version header.
+     * (@see getHeader())
+     * @throws UnsupportedEncodingException if an encoding error occurs
+     */
     public void rebuild() throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
         sb.append(Integer.toString(versionNumber));

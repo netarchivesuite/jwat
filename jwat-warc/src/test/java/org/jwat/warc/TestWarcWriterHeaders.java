@@ -132,11 +132,8 @@ public class TestWarcWriterHeaders {
 
             out.reset();
             writer = WarcWriterFactory.getWriter(out, compress);
-            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
-            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
+
             writer.setExceptionOnContentLengthMismatch(false);
-            Assert.assertFalse(writer.exceptionOnContentLengthMismatch());
-            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
 
             /*
              * Empty headers.

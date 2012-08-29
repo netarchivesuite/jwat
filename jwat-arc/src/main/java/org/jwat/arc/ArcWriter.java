@@ -150,7 +150,7 @@ public abstract class ArcWriter {
                     "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
                     "Mandatory!"));
             if (bExceptionOnContentLengthMismatch) {
-                throw new IllegalStateException("Payload size does not match content-length!");
+                throw new IllegalStateException("Payload size does not match archive-length!");
             }
         } else {
             if (headerContentLength != payloadWrittenTotal) {
@@ -165,7 +165,7 @@ public abstract class ArcWriter {
                         Long.toString(payloadWrittenTotal),
                         headerContentLength.toString()));
                 if (bExceptionOnContentLengthMismatch) {
-                    throw new IllegalStateException("Payload size does not match content-length!");
+                    throw new IllegalStateException("Payload size does not match archive-length!");
                 }
             }
         }
@@ -181,7 +181,7 @@ public abstract class ArcWriter {
      * @param contentLength the expected content-length to be written and validated
      * @throws IOException if an exception occurs while writing header data
      */
-    public void writeHeader(byte[] header_bytes, Long contentLength) throws IOException {
+    public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
             throw new IllegalArgumentException(
                     "The 'header_bytes' parameter is null!");

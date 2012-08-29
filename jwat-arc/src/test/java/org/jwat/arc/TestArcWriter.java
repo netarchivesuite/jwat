@@ -76,7 +76,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
             record.header.ipAddressStr = "192.168.1.2";
@@ -87,7 +87,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "http://cctr.umkc.edu:80/user/jbenz/tst.htm";
             record.header.ipAddressStr = "134.193.4.1";
@@ -113,7 +113,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlUri = URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
             record.header.inetAddress= InetAddress.getByName("192.168.1.2");
@@ -124,7 +124,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlUri = URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
             record.header.inetAddress = InetAddress.getByName("134.193.4.1");
@@ -150,7 +150,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
             record.header.ipAddressStr = "192.168.1.2";
@@ -168,7 +168,7 @@ public class TestArcWriter {
 
             offset = out.size();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "http://cctr.umkc.edu:80/user/jbenz/tst.htm";
             record.header.ipAddressStr = "134.193.4.1";
@@ -199,7 +199,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
 
             record.header.urlUri = URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
@@ -218,7 +218,7 @@ public class TestArcWriter {
 
             offset = out.size();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlUri = URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
             record.header.inetAddress = InetAddress.getByName("134.193.4.1");
@@ -458,7 +458,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -469,7 +469,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -495,7 +495,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -506,7 +506,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -532,7 +532,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -548,7 +548,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -579,7 +579,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -595,7 +595,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -860,7 +860,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -871,7 +871,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -897,7 +897,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -908,7 +908,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -934,7 +934,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -950,7 +950,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = "";
             record.header.ipAddressStr = "";
@@ -981,7 +981,7 @@ public class TestArcWriter {
             versionHeader.rebuild();
             versionHeaderBytes = versionHeader.getHeader();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -997,7 +997,7 @@ public class TestArcWriter {
             writer.writePayload(versionHeaderBytes);
             writer.closeRecord();
 
-            record = ArcRecord.create(writer);
+            record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
             record.header.urlStr = null;
             record.header.ipAddressStr = null;
@@ -1423,7 +1423,7 @@ public class TestArcWriter {
             mdData += "</arcmetadata>\r\n";
             payload = mdData.getBytes();
 
-            record = ArcVersionBlock.create(writer);
+            record = ArcVersionBlock.createRecord(writer);
             record.header.urlStr = "filedesc://BNF-inktomi_arc39.20011005200622.arc.gz";
             record.header.ipAddressStr = "0.0.0.0";
             record.header.archiveDateStr = "20011005200622";

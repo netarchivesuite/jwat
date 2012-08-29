@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class TestParams_Writer {
+public class TestParams_Writers {
 
     @Test
     public void test_params_writers() {
@@ -34,7 +34,7 @@ public class TestParams_Writer {
 
         try {
             /*
-             * WarcWriterUncompressed.
+             * ArcWriterUncompressed.
              */
 
             ArcWriter writer;
@@ -73,12 +73,12 @@ public class TestParams_Writer {
             Assert.assertFalse(writer.isCompressed());
 
             try {
-                writer.writeHeader(headerArr, null);
+                writer.writeRawHeader(headerArr, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
             try {
-                writer.writeHeader(new byte[1], -1L);
+                writer.writeRawHeader(new byte[1], -1L);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -103,10 +103,16 @@ public class TestParams_Writer {
             } catch (IllegalStateException e) {
             }
 
-            writer.close();
+            writer.writeRawHeader(new byte[1], null);
+            // Content-Length mismatch.
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             /*
-             * WarcWriterCompressed.
+             * ArcWriterCompressed.
              */
 
             out = null;
@@ -142,12 +148,12 @@ public class TestParams_Writer {
             Assert.assertTrue(writer.isCompressed());
 
             try {
-                writer.writeHeader(headerArr, null);
+                writer.writeRawHeader(headerArr, null);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
             try {
-                writer.writeHeader(new byte[1], -1L);
+                writer.writeRawHeader(new byte[1], -1L);
                 Assert.fail("Exception expected!");
             } catch (IllegalArgumentException e) {
             }
@@ -172,10 +178,16 @@ public class TestParams_Writer {
             } catch (IllegalStateException e) {
             }
 
-            writer.close();
+            writer.writeRawHeader(new byte[1], null);
+            // Content-Length mismatch.
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IllegalStateException e) {
+            }
 
             /*
-             * WarcWriterFactory.
+             * ArcWriterFactory.
              */
 
             out = null;
@@ -276,6 +288,15 @@ public class TestParams_Writer {
 
             ArcWriterFactory arcWriterFactory = new ArcWriterFactory();
             Assert.assertNotNull(arcWriterFactory);
+
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.exceptionOnContentLengthMismatch());
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
+            writer.setExceptionOnContentLengthMismatch(true);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            Assert.assertTrue(writer.exceptionOnContentLengthMismatch());
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

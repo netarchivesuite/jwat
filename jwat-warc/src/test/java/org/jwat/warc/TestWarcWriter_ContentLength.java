@@ -30,7 +30,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
-public class TestWarcWriterContentLength {
+public class TestWarcWriter_ContentLength {
 
     @Test
     public void test_warcwriter_compressed() {

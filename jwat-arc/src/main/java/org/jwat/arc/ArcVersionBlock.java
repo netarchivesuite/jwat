@@ -54,7 +54,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @param writer writer which shall be used
      * @return an <code>ArcVersionBlock</code> prepared for writing
      */
-    public static ArcVersionBlock create(ArcWriter writer) {
+    public static ArcVersionBlock createRecord(ArcWriter writer) {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.trailingNewLines = 1;
         vb.diagnostics = new Diagnostics<Diagnosis>();
