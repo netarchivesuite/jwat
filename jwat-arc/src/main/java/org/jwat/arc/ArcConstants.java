@@ -40,6 +40,10 @@ public final class ArcConstants {
     /** Invalid ARC version block property. */
     protected static final String ARC_VERSION_BLOCK = "ARC version block";
 
+    /** Maximum payload size of unwanted trailing new lines in V1.0/V2.0
+     * version block. */
+    public static final int ARC_VB_MAX_TRAILING_NEWLINES = 1024*1024;
+
     /** Trailing newlines after each record as per the ARC documentation. */
     public static final int ARC_RECORD_TRAILING_NEWLINES = 1;
 

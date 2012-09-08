@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
 public class TestArcHeader {
@@ -240,7 +240,7 @@ public class TestArcHeader {
                         null,
                         "4270"
                     }, new Object[] {
-                        URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
+                        Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
                         InetAddress.getByName("134.193.4.1"),
                         ArcDateParser.getDate("19970417175710"),
                         ContentType.parseContentType("text/html"),
@@ -263,7 +263,7 @@ public class TestArcHeader {
                         "filename",
                         "40"
                     }, new Object[] {
-                        URI.create("http://www.antiaction.com/"),
+                        Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         ContentType.parseContentType("text/htlm"),
@@ -346,7 +346,7 @@ public class TestArcHeader {
                         "filename",
                         "40"
                     }, new Object[] {
-                        URI.create("http://www.antiaction.com/"),
+                        Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         ContentType.parseContentType("text/htlm"),
@@ -369,7 +369,7 @@ public class TestArcHeader {
                         "filename",
                         "-42"
                     }, new Object[] {
-                        URI.create("http://www.antiaction.com/"),
+                        Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         null,
@@ -396,7 +396,7 @@ public class TestArcHeader {
                         "filename",
                         "42"
                     }, new Object[] {
-                        URI.create("http://www.antiaction.com/"),
+                        Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         null,

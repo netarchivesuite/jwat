@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
+import org.jwat.common.Uri;
 import org.jwat.gzip.GzipEntry;
 import org.jwat.gzip.GzipReader;
 
@@ -575,7 +575,7 @@ public class TestWarcReaderCompressed {
     }
 
     class WarcEntry {
-        URI recordId;
+        Uri recordId;
         long offset;
     }
 

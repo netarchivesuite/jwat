@@ -20,7 +20,6 @@ package org.jwat.arc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Date;
 
 import org.jwat.common.Base16;
@@ -37,6 +36,7 @@ import org.jwat.common.NewlineParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 import org.jwat.common.PayloadWithHeaderAbstract;
+import org.jwat.common.Uri;
 
 /**
  * This abstract class represents the common base ARC data which is present in
@@ -114,7 +114,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
     protected Payload payload;
 
     /** Has all the payload data been processed while reading the record header. */
-    protected boolean bHasEmptyPayload;
+    protected boolean bHasPseudoEmptyPayload;
 
     /** HTTP header content parsed from payload. */
     protected HttpHeader httpHeader;
@@ -187,7 +187,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             if (reader.versionHeader != null && reader.versionHeader.blockDescVersion > 0
                     && record.header.recordFieldVersion != reader.versionHeader.blockDescVersion) {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-                        "URL record does not match the version block definition",
+                        "ARC record does not match the version block definition",
                         Integer.toString(record.header.recordFieldVersion),
                         Integer.toString(reader.versionHeader.blockDescVersion)));
             }
@@ -285,13 +285,11 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             }
             // Check for trailing newlines.
             trailingNewLines = nlp.parseLFs(in, diagnostics);
-            if (trailingNewLines != ArcConstants.ARC_RECORD_TRAILING_NEWLINES) {
-                if (reader.bStrict) {
-                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                            "Trailing newlines",
-                            Integer.toString(trailingNewLines),
-                            Integer.toString(ArcConstants.ARC_RECORD_TRAILING_NEWLINES));
-                }
+            if (reader.bStrict && trailingNewLines != ArcConstants.ARC_RECORD_TRAILING_NEWLINES) {
+                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                        "Trailing newlines",
+                        Integer.toString(trailingNewLines),
+                        Integer.toString(ArcConstants.ARC_RECORD_TRAILING_NEWLINES));
             }
             // isCompliant status update.
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -336,14 +334,6 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             bClosed = true;
         }
     }
-
-    /**
-     * Post process record after the record has been read but before it is
-     * returned to caller.
-     */
-    /*
-    public abstract void postProcess() throws IOException;
-    */
 
     /**
      * Returns a boolean indicating the standard compliance of this record.
@@ -391,8 +381,8 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * Specifies whether this record has had all it's payload processed already.
      * @return true/false whether this record's payload has been completely processed
      */
-    public boolean hasEmptyPayload() {
-        return bHasEmptyPayload;
+    public boolean hasPseudoEmptyPayload() {
+        return bHasPseudoEmptyPayload;
     }
 
     /**
@@ -489,7 +479,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
      * URL getter.
      * @return the URL
      */
-    public URI getUrl() {
+    public Uri getUrl() {
         return header.urlUri;
     }
 

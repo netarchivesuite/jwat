@@ -90,7 +90,7 @@ public class WarcReaderUncompressed extends WarcReader {
         if (currentRecord != null) {
             consumed += currentRecord.consumed;
         } else {
-            throw new IllegalStateException("Should never happen!");
+            throw new IllegalStateException("'currentRecord' is null, this should never happen!");
         }
     }
 

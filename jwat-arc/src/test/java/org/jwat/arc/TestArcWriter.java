@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 
 import junit.framework.Assert;
 
@@ -30,7 +29,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ContentType;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.Uri;
 
+// TODO "Last-Modified:" is considered a valid URI. Which it may be.
 @RunWith(JUnit4.class)
 public class TestArcWriter {
 
@@ -115,7 +116,7 @@ public class TestArcWriter {
 
             record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 1;
-            record.header.urlUri = URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
+            record.header.urlUri = Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
             record.header.inetAddress= InetAddress.getByName("192.168.1.2");
             record.header.archiveDate = ArcDateParser.getDate("20011005200622");
             record.header.contentType = ContentType.parseContentType("text/plain");
@@ -126,7 +127,7 @@ public class TestArcWriter {
 
             record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 1;
-            record.header.urlUri = URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
+            record.header.urlUri = Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
             record.header.inetAddress = InetAddress.getByName("134.193.4.1");
             record.header.archiveDate = ArcDateParser.getDate("19970417175710");
             record.header.contentType = ContentType.parseContentType("text/html");
@@ -202,7 +203,7 @@ public class TestArcWriter {
             record = ArcVersionBlock.createRecord(writer);
             record.header.recordFieldVersion = 2;
 
-            record.header.urlUri = URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
+            record.header.urlUri = Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz");
             record.header.inetAddress= InetAddress.getByName("192.168.1.2");
             record.header.archiveDate = ArcDateParser.getDate("20011005200622");
             record.header.contentType = ContentType.parseContentType("text/plain");
@@ -220,7 +221,7 @@ public class TestArcWriter {
 
             record = ArcRecord.createRecord(writer);
             record.header.recordFieldVersion = 2;
-            record.header.urlUri = URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
+            record.header.urlUri = Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm");
             record.header.inetAddress = InetAddress.getByName("134.193.4.1");
             record.header.archiveDate = ArcDateParser.getDate("19970417175710");
             record.header.contentType = ContentType.parseContentType("text/html");
@@ -281,7 +282,7 @@ public class TestArcWriter {
                     Integer.toString(versionHeaderBytes.length)
             };
             expected_fieldObjects = new Object[] {
-                    URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"),
+                    Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"),
                     InetAddress.getByName("192.168.1.2"),
                     ArcDateParser.getDate("20011005200622"),
                     ContentType.parseContentType("text/plain"),
@@ -313,7 +314,7 @@ public class TestArcWriter {
                     Long.toString(httpHeaderBytes.length + payloadBytes.length)
             };
             expected_fieldObjects = new Object[] {
-                    URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
+                    Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
                     InetAddress.getByName("134.193.4.1"),
                     ArcDateParser.getDate("19970417175710"),
                     ContentType.parseContentType("text/html"),
@@ -374,7 +375,7 @@ public class TestArcWriter {
                     Integer.toString(versionHeaderBytes.length)
             };
             expected_fieldObjects = new Object[] {
-                    URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"),
+                    Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"),
                     InetAddress.getByName("192.168.1.2"),
                     ArcDateParser.getDate("20011005200622"),
                     ContentType.parseContentType("text/plain"),
@@ -406,7 +407,7 @@ public class TestArcWriter {
                     Long.toString(httpHeaderBytes.length + payloadBytes.length)
             };
             expected_fieldObjects = new Object[] {
-                    URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
+                    Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
                     InetAddress.getByName("134.193.4.1"),
                     ArcDateParser.getDate("19970417175710"),
                     ContentType.parseContentType("text/html"),
@@ -1173,7 +1174,7 @@ public class TestArcWriter {
                     "GMT"
             };
             expected_fieldObjects = new Object[] {
-                    null,
+                    Uri.create("Last-Modified:"),
                     null,
                     null,
                     null,
@@ -1182,7 +1183,7 @@ public class TestArcWriter {
                     null
             };
             expected_errors = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},
@@ -1361,7 +1362,7 @@ public class TestArcWriter {
                     "GMT"
             };
             expected_fieldObjects = new Object[] {
-                    null,
+                    Uri.create("Last-Modified:"),
                     null,
                     null,
                     null,
@@ -1370,7 +1371,7 @@ public class TestArcWriter {
                     null
             };
             expected_errors = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
+                    //{DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_URL + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_IP_ADDRESS + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_DATE + "' value", 2},
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2},

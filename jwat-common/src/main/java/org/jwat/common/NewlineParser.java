@@ -24,6 +24,10 @@ import java.io.IOException;
  * a push back input stream, one method each. Implemented as an object instance
  * so the caller can access the status information.
  *
+ * A misplaced CR or LF is reported when the character is in the wrong order or
+ * simply not expected. Example LFCR has both CR and LF misplaced. If we hare
+ * looking for LF's a CRLF pair has a misplaced CR.
+ *
  * @author nicl
  */
 public class NewlineParser {

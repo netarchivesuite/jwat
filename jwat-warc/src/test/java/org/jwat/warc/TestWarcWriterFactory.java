@@ -153,7 +153,6 @@ public class TestWarcWriterFactory {
              */
 
             raf.seek(0);
-            //in = new FileInputStream("WarcWriteTest.warc");
             in = new RandomAccessFileInputStream( raf );
 
             reader = WarcReaderFactory.getReader( in );
@@ -311,7 +310,6 @@ public class TestWarcWriterFactory {
              */
 
             raf.seek(0);
-            //in = new FileInputStream("WarcWriteTest.warc");
             in = new RandomAccessFileInputStream( raf );
 
             reader = WarcReaderFactory.getReader( in );

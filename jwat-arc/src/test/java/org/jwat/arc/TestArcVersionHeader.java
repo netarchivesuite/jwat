@@ -19,6 +19,10 @@ package org.jwat.arc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import junit.framework.Assert;
 
@@ -53,6 +57,21 @@ public class TestArcVersionHeader {
             /*
              * Invalid parameters.
              */
+            try {
+                ArcVersionHeader.create(null, null);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+            try {
+                ArcVersionHeader.create(ArcVersion.VERSION_1, null);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+            try {
+                ArcVersionHeader.create(ArcVersion.VERSION_1, "");
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
             try {
                 header = ArcVersionHeader.processPayload(null, length, digestAlgorithm, fieldParsers, diagnostics);
                 Assert.fail("Exception expected!");
@@ -557,6 +576,61 @@ public class TestArcVersionHeader {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
+
     }
 
+    public void test_arcversionheader_reflection() {
+        try {
+            Constructor con = ArcVersion.class.getDeclaredConstructors()[0];
+            Method[] methods = con.getClass().getDeclaredMethods();
+            for (Method m : methods) {
+                if (m.getName().equals("acquireConstructorAccessor")) {
+                    m.setAccessible(true);
+                    m.invoke(con, new Object[0]);
+                }
+            }
+            Field[] fields = con.getClass().getDeclaredFields();
+            Object ca = null;
+            for (Field f : fields) {
+                if (f.getName().equals("constructorAccessor")) {
+                    f.setAccessible(true);
+                    ca = f.get(con);
+                }
+            }
+            Method m = ca.getClass().getMethod( "newInstance", new Class[] { Object[].class });
+            m.setAccessible(true);
+            ArcVersion v = (ArcVersion) m.invoke(ca, new Object[] {
+                new Object[] {
+                    "VERSION_3_2", new Integer(42), new Integer(3), new Integer(2), "", "" }
+                }
+            );
+
+            //System.out.println(v.getClass() + ":" + v.name() + ":" + v.ordinal());
+            //System.out.println(v.toString());
+            //v = ArcVersion.VERSION_1_1;
+            //System.out.println(v.getClass() + ":" + v.name() + ":" + v.ordinal());
+            //System.out.println(v.toString());
+
+            try {
+                ArcVersionHeader.create(v, "netarkivet.dk");
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
 }

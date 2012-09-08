@@ -163,18 +163,22 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (versionHeader != null && versionHeader.isValid()) {
             if (ArcVersion.VERSION_1_1.equals(version)) {
                 if ((versionHeader.getRemaining() == 0)) {
-                    bHasEmptyPayload = true;
+                    bHasPseudoEmptyPayload = true;
                     diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
                             ArcConstants.ARC_FILE,
                             "Expected metadata payload not found in the version block"));
                 }
             } else {
                 if (versionHeader.getRemaining() == 0) {
-                    bHasEmptyPayload = true;
+                    bHasPseudoEmptyPayload = true;
                 } else {
                     if (!reader.bStrict) {
                         // I'm going on a limb here that IA's ARC writer will
                         // not write in excess of 4GB useless newlines.
+                        if (versionHeader.getRemaining() > ArcConstants.ARC_VB_MAX_TRAILING_NEWLINES) {
+                            throw new IOException(
+                                    "This amount of useless data in the version block is unacceptable!");
+                        }
                         ByteArrayOutputStream out_payload = new ByteArrayOutputStream(
                                 (int)versionHeader.getRemaining());
                         InputStream in_payload = versionHeader.getPayloadInputStream();
@@ -192,7 +196,7 @@ public class ArcVersionBlock extends ArcRecordBase {
                                     "version block metadata payload",
                                     "Metadata payload must not be present in this version"));
                         } else {
-                            bHasEmptyPayload = true;
+                            bHasPseudoEmptyPayload = true;
                         }
                         in_newlines.close();
                     } else {

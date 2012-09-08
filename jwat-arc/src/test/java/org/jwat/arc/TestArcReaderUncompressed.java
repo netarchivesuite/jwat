@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.RandomAccessFileInputStream;
+import org.jwat.common.Uri;
 
 @RunWith(Parameterized.class)
 public class TestArcReaderUncompressed {
@@ -543,7 +543,7 @@ public class TestArcReaderUncompressed {
     }
 
     class ArcEntry {
-        URI recordId;
+        Uri recordId;
         long offset;
     }
 

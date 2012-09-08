@@ -88,6 +88,12 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
      * @return an initialized version header object ready for writing
      */
     public static ArcVersionHeader create(ArcVersion version, String originCode) {
+        if (version == null) {
+            throw new IllegalArgumentException("'version' argument is null!");
+        }
+        if (originCode == null || originCode.length() == 0) {
+            throw new IllegalArgumentException("'originCode' argument is null or empty!");
+        }
         ArcVersionHeader versionHeader = new ArcVersionHeader();
         versionHeader.versionNumber = version.major;
         versionHeader.reserved = version.minor;

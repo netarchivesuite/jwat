@@ -71,7 +71,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -112,7 +112,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -171,7 +171,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
             Assert.assertTrue(record.hasPayload());
-            Assert.assertFalse(record.hasEmptyPayload());
+            Assert.assertFalse(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -304,7 +304,7 @@ public class TestArcVersionBlock {
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
-                    {DiagnosisType.INVALID_EXPECTED, "URL record does not match the version block definition", 2}
+                    {DiagnosisType.INVALID_EXPECTED, "ARC record does not match the version block definition", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
@@ -358,7 +358,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -423,7 +423,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertFalse(record.hasEmptyPayload());
+            Assert.assertFalse(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -487,7 +487,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertFalse(record.hasEmptyPayload());
+            Assert.assertFalse(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -538,7 +538,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -587,7 +587,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -636,7 +636,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -706,7 +706,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertTrue(record.hasEmptyPayload());
+            Assert.assertTrue(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());
@@ -762,7 +762,7 @@ public class TestArcVersionBlock {
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
             Assert.assertTrue(record.hasPayload());
-            Assert.assertFalse(record.hasEmptyPayload());
+            Assert.assertFalse(record.hasPseudoEmptyPayload());
             Assert.assertNotNull(record.payload);
             Assert.assertEquals(record.payload, record.getPayload());
             Assert.assertNotNull(record.getPayloadContent());

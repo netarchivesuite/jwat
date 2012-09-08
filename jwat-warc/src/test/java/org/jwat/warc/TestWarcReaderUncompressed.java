@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +41,7 @@ import org.jwat.common.ByteCountingInputStream;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.RandomAccessFileInputStream;
+import org.jwat.common.Uri;
 
 /**
  * Test to check wether the getReaderUncompressed() and nextRecordFrom(in)
@@ -570,7 +570,7 @@ public class TestWarcReaderUncompressed {
     }
 
     class WarcEntry {
-        URI recordId;
+        Uri recordId;
         long offset;
     }
 

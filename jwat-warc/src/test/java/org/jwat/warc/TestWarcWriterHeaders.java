@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Date;
 
@@ -30,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ContentType;
+import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
 public class TestWarcWriterHeaders {
@@ -88,22 +88,22 @@ public class TestWarcWriterHeaders {
          * URI.
          */
         String recordIdStr = "urn:uuid:12eab1ec-8615-4f09-b6d2-976d96552073";
-        URI recordIdObj = URI.create(recordIdStr);
+        Uri recordIdObj = Uri.create(recordIdStr);
         String refersToStr = "urn:uuid:bfa9d26b-ff19-402a-8508-e7ff852d4ded";
-        URI refersToObj = URI.create(refersToStr);
+        Uri refersToObj = Uri.create(refersToStr);
         String targetUriStr = "urn:uuid:de715d47-9f36-4cdf-84db-eb3b47dcd0e3";
-        URI targetUriObj = URI.create(targetUriStr);
+        Uri targetUriObj = Uri.create(targetUriStr);
         String warcinfoIdStr = "urn:uuid:1cb0e3be-d9e2-4058-bf00-9775c75a71a6";
-        URI warcinfoIdObj = URI.create(warcinfoIdStr);
+        Uri warcinfoIdObj = Uri.create(warcinfoIdStr);
         String segmentOriginIdStr = "urn:uuid:c4fc410a-4c7b-4bcc-a251-382b1d669f9a";
-        URI segmentOriginIdObj = URI.create(segmentOriginIdStr);
+        Uri segmentOriginIdObj = Uri.create(segmentOriginIdStr);
         /*
          * ConcurrentTo.
          */
         Object[][] concurrentHeaders = new Object[][] {
-                {URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"), "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"},
-                {URI.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"), "urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"},
-                {URI.create("urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"), "urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"}
+                {Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"), "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"},
+                {Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"), "urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"},
+                {Uri.create("urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"), "urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"}
         };
         /*
          * String.
@@ -204,7 +204,7 @@ public class TestWarcWriterHeaders {
             for (int i=0; i<concurrentHeaders.length; ++i) {
                 WarcConcurrentTo concurrentTo = new WarcConcurrentTo();
                 concurrentTo.warcConcurrentToStr = null;
-                concurrentTo.warcConcurrentToUri = (URI)concurrentHeaders[i][0];
+                concurrentTo.warcConcurrentToUri = (Uri)concurrentHeaders[i][0];
                 header.warcConcurrentToList.add(concurrentTo);
             }
             header.warcTypeIdx = warcTypeObj;
@@ -275,7 +275,7 @@ public class TestWarcWriterHeaders {
             header.addHeader(WarcConstants.FN_WARC_WARCINFO_ID, warcinfoIdObj, null);
             header.addHeader(WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, segmentOriginIdObj, null);
             for (int i=0; i<concurrentHeaders.length; ++i) {
-                header.addHeader(WarcConstants.FN_WARC_CONCURRENT_TO, (URI)concurrentHeaders[i][0], null);
+                header.addHeader(WarcConstants.FN_WARC_CONCURRENT_TO, (Uri)concurrentHeaders[i][0], null);
             }
             header.addHeader(WarcConstants.FN_WARC_TYPE, warctypeStr);
             header.addHeader(WarcConstants.FN_WARC_FILENAME, warcFilenameStr);
@@ -349,7 +349,7 @@ public class TestWarcWriterHeaders {
                     for (int i=0; i<concurrentHeaders.length; ++i) {
                         WarcConcurrentTo concurrentTo = header.warcConcurrentToList.get(i);;
                         //Assert.assertEquals((String)concurrentHeaders[i][1], concurrentTo.warcConcurrentToStr);
-                        Assert.assertEquals((URI)concurrentHeaders[i][0], concurrentTo.warcConcurrentToUri);
+                        Assert.assertEquals((Uri)concurrentHeaders[i][0], concurrentTo.warcConcurrentToUri);
                     }
                     Assert.assertEquals(warctypeStr, header.warcTypeStr);
                     Assert.assertEquals(warcTypeObj, header.warcTypeIdx);

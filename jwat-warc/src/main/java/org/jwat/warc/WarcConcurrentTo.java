@@ -17,7 +17,7 @@
  */
 package org.jwat.warc;
 
-import java.net.URI;
+import org.jwat.common.Uri;
 
 /**
  * Simple wrapper for a (non) validated WARC ConcurrentTo header.
@@ -30,26 +30,26 @@ public class WarcConcurrentTo {
     public String warcConcurrentToStr;
 
     /** Warc-Concurrent-To URI object. */
-    public URI warcConcurrentToUri;
+    public Uri warcConcurrentToUri;
 
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof WarcConcurrentTo)) {
             return false;
         }
-        WarcConcurrentTo concurrentToeObj = (WarcConcurrentTo)obj;
+        WarcConcurrentTo concurrentToObj = (WarcConcurrentTo)obj;
         if (warcConcurrentToStr != null) {
-            if (!warcConcurrentToStr.equals(concurrentToeObj.warcConcurrentToStr)) {
+            if (!warcConcurrentToStr.equals(concurrentToObj.warcConcurrentToStr)) {
                 return false;
             }
-        } else if (concurrentToeObj.warcConcurrentToStr != null) {
+        } else if (concurrentToObj.warcConcurrentToStr != null) {
             return false;
         }
         if (warcConcurrentToUri != null) {
-            if (!warcConcurrentToUri.equals(concurrentToeObj.warcConcurrentToUri)) {
+            if (!warcConcurrentToUri.equals(concurrentToObj.warcConcurrentToUri)) {
                 return false;
             }
-        } else if (concurrentToeObj.warcConcurrentToUri != null) {
+        } else if (concurrentToObj.warcConcurrentToUri != null) {
             return false;
         }
         return true;

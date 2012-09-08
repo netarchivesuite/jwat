@@ -18,7 +18,6 @@
 package org.jwat.warc;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Date;
 
 import org.jwat.common.ContentType;
@@ -26,6 +25,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
+import org.jwat.common.Uri;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -177,15 +177,15 @@ public class WarcFieldParsers {
      * @return an URI object holding the value of the specified string or null,
      * if unable to parse the value as an URI object
      */
-    protected URI parseUri(String uriStr, String field) {
-        URI uri = null;
+    protected Uri parseUri(String uriStr, String field) {
+        Uri uri = null;
         String uriStrClean = uriStr;
         if (uriStrClean != null && uriStrClean.length() != 0) {
             if (uriStrClean.startsWith("<") && uriStrClean.endsWith(">")) {
                 uriStrClean = uriStrClean.substring(1, uriStrClean.length() - 1);
             }
             try {
-                uri = new URI(uriStrClean);
+                uri = new Uri(uriStrClean);
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",

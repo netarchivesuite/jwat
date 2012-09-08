@@ -30,6 +30,8 @@ import org.jwat.common.Diagnostics;
 /**
  * Base class for ARC writer implementations.
  *
+ * Note: the content-length is synonymous to the archive-length.
+ *
  * @author nicl
  */
 public abstract class ArcWriter {
@@ -150,7 +152,7 @@ public abstract class ArcWriter {
                     "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
                     "Mandatory!"));
             if (bExceptionOnContentLengthMismatch) {
-                throw new IllegalStateException("Payload size does not match archive-length!");
+                throw new IllegalStateException("Payload size does not match content-length!");
             }
         } else {
             if (headerContentLength != payloadWrittenTotal) {
@@ -165,7 +167,7 @@ public abstract class ArcWriter {
                         Long.toString(payloadWrittenTotal),
                         headerContentLength.toString()));
                 if (bExceptionOnContentLengthMismatch) {
-                    throw new IllegalStateException("Payload size does not match archive-length!");
+                    throw new IllegalStateException("Payload size does not match content-length!");
                 }
             }
         }
@@ -179,6 +181,7 @@ public abstract class ArcWriter {
      * Errors and warnings are reported on the writers diagnostics object.
      * @param header_bytes raw ARC record to output
      * @param contentLength the expected content-length to be written and validated
+     * The contentLength is synonymous to the Archive-Length.
      * @throws IOException if an exception occurs while writing header data
      */
     public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {

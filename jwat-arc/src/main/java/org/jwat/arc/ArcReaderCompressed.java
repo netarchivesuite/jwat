@@ -121,7 +121,7 @@ public class ArcReaderCompressed extends ArcReader {
             } catch (IOException e) { /* ignore */ }
             currentEntry = null;
         } else {
-            throw new IllegalStateException("Should never happen!");
+            throw new IllegalStateException("'currentEntry' is null, this should never happen!");
         }
     }
 
@@ -194,7 +194,6 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
-            //currentRecord.postProcess();
             startOffset = currentEntry.getStartOffset();
             currentRecord.header.startOffset = currentEntry.getStartOffset();
         }
@@ -229,7 +228,6 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
-            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }
@@ -272,7 +270,6 @@ public class ArcReaderCompressed extends ArcReader {
             currentRecord = ArcRecordBase.parseRecord(pbin, this);
         }
         if (currentRecord != null) {
-            //currentRecord.postProcess();
             startOffset = offset;
             currentRecord.header.startOffset = offset;
         }

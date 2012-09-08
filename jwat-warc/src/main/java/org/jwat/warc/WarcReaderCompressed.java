@@ -124,7 +124,7 @@ public class WarcReaderCompressed extends WarcReader {
             } catch (IOException e) { /* ignore */ }
             currentEntry = null;
         } else {
-            throw new IllegalStateException("Should never happen!");
+            throw new IllegalStateException("'currentEntry' is null, this should never happen!");
         }
     }
 

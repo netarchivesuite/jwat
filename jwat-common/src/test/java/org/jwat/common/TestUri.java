@@ -17,7 +17,10 @@
  */
 package org.jwat.common;
 
+import java.net.URI;
 import java.net.URISyntaxException;
+
+import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +32,11 @@ public class TestUri {
     @Test
     public void test_uri() {
         String[] uris = {
+                //"http://",
                 "http://www.a1ie.com/news/index_0_7.html?tags=%u4E8B%u4EF6%u8425%u9500#hello_world",
+                "http://www.a1ie.com",
+                //"Last-Modified:",
+                "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88",
                 "ftp://ftp.is.co.za/rfc/rfc1808.txt",
                 "http://www.ietf.org/rfc/rfc2396.txt",
                 "ldap://[2001:db8::7]/c=GB?objectClass?one",
@@ -42,24 +49,40 @@ public class TestUri {
         for (int i=0; i<uris.length; ++i) {
             try {
                 Uri uri = Uri.create(uris[i]);
+                Assert.assertNotNull(uri);
                 System.out.println(uri);
+                System.out.println("--------");
                 if (uri != null) {
-                    System.out.println(uri.schemeFull);
-                    System.out.println(uri.scheme);
-                    System.out.println(uri.authorityFull);
-                    System.out.println(uri.authority);
-                    System.out.println(uri.userinfo);
-                    System.out.println(uri.host);
-                    System.out.println(uri.port);
-                    System.out.println(uri.path);
-                    System.out.println(uri.queryFull);
-                    System.out.println(uri.query);
-                    System.out.println(uri.fragmentFull);
-                    System.out.println(uri.fragment);
-                    System.out.println("--------");
+                    System.out.println("    Scheme: " + uri.scheme);
+                    System.out.println("SchemeSpec: " + uri.schemeSpecificPart);
+                    System.out.println(" Authority: " + uri.authority);
+                    System.out.println("  Userinfo: " + uri.userinfo);
+                    System.out.println("      Host: " + uri.host);
+                    System.out.println("      Port: " + uri.port);
+                    System.out.println("      Path: " + uri.path);
+                    System.out.println("     Query: " + uri.query);
+                    System.out.println("  Fragment: " + uri.fragment);
                 }
-            } catch (URISyntaxException e) {
+                Assert.assertEquals(uris[i], uri.toString());
+
+                try {
+                    URI jdkuri = new URI(uris[i]);
+                    System.out.println("      Scheme: " + jdkuri.getScheme());
+                    System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
+                    System.out.println("   Authority: " + jdkuri.getAuthority());
+                    System.out.println("    Userinfo: " + jdkuri.getUserInfo());
+                    System.out.println("        Host: " + jdkuri.getHost());
+                    System.out.println("        Port: " + jdkuri.getPort());
+                    System.out.println("        Path: " + jdkuri.getPath());
+                    System.out.println("       Query: " + jdkuri.getQuery());
+                    System.out.println("    Fragment: " + jdkuri.getFragment());
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("--------");
+            } catch (IllegalArgumentException e) {
                 e.printStackTrace();
+                Assert.fail("Unexpected exception!");
             }
         }
     }

@@ -18,7 +18,6 @@
 package org.jwat.arc;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.util.Date;
 
 import org.jwat.common.ContentType;
@@ -26,6 +25,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
+import org.jwat.common.Uri;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -61,7 +61,7 @@ public class ArcFieldParsers {
     }
 
     /**
-     * Validates that the string is not null if nullable is true.
+     * Validates that the string is not null but only if nullable is false.
      * @param str the value to validate
      * @param field field name
      * @param nullable allow empty or null value
@@ -184,11 +184,11 @@ public class ArcFieldParsers {
      * @return an URL object holding the value of the specified string or null,
      * if unable to parse the value as an URL object
      */
-    protected URI parseUri(String uriStr, String field, boolean nullable) {
-        URI uri = null;
+    protected Uri parseUri(String uriStr, String field, boolean nullable) {
+        Uri uri = null;
         if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
-                uri = new URI(uriStr);
+                uri = new Uri(uriStr);
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",

@@ -20,7 +20,6 @@ package org.jwat.warc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.MaxLengthRecordingInputStream;
+import org.jwat.common.Uri;
 
 /**
  * Central class for working with WARC headers. This class includes support for
@@ -109,7 +109,7 @@ public class WarcHeader {
     /** WARC-Record-Id field string value. */
     public String warcRecordIdStr;
     /** WARC-Record-Id converted to an <code>URI</code> object, if valid. */
-    public URI warcRecordIdUri;
+    public Uri warcRecordIdUri;
 
     /** WARC-Date field string value. */
     public String warcDateStr;
@@ -142,17 +142,17 @@ public class WarcHeader {
     /** WARC-Refers-To field string value. */
     public String warcRefersToStr;
     /** WARC-Refers-To converted to an <code>URI</code> object, if valid. */
-    public URI warcRefersToUri;
+    public Uri warcRefersToUri;
 
     /** WARC_Target-URI field string value. */
     public String warcTargetUriStr;
     /** WARC-TargetURI converted to an <code>URI</code> object, if valid. */
-    public URI warcTargetUriUri;
+    public Uri warcTargetUriUri;
 
     /** WARC-Warcinfo-Id field string value. */
     public String warcWarcinfoIdStr;
     /** WARC-Warcinfo-Id converted to an <code>URI</code> object, if valid. */
-    public URI warcWarcinfoIdUri;
+    public Uri warcWarcinfoIdUri;
 
     /** WARC-Block-Digest field string value. */
     public String warcBlockDigestStr;
@@ -186,7 +186,7 @@ public class WarcHeader {
     public String warcSegmentOriginIdStr;
     /** WARC-Segment-Origin-Id converted to an <code>URI</code> object, if valid.
      *  (continuation record only) */
-    public URI warcSegmentOriginIdUrl;
+    public Uri warcSegmentOriginIdUrl;
 
     /** WARC-Segment-Total-Length field string value.
      *  (continuation record only) */
@@ -505,7 +505,7 @@ public class WarcHeader {
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    URI tmpUri = fieldParsers.parseUri(fieldValue,
+                    Uri tmpUri = fieldParsers.parseUri(fieldValue,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
@@ -770,7 +770,7 @@ public class WarcHeader {
      * @param fieldValueStr URI field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
-    public HeaderLine addHeader(String fieldName, URI uriFieldValue, String fieldValueStr) {
+    public HeaderLine addHeader(String fieldName, Uri uriFieldValue, String fieldValueStr) {
         if (uriFieldValue == null && fieldValueStr != null) {
             uriFieldValue = fieldParsers.parseUri(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && uriFieldValue != null) {
@@ -802,7 +802,7 @@ public class WarcHeader {
             Integer integerFieldValue, Long longFieldValue,
             WarcDigest digestFieldValue, ContentType contentTypeFieldValue,
             Date dateFieldValue, InetAddress inetAddrFieldValue,
-            URI uriFieldValue) {
+            Uri uriFieldValue) {
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
             // Implicit cast from integer to long, if needed.

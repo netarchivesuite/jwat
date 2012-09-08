@@ -19,7 +19,6 @@ package org.jwat.arc;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -28,6 +27,7 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.Uri;
 
 /**
  * Class for parsing and validating the common ARC record header present in
@@ -74,7 +74,7 @@ public class ArcHeader {
     /** ARC record URL field string value. */
     public String urlStr;
     /** ARC record URL validated and converted to an <code>URI</code> object. */
-    public URI urlUri;
+    public Uri urlUri;
     /** URI Scheme (lowercase). (filedesc, http, https, dns, etc.) */
     public String urlScheme;
 

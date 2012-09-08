@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ContentType;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
 public class TestArcRecordBase {
@@ -81,7 +81,7 @@ public class TestArcRecordBase {
             Assert.assertEquals("filename", header.filenameStr);
             Assert.assertEquals(Integer.toString(versionblock.length), header.archiveLengthStr);
 
-            Assert.assertEquals(URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"), header.urlUri);
+            Assert.assertEquals(Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"), header.urlUri);
             Assert.assertEquals("filedesc", header.urlScheme);
             Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
             Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
@@ -223,7 +223,7 @@ public class TestArcRecordBase {
             Assert.assertEquals("filename", header.filenameStr);
             Assert.assertEquals(Integer.toString(versionblock.length), header.archiveLengthStr);
 
-            Assert.assertEquals(URI.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"), header.urlUri);
+            Assert.assertEquals(Uri.create("filedesc://BNF-inktomi_arc39.20011005200622.arc.gz"), header.urlUri);
             Assert.assertEquals("filedesc", header.urlScheme);
             Assert.assertEquals(InetAddress.getByName("192.168.1.2"), header.inetAddress);
             Assert.assertEquals(ArcDateParser.getDate("20120712144000"), header.archiveDate);
@@ -285,7 +285,7 @@ public class TestArcRecordBase {
             Assert.assertEquals("Filename", header.filenameStr);
             Assert.assertEquals("4270", header.archiveLengthStr);
 
-            Assert.assertEquals(URI.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"), header.urlUri);
+            Assert.assertEquals(Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"), header.urlUri);
             Assert.assertEquals("http", header.urlScheme);
             Assert.assertEquals(InetAddress.getByName("134.193.4.1"), header.inetAddress);
             Assert.assertEquals(ArcDateParser.getDate("19970417175710"), header.archiveDate);

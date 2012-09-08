@@ -93,7 +93,6 @@ public class TestGzipWriter {
             }
 
             in = this.getClass().getClassLoader().getResourceAsStream(in_file);
-            //in = new FileInputStream(in_file);
             entry.writeFrom(in);
             in.close();
 

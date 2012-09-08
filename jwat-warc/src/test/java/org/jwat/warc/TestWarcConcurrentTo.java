@@ -21,12 +21,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 
-import java.net.URI;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
 public class TestWarcConcurrentTo {
@@ -67,13 +66,13 @@ public class TestWarcConcurrentTo {
         ct1.warcConcurrentToUri = null;
 
         ct2.warcConcurrentToStr = null;
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
@@ -95,7 +94,7 @@ public class TestWarcConcurrentTo {
          */
 
         ct1.warcConcurrentToStr = null;
-        ct1.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct1.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         ct2.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
         ct2.warcConcurrentToUri = null;
@@ -104,19 +103,19 @@ public class TestWarcConcurrentTo {
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = null;
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertEquals(ct1, ct2);
         Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
 
         ct2.warcConcurrentToStr = null;
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
@@ -126,7 +125,7 @@ public class TestWarcConcurrentTo {
          */
 
         ct1.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
-        ct1.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct1.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         ct2.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
         ct2.warcConcurrentToUri = null;
@@ -135,19 +134,19 @@ public class TestWarcConcurrentTo {
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = null;
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88";
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88");
 
         Assert.assertEquals(ct1, ct2);
         Assert.assertEquals(ct1.hashCode(), ct2.hashCode());
 
         ct2.warcConcurrentToStr = null;
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
@@ -159,7 +158,7 @@ public class TestWarcConcurrentTo {
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
 
         ct2.warcConcurrentToStr = "urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1";
-        ct2.warcConcurrentToUri = URI.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
+        ct2.warcConcurrentToUri = Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1");
 
         Assert.assertFalse(ct1.equals(ct2));
         Assert.assertThat(ct1.hashCode(), is(not(equalTo(ct2.hashCode()))));
