@@ -22,8 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -56,6 +55,8 @@ public class TestArcWriter {
         byte[] httpHeaderBytes;
         byte[] payloadBytes;
         long offset;
+        byte[] out1;
+        byte[] out2;
         try {
             httpHeaderBytes = ("HTTP/1.0 200 Sending document\r\n"
                     + "MIME-version: 1.0\r\n"
@@ -100,7 +101,10 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out1 = out.toByteArray();
 
             assert_v1_valid_arcfile(out.toByteArray(), versionHeaderBytes, httpHeaderBytes, payloadBytes);
             /*
@@ -137,9 +141,15 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out2 = out.toByteArray();
 
             assert_v1_valid_arcfile(out.toByteArray(), versionHeaderBytes, httpHeaderBytes, payloadBytes);
+
+            // String and object output should be equal.
+            Assert.assertArrayEquals( out1, out2 );
             /*
              * V2.0 string valid.
              */
@@ -186,7 +196,10 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out1 = out.toByteArray();
 
             assert_v2_valid_arcfile(out.toByteArray(), versionHeaderBytes, offset, httpHeaderBytes, payloadBytes);
             /*
@@ -236,9 +249,15 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out2 = out.toByteArray();
 
             assert_v2_valid_arcfile(out.toByteArray(), versionHeaderBytes, offset, httpHeaderBytes, payloadBytes);
+
+            // String and object output should be equal.
+            Assert.assertArrayEquals( out1, out2 );
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
@@ -438,6 +457,8 @@ public class TestArcWriter {
         byte[] versionHeaderBytes;
         byte[] httpHeaderBytes;
         byte[] payloadBytes;
+        byte[] out1;
+        byte[] out2;
         try {
             httpHeaderBytes = ("HTTP/1.0 200 Sending document\r\n"
                     + "MIME-version: 1.0\r\n"
@@ -482,7 +503,10 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out1 = out.toByteArray();
 
             assert_v1_empty_arcfile_compressed(out.toByteArray());
             /*
@@ -519,9 +543,15 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out2 = out.toByteArray();
 
             assert_v1_empty_arcfile_compressed(out.toByteArray());
+
+            // String and object output should be equal.
+            Assert.assertArrayEquals( out1, out2 );
             /*
              * V2.0 string empty.
              */
@@ -566,7 +596,10 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out1 = out.toByteArray();
 
             assert_v2_empty_arcfile_compressed(out.toByteArray());
             /*
@@ -613,9 +646,15 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            out2 = out.toByteArray();
 
             assert_v2_empty_arcfile_compressed(out.toByteArray());
+
+            // String and object output should be equal.
+            Assert.assertArrayEquals( out1, out2 );
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
@@ -639,6 +678,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -678,6 +718,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -741,6 +782,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -783,6 +825,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -884,7 +927,8 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
 
             assert_v1_empty_arcfile_uncompressed(out.toByteArray());
             /*
@@ -921,7 +965,8 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
 
             assert_v1_empty_arcfile_uncompressed(out.toByteArray());
             /*
@@ -968,7 +1013,8 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
 
             assert_v2_empty_arcfile_uncompressed(out.toByteArray());
             /*
@@ -1015,7 +1061,8 @@ public class TestArcWriter {
             writer.writePayload(payloadBytes);
             writer.closeRecord();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
 
             assert_v2_empty_arcfile_uncompressed(out.toByteArray());
         } catch (IOException e) {
@@ -1041,6 +1088,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertFalse(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1080,6 +1128,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1119,6 +1168,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1157,6 +1207,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1221,6 +1272,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertFalse(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1263,6 +1315,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1304,6 +1357,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1345,6 +1399,7 @@ public class TestArcWriter {
             record = reader.getNextRecord();
             Assert.assertNotNull(record);
             versionHeader = record.versionHeader;
+            Assert.assertNull(versionHeader);
             //Assert.assertTrue(versionHeader.isValid());
             //Assert.assertEquals(ArcVersion.VERSION_1, versionHeader.version);
             //Assert.assertEquals(1, versionHeader.blockDescVersion);
@@ -1396,7 +1451,6 @@ public class TestArcWriter {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ArcWriter writer;
         ArcRecordBase record;
-        byte[] recordHeader;
         ByteArrayInputStream in;
         byte[] payload;
 

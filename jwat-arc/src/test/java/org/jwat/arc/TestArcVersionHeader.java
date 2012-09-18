@@ -581,7 +581,7 @@ public class TestArcVersionHeader {
 
     public void test_arcversionheader_reflection() {
         try {
-            Constructor con = ArcVersion.class.getDeclaredConstructors()[0];
+            Constructor<?> con = ArcVersion.class.getDeclaredConstructors()[0];
             Method[] methods = con.getClass().getDeclaredMethods();
             for (Method m : methods) {
                 if (m.getName().equals("acquireConstructorAccessor")) {
