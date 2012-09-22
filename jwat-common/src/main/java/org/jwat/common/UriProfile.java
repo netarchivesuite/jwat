@@ -1,0 +1,306 @@
+/**
+ * Java Web Archive Toolkit - Software to read and validate ARC, WARC
+ * and GZip files. (http://jwat.org/)
+ * Copyright 2011-2012 Netarkivet.dk (http://netarkivet.dk/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jwat.common;
+
+import java.net.URISyntaxException;
+
+/**
+ * Implementation of an URI profile. A profile can be used to customize which
+ * characters and features are acceptable when a certain profile is used.
+ *
+ * An array of integers is used to defined which categories the first
+ * 8-bit characters belong to.
+ *
+ * @author nicl
+ */
+public class UriProfile {
+
+    /** Bit to categorize a char as an alpha. */
+    public static final int B_ALPHAS = 1 << 0;
+    /** Bit to categorize a char as a digit. */
+    public static final int B_DIGITS = 1 << 1;
+    /** Bit to categorize a char as first in scheme. */
+    public static final int B_SCHEME_FIRST = 1 << 2;
+    /** Bit to categorize a char as following in scheme. */
+    public static final int B_SCHEME_FOLLOW = 1 << 3;
+    /** Bit to categorize a char as UNRESERVED in RFC3986. */
+    public static final int B_UNRESERVED = 1 << 4;
+    /** Bit to categorize a char as GEN-DELIMS in RFC3986. */
+    public static final int B_GEN_DELIMS = 1 << 5;
+    /** Bit to categorize a char as SUB-DELIMS in RFC3986. */
+    public static final int B_SUB_DELIMS = 1 << 6;
+    /** Bit to categorize a char as RESERVED in RFC3986. */
+    public static final int B_RESERVED = 1 << 7;
+    /** Bit to categorize a char as PCHAR in RFC3986. */
+    public static final int B_PCHAR = 1 << 8;
+    /** Bit to categorize a char as USERINFO in RFC3986. */
+    public static final int B_USERINFO = 1 << 9;
+    /** Bit to categorize a char as REGNAME in RFC3986. */
+    public static final int B_REGNAME = 1 << 10;
+    /** Bit to categorize a char as SEGMENT in RFC3986. */
+    public static final int B_SEGMENT = 1 << 11;
+    /** Bit to categorize a char as SEGMENT-NZ in RFC3986. */
+    public static final int B_SEGMENT_NZ = 1 << 12;
+    /** Bit to categorize a char as SEGMENT-NZ-NC in RFC3986. */
+    public static final int B_SEGMENT_NZ_NC = 1 << 13;
+    /** Bit to categorize a char as PATH in RFC3986. */
+    public static final int B_PATH = 1 << 14;
+    /** Bit to categorize a char as QUERY in RFC3986. */
+    public static final int B_QUERY = 1 << 15;
+    /** Bit to categorize a char as FRAGMENT in RFC3986. */
+    public static final int B_FRAGMENT = 1 << 16;
+
+    /** Array of integers used to categorize all 8bit chars. */
+    protected int[] charTypeMap = new int[256];
+
+    /** Does profile allow relative URIs. */
+    public boolean bAllowRelativeUris = true;
+
+    /** Does profile allow 16-bit percent encoding. */
+    public boolean bAllow16bitPercentEncoding = false;
+
+    /**
+     * Helper class to populate integer array with character categories.
+     * @param chars characters to categorize or null
+     * @param bw_and character categories to include in new category
+     * @param bw_or new category/categories
+     */
+    public void charTypeAddAndOr(String chars, int bw_and, int bw_or) {
+        if (chars != null) {
+            for (int i=0; i<chars.length(); ++i) {
+                charTypeMap[chars.charAt(i)] |= bw_or;
+            }
+        }
+        if (bw_and != 0) {
+            for (int i=0; i<charTypeMap.length; ++i) {
+                if ((charTypeMap[i] & bw_and) != 0) {
+                    charTypeMap[i] |= bw_or;
+                }
+            }
+        }
+    }
+
+    /**
+     * Given a collection of characters find the index of the first occurrence
+     * of any of the characters in the supplied string starting from a certain
+     * position.
+     * @param bw_and bits identifying one or more character categories
+     * @param str string to search through
+     * @param pos position to start searching from
+     * @return index of the first character in the string present in the
+     * character collection(s)
+     * @throws URISyntaxException if a character with a value larger that 255
+     * is encountered
+     */
+    public int indexOf(int bw_and, String str, int pos) throws URISyntaxException {
+        int limit = str.length();
+        char c;
+        while (pos < limit) {
+            c = str.charAt(pos);
+            if (c < 256) {
+                if ((charTypeMap[c] & bw_and) != 0) {
+                    return pos;
+                }
+                ++pos;
+            } else {
+                throw new URISyntaxException(str, "Invalid URI character '" + c + "'");
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Validate an URI component using two character categories. One category
+     * for the first character and another for the following characters.
+     * @param str URI component string
+     * @param bw_and_first bits identifying first character categories
+     * @param bw_and_follow bits identifying follow character categories
+     * @throws URISyntaxException if an error occurs parsing component
+     */
+    public void validate_first_follow(String str, int bw_and_first, int bw_and_follow) throws URISyntaxException {
+        int pos = 0;
+        int limit = str.length();
+        char c;
+        while (pos < limit) {
+            c = str.charAt(pos);
+            // indexOf has ensured that the scheme does not have character values > 255.
+            if (pos == 0 && ((charTypeMap[c] & UriProfile.B_SCHEME_FIRST) == 0)) {
+                throw new URISyntaxException(str, "Invalid URI scheme component");
+            } else if ((charTypeMap[c] & UriProfile.B_SCHEME_FOLLOW) == 0) {
+                throw new URISyntaxException(str, "Invalid URI scheme component");
+            }
+            ++pos;
+        }
+    }
+
+    /**
+     * Validates an URI component according to the supplied character category
+     * bitfield.
+     * @param bw_and bits identifying one or more character categories
+     * @param componentName URI component name
+     * @param str URI component string
+     * @return decoded and validated string
+     * @throws URISyntaxException if an error occurs parsing/validating component
+     */
+    public String validate_decode(int bw_and, String componentName, String str) throws URISyntaxException {
+        StringBuilder sb = new StringBuilder();
+        int pos = 0;
+        int limit = str.length();
+        char c;
+        int decode;
+        int tmpC;
+        char decodedC;
+        while (pos < limit) {
+            c = str.charAt(pos++);
+            if (c < 256) {
+                if ((charTypeMap[c] & bw_and) == 0) {
+                    if (c == '%') {
+                        if (pos < limit) {
+                            c = str.charAt(pos);
+                            if (c == 'u' || c == 'U') {
+                                ++pos;
+                                decode = 4;
+                            } else {
+                                decode = 2;
+                            }
+                            decodedC = 0;
+                            while (decode > 0 && pos < limit) {
+                                c = str.charAt(pos++);
+                                decodedC <<= 4;
+                                if (c < 256) {
+                                    tmpC = asciiHexTab[c];
+                                    if (tmpC != -1) {
+                                        decodedC |= tmpC;
+                                    } else {
+                                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
+                                    }
+                                } else {
+                                    throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
+                                }
+                                --decode;
+                            }
+                            sb.append((char) decodedC);
+                        } else {
+                            throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
+                        }
+                    } else {
+                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
+                    }
+                } else {
+                    sb.append(c);
+                }
+            } else {
+                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
+            }
+        }
+        return sb.toString();
+    }
+
+    /** Hex char to integer conversion table. */
+    public static int[] asciiHexTab = new int[256];
+
+    /** Integer to hex char conversion table. */
+    public static char[] hexTab = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+    /*
+     * Initialize ASCII hex table.
+     */
+    static {
+        String hex = "0123456789abcdef";
+        for (int i=0; i<asciiHexTab.length; ++i) {
+            asciiHexTab[i] = hex.indexOf(i);
+        }
+        hex = hex.toUpperCase();
+        for (int i=0; i<hex.length(); ++i) {
+            asciiHexTab[hex.charAt(i)] = i;
+        }
+    }
+
+    /** RFC3986 compliant URI profile. */
+    public static final UriProfile RFC3986;
+
+    /*
+     * Initialize default profile.
+     */
+    static {
+        RFC3986 = new UriProfile();
+        RFC3986.bAllow16bitPercentEncoding = false;
+        RFC3986.bAllowRelativeUris = true;
+
+        // Alphas.
+        String alphas = "abcdefghijklmnopqrstuvwxyz";
+        RFC3986.charTypeAddAndOr(alphas, 0, B_ALPHAS);
+        RFC3986.charTypeAddAndOr(alphas.toUpperCase(), 0, B_ALPHAS);
+
+        // Digits.
+        String digits = "1234567890";
+        RFC3986.charTypeAddAndOr(digits, 0, B_DIGITS);
+
+        // scheme first/follow.
+        // scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+        String scheme = "+-.";
+        RFC3986.charTypeAddAndOr(null, B_ALPHAS, B_SCHEME_FIRST | B_SCHEME_FOLLOW);
+        RFC3986.charTypeAddAndOr(scheme, B_DIGITS, B_SCHEME_FOLLOW);
+
+        // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        String unreserved = "-._~";
+        RFC3986.charTypeAddAndOr(unreserved, B_ALPHAS | B_DIGITS, B_UNRESERVED);
+
+        // gen-delims (reserved)
+        String genDelims = ":/?#[]@";
+        RFC3986.charTypeAddAndOr(genDelims, 0, B_GEN_DELIMS | B_RESERVED);
+
+        // sub-delims (reserved)
+        String subDelims  = "!$&'()*+,;=";
+        RFC3986.charTypeAddAndOr(subDelims, 0, B_SUB_DELIMS | B_RESERVED);
+
+        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+        String pchar = ":@";
+        RFC3986.charTypeAddAndOr(pchar, B_UNRESERVED | B_SUB_DELIMS, B_PCHAR);
+
+        // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+        String userinfo = ":";
+        RFC3986.charTypeAddAndOr(userinfo, B_UNRESERVED | B_SUB_DELIMS, B_USERINFO);
+
+        // reg-name = *( unreserved / pct-encoded / sub-delims )
+        RFC3986.charTypeAddAndOr(null, B_UNRESERVED | B_SUB_DELIMS, B_REGNAME);
+
+        // segment = *pchar
+        // segment-nz = 1*pchar
+        RFC3986.charTypeAddAndOr(null, B_PCHAR, B_SEGMENT);
+        RFC3986.charTypeAddAndOr(null, B_PCHAR, B_SEGMENT_NZ);
+
+        // segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+        // non-zero-length segment without any colon ":"
+        String segment_nz_nc = "@";
+        RFC3986.charTypeAddAndOr(segment_nz_nc, B_UNRESERVED | B_SUB_DELIMS, B_SEGMENT_NZ_NC);
+
+        // path
+        String path = "/";
+        RFC3986.charTypeAddAndOr(path, B_PCHAR, B_PATH);
+
+        // query = *( pchar / "/" / "?" )
+        String query =  "/?";
+        RFC3986.charTypeAddAndOr(query, B_PCHAR, B_QUERY);
+
+        // fragment = *( pchar / "/" / "?" )
+        String fragment = "/?";
+        RFC3986.charTypeAddAndOr(fragment, B_PCHAR, B_FRAGMENT);
+    }
+
+}

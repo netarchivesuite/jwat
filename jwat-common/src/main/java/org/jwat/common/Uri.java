@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
  * the specification but nevertheless needs to be validated since they are in
  * use. Other non standard characters are also used in the wild.
  *
- * Suitable for this package, but not yet suitable as an URI substitute (yet).
+ * Suitable for this package, but not yet suitable as an URI substitute.
  *
  * @author nicl
  */
@@ -76,6 +76,9 @@ public class Uri implements Comparable<Uri> {
     /** Boolean indicating whether this URI is opaque. */
     protected boolean bOpaque;
 
+    // TODO
+    protected UriProfile uriProfile = UriProfile.RFC3986;
+
     /**
      * Creates a URI by parsing the given string.
      * @param str The string to be parsed into a URI
@@ -115,7 +118,7 @@ public class Uri implements Comparable<Uri> {
             e.printStackTrace();
         }
         */
-        int idx = indexOf(B_GEN_DELIMS, str, 0);
+        int idx = uriProfile.indexOf(UriProfile.B_GEN_DELIMS, str, 0);
         if (idx != -1 && str.charAt(idx) == ':') {
             scheme = str.substring(0, idx++);
             validate_absoluteUri(str, idx);
@@ -125,55 +128,36 @@ public class Uri implements Comparable<Uri> {
                 bOpaque = true;
             }
         } else {
-            validate_relativeUri(str);
+            validate_relativeUri(str, 0);
         }
     }
 
     /**
-     *
-     * @param bw_and
-     * @param str
-     * @param pos
-     * @return
-     * @throws URISyntaxException
+     * Parse and validate an absolute URI string.
+     * @param uriStr URI string
+     * @param uIdx index in string after scheme colon character
+     * @throws URISyntaxException if the URI is invalid in some way
      */
-    protected int indexOf(int bw_and, String str, int pos) throws URISyntaxException {
-        int limit = str.length();
-        char c;
-        while (pos < limit) {
-            c = str.charAt(pos);
-            if (c < 256) {
-                if ((charTypeMap[c] & bw_and) != 0) {
-                    return pos;
-                }
-                ++pos;
-            } else {
-                throw new URISyntaxException(str, "Invalid URI character '" + c + "'");
-            }
-        }
-        return -1;
-    }
-
     protected void validate_absoluteUri(String uriStr, int uIdx) throws URISyntaxException {
-        char c;
         // Scheme validation.
         if (scheme.length() > 0) {
             scheme = scheme.toLowerCase();
-            int pos = 0;
-            int limit = scheme.length();
-            while (pos < limit) {
-                c = scheme.charAt(pos);
-                // indexOf has ensured that the scheme does not have character values > 255.
-                if (pos == 0 && ((charTypeMap[c] & B_SCHEME_FIRST) == 0)) {
-                    throw new URISyntaxException(scheme, "Invalid URI scheme component");
-                } else if ((charTypeMap[c] & B_SCHEME_FOLLOW) == 0) {
-                    throw new URISyntaxException(scheme, "Invalid URI scheme component");
-                }
-                ++pos;
-            }
+            uriProfile.validate_first_follow(scheme, UriProfile.B_SCHEME_FIRST, UriProfile.B_SCHEME_FOLLOW);
         } else {
             throw new URISyntaxException(scheme, "Empty URI scheme component");
         }
+        validate_relativeUri(uriStr, uIdx);
+    }
+
+    /**
+     * Parse and validate a relative URI string.
+     * This method is also used by the absolute parser after a scheme has
+     * been identified.
+     * @param uriStr URI string
+     * @param uIdx index in string to start parsing from
+     * @throws URISyntaxException if the URI is invalid in some way
+     */
+    protected void validate_relativeUri(String uriStr, int uIdx) throws URISyntaxException {
         // QueryRaw.
         int qfIdx = uriStr.length();
         int qIdx = uriStr.indexOf('?', uIdx);
@@ -254,12 +238,13 @@ public class Uri implements Comparable<Uri> {
                     hostRaw = authorityRaw.substring(aIdx);
                     //portRaw = null;
                 }
-                host = validecode(B_REGNAME, "host", hostRaw);
+                // TODO not in old RFC?
+                host = uriProfile.validate_decode(UriProfile.B_REGNAME, "host", hostRaw);
             }
             // Userinfo validation.
             authority = "";
             if (userinfoRaw != null) {
-                userinfo = validecode(B_USERINFO, "userinfo", userinfoRaw);
+                userinfo = uriProfile.validate_decode(UriProfile.B_USERINFO, "userinfo", userinfoRaw);
                 authority += userinfo + '@';
             }
             authority += host;
@@ -282,10 +267,7 @@ public class Uri implements Comparable<Uri> {
             schemeSpecificPart = "//" + authority;
             // Path validation (path-abempty).
             if (pathRaw.length() > 0) {
-                if (!pathRaw.startsWith("/")) {
-                    throw new URISyntaxException(pathRaw, "Invalid URI path component - must begin with '/' when authority is present");
-                }
-                path = validecode(B_PATH, "path", pathRaw);
+                path = uriProfile.validate_decode(UriProfile.B_PATH, "path", pathRaw);
             } else {
                 path = "";
             }
@@ -293,7 +275,7 @@ public class Uri implements Comparable<Uri> {
         } else {
             // Path validation (path-absolute / path-rootless / path-empty).
             if (pathRaw.length() > 0) {
-                path = validecode(B_PATH, "path", pathRaw);
+                path = uriProfile.validate_decode(UriProfile.B_PATH, "path", pathRaw);
             } else {
                 path = "";
             }
@@ -301,149 +283,221 @@ public class Uri implements Comparable<Uri> {
         }
         // Query validation.
         if (queryRaw != null) {
-            query = validecode(B_QUERY, "query", queryRaw);
+            query = uriProfile.validate_decode(UriProfile.B_QUERY, "query", queryRaw);
             schemeSpecificPart += '?' + query;
         }
         // Fragment validation.
         if (fragmentRaw != null) {
-            fragment = validecode(B_FRAGMENT, "fragment", fragmentRaw);
+            fragment = uriProfile.validate_decode(UriProfile.B_FRAGMENT, "fragment", fragmentRaw);
         }
     }
 
-    protected void validate_relativeUri(String uriStr) throws URISyntaxException {
-    }
-
-    protected String validecode(int bw_and, String componentName, String str) throws URISyntaxException {
-        StringBuilder sb = new StringBuilder();
-        int pos = 0;
-        int limit = str.length();
-        char c;
-        int decode;
-        int tmpC;
-        char decodedC;
-        while (pos < limit) {
-            c = str.charAt(pos++);
-            if (c < 256) {
-                if ((charTypeMap[c] & bw_and) == 0) {
-                    if (c == '%') {
-                        if (pos < limit) {
-                            c = str.charAt(pos);
-                            if (c == 'u' || c == 'U') {
-                                ++pos;
-                                decode = 4;
-                            } else {
-                                decode = 2;
-                            }
-                            decodedC = 0;
-                            while (decode > 0 && pos < limit) {
-                                c = str.charAt(pos++);
-                                decodedC <<= 4;
-                                if (c < 256) {
-                                    tmpC = asciiHexTab[c];
-                                    if (tmpC != -1) {
-                                        decodedC |= tmpC;
-                                    } else {
-                                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
-                                    }
-                                } else {
-                                    throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
-                                }
-                                --decode;
-                            }
-                            sb.append((char) decodedC);
-                        } else {
-                            throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
-                        }
-                    } else {
-                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
-                    }
-                } else {
-                    sb.append(c);
-                }
-            } else {
-                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
-            }
-        }
-        return sb.toString();
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
-
-    public String getSchemeSpecificPart() {
-        return schemeSpecificPart;
-    }
-
-    public String getAuthority() {
-        return authority;
-    }
-
-    public String getUserInfo() {
-        return userinfo;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public String getFragment() {
-        return fragment;
-    }
-
-    public String getRawSchemeSpecificPart() {
-        return schemeSpecificPartRaw;
-    }
-
-    public String getRawAuthority() {
-        return authorityRaw;
-    }
-
-    public String getRawUserInfo() {
-        return userinfoRaw;
-    }
-
-    public String getRawPath() {
-        return pathRaw;
-    }
-
-    public String getRawQuery() {
-        return queryRaw;
-    }
-
-    public String getRawFragment() {
-        return fragmentRaw;
-    }
-
+    /**
+     * Tells whether or not this URI is absolute.
+     * A URI is absolute if, and only if, it has a scheme component.
+     * @return true if, and only if, this URI is absolute
+     */
     public boolean isAbsolute() {
         return bAbsolute;
     }
 
+    /**
+     * Tells whether or not this URI is opaque.
+     * A URI is opaque if, and only if, it is absolute and its scheme-specific
+     * part does not begin with a slash character ('/'). An opaque URI has a
+     * scheme, a scheme-specific part, and possibly a fragment; all other
+     * components are undefined.
+     * @return true if, and only if, this URI is opaque
+     */
     public boolean isOpaque() {
         return bOpaque;
     }
 
+    /**
+     * Returns the scheme component of this URI.
+     * The scheme component of a URI, if defined, only contains characters in
+     * the alphanum category and in the string "-.+". A scheme always starts
+     * with an alpha character.
+     * The scheme component of a URI cannot contain escaped octets, hence this
+     * method does not perform any decoding.
+     * @return The scheme component of this URI, or null if the scheme is
+     * undefined
+     */
+    public String getScheme() {
+        return scheme;
+    }
+
+    /**
+     * Returns the raw scheme-specific part of this URI.
+     * The scheme-specific part is never undefined, though it may be empty.
+     * The scheme-specific part of a URI only contains legal URI characters.
+     * @return The raw scheme-specific part of this URI (never null)
+     */
+    public String getRawSchemeSpecificPart() {
+        return schemeSpecificPartRaw;
+    }
+
+    /**
+     * Returns the decoded scheme-specific part of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawSchemeSpecificPart method except that all sequences of escaped
+     * octets are decoded.
+     * @return The decoded scheme-specific part of this URI (never null)
+     */
+    public String getSchemeSpecificPart() {
+        return schemeSpecificPart;
+    }
+
+    /**
+     * Returns the raw authority component of this URI.
+     * The authority component of a URI, if defined, only contains the
+     * commercial-at character ('@') and characters in the unreserved, punct,
+     * escaped, and other categories. If the authority is server-based then it
+     * is further constrained to have valid user-information, host, and port
+     * components.
+     * @return The raw authority component of this URI, or null if the authority
+     * is undefined
+     */
+    public String getRawAuthority() {
+        return authorityRaw;
+    }
+
+    /**
+     * Returns the decoded authority component of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawAuthority method except that all sequences of escaped octets are
+     * decoded.
+     * @return The decoded authority component of this URI, or null if the
+     * authority is undefined
+     */
+    public String getAuthority() {
+        return authority;
+    }
+
+    /**
+     * Returns the raw user-information component of this URI.
+     * The user-information component of a URI, if defined, only contains
+     * characters in the unreserved, punct, escaped, and other categories.
+     * @return The raw user-information component of this URI, or null if the
+     * user information is undefined
+     */
+    public String getRawUserInfo() {
+        return userinfoRaw;
+    }
+
+    /**
+     * Returns the decoded user-information component of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawUserInfo method except that all sequences of escaped octets are
+     * decoded.
+     * @return The decoded user-information component of this URI, or null if
+     * the user information is undefined
+     */
+    public String getUserInfo() {
+        return userinfo;
+    }
+
+    /**
+     * Returns the host component of this URI.
+     * The host component of a URI, if defined, will have one of the following forms:
+     * A domain name consisting of one or more labels separated by period characters ('.'), optionally followed by a period character. Each label consists of alphanum characters as well as hyphen characters ('-'), though hyphens never occur as the first or last characters in a label. The rightmost label of a domain name consisting of two or more labels, begins with an alpha character.
+     * A dotted-quad IPv4 address of the form digit+.digit+.digit+.digit+, where no digit sequence is longer than three characters and no sequence has a value larger than 255.
+     * An IPv6 address enclosed in square brackets ('[' and ']') and consisting of hexadecimal digits, colon characters (':'), and possibly an embedded IPv4 address. The full syntax of IPv6 addresses is specified in RFC 2373: IPv6 Addressing Architecture.
+     * The host component of a URI cannot contain escaped octets, hence this method does not perform any decoding.
+     * @return The host component of this URI, or null if the host is undefined
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * Returns the port number of this URI.
+     * The port component of a URI, if defined, is a non-negative integer.
+     * @return The port component of this URI, or -1 if the port is undefined
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * Returns the raw path component of this URI.
+     * The path component of a URI, if defined, only contains the slash
+     * character ('/'), the commercial-at character ('@'), and characters in
+     * the unreserved, punct, escaped, and other categories.
+     * @return The path component of this URI, or null if the path is undefined
+     */
+    public String getRawPath() {
+        return pathRaw;
+    }
+
+    /**
+     * Returns the decoded path component of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawPath method except that all sequences of escaped octets are
+     * decoded.
+     * @return The decoded path component of this URI, or null if the path is
+     * undefined
+     */
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     * Returns the raw query component of this URI.
+     * The query component of a URI, if defined, only contains legal URI
+     * characters.
+     * @return The raw query component of this URI, or null if the query is
+     * undefined
+     */
+    public String getRawQuery() {
+        return queryRaw;
+    }
+
+    /**
+     * Returns the decoded query component of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawQuery method except that all sequences of escaped octets are
+     * decoded.
+     * @return The decoded query component of this URI, or null if the query is
+     * undefined
+     */
+    public String getQuery() {
+        return query;
+    }
+
+    /**
+     * Returns the raw fragment component of this URI.
+     * The fragment component of a URI, if defined, only contains legal URI
+     * characters.
+     * @return The raw fragment component of this URI, or null if the fragment
+     * is undefined
+     */
+    public String getRawFragment() {
+        return fragmentRaw;
+    }
+
+    /**
+     * Returns the decoded fragment component of this URI.
+     * The string returned by this method is equal to that returned by the
+     * getRawFragment method except that all sequences of escaped octets are
+     * decoded.
+     * @return The decoded fragment component of this URI, or null if the
+     * fragment is undefined
+     */
+    public String getFragment() {
+        return fragment;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (scheme != null) {
             sb.append(scheme);
             sb.append(':');
         }
-        if (userinfo != null || hostRaw != null || port != -1) {
+        if (hostRaw != null) {
             sb.append("//");
-            if (userinfo != null) {
+            if (userinfoRaw != null) {
                 sb.append(userinfoRaw);
                 sb.append('@');
             }
@@ -454,11 +508,11 @@ public class Uri implements Comparable<Uri> {
             }
         }
         sb.append(pathRaw);
-        if (query != null) {
+        if (queryRaw != null) {
             sb.append('?');
             sb.append(queryRaw);
         }
-        if (fragment != null) {
+        if (fragmentRaw != null) {
             sb.append('#');
             sb.append(fragmentRaw);
         }
@@ -495,11 +549,7 @@ public class Uri implements Comparable<Uri> {
         if (port != uriObj.port) {
             return false;
         }
-        if (path != null) {
-            if (!path.equals(uriObj.path)) {
-                return false;
-            }
-        } else if (uriObj.path != null) {
+        if (!path.equals(uriObj.path)) {
             return false;
         }
         if (query != null) {
@@ -525,9 +575,7 @@ public class Uri implements Comparable<Uri> {
         if (scheme != null) {
             hashCode ^= scheme.hashCode();
         }
-        if (schemeSpecificPart != null) {
-            hashCode ^= schemeSpecificPart.hashCode();
-        }
+        hashCode ^= schemeSpecificPart.hashCode();
         if (fragment != null) {
             hashCode ^= fragment.hashCode();
         }
@@ -552,17 +600,9 @@ public class Uri implements Comparable<Uri> {
         } else if (uri.scheme != null) {
             return -1;
         }
-        if (schemeSpecificPart != null) {
-            if (uri.schemeSpecificPart != null) {
-                res = schemeSpecificPart.compareTo(uri.schemeSpecificPart);
-                if (res != 0) {
-                    return res;
-                }
-            } else {
-                return 1;
-            }
-        } else if (uri.schemeSpecificPart != null) {
-            return -1;
+        res = schemeSpecificPart.compareTo(uri.schemeSpecificPart);
+        if (res != 0) {
+            return res;
         }
         if (fragment != null) {
             if (uri.fragment != null) {
@@ -577,118 +617,6 @@ public class Uri implements Comparable<Uri> {
             return -1;
         }
         return res;
-    }
-
-    public static int[] asciiHexTab = new int[256];
-
-    public static char[] hexTab = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-    static {
-        String hex = "0123456789abcdef";
-        for (int i=0; i<asciiHexTab.length; ++i) {
-            asciiHexTab[i] = hex.indexOf(i);
-        }
-        hex = hex.toUpperCase();
-        for (int i=0; i<hex.length(); ++i) {
-            asciiHexTab[hex.charAt(i)] = i;
-        }
-    }
-
-    public static int[] charTypeMap = new int[256];
-
-    protected static void charTypeAddAndOr(String chars, int bw_and, int bw_or) {
-        if (chars != null) {
-            for (int i=0; i<chars.length(); ++i) {
-                charTypeMap[chars.charAt(i)] |= bw_or;
-            }
-        }
-        if (bw_and != 0) {
-            for (int i=0; i<charTypeMap.length; ++i) {
-                if ((charTypeMap[i] & bw_and) != 0) {
-                    charTypeMap[i] |= bw_or;
-                }
-            }
-        }
-    }
-
-    public static final int B_ALPHAS = 1 << 0;
-    public static final int B_DIGITS = 1 << 1;
-    public static final int B_SCHEME_FIRST = 1 << 2;
-    public static final int B_SCHEME_FOLLOW = 1 << 3;
-    public static final int B_UNRESERVED = 1 << 4;
-    public static final int B_GEN_DELIMS = 1 << 5;
-    public static final int B_SUB_DELIMS = 1 << 6;
-    public static final int B_RESERVED = 1 << 7;
-    public static final int B_PCHAR = 1 << 8;
-    public static final int B_USERINFO = 1 << 9;
-    public static final int B_REGNAME = 1 << 10;
-    public static final int B_SEGMENT = 1 << 11;
-    public static final int B_SEGMENT_NZ = 1 << 12;
-    public static final int B_SEGMENT_NZ_NC = 1 << 13;
-    public static final int B_PATH = 1 << 14;
-    public static final int B_QUERY = 1 << 15;
-    public static final int B_FRAGMENT = 1 << 16;
-
-    static {
-        // Alphas.
-        String alphas = "abcdefghijklmnopqrstuvwxyz";
-        charTypeAddAndOr(alphas, 0, B_ALPHAS);
-        charTypeAddAndOr(alphas.toUpperCase(), 0, B_ALPHAS);
-
-        // Digits.
-        String digits = "1234567890";
-        charTypeAddAndOr(digits, 0, B_DIGITS);
-
-        // scheme first/follow.
-        // scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-        String scheme = "+-.";
-        charTypeAddAndOr(null, B_ALPHAS, B_SCHEME_FIRST | B_SCHEME_FOLLOW);
-        charTypeAddAndOr(scheme, B_DIGITS, B_SCHEME_FOLLOW);
-
-        // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-        String unreserved = "-._~";
-        charTypeAddAndOr(unreserved, B_ALPHAS | B_DIGITS, B_UNRESERVED);
-
-        // gen-delims (reserved)
-        String genDelims = ":/?#[]@";
-        charTypeAddAndOr(genDelims, 0, B_GEN_DELIMS | B_RESERVED);
-
-        // sub-delims (reserved)
-        String subDelims  = "!$&'()*+,;=";
-        charTypeAddAndOr(subDelims, 0, B_SUB_DELIMS | B_RESERVED);
-
-        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
-        String pchar = ":@";
-        charTypeAddAndOr(pchar, B_UNRESERVED | B_SUB_DELIMS, B_PCHAR);
-
-        // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
-        String userinfo = ":";
-        charTypeAddAndOr(userinfo, B_UNRESERVED | B_SUB_DELIMS, B_USERINFO);
-
-        // reg-name = *( unreserved / pct-encoded / sub-delims )
-        charTypeAddAndOr(null, B_UNRESERVED | B_SUB_DELIMS, B_REGNAME);
-
-        // segment = *pchar
-        // segment-nz = 1*pchar
-        charTypeAddAndOr(null, B_PCHAR, B_SEGMENT);
-        charTypeAddAndOr(null, B_PCHAR, B_SEGMENT_NZ);
-
-        // segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
-        // non-zero-length segment without any colon ":"
-        String segment_nz_nc = "@";
-        charTypeAddAndOr(segment_nz_nc, B_UNRESERVED | B_SUB_DELIMS, B_SEGMENT_NZ_NC);
-
-        // path
-        String path = "/";
-        charTypeAddAndOr(path, B_PCHAR, B_PATH);
-
-        // query = *( pchar / "/" / "?" )
-        String query =  "/?";
-        charTypeAddAndOr(query, B_PCHAR, B_QUERY);
-
-        // fragment = *( pchar / "/" / "?" )
-        String fragment = "/?";
-        charTypeAddAndOr(fragment, B_PCHAR, B_FRAGMENT);
     }
 
 }

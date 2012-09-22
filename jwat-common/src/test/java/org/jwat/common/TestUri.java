@@ -39,36 +39,6 @@ public class TestUri {
     @Test
     public void test_uri_absolute() {
         /*
-         * Check charMapType logic.
-         */
-        String subDelims  = "!$&'()*+,;=";
-        StringBuilder sb = new StringBuilder();
-        for (int i=0; i<256; ++i) {
-            if (subDelims.indexOf(i) == -1) {
-                sb.append((char) i);
-            }
-        }
-        String fillStr = sb.toString();
-        Assert.assertEquals(256 - subDelims.length(), fillStr.length());
-        Uri uri = new Uri();
-        int pos;
-        try {
-            pos = uri.indexOf(Uri.B_SUB_DELIMS, fillStr, 0);
-            Assert.assertEquals(-1, pos);
-            pos = uri.indexOf(Uri.B_SUB_DELIMS, fillStr + (char)256, 0);
-            Assert.fail("Exception expected!");
-        } catch (URISyntaxException e) {
-        }
-        for (int i=0; i<subDelims.length(); ++i) {
-            try {
-                pos = uri.indexOf(Uri.B_SUB_DELIMS, fillStr + subDelims.charAt(i) + (char)256 + fillStr, 0);
-                Assert.assertEquals(fillStr.length(), pos);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                Assert.fail("Unexpected exception!");
-            }
-        }
-        /*
          * Valid absolute URIs.
          */
         Object[][] valid_uri_cases = {
@@ -178,6 +148,117 @@ public class TestUri {
                     new Object[] {"//userinfo@[2001:db8::7]:/path", "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", "", "/path", "query", "fragment"},
                     new Object[] {"scheme-port", "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", -1, "/path", "query", "fragment"}
                 },
+
+
+
+                {"//userinfo@host:42/path?query#fragment", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", "42", "/path", "query", "fragment"},
+                    new Object[] {null, "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", 42, "/path", "query", "fragment"}
+                },
+                // Fragment
+                {"//userinfo@host:42/path?query#", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", "42", "/path", "query", ""},
+                    new Object[] {null, "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", 42, "/path", "query", ""}
+                },
+                {"//userinfo@host:42/path?query", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", "42", "/path", "query", null},
+                    new Object[] {null, "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", 42, "/path", "query", null}
+                },
+                // Query
+                {"//userinfo@host:42/path?#fragment", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?", "userinfo@host:42", "userinfo", "host", "42", "/path", "", "fragment"},
+                    new Object[] {null, "//userinfo@host:42/path?", "userinfo@host:42", "userinfo", "host", 42, "/path", "", "fragment"}
+                },
+                {"//userinfo@host:42/path#fragment", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path", "userinfo@host:42", "userinfo", "host", "42", "/path", null, "fragment"},
+                    new Object[] {null, "//userinfo@host:42/path", "userinfo@host:42", "userinfo", "host", 42, "/path", null, "fragment"}
+                },
+                // Fragment/Query
+                {"//userinfo@host:42/path", false, false,
+                    new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path", "userinfo@host:42", "userinfo", "host", "42", "/path", null, null},
+                    new Object[] {null, "//userinfo@host:42/path", "userinfo@host:42", "userinfo", "host", 42, "/path", null, null}
+                },
+                // Path
+                {"//userinfo@host:42/?query#fragment", false, false,
+                    new Object[] {"//userinfo@host:42/", "//userinfo@host:42/?query", "userinfo@host:42", "userinfo", "host", "42", "/", "query", "fragment"},
+                    new Object[] {null, "//userinfo@host:42/?query", "userinfo@host:42", "userinfo", "host", 42, "/", "query", "fragment"}
+                },
+                {"//userinfo@host:42?query#fragment", false, false,
+                    new Object[] {"//userinfo@host:42", "//userinfo@host:42?query", "userinfo@host:42", "userinfo", "host", "42", "", "query", "fragment"},
+                    new Object[] {null, "//userinfo@host:42?query", "userinfo@host:42", "userinfo", "host", 42, "", "query", "fragment"}
+                },
+                // Hierpart
+                {"/path?query#fragment", false, false,
+                    new Object[] {"/path", "/path?query", null, null, null, null, "/path", "query", "fragment"},
+                    new Object[] {null, "/path?query", null, null, null, -1, "/path", "query", "fragment"}
+                },
+                {"/path?query", false, false,
+                    new Object[] {"/path", "/path?query", null, null, null, null, "/path", "query", null},
+                    new Object[] {null, "/path?query", null, null, null, -1, "/path", "query", null}
+                },
+                {"/path#fragment", false, false,
+                    new Object[] {"/path", "/path", null, null, null, null, "/path", null, "fragment"},
+                    new Object[] {null, "/path", null, null, null, -1, "/path", null, "fragment"}
+                },
+                {"/path", false, false,
+                    new Object[] {"/path", "/path", null, null, null, null, "/path", null, null},
+                    new Object[] {null, "/path", null, null, null, -1, "/path", null, null}
+                },
+                // Opaque
+                {"path?query#fragment", false, false,
+                    new Object[] {"path", "path?query", null, null, null, null, "path", "query", "fragment"},
+                    new Object[] {null, "path?query", null, null, null, -1, "path", "query", "fragment"}
+                },
+                {"path?query", false, false,
+                    new Object[] {"path", "path?query", null, null, null, null, "path", "query", null},
+                    new Object[] {null, "path?query", null, null, null, -1, "path", "query", null}
+                },
+                {"path#fragment", false, false,
+                    new Object[] {"path", "path", null, null, null, null, "path", null, "fragment"},
+                    new Object[] {null, "path", null, null, null, -1, "path", null, "fragment"}
+                },
+                {"path", false, false,
+                    new Object[] {"path", "path", null, null, null, null, "path", null, null},
+                    new Object[] {null, "path", null, null, null, -1, "path", null, null}
+                },
+                {"", false, false,
+                    new Object[] {"", "", null, null, null, null, "", null, null},
+                    new Object[] {null, "", null, null, null, -1, "", null, null}
+                },
+                // Userinfo
+                {"//@host:42/path", false, false,
+                    new Object[] {"//@host:42/path", "//@host:42/path", "@host:42", "", "host", "42", "/path", null, null},
+                    new Object[] {null, "//@host:42/path", "@host:42", "", "host", 42, "/path", null, null}
+                },
+                {"//host:42/path", false, false,
+                    new Object[] {"//host:42/path", "//host:42/path", "host:42", null, "host", "42", "/path", null, null},
+                    new Object[] {null, "//host:42/path", "host:42", null, "host", 42, "/path", null, null}
+                },
+                // ipv6
+                {"//userinfo@[2001:db8::7]:42/path?query#fragment", false, false,
+                    new Object[] {"//userinfo@[2001:db8::7]:42/path", "//userinfo@[2001:db8::7]:42/path?query", "userinfo@[2001:db8::7]:42", "userinfo", "[2001:db8::7]", "42", "/path", "query", "fragment"},
+                    new Object[] {null, "//userinfo@[2001:db8::7]:42/path?query", "userinfo@[2001:db8::7]:42", "userinfo", "[2001:db8::7]", 42, "/path", "query", "fragment"}
+                },
+                {"//userinfo@[2001:db8::7]/path?query#fragment", false, false,
+                    new Object[] {"//userinfo@[2001:db8::7]/path", "//userinfo@[2001:db8::7]/path?query", "userinfo@[2001:db8::7]", "userinfo", "[2001:db8::7]", null, "/path", "query", "fragment"},
+                    new Object[] {null, "//userinfo@[2001:db8::7]/path?query", "userinfo@[2001:db8::7]", "userinfo", "[2001:db8::7]", -1, "/path", "query", "fragment"}
+                },
+                // host
+                {"//", false, false,
+                    new Object[] {"//", "//", "", null, "", null, "", null, null},
+                    new Object[] {null, "//", "", null, "", -1, "", null, null}
+                },
+                /*
+                // port, should decoded have empty :
+                {"//userinfo@host:/path?query#fragment", false, false,
+                    new Object[] {"//userinfo@host:/path", "//userinfo@host:/path?query", "userinfo@host:", "userinfo", "host", "", "/path", "query", "fragment"},
+                    new Object[] {null, "//userinfo@host:/path?query", "userinfo@host:", "userinfo", "host", -1, "/path", "query", "fragment"}
+                },
+                {"//userinfo@[2001:db8::7]:/path?query#fragment", false, false,
+                    new Object[] {"//userinfo@[2001:db8::7]:/path", "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", "", "/path", "query", "fragment"},
+                    new Object[] {null, "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", -1, "/path", "query", "fragment"}
+                },
+                */
         };
         Uri[] uris = new Uri[valid_uri_cases.length];
         URI jdkuri = null;
@@ -243,6 +324,12 @@ public class TestUri {
             Assert.assertEquals(0, uri1.compareTo(uri2));
             Assert.assertEquals(0, uri2.compareTo(uri1));
             uris[i] = uri1;
+            Assert.assertFalse(uri1.equals(null));
+            Assert.assertFalse(uri2.equals(null));
+            Assert.assertFalse(uri1.equals(jdkuri));
+            Assert.assertFalse(uri2.equals(jdkuri));
+            Assert.assertEquals(1, uri1.compareTo(null));
+            Assert.assertEquals(1, uri2.compareTo(null));
         }
         Arrays.sort(uris);
         for (int i=0; i<uris.length; ++i) {
@@ -295,9 +382,13 @@ public class TestUri {
             }
 
         }
+        uri1 = new Uri();
+        Assert.assertNotNull(uri1);
+        uri2 = new Uri();
+        Assert.assertNotNull(uri2);
     }
 
-    @Test
+    //@Test
     public void test_uri() {
         String[] invalidUris = {
                 "filedesc://horsy|\\\\hello",
@@ -405,11 +496,11 @@ public class TestUri {
             }
             raf.close();
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
         System.out.println("valid: " + valid);
         System.out.println("invalid: " + invalid);
@@ -466,8 +557,12 @@ public class TestUri {
             Assert.assertEquals(jdkuri.getUserInfo(), uri.getUserInfo());
             Assert.assertEquals(jdkuri.getHost(), uri.getHost());
             Assert.assertEquals(jdkuri.getPort(), uri.getPort());
-            //Assert.assertEquals(jdkuri.getPath(), uri.getPath());
-            //Assert.assertEquals(jdkuri.getQuery(), uri.getQuery());
+            if (jdkuri.getPath() != null) {
+                Assert.assertEquals(jdkuri.getPath(), uri.getPath());
+            }
+            if (jdkuri.getQuery() != null) {
+                Assert.assertEquals(jdkuri.getQuery(), uri.getQuery());
+            }
             Assert.assertEquals(jdkuri.getFragment(), uri.getFragment());
         }
     }
