@@ -32,10 +32,10 @@ import org.junit.runners.JUnit4;
  * @author nicl
  */
 @RunWith(JUnit4.class)
-public class TestParams {
+public class TestIPAddressParser {
 
     @Test
-    public void test_parameters() throws IOException {
+    public void test_ipaddressparser() throws IOException {
         /*
          * IpAddressParser.
          */
@@ -44,6 +44,10 @@ public class TestParams {
 
         IPAddressParser iap = new IPAddressParser();
         Assert.assertNotNull(iap);
+
+        /*
+         * Valid.
+         */
 
         ia = IPAddressParser.getAddress(null);
         Assert.assertNull(ia);
@@ -65,6 +69,13 @@ public class TestParams {
 
         ia = IPAddressParser.getAddress("dead::beef:cafe:f800:0000");
         Assert.assertNotNull(ia);
+
+        /*
+         * Invalid.
+         */
+
+        ia = IPAddressParser.getAddress("999.999.999.999");
+        Assert.assertNull(ia);
     }
 
 }

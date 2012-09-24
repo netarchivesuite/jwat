@@ -74,25 +74,21 @@ public class UriProfile {
     /** Does profile allow 16-bit percent encoding. */
     public boolean bAllow16bitPercentEncoding = false;
 
+    public UriProfile() {
+        for (int i=0; i<defaultCharTypeMap.length; ++i) {
+            charTypeMap[i] = defaultCharTypeMap[i];
+        }
+    }
+
     /**
-     * Helper class to populate integer array with character categories.
+     * Helper method to populate the profiles integer array with character
+     * categories.
      * @param chars characters to categorize or null
      * @param bw_and character categories to include in new category
      * @param bw_or new category/categories
      */
     public void charTypeAddAndOr(String chars, int bw_and, int bw_or) {
-        if (chars != null) {
-            for (int i=0; i<chars.length(); ++i) {
-                charTypeMap[chars.charAt(i)] |= bw_or;
-            }
-        }
-        if (bw_and != 0) {
-            for (int i=0; i<charTypeMap.length; ++i) {
-                if ((charTypeMap[i] & bw_and) != 0) {
-                    charTypeMap[i] |= bw_or;
-                }
-            }
-        }
+        UriProfile.charTypeAddAndOr(charTypeMap, chars, bw_and, bw_or);
     }
 
     /**
@@ -173,6 +169,9 @@ public class UriProfile {
                         if (pos < limit) {
                             c = str.charAt(pos);
                             if (c == 'u' || c == 'U') {
+                                if (!bAllow16bitPercentEncoding) {
+                                    throw new URISyntaxException(str, "Invalid URI " + componentName + " component - 16-bit percent encoding not allowed");
+                                }
                                 ++pos;
                                 decode = 4;
                             } else {
@@ -193,6 +192,9 @@ public class UriProfile {
                                     throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
                                 }
                                 --decode;
+                            }
+                            if (decode > 0) {
+                                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
                             }
                             sb.append((char) decodedC);
                         } else {
@@ -231,6 +233,96 @@ public class UriProfile {
         }
     }
 
+    /**
+     * Helper method to populate an integer array with character categories.
+     * @param charTypeMap integer array with character categories
+     * @param chars characters to categorize or null
+     * @param bw_and character categories to include in new category
+     * @param bw_or new category/categories
+     */
+    public static void charTypeAddAndOr(int[] charTypeMap, String chars, int bw_and, int bw_or) {
+        if (chars != null) {
+            for (int i=0; i<chars.length(); ++i) {
+                charTypeMap[chars.charAt(i)] |= bw_or;
+            }
+        }
+        if (bw_and != 0) {
+            for (int i=0; i<charTypeMap.length; ++i) {
+                if ((charTypeMap[i] & bw_and) != 0) {
+                    charTypeMap[i] |= bw_or;
+                }
+            }
+        }
+    }
+
+    /** Default array of integers used to categorize all 8bit chars. */
+    protected static int[] defaultCharTypeMap = new int[256];
+
+    /*
+     * Initialize default char type map.
+     */
+    static {
+        // Alphas.
+        String alphas = "abcdefghijklmnopqrstuvwxyz";
+        charTypeAddAndOr(defaultCharTypeMap, alphas, 0, B_ALPHAS);
+        charTypeAddAndOr(defaultCharTypeMap, alphas.toUpperCase(), 0, B_ALPHAS);
+
+        // Digits.
+        String digits = "1234567890";
+        charTypeAddAndOr(defaultCharTypeMap, digits, 0, B_DIGITS);
+
+        // scheme first/follow.
+        // scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+        String scheme = "+-.";
+        charTypeAddAndOr(defaultCharTypeMap, null, B_ALPHAS, B_SCHEME_FIRST | B_SCHEME_FOLLOW);
+        charTypeAddAndOr(defaultCharTypeMap, scheme, B_DIGITS, B_SCHEME_FOLLOW);
+
+        // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+        String unreserved = "-._~";
+        charTypeAddAndOr(defaultCharTypeMap, unreserved, B_ALPHAS | B_DIGITS, B_UNRESERVED);
+
+        // gen-delims (reserved)
+        String genDelims = ":/?#[]@";
+        charTypeAddAndOr(defaultCharTypeMap, genDelims, 0, B_GEN_DELIMS | B_RESERVED);
+
+        // sub-delims (reserved)
+        String subDelims  = "!$&'()*+,;=";
+        charTypeAddAndOr(defaultCharTypeMap, subDelims, 0, B_SUB_DELIMS | B_RESERVED);
+
+        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+        String pchar = ":@";
+        charTypeAddAndOr(defaultCharTypeMap, pchar, B_UNRESERVED | B_SUB_DELIMS, B_PCHAR);
+
+        // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+        String userinfo = ":";
+        charTypeAddAndOr(defaultCharTypeMap, userinfo, B_UNRESERVED | B_SUB_DELIMS, B_USERINFO);
+
+        // reg-name = *( unreserved / pct-encoded / sub-delims )
+        charTypeAddAndOr(defaultCharTypeMap, null, B_UNRESERVED | B_SUB_DELIMS, B_REGNAME);
+
+        // segment = *pchar
+        // segment-nz = 1*pchar
+        charTypeAddAndOr(defaultCharTypeMap, null, B_PCHAR, B_SEGMENT);
+        charTypeAddAndOr(defaultCharTypeMap, null, B_PCHAR, B_SEGMENT_NZ);
+
+        // segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
+        // non-zero-length segment without any colon ":"
+        String segment_nz_nc = "@";
+        charTypeAddAndOr(defaultCharTypeMap, segment_nz_nc, B_UNRESERVED | B_SUB_DELIMS, B_SEGMENT_NZ_NC);
+
+        // path
+        String path = "/";
+        charTypeAddAndOr(defaultCharTypeMap, path, B_PCHAR, B_PATH);
+
+        // query = *( pchar / "/" / "?" )
+        String query =  "/?";
+        charTypeAddAndOr(defaultCharTypeMap, query, B_PCHAR, B_QUERY);
+
+        // fragment = *( pchar / "/" / "?" )
+        String fragment = "/?";
+        charTypeAddAndOr(defaultCharTypeMap, fragment, B_PCHAR, B_FRAGMENT);
+    }
+
     /** RFC3986 compliant URI profile. */
     public static final UriProfile RFC3986;
 
@@ -241,66 +333,6 @@ public class UriProfile {
         RFC3986 = new UriProfile();
         RFC3986.bAllow16bitPercentEncoding = false;
         RFC3986.bAllowRelativeUris = true;
-
-        // Alphas.
-        String alphas = "abcdefghijklmnopqrstuvwxyz";
-        RFC3986.charTypeAddAndOr(alphas, 0, B_ALPHAS);
-        RFC3986.charTypeAddAndOr(alphas.toUpperCase(), 0, B_ALPHAS);
-
-        // Digits.
-        String digits = "1234567890";
-        RFC3986.charTypeAddAndOr(digits, 0, B_DIGITS);
-
-        // scheme first/follow.
-        // scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-        String scheme = "+-.";
-        RFC3986.charTypeAddAndOr(null, B_ALPHAS, B_SCHEME_FIRST | B_SCHEME_FOLLOW);
-        RFC3986.charTypeAddAndOr(scheme, B_DIGITS, B_SCHEME_FOLLOW);
-
-        // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-        String unreserved = "-._~";
-        RFC3986.charTypeAddAndOr(unreserved, B_ALPHAS | B_DIGITS, B_UNRESERVED);
-
-        // gen-delims (reserved)
-        String genDelims = ":/?#[]@";
-        RFC3986.charTypeAddAndOr(genDelims, 0, B_GEN_DELIMS | B_RESERVED);
-
-        // sub-delims (reserved)
-        String subDelims  = "!$&'()*+,;=";
-        RFC3986.charTypeAddAndOr(subDelims, 0, B_SUB_DELIMS | B_RESERVED);
-
-        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
-        String pchar = ":@";
-        RFC3986.charTypeAddAndOr(pchar, B_UNRESERVED | B_SUB_DELIMS, B_PCHAR);
-
-        // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
-        String userinfo = ":";
-        RFC3986.charTypeAddAndOr(userinfo, B_UNRESERVED | B_SUB_DELIMS, B_USERINFO);
-
-        // reg-name = *( unreserved / pct-encoded / sub-delims )
-        RFC3986.charTypeAddAndOr(null, B_UNRESERVED | B_SUB_DELIMS, B_REGNAME);
-
-        // segment = *pchar
-        // segment-nz = 1*pchar
-        RFC3986.charTypeAddAndOr(null, B_PCHAR, B_SEGMENT);
-        RFC3986.charTypeAddAndOr(null, B_PCHAR, B_SEGMENT_NZ);
-
-        // segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" )
-        // non-zero-length segment without any colon ":"
-        String segment_nz_nc = "@";
-        RFC3986.charTypeAddAndOr(segment_nz_nc, B_UNRESERVED | B_SUB_DELIMS, B_SEGMENT_NZ_NC);
-
-        // path
-        String path = "/";
-        RFC3986.charTypeAddAndOr(path, B_PCHAR, B_PATH);
-
-        // query = *( pchar / "/" / "?" )
-        String query =  "/?";
-        RFC3986.charTypeAddAndOr(query, B_PCHAR, B_QUERY);
-
-        // fragment = *( pchar / "/" / "?" )
-        String fragment = "/?";
-        RFC3986.charTypeAddAndOr(fragment, B_PCHAR, B_FRAGMENT);
     }
 
 }

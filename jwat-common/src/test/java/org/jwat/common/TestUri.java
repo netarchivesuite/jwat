@@ -332,11 +332,15 @@ public class TestUri {
             Assert.assertEquals(1, uri2.compareTo(null));
         }
         Arrays.sort(uris);
+        /*
+        // debug
         for (int i=0; i<uris.length; ++i) {
-            System.out.println("> " + uris[i].toString());
+            //System.out.println("> " + uris[i].toString());
         }
+        */
         for (int i=0; i<uris.length; ++i) {
-            System.out.println(">> " + uris[i].toString());
+            // debug
+            //System.out.println(">> " + uris[i].toString());
             for (int j=0; j<uris.length; ++j) {
                 if (i < j) {
                     Assert.assertFalse(uris[i].equals(uris[j]));
@@ -358,6 +362,7 @@ public class TestUri {
                 "éy:",
                 "aä:",
                 ":",
+                "://userinfo@host:42/path?query#fragment",
                 "scheme://userinfo@[2001:db8::7/path",
                 "scheme://[2001:db8::7/path",
                 "scheme://userinfo@[2001:db8::7]42/path?query#fragment",
@@ -388,7 +393,7 @@ public class TestUri {
         Assert.assertNotNull(uri2);
     }
 
-    //@Test
+    @Test
     public void test_uri() {
         String[] invalidUris = {
                 "filedesc://horsy|\\\\hello",
@@ -408,20 +413,7 @@ public class TestUri {
         String[] validRelUris = {
                 //"./this:that",
         };
-        String[] validUris = {
-                //"http://www.kb.dk/GUIDResolver/Uid:dk:kb:doms:2006-09/99999/1/S/erez?erez=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif&tmp=1kolonneH&top=0.06395349&bottom=0.93604651&width=200&height=150",
-                //"http://www.kb.dk/erez4/erez?height=150&bottom=0.93604651&tmp=1kolonneH&width=200&top=0.06395349&src=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif",
-                //"http://www.advfn.com/p.php?pid=staticchart&s=A^CXZ&p=8&t=37&vol=1",
-                //"http://news.ainfekka.com/?feed=rss2&tag=%d8%a8%d9%88%d8%b9%d9%8a%d8%b4%d8%a9-%d8%b3%d8%a7%d8%b9%d8%af",
-                "http://healthtrawl.com/store/insurance/rate/quotes/automobile_insurance_rate.htm?yt=qs%3d06oENya4ZG1YS6vOLJwpLiFdjG9wRAvs4Nk7NsEKCkSCHmnJLHtuz7tt7ykteKWgNq1iJVLZ6mGhgFhh7h6-hm0nsNEjrJjFhg5frIpv1on3rp_mUtDZSO5BWZTURTx32nsYdBndmO0eLnsyL6de67bGMA7W6jpj3FUzi5Jybt0SrblzNmsi0s-Aw00FrVmCq0SiUKQ6JiXsGQ4-uoQMimRuU.%2cYT0xO0w9QXV0b21vYmlsZSBJbnN1cmFuY2UgUmF0ZTtSPTg7Uz1UOnIjLSNLWjtrPTQ.&slt=1&slr=8&lpt=2",
-                //"http://",
-                "http://www.a1ie.com/news/index_0_7.html?tags=%u4E8B%u4EF6%u8425%u9500#hello_world",
-                "http://www.a1ie.com",
-                "https://sbforge.org/jenkins/view/Active%20jobs/",
-                "https://services.brics.dk/java/courseadmin/login/login?returnURL=https%3A%2F%2Fservices.brics.dk%2Fjava%2Fcourseadmin%2FdPersp%2Fwebboard%2F",
-                "http://code.google.com/p/acre/source/browse/trunk/webapp/WEB-INF/?r=452#WEB-INF%2Flib-src",
-                //"Last-Modified:",
-                "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88",
+        String[] valid_uris = {
                 // rfc3986
                 "ftp://ftp.is.co.za/rfc/rfc1808.txt",
                 "http://www.ietf.org/rfc/rfc2396.txt",
@@ -432,11 +424,21 @@ public class TestUri {
                 "telnet://192.0.2.16:80/",
                 "urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
                 "foo://example.com:8042/over/there?name=ferret#nose",
-                "urn:example:animal:ferret:nose"
+                "urn:example:animal:ferret:nose",
+                // misc
+                "http://",
+                "last-modified:",
+                "http://www.a1ie.com",
+                "https://sbforge.org/jenkins/view/Active%20jobs/",
+                "https://services.brics.dk/java/courseadmin/login/login?returnURL=https%3A%2F%2Fservices.brics.dk%2Fjava%2Fcourseadmin%2FdPersp%2Fwebboard%2F",
+                "http://code.google.com/p/acre/source/browse/trunk/webapp/WEB-INF/?r=452#WEB-INF%2Flib-src",
+                "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88",
+                "http://news.ainfekka.com/?feed=rss2&tag=%d8%a8%d9%88%d8%b9%d9%8a%d8%b4%d8%a9-%d8%b3%d8%a7%d8%b9%d8%af",
+                "http://healthtrawl.com/store/insurance/rate/quotes/automobile_insurance_rate.htm?yt=qs%3d06oENya4ZG1YS6vOLJwpLiFdjG9wRAvs4Nk7NsEKCkSCHmnJLHtuz7tt7ykteKWgNq1iJVLZ6mGhgFhh7h6-hm0nsNEjrJjFhg5frIpv1on3rp_mUtDZSO5BWZTURTx32nsYdBndmO0eLnsyL6de67bGMA7W6jpj3FUzi5Jybt0SrblzNmsi0s-Aw00FrVmCq0SiUKQ6JiXsGQ4-uoQMimRuU.%2cYT0xO0w9QXV0b21vYmlsZSBJbnN1cmFuY2UgUmF0ZTtSPTg7Uz1UOnIjLSNLWjtrPTQ.&slt=1&slr=8&lpt=2",
         };
-        for (int i=0; i<validUris.length; ++i) {
+        for (int i=0; i<valid_uris.length; ++i) {
             try {
-                Uri uri = Uri.create(validUris[i]);
+                Uri uri = Uri.create(valid_uris[i]);
                 Assert.assertNotNull(uri);
                 System.out.println("--------");
                 if (uri != null) {
@@ -452,10 +454,10 @@ public class TestUri {
                     System.out.println(uri);
                 }
 
-                Assert.assertEquals(validUris[i], uri.toString());
+                Assert.assertEquals(valid_uris[i], uri.toString());
 
                 try {
-                    URI jdkuri = new URI(validUris[i]);
+                    URI jdkuri = new URI(valid_uris[i]);
                     System.out.println(jdkuri);
                     System.out.println("      Scheme: " + jdkuri.getScheme());
                     System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
@@ -475,6 +477,15 @@ public class TestUri {
                 Assert.fail("Unexpected exception!");
             }
         }
+        String[] relaxed_uris = {
+                // %uXXXX
+                "http://www.a1ie.com/news/index_0_7.html?tags=%u4E8B%u4EF6%u8425%u9500#hello_world",
+                // [
+                "http://www.kb.dk/GUIDResolver/Uid:dk:kb:doms:2006-09/99999/1/S/erez?erez=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif&tmp=1kolonneH&top=0.06395349&bottom=0.93604651&width=200&height=150",
+                "http://www.kb.dk/erez4/erez?height=150&bottom=0.93604651&tmp=1kolonneH&width=200&top=0.06395349&src=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif",
+                // ^
+                "http://www.advfn.com/p.php?pid=staticchart&s=A^CXZ&p=8&t=37&vol=1",
+        };
     }
 
     //@Test

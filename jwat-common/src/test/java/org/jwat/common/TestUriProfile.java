@@ -29,10 +29,11 @@ public class TestUriProfile {
 
     @Test
     public void test_uriprofile() {
-        UriProfile uriProfile = UriProfile.RFC3986;
+        UriProfile uriProfile;
         /*
          * indexOf().
          */
+        uriProfile = UriProfile.RFC3986;
         String subDelims  = "!$&'()*+,;=";
         StringBuilder sb = new StringBuilder();
         for (int i=0; i<256; ++i) {
@@ -60,8 +61,131 @@ public class TestUriProfile {
             }
         }
         /*
-         * validecode().
+         * charTypeAddAndOr().
          */
+        sb = new StringBuilder();
+        for (int i=0; i<256; ++i) {
+            sb.append((char) i);
+        }
+        String chars = sb.toString();
+        uriProfile = new UriProfile();
+        uriProfile.charTypeAddAndOr(chars, 0, 1 << 31);
+        for (int i=0; i<256; ++i) {
+            Assert.assertEquals(1 << 31, uriProfile.charTypeMap[i] ^ UriProfile.RFC3986.charTypeMap[i]);
+        }
+        /*
+         * validate_first_follow
+         */
+        String[] valid_ff = {
+                "",
+                "aa",
+                "a1"
+        };
+        uriProfile = UriProfile.RFC3986;
+        for (int i=0; i<valid_ff.length; ++i) {
+            try {
+                uriProfile.validate_first_follow(valid_ff[i], UriProfile.B_ALPHAS, UriProfile.B_DIGITS);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+        }
+        String[] invalid_ff = {
+                "1a",
+                "11",
+                "aé"
+        };
+        for (int i=0; i<invalid_ff.length; ++i) {
+            try {
+                uriProfile.validate_first_follow(invalid_ff[i], UriProfile.B_ALPHAS, UriProfile.B_DIGITS);
+                Assert.fail("Exception expected!");
+            } catch (URISyntaxException e) {
+            }
+        }
+        /*
+         * validate_decode().
+         */
+        String[][] valid_cases = {
+                {"", ""},
+                {"test", "test"},
+                {"%0a%2e", "\n."},
+                {"%0A%2E", "\n."}
+        };
+        uriProfile = UriProfile.RFC3986;
+        Assert.assertFalse(uriProfile.bAllow16bitPercentEncoding);
+        Assert.assertTrue(uriProfile.bAllowRelativeUris);
+        String str;
+        String expectedDecodedStr;
+        String decodedStr;
+        for (int i=0; i<valid_cases.length; ++i) {
+            str = valid_cases[i][0];
+            expectedDecodedStr = valid_cases[i][1];
+            // debug
+            //System.out.println("+" + str);
+            try {
+                decodedStr = uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", str);
+                Assert.assertEquals(expectedDecodedStr, decodedStr);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+        }
+        String[] invalid_cases = {
+                "\u1234",
+                "42",
+                "%",
+                "%a",
+                "%h",
+                "%hh",
+                "%1\u1234",
+                "%u",
+                "%ua",
+                "%uaa",
+                "%uaaa",
+                "%u1234",
+                "%U",
+                "%Ua",
+                "%Uaa",
+                "%Uaaa",
+                "%U1234"
+        };
+        for (int i=0; i<invalid_cases.length; ++i) {
+            str = invalid_cases[i];
+            // debug
+            //System.out.println("-" + str);
+            try {
+                uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", str);
+                Assert.fail("Exception expected!");
+            } catch (URISyntaxException e) {
+            }
+        }
+        valid_cases = new String[][] {
+                {"", ""},
+                {"test", "test"},
+                {"%0a%2e", "\n."},
+                {"%0A%2E", "\n."},
+                {"%u1234", "\u1234"},
+                {"%uabcd", "\uabcd"},
+                {"%uABCD", "\uABCD"},
+                {"%U1234", "\u1234"},
+                {"%Uabcd", "\uabcd"},
+                {"%UABCD", "\uABCD"}
+        };
+        uriProfile = new UriProfile();
+        uriProfile.bAllow16bitPercentEncoding = true;
+        for (int i=0; i<valid_cases.length; ++i) {
+            str = valid_cases[i][0];
+            expectedDecodedStr = valid_cases[i][1];
+            // debug
+            //System.out.println("+" + str);
+            try {
+                decodedStr = uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", str);
+                Assert.assertEquals(expectedDecodedStr, decodedStr);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+        }
     }
 
 }
