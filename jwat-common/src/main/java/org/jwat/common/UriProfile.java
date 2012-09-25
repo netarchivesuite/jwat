@@ -74,10 +74,16 @@ public class UriProfile {
     /** Does profile allow 16-bit percent encoding. */
     public boolean bAllow16bitPercentEncoding = false;
 
+    /**
+     * Construct an <code>UriProfile</code> initialized with RFC3986
+     * rules.
+     */
     public UriProfile() {
         for (int i=0; i<defaultCharTypeMap.length; ++i) {
             charTypeMap[i] = defaultCharTypeMap[i];
         }
+        bAllow16bitPercentEncoding = false;
+        bAllowRelativeUris = true;
     }
 
     /**
@@ -326,13 +332,39 @@ public class UriProfile {
     /** RFC3986 compliant URI profile. */
     public static final UriProfile RFC3986;
 
+    /** Modified RFC3986 URI profile which allows 16-bit percent encoding
+     *  and disallows relative URIs. */
+    public static final UriProfile RFC3986_ABS_16BIT;
+
+    /** Relaxed RFC3986 URI profile which allows 16-bit percent encoding,
+     *  disallows relative URIs and allows most characters. */
+    public static final UriProfile RFC3986_ABS_16BIT_LAX;
+
     /*
      * Initialize default profile.
      */
     static {
         RFC3986 = new UriProfile();
-        RFC3986.bAllow16bitPercentEncoding = false;
-        RFC3986.bAllowRelativeUris = true;
+
+        RFC3986_ABS_16BIT = new UriProfile();
+        RFC3986_ABS_16BIT.bAllow16bitPercentEncoding = true;
+        RFC3986_ABS_16BIT.bAllowRelativeUris = false;
+
+        StringBuilder sb = new StringBuilder("[]");
+        for (int i=33; i<127; ++i) {
+            if ((defaultCharTypeMap[i] & (B_FRAGMENT | B_RESERVED)) == 0 && i != '%') {
+                sb.append((char) i);
+            }
+        }
+        for (int i=161; i<255; ++i) {
+            if ((defaultCharTypeMap[i] & (B_FRAGMENT | B_RESERVED)) == 0 && i != '%') {
+                sb.append((char) i);
+            }
+        }
+        RFC3986_ABS_16BIT_LAX = new UriProfile();
+        RFC3986_ABS_16BIT_LAX.bAllow16bitPercentEncoding = true;
+        RFC3986_ABS_16BIT_LAX.bAllowRelativeUris = false;
+        RFC3986_ABS_16BIT_LAX.charTypeAddAndOr(sb.toString(), 0, B_PATH | B_QUERY | B_FRAGMENT);
     }
 
 }

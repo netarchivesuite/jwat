@@ -26,13 +26,20 @@ import java.net.URISyntaxException;
  * the specification but nevertheless needs to be validated since they are in
  * use. Other non standard characters are also used in the wild.
  *
- * Suitable for this package, but not yet suitable as an URI substitute.
+ * This implementation is not a complete substitute for the JDK version.
+ * It does not yet implement the following methods.
+ * - normalize()
+ * - parseServerAuthority()
+ * - relativize(URI uri)
+ * - resolve(String str)
+ * - resolve(URI uri)
+ * - toASCIIString()
  *
  * @author nicl
  */
 public class Uri implements Comparable<Uri> {
 
-    /** Raw hier part. */
+    /** Raw hier-part part ("//" + authority + path). */
     protected String hierPartRaw;
     /** Raw scheme specific part, if present. */
     protected String schemeSpecificPartRaw;
@@ -76,22 +83,8 @@ public class Uri implements Comparable<Uri> {
     /** Boolean indicating whether this URI is opaque. */
     protected boolean bOpaque;
 
-    // TODO
+    /** Profile used to parse URI. */
     protected UriProfile uriProfile = UriProfile.RFC3986;
-
-    /**
-     * Creates a URI by parsing the given string.
-     * @param str The string to be parsed into a URI
-     * @return The new URI
-     * @throws IllegalArgumentException If the given string violates RFC 3986
-     */
-    public static Uri create(String str) throws IllegalArgumentException {
-        try {
-            return new Uri(str);
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid URI", e);
-        }
-    }
 
     /**
      * Constructor for unit-testing.
@@ -100,26 +93,55 @@ public class Uri implements Comparable<Uri> {
     }
 
     /**
-     * Constructs a URI by parsing the given string.
+     * Creates a URI by parsing the given string using the default RFC3986
+     * profile.
+     * @param str The string to be parsed into a URI
+     * @return The new URI
+     * @throws IllegalArgumentException If the given string violates RFC 3986
+     */
+    public static Uri create(String str) throws IllegalArgumentException {
+        try {
+            return new Uri(str, UriProfile.RFC3986);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid URI", e);
+        }
+    }
+
+    /**
+     * Creates a URI by parsing the given string using the requested profile.
+     * @param str The string to be parsed into a URI
+     * @return The new URI
+     * @throws IllegalArgumentException If the given string violates the profile
+     */
+    public static Uri create(String str, UriProfile uriProfile) throws IllegalArgumentException {
+        try {
+            return new Uri(str, uriProfile);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid URI", e);
+        }
+    }
+
+    /**
+     * Constructs a URI by parsing the given string using the default RFC3986
+     * profile.
      * @param str The string to be parsed into a URI
      * @throws URISyntaxException If the given string violates RFC 3986
      */
     public Uri(String str) throws URISyntaxException {
-        /*
-        try {
-            RandomAccessFile raf = new RandomAccessFile("uris.txt", "rw");
-            raf.seek(raf.length());
-            raf.write(str.getBytes("ISO8859-1"));
-            raf.write("\r\n".getBytes());
-            raf.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
+        this(str, UriProfile.RFC3986);
+    }
+
+    /**
+     * Constructs a URI by parsing the given string using the requested
+     * profile.
+     * @param str The string to be parsed into a URI
+     * @throws URISyntaxException If the given string violates the profile
+     */
+    public Uri(String str, UriProfile uriProfile) throws URISyntaxException {
+        this.uriProfile = uriProfile;
         int idx = uriProfile.indexOf(UriProfile.B_GEN_DELIMS, str, 0);
         if (idx != -1 && str.charAt(idx) == ':') {
+            // Try validating as an absolute URI.
             scheme = str.substring(0, idx++);
             validate_absoluteUri(str, idx);
             bAbsolute = true;
@@ -128,7 +150,11 @@ public class Uri implements Comparable<Uri> {
                 bOpaque = true;
             }
         } else {
-            validate_relativeUri(str, 0);
+            if (uriProfile.bAllowRelativeUris) {
+                validate_relativeUri(str, 0);
+            } else {
+                throw new URISyntaxException(str, "Invalid URI - relative URIs not allowed");
+            }
         }
     }
 

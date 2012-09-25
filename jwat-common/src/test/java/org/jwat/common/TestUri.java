@@ -21,9 +21,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -148,9 +145,9 @@ public class TestUri {
                     new Object[] {"//userinfo@[2001:db8::7]:/path", "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", "", "/path", "query", "fragment"},
                     new Object[] {"scheme-port", "//userinfo@[2001:db8::7]:/path?query", "userinfo@[2001:db8::7]:", "userinfo", "[2001:db8::7]", -1, "/path", "query", "fragment"}
                 },
-
-
-
+                /*
+                 * Relative.
+                 */
                 {"//userinfo@host:42/path?query#fragment", false, false,
                     new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", "42", "/path", "query", "fragment"},
                     new Object[] {null, "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", 42, "/path", "query", "fragment"}
@@ -294,6 +291,7 @@ public class TestUri {
             }
             try {
                 uri1 = Uri.create(str);
+                Assert.assertEquals(UriProfile.RFC3986, uri1.uriProfile);
                 check_expected_uri(uri1, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
                 // debug
                 System.out.println(uri1.toString());
@@ -303,6 +301,7 @@ public class TestUri {
             }
             try {
                 uri2 = new Uri(str);
+                Assert.assertEquals(UriProfile.RFC3986, uri2.uriProfile);
                 check_expected_uri(uri2, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
                 // debug
                 System.out.println(uri1.toString());
@@ -311,6 +310,7 @@ public class TestUri {
                 Assert.fail("Unexpected exception!");
             }
             System.out.println(str);
+            uris[i] = uri1;
             Assert.assertEquals(str, uri1.toString());
             Assert.assertEquals(str, uri2.toString());
             Assert.assertEquals(uri1.toString(), uri2.toString());
@@ -323,13 +323,66 @@ public class TestUri {
             Assert.assertEquals(0, uri2.compareTo(uri2));
             Assert.assertEquals(0, uri1.compareTo(uri2));
             Assert.assertEquals(0, uri2.compareTo(uri1));
-            uris[i] = uri1;
             Assert.assertFalse(uri1.equals(null));
             Assert.assertFalse(uri2.equals(null));
             Assert.assertFalse(uri1.equals(jdkuri));
             Assert.assertFalse(uri2.equals(jdkuri));
             Assert.assertEquals(1, uri1.compareTo(null));
             Assert.assertEquals(1, uri2.compareTo(null));
+            /*
+             * Relative disabled.
+             */
+            if (bAbsolute) {
+                try {
+                    uri1 = Uri.create(str, UriProfile.RFC3986_ABS_16BIT);
+                    Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, uri1.uriProfile);
+                    check_expected_uri(uri1, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
+                    // debug
+                    //System.out.println(uri1.toString());
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    Assert.fail("Unexpected exception!");
+                }
+                try {
+                    uri2 = new Uri(str, UriProfile.RFC3986_ABS_16BIT);
+                    Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, uri2.uriProfile);
+                    check_expected_uri(uri2, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
+                    // debug
+                    //System.out.println(uri1.toString());
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                    Assert.fail("Unexpected exception!");
+                }
+                Assert.assertEquals(str, uri1.toString());
+                Assert.assertEquals(str, uri2.toString());
+                Assert.assertEquals(uri1.toString(), uri2.toString());
+                Assert.assertTrue(uri1.equals(uri1));
+                Assert.assertTrue(uri2.equals(uri2));
+                Assert.assertTrue(uri1.equals(uri2));
+                Assert.assertTrue(uri2.equals(uri1));
+                Assert.assertEquals(uri1.hashCode(), uri2.hashCode());
+                Assert.assertEquals(0, uri1.compareTo(uri1));
+                Assert.assertEquals(0, uri2.compareTo(uri2));
+                Assert.assertEquals(0, uri1.compareTo(uri2));
+                Assert.assertEquals(0, uri2.compareTo(uri1));
+                Assert.assertFalse(uri1.equals(null));
+                Assert.assertFalse(uri2.equals(null));
+                Assert.assertFalse(uri1.equals(jdkuri));
+                Assert.assertFalse(uri2.equals(jdkuri));
+                Assert.assertEquals(1, uri1.compareTo(null));
+                Assert.assertEquals(1, uri2.compareTo(null));
+            } else {
+                try {
+                    Uri.create(str, UriProfile.RFC3986_ABS_16BIT);
+                    Assert.fail("Exception expected!");
+                } catch (IllegalArgumentException e) {
+                }
+                try {
+                    new Uri(str, UriProfile.RFC3986_ABS_16BIT);
+                    Assert.fail("Exception expected!");
+                } catch (URISyntaxException e) {
+                }
+            }
         }
         Arrays.sort(uris);
         /*
@@ -410,54 +463,43 @@ public class TestUri {
             } catch (URISyntaxException e) {
             }
         }
-        String[] validRelUris = {
-                //"./this:that",
-        };
-        String[] valid_uris = {
+        Object[][] valid_uri_cases = {
                 // rfc3986
-                "ftp://ftp.is.co.za/rfc/rfc1808.txt",
-                "http://www.ietf.org/rfc/rfc2396.txt",
-                "ldap://[2001:db8::7]/c=GB?objectClass?one",
-                "mailto:John.Doe@example.com",
-                "news:comp.infosystems.www.servers.unix",
-                "tel:+1-816-555-1212",
-                "telnet://192.0.2.16:80/",
-                "urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
-                "foo://example.com:8042/over/there?name=ferret#nose",
-                "urn:example:animal:ferret:nose",
+                {"ftp://ftp.is.co.za/rfc/rfc1808.txt", true, false},
+                {"http://www.ietf.org/rfc/rfc2396.txt", true, false},
+                {"ldap://[2001:db8::7]/c=GB?objectClass?one", true, false},
+                {"mailto:John.Doe@example.com", true, true},
+                {"news:comp.infosystems.www.servers.unix", true, true},
+                {"tel:+1-816-555-1212", true, true},
+                {"telnet://192.0.2.16:80/", true, false},
+                {"urn:oasis:names:specification:docbook:dtd:xml:4.1.2", true, true},
+                {"foo://example.com:8042/over/there?name=ferret#nose", true, false},
+                {"urn:example:animal:ferret:nose", true, true},
                 // misc
-                "http://",
-                "last-modified:",
-                "http://www.a1ie.com",
-                "https://sbforge.org/jenkins/view/Active%20jobs/",
-                "https://services.brics.dk/java/courseadmin/login/login?returnURL=https%3A%2F%2Fservices.brics.dk%2Fjava%2Fcourseadmin%2FdPersp%2Fwebboard%2F",
-                "http://code.google.com/p/acre/source/browse/trunk/webapp/WEB-INF/?r=452#WEB-INF%2Flib-src",
-                "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88",
-                "http://news.ainfekka.com/?feed=rss2&tag=%d8%a8%d9%88%d8%b9%d9%8a%d8%b4%d8%a9-%d8%b3%d8%a7%d8%b9%d8%af",
-                "http://healthtrawl.com/store/insurance/rate/quotes/automobile_insurance_rate.htm?yt=qs%3d06oENya4ZG1YS6vOLJwpLiFdjG9wRAvs4Nk7NsEKCkSCHmnJLHtuz7tt7ykteKWgNq1iJVLZ6mGhgFhh7h6-hm0nsNEjrJjFhg5frIpv1on3rp_mUtDZSO5BWZTURTx32nsYdBndmO0eLnsyL6de67bGMA7W6jpj3FUzi5Jybt0SrblzNmsi0s-Aw00FrVmCq0SiUKQ6JiXsGQ4-uoQMimRuU.%2cYT0xO0w9QXV0b21vYmlsZSBJbnN1cmFuY2UgUmF0ZTtSPTg7Uz1UOnIjLSNLWjtrPTQ.&slt=1&slr=8&lpt=2",
+                {"http://", true, false},
+                {"last-modified:", true, false},
+                {"http://www.a1ie.com", true, false},
+                {"https://sbforge.org/jenkins/view/Active%20jobs/", true, false},
+                {"http://code.google.com/p/acre/source/browse/trunk/webapp/WEB-INF/?r=452#WEB-INF%2Flib-src", true, false},
+                {"urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88", true, true},
+                {"https://services.brics.dk/java/courseadmin/login/login?returnURL=https%3A%2F%2Fservices.brics.dk%2Fjava%2Fcourseadmin%2FdPersp%2Fwebboard%2F", true, false},
+                {"http://healthtrawl.com/store/insurance/rate/quotes/automobile_insurance_rate.htm?yt=qs%3d06oENya4ZG1YS6vOLJwpLiFdjG9wRAvs4Nk7NsEKCkSCHmnJLHtuz7tt7ykteKWgNq1iJVLZ6mGhgFhh7h6-hm0nsNEjrJjFhg5frIpv1on3rp_mUtDZSO5BWZTURTx32nsYdBndmO0eLnsyL6de67bGMA7W6jpj3FUzi5Jybt0SrblzNmsi0s-Aw00FrVmCq0SiUKQ6JiXsGQ4-uoQMimRuU.%2cYT0xO0w9QXV0b21vYmlsZSBJbnN1cmFuY2UgUmF0ZTtSPTg7Uz1UOnIjLSNLWjtrPTQ.&slt=1&slr=8&lpt=2", true, false},
+                // TODO utf-8
+                //{"http://news.ainfekka.com/?feed=rss2&tag=%d8%a8%d9%88%d8%b9%d9%8a%d8%b4%d8%a9-%d8%b3%d8%a7%d8%b9%d8%af", true, false},
+                {"./this:that", false, false},
         };
-        for (int i=0; i<valid_uris.length; ++i) {
+        URI jdkuri;
+        Uri uri;
+        for (int i=0; i<valid_uri_cases.length; ++i) {
+            String str = (String)valid_uri_cases[i][0];
+            boolean bAbsolute = (Boolean)valid_uri_cases[i][1];
+            boolean bOpaque = (Boolean)valid_uri_cases[i][2];
+            Object[] expectedraw = null;
+            Object[] expected = null;
+            jdkuri = null;
             try {
-                Uri uri = Uri.create(valid_uris[i]);
-                Assert.assertNotNull(uri);
-                System.out.println("--------");
-                if (uri != null) {
-                    System.out.println("    Scheme: " + uri.scheme);
-                    System.out.println("SchemeSpec: " + uri.schemeSpecificPart);
-                    System.out.println(" Authority: " + uri.authority);
-                    System.out.println("  Userinfo: " + uri.userinfo);
-                    System.out.println("      Host: " + uri.host);
-                    System.out.println("      Port: " + uri.port);
-                    System.out.println("      Path: " + uri.path);
-                    System.out.println("     Query: " + uri.query);
-                    System.out.println("  Fragment: " + uri.fragment);
-                    System.out.println(uri);
-                }
-
-                Assert.assertEquals(valid_uris[i], uri.toString());
-
                 try {
-                    URI jdkuri = new URI(valid_uris[i]);
+                    jdkuri = new URI(str);
                     System.out.println(jdkuri);
                     System.out.println("      Scheme: " + jdkuri.getScheme());
                     System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
@@ -471,24 +513,120 @@ public class TestUri {
                 } catch (URISyntaxException e) {
                     e.printStackTrace();
                 }
+                uri = Uri.create(str);
+                Assert.assertEquals(UriProfile.RFC3986, uri.uriProfile);
+                System.out.println("--------");
+                if (uri != null) {
+                    System.out.println("    Scheme: " + uri.scheme);
+                    System.out.println("SchemeSpec: " + uri.schemeSpecificPart);
+                    System.out.println(" Authority: " + uri.authority);
+                    System.out.println("  Userinfo: " + uri.userinfo);
+                    System.out.println("      Host: " + uri.host);
+                    System.out.println("      Port: " + uri.port);
+                    System.out.println("      Path: " + uri.path);
+                    System.out.println("     Query: " + uri.query);
+                    System.out.println("  Fragment: " + uri.fragment);
+                    System.out.println(uri);
+                }
+                check_expected_uri(uri, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
                 System.out.println("--------");
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 Assert.fail("Unexpected exception!");
             }
         }
-        String[] relaxed_uris = {
+        String[] unicodepct_uris = {
                 // %uXXXX
                 "http://www.a1ie.com/news/index_0_7.html?tags=%u4E8B%u4EF6%u8425%u9500#hello_world",
+        };
+        for (int i=0; i<unicodepct_uris.length; ++i) {
+            String str = unicodepct_uris[i];
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+            try {
+                uri = new Uri(str, UriProfile.RFC3986);
+                Assert.fail("Exception expected!");
+            } catch (URISyntaxException e) {
+            }
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986_ABS_16BIT);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, uri.uriProfile);
+                uri = new Uri(str, UriProfile.RFC3986_ABS_16BIT);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, uri.uriProfile);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986_ABS_16BIT_LAX);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, uri.uriProfile);
+                uri = new Uri(str, UriProfile.RFC3986_ABS_16BIT_LAX);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, uri.uriProfile);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+        }
+        String[] relaxed_uris = {
                 // [
                 "http://www.kb.dk/GUIDResolver/Uid:dk:kb:doms:2006-09/99999/1/S/erez?erez=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif&tmp=1kolonneH&top=0.06395349&bottom=0.93604651&width=200&height=150",
                 "http://www.kb.dk/erez4/erez?height=150&bottom=0.93604651&tmp=1kolonneH&width=200&top=0.06395349&src=online_master_arkiv/webbilleder/NB/Bevaring/billeder_til_CMS/bibsal:002520-:002520small[1]-1.tif",
                 // ^
                 "http://www.advfn.com/p.php?pid=staticchart&s=A^CXZ&p=8&t=37&vol=1",
         };
+        for (int i=0; i<relaxed_uris.length; ++i) {
+            String str = relaxed_uris[i];
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+            try {
+                uri = new Uri(str, UriProfile.RFC3986);
+                Assert.fail("Exception expected!");
+            } catch (URISyntaxException e) {
+            }
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986_ABS_16BIT);
+                Assert.fail("Exception expected!");
+            } catch (IllegalArgumentException e) {
+            }
+            try {
+                uri = new Uri(str, UriProfile.RFC3986_ABS_16BIT);
+                Assert.fail("Exception expected!");
+            } catch (URISyntaxException e) {
+            }
+            try {
+                uri = Uri.create(str, UriProfile.RFC3986_ABS_16BIT_LAX);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, uri.uriProfile);
+                uri = new Uri(str, UriProfile.RFC3986_ABS_16BIT_LAX);
+                Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, uri.uriProfile);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                Assert.fail("Unexpected exception!");
+            }
+        }
     }
 
-    //@Test
+    /*
+    // Useful for mass dumping and testing of all processed URIs.
+    try {
+        RandomAccessFile raf = new RandomAccessFile("uris.txt", "rw");
+        raf.seek(raf.length());
+        raf.write(str.getBytes("ISO8859-1"));
+        raf.write("\r\n".getBytes());
+        raf.close();
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    */
+
+    /*
     public void test_uris_list() {
         RandomAccessFile raf;
         String line;
@@ -516,6 +654,7 @@ public class TestUri {
         System.out.println("valid: " + valid);
         System.out.println("invalid: " + invalid);
     }
+    */
 
     public void check_expected_uri(Uri uri, URI jdkuri, boolean bAbsolute, boolean bOpaque, Object[] expectedraw, Object[] expected) {
         // booleans
@@ -524,25 +663,29 @@ public class TestUri {
         Assert.assertEquals(uri.bAbsolute, uri.isAbsolute());
         Assert.assertEquals(uri.bOpaque, uri.isOpaque());
         // raw data
-        Assert.assertEquals(expectedraw[0], uri.hierPartRaw);
-        Assert.assertEquals(expectedraw[1], uri.schemeSpecificPartRaw);
-        Assert.assertEquals(expectedraw[2], uri.authorityRaw);
-        Assert.assertEquals(expectedraw[3], uri.userinfoRaw);
-        Assert.assertEquals(expectedraw[4], uri.hostRaw);
-        Assert.assertEquals(expectedraw[5], uri.portRaw);
-        Assert.assertEquals(expectedraw[6], uri.pathRaw);
-        Assert.assertEquals(expectedraw[7], uri.queryRaw);
-        Assert.assertEquals(expectedraw[8], uri.fragmentRaw);
+        if (expectedraw != null) {
+            Assert.assertEquals(expectedraw[0], uri.hierPartRaw);
+            Assert.assertEquals(expectedraw[1], uri.schemeSpecificPartRaw);
+            Assert.assertEquals(expectedraw[2], uri.authorityRaw);
+            Assert.assertEquals(expectedraw[3], uri.userinfoRaw);
+            Assert.assertEquals(expectedraw[4], uri.hostRaw);
+            Assert.assertEquals(expectedraw[5], uri.portRaw);
+            Assert.assertEquals(expectedraw[6], uri.pathRaw);
+            Assert.assertEquals(expectedraw[7], uri.queryRaw);
+            Assert.assertEquals(expectedraw[8], uri.fragmentRaw);
+        }
         // decoded data
-        Assert.assertEquals(expected[0], uri.scheme);
-        Assert.assertEquals(expected[1], uri.schemeSpecificPart);
-        Assert.assertEquals(expected[2], uri.authority);
-        Assert.assertEquals(expected[3], uri.userinfo);
-        Assert.assertEquals(expected[4], uri.host);
-        Assert.assertEquals(expected[5], uri.port);
-        Assert.assertEquals(expected[6], uri.path);
-        Assert.assertEquals(expected[7], uri.query);
-        Assert.assertEquals(expected[8], uri.fragment);
+        if (expected != null) {
+            Assert.assertEquals(expected[0], uri.scheme);
+            Assert.assertEquals(expected[1], uri.schemeSpecificPart);
+            Assert.assertEquals(expected[2], uri.authority);
+            Assert.assertEquals(expected[3], uri.userinfo);
+            Assert.assertEquals(expected[4], uri.host);
+            Assert.assertEquals(expected[5], uri.port);
+            Assert.assertEquals(expected[6], uri.path);
+            Assert.assertEquals(expected[7], uri.query);
+            Assert.assertEquals(expected[8], uri.fragment);
+        }
         // Raw methods
         Assert.assertEquals(uri.schemeSpecificPartRaw, uri.getRawSchemeSpecificPart());
         Assert.assertEquals(uri.authorityRaw, uri.getRawAuthority());
