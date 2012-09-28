@@ -29,52 +29,52 @@ import org.jwat.common.UriProfile;
 @RunWith(JUnit4.class)
 public class TestWarc_UriProfile {
 
-	@Test
-	public void test_warcreader_uriprofile() {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		WarcReader reader;
-		WarcWriter writer;
-		WarcRecord record;
+    @Test
+    public void test_warcreader_uriprofile() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        WarcReader reader;
+        WarcWriter writer;
+        WarcRecord record;
 
         try {
-    		reader = WarcReaderFactory.getReaderUncompressed();
-    		Assert.assertEquals(UriProfile.RFC3986, reader.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
-    		Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
-    		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
-    		reader.setWarcTargerUriProfile(UriProfile.RFC3986_ABS_16BIT);
-    		reader.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
-    		Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, reader.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, reader.uriProfile);
-    		Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
-    		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
-    		reader.setWarcTargerUriProfile(null);
-    		reader.setUriProfile(null);
-    		Assert.assertEquals(UriProfile.RFC3986, reader.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
-    		Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
-    		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+            reader = WarcReaderFactory.getReaderUncompressed();
+            Assert.assertEquals(UriProfile.RFC3986, reader.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
+            Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
+            Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+            reader.setWarcTargerUriProfile(UriProfile.RFC3986_ABS_16BIT);
+            reader.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
+            Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, reader.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, reader.uriProfile);
+            Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
+            Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+            reader.setWarcTargerUriProfile(null);
+            reader.setUriProfile(null);
+            Assert.assertEquals(UriProfile.RFC3986, reader.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
+            Assert.assertEquals(reader.warcTargetUriProfile, reader.getWarcTargetUriProfile());
+            Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
 
-    		writer = WarcWriterFactory.getWriter(out, 8192, false);
-    		Assert.assertEquals(UriProfile.RFC3986, writer.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986, writer.uriProfile);
-    		Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
-    		Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
-    		writer.setWarcTargerUriProfile(UriProfile.RFC3986_ABS_16BIT);
-    		writer.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
-    		Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, writer.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, writer.uriProfile);
-    		Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
-    		Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
-    		writer.setWarcTargerUriProfile(null);
-    		writer.setUriProfile(null);
-    		Assert.assertEquals(UriProfile.RFC3986, writer.warcTargetUriProfile);
-    		Assert.assertEquals(UriProfile.RFC3986, writer.uriProfile);
-    		Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
-    		Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
+            writer = WarcWriterFactory.getWriter(out, 8192, false);
+            Assert.assertEquals(UriProfile.RFC3986, writer.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986, writer.uriProfile);
+            Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
+            Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
+            writer.setWarcTargerUriProfile(UriProfile.RFC3986_ABS_16BIT);
+            writer.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
+            Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT, writer.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, writer.uriProfile);
+            Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
+            Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
+            writer.setWarcTargerUriProfile(null);
+            writer.setUriProfile(null);
+            Assert.assertEquals(UriProfile.RFC3986, writer.warcTargetUriProfile);
+            Assert.assertEquals(UriProfile.RFC3986, writer.uriProfile);
+            Assert.assertEquals(writer.warcTargetUriProfile, writer.getWarcTargetUriProfile());
+            Assert.assertEquals(writer.uriProfile, writer.getUriProfile());
 
-    		out.reset();
-    		writer = WarcWriterFactory.getWriter(out, 8192, false);
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, 8192, false);
 
             record = WarcRecord.createRecord(writer);
             record.header.addHeader(WarcConstants.FN_WARC_TYPE, "response");
@@ -89,9 +89,9 @@ public class TestWarc_UriProfile {
             writer.closeRecord();
             writer.close();
         } catch (IOException e) {
-			e.printStackTrace();
-			Assert.fail("Unexpected exception!");
-		}
-	}
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
 
 }

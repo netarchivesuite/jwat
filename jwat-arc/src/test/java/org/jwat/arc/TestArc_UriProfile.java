@@ -26,17 +26,17 @@ import org.jwat.common.UriProfile;
 @RunWith(JUnit4.class)
 public class TestArc_UriProfile {
 
-	@Test
-	public void test_warcreader_uriprofile() {
-		ArcReader reader = ArcReaderFactory.getReaderUncompressed();
-		Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
-		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
-		reader.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
-		Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, reader.uriProfile);
-		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
-		reader.setUriProfile(null);
-		Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
-		Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
-	}
+    @Test
+    public void test_warcreader_uriprofile() {
+        ArcReader reader = ArcReaderFactory.getReaderUncompressed();
+        Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
+        Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+        reader.setUriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
+        Assert.assertEquals(UriProfile.RFC3986_ABS_16BIT_LAX, reader.uriProfile);
+        Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+        reader.setUriProfile(null);
+        Assert.assertEquals(UriProfile.RFC3986, reader.uriProfile);
+        Assert.assertEquals(reader.uriProfile, reader.getUriProfile());
+    }
 
 }

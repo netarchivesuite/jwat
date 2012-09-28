@@ -78,9 +78,9 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     {"Content-Type", "application/http; msgtype=response"},
                     {"Content-Length", "206"},
                     }, new Object[][] {
-            			{DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2},
-            			{DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1},
-            		}, new Object[][] {
+                        {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2},
+                        {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1},
+                    }, new Object[][] {
                         {DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1}
                     }, null
             },
@@ -321,8 +321,8 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
 
     public void test_checkfields_cases(Object[][] cases) {
         for (int i=0; i<cases.length; ++i) {
-        	// debug
-        	//System.out.println(i + 1);
+            // debug
+            //System.out.println(i + 1);
             Object[][] headers = (Object[][])cases[i][0];
             Object[][] expectedErrors = (Object[][])cases[i][1];
             Object[][] expectedWarnings = (Object[][])cases[i][2];

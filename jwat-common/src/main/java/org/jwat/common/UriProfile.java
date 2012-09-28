@@ -178,28 +178,28 @@ public class UriProfile {
             if (c < 256) {
                 if ((charTypeMap[c] & bw_and) == 0) {
                     if (c == '%') {
-                    	ppos = pos - 1;
+                        ppos = pos - 1;
                         if (pos < limit) {
                             c = str.charAt(pos);
                             if (c == 'u' || c == 'U') {
                                 if (!bAllow16bitPercentEncoding) {
-                                	if (!bAllowinvalidPercentEncoding) {
+                                    if (!bAllowinvalidPercentEncoding) {
                                         throw new URISyntaxException(str, "Invalid URI " + componentName + " component - 16-bit percent encoding not allowed");
-                                	} else {
-                                		bValid = false;
-                                	}
+                                    } else {
+                                        bValid = false;
+                                    }
                                 } else {
                                     ++pos;
                                     decode = 4;
-                                	bValid = true;
+                                    bValid = true;
                                 }
                             } else {
                                 decode = 2;
-                            	bValid = true;
+                                bValid = true;
                             }
                             decodedC = 0;
                             while (bValid && decode > 0) {
-                            	if (pos < limit) {
+                                if (pos < limit) {
                                     c = str.charAt(pos++);
                                     decodedC <<= 4;
                                     if (c < 256) {
@@ -208,30 +208,30 @@ public class UriProfile {
                                             decodedC |= tmpC;
                                             --decode;
                                         } else {
-                                    		bValid = false;
+                                            bValid = false;
                                         }
                                     } else {
-                                		bValid = false;
+                                        bValid = false;
                                     }
-                            	} else {
-                            		bValid = false;
-                            	}
-                            }                            
+                                } else {
+                                    bValid = false;
+                                }
+                            }
                             if (!bValid && !bAllowinvalidPercentEncoding) {
                                 throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid percent encoding");
                             }
                             sb.append((char) decodedC);
                         } else {
-                        	if (!bAllowinvalidPercentEncoding) {
+                            if (!bAllowinvalidPercentEncoding) {
                                 throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
-                        	} else {
-                        		bValid = false;
-                        	}
+                            } else {
+                                bValid = false;
+                            }
                         }
                         if (!bValid) {
-                        	while (ppos < pos) {
-                            	sb.append(str.charAt(ppos++));
-                        	}
+                            while (ppos < pos) {
+                                sb.append(str.charAt(ppos++));
+                            }
                         }
                     } else {
                         throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");

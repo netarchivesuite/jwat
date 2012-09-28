@@ -30,25 +30,25 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
     @Test
     public void test_warcheader_addheader() {
         headers = new String[] {
-        	    WarcConstants.FN_WARC_TYPE,
-        	    WarcConstants.FN_WARC_RECORD_ID,
-        	    WarcConstants.FN_WARC_DATE,
-        	    WarcConstants.FN_CONTENT_LENGTH,
-        	    WarcConstants.FN_CONTENT_TYPE,
-        	    WarcConstants.FN_WARC_CONCURRENT_TO,
-        	    WarcConstants.FN_WARC_BLOCK_DIGEST,
-        	    WarcConstants.FN_WARC_PAYLOAD_DIGEST,
-        	    WarcConstants.FN_WARC_IP_ADDRESS,
-        	    WarcConstants.FN_WARC_REFERS_TO,
-        	    WarcConstants.FN_WARC_TARGET_URI,
-        	    WarcConstants.FN_WARC_TRUNCATED,
-        	    WarcConstants.FN_WARC_WARCINFO_ID,
-        	    WarcConstants.FN_WARC_FILENAME,
-        	    WarcConstants.FN_WARC_PROFILE,
-        	    WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE,
-        	    WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID,
-        	    WarcConstants.FN_WARC_SEGMENT_NUMBER,
-        	    WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH
+                WarcConstants.FN_WARC_TYPE,
+                WarcConstants.FN_WARC_RECORD_ID,
+                WarcConstants.FN_WARC_DATE,
+                WarcConstants.FN_CONTENT_LENGTH,
+                WarcConstants.FN_CONTENT_TYPE,
+                WarcConstants.FN_WARC_CONCURRENT_TO,
+                WarcConstants.FN_WARC_BLOCK_DIGEST,
+                WarcConstants.FN_WARC_PAYLOAD_DIGEST,
+                WarcConstants.FN_WARC_IP_ADDRESS,
+                WarcConstants.FN_WARC_REFERS_TO,
+                WarcConstants.FN_WARC_TARGET_URI,
+                WarcConstants.FN_WARC_TRUNCATED,
+                WarcConstants.FN_WARC_WARCINFO_ID,
+                WarcConstants.FN_WARC_FILENAME,
+                WarcConstants.FN_WARC_PROFILE,
+                WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE,
+                WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID,
+                WarcConstants.FN_WARC_SEGMENT_NUMBER,
+                WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH
         };
         testEmptyHeader(headers, null);
         testEmptyHeader(headers, "");
@@ -72,9 +72,9 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
          */
 
         cases = new Object[][] {
-        		/*
-        		 * String
-        		 */
+                /*
+                 * String
+                 */
                 {WarcConstants.FN_WARC_TYPE, new Object[][] {
                         {"hello_kitty", null, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
