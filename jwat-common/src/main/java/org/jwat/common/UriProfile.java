@@ -69,10 +69,13 @@ public class UriProfile {
     protected int[] charTypeMap = new int[256];
 
     /** Does profile allow relative URIs. */
-    public boolean bAllowRelativeUris = true;
+    public boolean bAllowRelativeUris;
 
     /** Does profile allow 16-bit percent encoding. */
-    public boolean bAllow16bitPercentEncoding = false;
+    public boolean bAllow16bitPercentEncoding;
+
+    /** Does profile allow invalid percent encoding. */
+    public boolean bAllowinvalidPercentEncoding;
 
     /**
      * Construct an <code>UriProfile</code> initialized with RFC3986
@@ -82,8 +85,9 @@ public class UriProfile {
         for (int i=0; i<defaultCharTypeMap.length; ++i) {
             charTypeMap[i] = defaultCharTypeMap[i];
         }
-        bAllow16bitPercentEncoding = false;
         bAllowRelativeUris = true;
+        bAllow16bitPercentEncoding = false;
+        bAllowinvalidPercentEncoding = false;
     }
 
     /**
@@ -131,7 +135,7 @@ public class UriProfile {
      * for the first character and another for the following characters.
      * @param str URI component string
      * @param bw_and_first bits identifying first character categories
-     * @param bw_and_follow bits identifying follow character categories
+     * @param bw_and_follow bits identifying following character categories
      * @throws URISyntaxException if an error occurs parsing component
      */
     public void validate_first_follow(String str, int bw_and_first, int bw_and_follow) throws URISyntaxException {
@@ -162,49 +166,72 @@ public class UriProfile {
     public String validate_decode(int bw_and, String componentName, String str) throws URISyntaxException {
         StringBuilder sb = new StringBuilder();
         int pos = 0;
+        int ppos;
         int limit = str.length();
         char c;
-        int decode;
+        int decode = 0;
         int tmpC;
         char decodedC;
+        boolean bValid;
         while (pos < limit) {
             c = str.charAt(pos++);
             if (c < 256) {
                 if ((charTypeMap[c] & bw_and) == 0) {
                     if (c == '%') {
+                    	ppos = pos - 1;
                         if (pos < limit) {
                             c = str.charAt(pos);
                             if (c == 'u' || c == 'U') {
                                 if (!bAllow16bitPercentEncoding) {
-                                    throw new URISyntaxException(str, "Invalid URI " + componentName + " component - 16-bit percent encoding not allowed");
+                                	if (!bAllowinvalidPercentEncoding) {
+                                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - 16-bit percent encoding not allowed");
+                                	} else {
+                                		bValid = false;
+                                	}
+                                } else {
+                                    ++pos;
+                                    decode = 4;
+                                	bValid = true;
                                 }
-                                ++pos;
-                                decode = 4;
                             } else {
                                 decode = 2;
+                            	bValid = true;
                             }
                             decodedC = 0;
-                            while (decode > 0 && pos < limit) {
-                                c = str.charAt(pos++);
-                                decodedC <<= 4;
-                                if (c < 256) {
-                                    tmpC = asciiHexTab[c];
-                                    if (tmpC != -1) {
-                                        decodedC |= tmpC;
+                            while (bValid && decode > 0) {
+                            	if (pos < limit) {
+                                    c = str.charAt(pos++);
+                                    decodedC <<= 4;
+                                    if (c < 256) {
+                                        tmpC = asciiHexTab[c];
+                                        if (tmpC != -1) {
+                                            decodedC |= tmpC;
+                                            --decode;
+                                        } else {
+                                    		bValid = false;
+                                        }
                                     } else {
-                                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
+                                		bValid = false;
                                     }
-                                } else {
-                                    throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding character '" + c + "'");
-                                }
-                                --decode;
-                            }
-                            if (decode > 0) {
-                                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
+                            	} else {
+                            		bValid = false;
+                            	}
+                            }                            
+                            if (!bValid && !bAllowinvalidPercentEncoding) {
+                                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid percent encoding");
                             }
                             sb.append((char) decodedC);
                         } else {
-                            throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
+                        	if (!bAllowinvalidPercentEncoding) {
+                                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
+                        	} else {
+                        		bValid = false;
+                        	}
+                        }
+                        if (!bValid) {
+                        	while (ppos < pos) {
+                            	sb.append(str.charAt(ppos++));
+                        	}
                         }
                     } else {
                         throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
@@ -332,12 +359,13 @@ public class UriProfile {
     /** RFC3986 compliant URI profile. */
     public static final UriProfile RFC3986;
 
-    /** Modified RFC3986 URI profile which allows 16-bit percent encoding
-     *  and disallows relative URIs. */
+    /** Modified RFC3986 URI profile which disallows relative URIs
+     *  and allows 16-bit percent encoding. */
     public static final UriProfile RFC3986_ABS_16BIT;
 
-    /** Relaxed RFC3986 URI profile which allows 16-bit percent encoding,
-     *  disallows relative URIs and allows most characters. */
+    /** Relaxed RFC3986 URI profile which disallows relative URIs,
+     *  allows 16-bit percent encoding, allow invalid percent encoding
+     *  and allows most 8-bit characters. */
     public static final UriProfile RFC3986_ABS_16BIT_LAX;
 
     /*
@@ -347,8 +375,9 @@ public class UriProfile {
         RFC3986 = new UriProfile();
 
         RFC3986_ABS_16BIT = new UriProfile();
-        RFC3986_ABS_16BIT.bAllow16bitPercentEncoding = true;
         RFC3986_ABS_16BIT.bAllowRelativeUris = false;
+        RFC3986_ABS_16BIT.bAllow16bitPercentEncoding = true;
+        RFC3986_ABS_16BIT.bAllowinvalidPercentEncoding = false;
 
         StringBuilder sb = new StringBuilder("[]");
         for (int i=33; i<127; ++i) {
@@ -357,13 +386,13 @@ public class UriProfile {
             }
         }
         for (int i=161; i<255; ++i) {
-            if ((defaultCharTypeMap[i] & (B_FRAGMENT | B_RESERVED)) == 0 && i != '%') {
-                sb.append((char) i);
-            }
+            sb.append((char) i);
         }
+        // []"<>\^`{|}¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ
         RFC3986_ABS_16BIT_LAX = new UriProfile();
-        RFC3986_ABS_16BIT_LAX.bAllow16bitPercentEncoding = true;
         RFC3986_ABS_16BIT_LAX.bAllowRelativeUris = false;
+        RFC3986_ABS_16BIT_LAX.bAllow16bitPercentEncoding = true;
+        RFC3986_ABS_16BIT_LAX.bAllowinvalidPercentEncoding = true;
         RFC3986_ABS_16BIT_LAX.charTypeAddAndOr(sb.toString(), 0, B_PATH | B_QUERY | B_FRAGMENT);
     }
 

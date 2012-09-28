@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestStreamsInStreams {
+public class Test_StreamsInStreams {
 
     private int min;
     private int max;
@@ -47,7 +47,7 @@ public class TestStreamsInStreams {
         });
     }
 
-    public TestStreamsInStreams(int min, int max, int runs) {
+    public Test_StreamsInStreams(int min, int max, int runs) {
         this.min = min;
         this.max = max;
         this.runs = runs;

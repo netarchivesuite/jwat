@@ -264,7 +264,6 @@ public class Uri implements Comparable<Uri> {
                     hostRaw = authorityRaw.substring(aIdx);
                     //portRaw = null;
                 }
-                // TODO not in old RFC?
                 host = uriProfile.validate_decode(UriProfile.B_REGNAME, "host", hostRaw);
             }
             // Userinfo validation.
@@ -280,7 +279,7 @@ public class Uri implements Comparable<Uri> {
                     try {
                         port = Integer.parseInt(portRaw);
                         if (port < 1 || port > 65535) {
-                            throw new URISyntaxException(portRaw, "Invalid URI port component");
+                            throw new URISyntaxException(portRaw, "Invalid URI port component - port is not within range [1-65535]");
                         }
                         authority += ':' + portRaw;
                     } catch (NumberFormatException e) {

@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.Payload;
 
 @RunWith(Parameterized.class)
-public class TestUtf8 {
+public class TestWarc_Utf8 {
 
     private int expected_records;
     private int expected_errors;
@@ -49,7 +49,7 @@ public class TestUtf8 {
         });
     }
 
-    public TestUtf8(int records, int errors, int warnings, String warcFile) {
+    public TestWarc_Utf8(int records, int errors, int warnings, String warcFile) {
         this.expected_records = records;
         this.expected_errors = errors;
         this.expected_warnings = warnings;

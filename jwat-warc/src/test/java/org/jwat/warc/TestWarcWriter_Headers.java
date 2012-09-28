@@ -32,7 +32,7 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
-public class TestWarcWriterHeaders {
+public class TestWarcWriter_Headers {
 
     @Test
     public void test_warcwriter_compressed() {

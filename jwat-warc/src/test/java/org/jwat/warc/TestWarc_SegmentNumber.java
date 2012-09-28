@@ -33,25 +33,30 @@ import org.jwat.warc.WarcReaderFactory;
 import org.jwat.warc.WarcRecord;
 
 @RunWith(Parameterized.class)
-public class TestUpperLowerCase {
+public class TestWarc_SegmentNumber {
 
     private int expected_records;
+    private int[] expected_errors;
+    private int[] expected_warnings;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {5, "test-upper-lower-case.warc"}
+                {2, new int[]{1, 0}, new int[]{0, 0}, "test-segment-number-continuation.warc"},
+                {2, new int[]{0, 1}, new int[]{0, 0}, "test-segment-number-response.warc"}
         });
     }
 
-    public TestUpperLowerCase(int records, String warcFile) {
+    public TestWarc_SegmentNumber(int records, int[] errors, int[] warnings, String warcFile) {
         this.expected_records = records;
+        this.expected_errors = errors;
+        this.expected_warnings= warnings;
         this.warcFile = warcFile;
     }
 
     @Test
-    public void test_uppercase_lowercase() {
+    public void test_segment_number() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -74,14 +79,19 @@ public class TestUpperLowerCase {
 
                 record.close();
 
-                ++records;
-
+                errors = 0;
+                warnings = 0;
                 if (record.diagnostics.hasErrors()) {
                     errors += record.diagnostics.getErrors().size();
                 }
                 if (record.diagnostics.hasWarnings()) {
                     warnings += record.diagnostics.getWarnings().size();
                 }
+
+                Assert.assertEquals(expected_errors[records], errors);
+                Assert.assertEquals(expected_warnings[records], warnings);
+
+                ++records;
             }
 
             reader.close();
@@ -97,8 +107,6 @@ public class TestUpperLowerCase {
         }
 
         Assert.assertEquals(expected_records, records);
-        Assert.assertEquals(0, errors);
-        Assert.assertEquals(0, warnings);
     }
 
 }

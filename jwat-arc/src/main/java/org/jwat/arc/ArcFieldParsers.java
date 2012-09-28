@@ -26,6 +26,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Uri;
+import org.jwat.common.UriProfile;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -179,25 +180,26 @@ public class ArcFieldParsers {
     /**
      * Returns an URL object holding the value of the specified string.
      * @param uriStr the URL to parse
+     * @param uriProfile profile used to validate URI
      * @param field field name
      * @param nullable allow empty or null value
      * @return an URL object holding the value of the specified string or null,
      * if unable to parse the value as an URL object
      */
-    protected Uri parseUri(String uriStr, String field, boolean nullable) {
+    protected Uri parseUri(String uriStr, UriProfile uriProfile, String field, boolean nullable) {
         Uri uri = null;
         if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
-                uri = new Uri(uriStr);
+                uri = new Uri(uriStr, uriProfile);
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",
                         uriStr,
-                        "URI format");
+                        e.getMessage());
             }
             if (uri != null) {
                 String scheme = uri.getScheme();
-                if (scheme == null || scheme.length() == 0) {
+                if (scheme == null) {
                     uri = null;
                     // Relative URI.
                     addInvalidExpectedError("'" + field + "' value",

@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class TestAdditionalReadMethods {
+public class Test_AdditionalReadMethods {
 
     /**
      * Check inputstream with random number of lines with random line length.

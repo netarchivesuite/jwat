@@ -20,44 +20,48 @@ package org.jwat.warc;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcReaderFactory;
-import org.jwat.warc.WarcRecord;
+import org.jwat.common.Diagnosis;
 
 @RunWith(Parameterized.class)
-public class TestContentTypeRecommended {
+public class TestWarc_MissingHeadersAll {
 
     private int expected_records;
-    private int expected_errors;
-    private int expected_warnings;
     private String warcFile;
+    private Set<String> errorsFieldNamesSet;
+    private Set<String> warningsFieldNamesSet;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 1, "test-contenttype-warcinfo-recommended.warc"},
-                {7, 0, 1, "test-contenttype-recommended.warc"},
-                {1, 0, 0, "test-contenttype-continuation.warc"}
+                {2, "test-lonely-warcinfo-metadata.warc", "WARC-Record-ID,WARC-Date,Content-Length", ""},
+                {4, "test-lonely-request-response-resource-conversion.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI", ""},
+                {1, "test-lonely-continuation.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Segment-Number,WARC-Segment-Origin-ID", ""},
+                {1, "test-lonely-revisit.warc", "WARC-Record-ID,WARC-Date,Content-Length,WARC-Target-URI,WARC-Profile", ""},
+                {1, "test-lonely-monkeys.warc", "WARC-Type,WARC-Record-ID,WARC-Date,Content-Length", "WARC-Type"}
         });
     }
 
-    public TestContentTypeRecommended(int records, int recommended, int warnings, String warcFile) {
+    public TestWarc_MissingHeadersAll(int records, String warcFile, String errorFieldNames, String warningFieldNames) {
         this.expected_records = records;
-        this.expected_errors = recommended;
-        this.expected_warnings = warnings;
         this.warcFile = warcFile;
+        this.errorsFieldNamesSet = new HashSet<String>(Arrays.asList((errorFieldNames.split(",", -1))));
+        this.warningsFieldNamesSet = new HashSet<String>(Arrays.asList((warningFieldNames.split(",", -1))));
     }
 
     @Test
-    public void test_contenttype_recommended() {
+    public void test_missing_headers() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -82,17 +86,23 @@ public class TestContentTypeRecommended {
 
                 ++records;
 
-                errors = 0;
-                warnings = 0;
                 if (record.diagnostics.hasErrors()) {
                     errors += record.diagnostics.getErrors().size();
+
+                    Assert.assertTrue(errorsFieldNamesSet.containsAll(
+                            filter(record.diagnostics.getErrors())
+                            ));
+                }
+                else {
+                    Assert.fail("There must be errors.");
                 }
                 if (record.diagnostics.hasWarnings()) {
                     warnings += record.diagnostics.getWarnings().size();
-                }
 
-                Assert.assertEquals(expected_errors, errors);
-                Assert.assertEquals(expected_warnings, warnings);
+                    Assert.assertTrue(warningsFieldNamesSet.containsAll(
+                            filter(record.diagnostics.getWarnings())
+                            ));
+                }
             }
 
             reader.close();
@@ -108,6 +118,22 @@ public class TestContentTypeRecommended {
         }
 
         Assert.assertEquals(expected_records, records);
+        //Assert.assertEquals(0, errors);
+        //Assert.assertEquals(0, warnings);
+    }
+
+    public List<String> filter(List<Diagnosis> errors) {
+        List<String> fields = new ArrayList<String>();
+        for (Diagnosis error : errors) {
+            int idx = error.entity.indexOf('\'');
+            if (idx != 0) {
+                idx = error.entity.indexOf('\'', 1);
+                if (idx != -1) {
+                    fields.add(error.entity.substring(1, idx));
+                }
+            }
+        }
+        return fields;
     }
 
 }

@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLineReader;
+import org.jwat.common.UriProfile;
 
 /**
  * Base class for WARC reader implementations.
@@ -36,6 +37,12 @@ public abstract class WarcReader {
     /*
      * Settings.
      */
+
+    /** WARC-Target-URI profile. */
+    protected UriProfile warcTargetUriProfile;
+
+    /** URI profile. */
+    protected UriProfile uriProfile;
 
     /** Default block digest algorithm to use if none is present in the
      *  record. */
@@ -107,6 +114,8 @@ public abstract class WarcReader {
      * Must be called by all constructors.
      */
     protected void init() {
+        warcTargetUriProfile = UriProfile.RFC3986;
+        uriProfile = UriProfile.RFC3986;
         warcHeaderMaxSize = 8192;
         payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
@@ -147,6 +156,44 @@ public abstract class WarcReader {
      * @return boolean indicating the assumption of GZip compressed input
      */
     public abstract boolean isCompressed();
+
+    /**
+     * Set the URI profile used to validate WARC-Target URIs.
+     * @param uriProfile URI profile to use
+     */
+    public void setWarcTargerUriProfile(UriProfile uriProfile) {
+        if (uriProfile == null) {
+            uriProfile = UriProfile.RFC3986;
+        }
+        this.warcTargetUriProfile = uriProfile;
+    }
+
+    /**
+     * Get the URI profile used to validate WARC-Target URIs.
+     * @return the URI profile used to validate WARC-Target URIs
+     */
+    public UriProfile getWarcTargetUriProfile() {
+        return warcTargetUriProfile;
+    }
+
+    /**
+     * Set the URI profile used to validate URIs.
+     * @param uriProfile URI profile to use
+     */
+    public void setUriProfile(UriProfile uriProfile) {
+        if (uriProfile == null) {
+            uriProfile = UriProfile.RFC3986;
+        }
+        this.uriProfile = uriProfile;
+    }
+
+    /**
+     * Get the URI profile used to validate URIs.
+     * @return the URI profile used to validate URIs
+     */
+    public UriProfile getUriProfile() {
+        return uriProfile;
+    }
 
     /**
      * Get the readers block digest on/off status.

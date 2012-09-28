@@ -30,7 +30,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
-public class TestWarcReaderDiagnosis {
+public class TestWarcReader_Diagnosis {
 
     @Test
     public void test_warcreader_diagnosis() {

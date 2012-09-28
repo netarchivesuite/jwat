@@ -26,6 +26,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLineReader;
+import org.jwat.common.UriProfile;
 
 /**
  * ARC Reader base class.
@@ -42,6 +43,9 @@ public abstract class ArcReader {
      *  Non strict mode allows newlines when there should be no xml metadata.
      *  Non strict mode allows a varied number of newlines between records. */
     protected boolean bStrict = false;
+
+    /** URL URI profile. */
+    protected UriProfile uriProfile;
 
     /** Block Digest enabled/disabled. */
     protected boolean bBlockDigest = false;
@@ -108,6 +112,7 @@ public abstract class ArcReader {
      * Method used to initialize a readers internal state.
      */
     protected void init() {
+        uriProfile = UriProfile.RFC3986;
         arcHeaderMaxSize = 8192;
         payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
@@ -140,6 +145,12 @@ public abstract class ArcReader {
     }
 
     /**
+     * Is this reader assuming GZip compressed input.
+     * @return boolean indicating the assumption of GZip compressed input
+     */
+    public abstract boolean isCompressed();
+
+    /**
      * Set the readers strict mode on/off.
      * @param bStrict strict mode on/off
      */
@@ -156,10 +167,23 @@ public abstract class ArcReader {
     }
 
     /**
-     * Is this reader assuming GZip compressed input.
-     * @return boolean indicating the assumption of GZip compressed input
+     * Set the URI profile used to validate URL URIs.
+     * @param uriProfile URI profile to use
      */
-    public abstract boolean isCompressed();
+    public void setUriProfile(UriProfile uriProfile) {
+        if (uriProfile == null) {
+            uriProfile = UriProfile.RFC3986;
+        }
+        this.uriProfile = uriProfile;
+    }
+
+    /**
+     * Get the URI profile used to validate URL URIs.
+     * @return the URI profile used to validate URL URIs
+     */
+    public UriProfile getUriProfile() {
+        return uriProfile;
+    }
 
     /**
      * Get the readers block digest on/off status.

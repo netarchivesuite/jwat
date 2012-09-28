@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.UriProfile;
 
 /**
  * Base class for WARC writer implementations.
@@ -49,6 +50,12 @@ public abstract class WarcWriter {
     /*
      * Settings.
      */
+
+    /** WARC-Target-URI profile. */
+    protected UriProfile warcTargetUriProfile;
+
+    /** URI profile. */
+    protected UriProfile uriProfile;
 
     /** Block Digesting enabled/disabled. */
     //protected boolean bDigestBlock = false;
@@ -93,6 +100,8 @@ public abstract class WarcWriter {
      * Must be called by all constructors.
      */
     protected void init() {
+        warcTargetUriProfile = UriProfile.RFC3986;
+        uriProfile = UriProfile.RFC3986;
         warcDateFormat = WarcDateParser.getDateFormat();
         fieldParsers = new WarcFieldParsers();
         stream_copy_buffer = new byte[8192];
@@ -104,6 +113,28 @@ public abstract class WarcWriter {
      * @return boolean indicating whether compressed output is produced
      */
     public abstract boolean isCompressed();
+
+    public void setWarcTargerUriProfile(UriProfile uriProfile) {
+        if (uriProfile == null) {
+            uriProfile = UriProfile.RFC3986;
+        }
+        this.warcTargetUriProfile = uriProfile;
+    }
+
+    public UriProfile getWarcTargetUriProfile() {
+        return warcTargetUriProfile;
+    }
+
+    public void setUriProfile(UriProfile uriProfile) {
+        if (uriProfile == null) {
+            uriProfile = UriProfile.RFC3986;
+        }
+        this.uriProfile = uriProfile;
+    }
+
+    public UriProfile getUriProfile() {
+        return uriProfile;
+    }
 
     /**
      * Does this writer throw an exception if the content-length does not match

@@ -30,25 +30,25 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
     @Test
     public void test_warcheader_addheader() {
         headers = new String[] {
-                "WARC-Type",
-                "WARC-Record-ID",
-                "WARC-Date",
-                "Content-Length",
-                "Content-Type",
-                "WARC-Concurrent-To",
-                "WARC-Block-Digest",
-                "WARC-Payload-Digest",
-                "WARC-IP-Address",
-                "WARC-Refers-To",
-                "WARC-Target-URI",
-                "WARC-Truncated",
-                "WARC-Warcinfo-ID",
-                "WARC-Filename",
-                "WARC-Profile",
-                "WARC-Identified-Payload-Type",
-                "WARC-Segment-Origin-ID",
-                "WARC-Segment-Number",
-                "WARC-Segment-Total-Length"
+        	    WarcConstants.FN_WARC_TYPE,
+        	    WarcConstants.FN_WARC_RECORD_ID,
+        	    WarcConstants.FN_WARC_DATE,
+        	    WarcConstants.FN_CONTENT_LENGTH,
+        	    WarcConstants.FN_CONTENT_TYPE,
+        	    WarcConstants.FN_WARC_CONCURRENT_TO,
+        	    WarcConstants.FN_WARC_BLOCK_DIGEST,
+        	    WarcConstants.FN_WARC_PAYLOAD_DIGEST,
+        	    WarcConstants.FN_WARC_IP_ADDRESS,
+        	    WarcConstants.FN_WARC_REFERS_TO,
+        	    WarcConstants.FN_WARC_TARGET_URI,
+        	    WarcConstants.FN_WARC_TRUNCATED,
+        	    WarcConstants.FN_WARC_WARCINFO_ID,
+        	    WarcConstants.FN_WARC_FILENAME,
+        	    WarcConstants.FN_WARC_PROFILE,
+        	    WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE,
+        	    WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID,
+        	    WarcConstants.FN_WARC_SEGMENT_NUMBER,
+        	    WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH
         };
         testEmptyHeader(headers, null);
         testEmptyHeader(headers, "");
@@ -72,93 +72,145 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
          */
 
         cases = new Object[][] {
-                {"WARC-Type", new Object[][] {
+        		/*
+        		 * String
+        		 */
+                {WarcConstants.FN_WARC_TYPE, new Object[][] {
                         {"hello_kitty", null, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
                                 Assert.assertEquals(new Integer(WarcConstants.RT_IDX_UNKNOWN), header.warcTypeIdx);
                             }
                         }}
                 }},
-                {"WARC-Concurrent-To", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2}
-                        }, null, new TestHeaderCallback() {
-                            public void callback(WarcHeader header) {
-                                Assert.assertEquals(1, header.warcConcurrentToList.size());
-                            }
-                        }},
-                        {"hello_kitty2", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2},
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Concurrent-To' value", 2}
-                        }, null, new TestHeaderCallback() {
-                            public void callback(WarcHeader header) {
-                                Assert.assertEquals(2, header.warcConcurrentToList.size());
-                            }
-                        }}
-                }},
-                {"WARC-Date", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Date' value", 2}
-                        }, null, null}
-                }},
-                {"Content-Length", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'Content-Length' value", 2}
-                        }, null, null}
-                }},
-                {"Content-Type", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'Content-Type' value", 2}
-
-                        }, null, null}
-                }},
-                {"WARC-Block-Digest", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Block-Digest' value", 2}
-                        }, null, null}
-                }},
-                {"WARC-Payload-Digest", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Payload-Digest' value", 2}
-                        }, null, null}
-                }},
-                {"WARC-IP-Address", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-IP-Address' value", 2}
-                        }, null, null}
-                }},
-                {"WARC-Segment-Number", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Segment-Number' value", 2}
-                        }, null, null}
-                }},
-                {"WARC-Segment-Total-Length", new Object[][] {
-                        {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Segment-Total-Length' value", 2}
-                        }, null, null}
-                }},
-                {"WARC-Truncated", new Object[][] {
+                {WarcConstants.FN_WARC_TRUNCATED, new Object[][] {
                         {"hello_kitty", null, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
                                 Assert.assertEquals(new Integer(WarcConstants.TT_IDX_FUTURE_REASON), header.warcTruncatedIdx);
                             }
                         }}
                 }},
-                {"WARC-Filename", new Object[][] {
+                {WarcConstants.FN_WARC_FILENAME, new Object[][] {
                         {"hello_kitty", null, null, null}
                 }},
-                {"WARC-Profile", new Object[][] {
-                        {"hello_kitty", null, null, new TestHeaderCallback() {
+                /*
+                 * Integer.
+                 */
+                {WarcConstants.FN_WARC_SEGMENT_NUMBER, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER +"' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * Longs.
+                 */
+                {WarcConstants.FN_CONTENT_LENGTH, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_CONTENT_LENGTH +"' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH + "' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * Content-Type.
+                 */
+                {WarcConstants.FN_CONTENT_TYPE, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_CONTENT_TYPE + "' value", 2}
+
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE + "' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * IP-Address.
+                 */
+                {WarcConstants.FN_WARC_IP_ADDRESS, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_IP_ADDRESS + "' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * Date.
+                 */
+                {WarcConstants.FN_WARC_DATE, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_DATE + "' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * Digest.
+                 */
+                {WarcConstants.FN_WARC_BLOCK_DIGEST, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_BLOCK_DIGEST + "' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_PAYLOAD_DIGEST, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PAYLOAD_DIGEST + "' value", 2}
+                        }, null, null}
+                }},
+                /*
+                 * Uri.
+                 */
+                {WarcConstants.FN_WARC_RECORD_ID, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_RECORD_ID + "' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_CONCURRENT_TO, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2}
+                        }, null, new TestHeaderCallback() {
+                            public void callback(WarcHeader header) {
+                                Assert.assertEquals(1, header.warcConcurrentToList.size());
+                            }
+                        }},
+                        {"hello_kitty2", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2},
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2}
+                        }, null, new TestHeaderCallback() {
+                            public void callback(WarcHeader header) {
+                                Assert.assertEquals(2, header.warcConcurrentToList.size());
+                            }
+                        }}
+                }},
+                {WarcConstants.FN_WARC_REFERS_TO, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO + "' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_TARGET_URI, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_TARGET_URI + "' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_WARCINFO_ID, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_WARCINFO_ID + "' value", 2}
+                        }, null, null}
+                }},
+
+                {WarcConstants.FN_WARC_PROFILE, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2}
+                        }, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
                                 Assert.assertEquals(new Integer(WarcConstants.PROFILE_IDX_UNKNOWN), header.warcProfileIdx);
                             }
                         }}
                 }},
-                {"WARC-Identified-Payload-Type", new Object[][] {
+                {WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, new Object[][] {
                         {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'WARC-Identified-Payload-Type' value", 2}
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID + "' value", 2}
                         }, null, null}
-                }}
+                }},
         };
         test_headeradd_cases(cases);
 
@@ -201,7 +253,6 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
         Assert.assertNotNull(headerLine);
         Assert.assertEquals("X-Header2", headerLine.name);
         Assert.assertEquals("Kitty", headerLine.value);
-
     }
 
     public void test_headeradd_cases(Object[][] cases) {

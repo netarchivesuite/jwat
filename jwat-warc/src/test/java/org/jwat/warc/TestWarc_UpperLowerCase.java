@@ -28,34 +28,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.jwat.warc.WarcReader;
+import org.jwat.warc.WarcReaderFactory;
+import org.jwat.warc.WarcRecord;
 
 @RunWith(Parameterized.class)
-public class TestDuplicateFields {
+public class TestWarc_UpperLowerCase {
 
     private int expected_records;
-    private int expected_errors;
-    private int expected_warnings;
-    private int expected_concurrenttos;
     private String warcFile;
 
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 6, 0, 0, "test-duplicate-fields.warc"},
-                {1, 0, 0, 3, "test-duplicate-concurrentto.warc"}
+                {5, "test-upper-lower-case.warc"}
         });
     }
 
-    public TestDuplicateFields(int records, int errors, int warnings, int concurrenttos, String warcFile) {
+    public TestWarc_UpperLowerCase(int records, String warcFile) {
         this.expected_records = records;
-        this.expected_errors = errors;
-        this.expected_warnings = warnings;
-        this.expected_concurrenttos = concurrenttos;
         this.warcFile = warcFile;
     }
 
     @Test
-    public void test_duplicate_fields() {
+    public void test_uppercase_lowercase() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -86,19 +82,6 @@ public class TestDuplicateFields {
                 if (record.diagnostics.hasWarnings()) {
                     warnings += record.diagnostics.getWarnings().size();
                 }
-
-                // Check number of concurrentto fields.
-                if (expected_concurrenttos == 0) {
-                    if (record.header.warcConcurrentToList != null && record.header.warcConcurrentToList.size() != 0) {
-                        Assert.fail("Not expecting any concurrent-to fields");
-                    }
-                } else {
-                    if (record.header.warcConcurrentToList == null) {
-                        Assert.fail("Expecting concurrent-to fields");
-                    } else {
-                        Assert.assertEquals(record.header.warcConcurrentToList.size(), 3);
-                    }
-                }
             }
 
             reader.close();
@@ -114,8 +97,8 @@ public class TestDuplicateFields {
         }
 
         Assert.assertEquals(expected_records, records);
-        Assert.assertEquals(expected_errors, errors);
-        Assert.assertEquals(expected_warnings, warnings);
+        Assert.assertEquals(0, errors);
+        Assert.assertEquals(0, warnings);
     }
 
 }

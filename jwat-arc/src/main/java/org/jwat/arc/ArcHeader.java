@@ -28,6 +28,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Uri;
+import org.jwat.common.UriProfile;
 
 /**
  * Class for parsing and validating the common ARC record header present in
@@ -44,6 +45,9 @@ public class ArcHeader {
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
     protected Diagnostics<Diagnosis> diagnostics;
+
+    /** URL URI profile. */
+    protected UriProfile uriProfile;
 
     /** ARC field parser used.
      * Must be set prior to calling the various methods. */
@@ -141,6 +145,7 @@ public class ArcHeader {
     public static ArcHeader initHeader(ArcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         ArcHeader header = new ArcHeader();
         header.reader = reader;
+        header.uriProfile = reader.uriProfile;
         header.fieldParsers = reader.fieldParsers;
         header.diagnostics = diagnostics;
         // This is only relevant for uncompressed sequentially read records
@@ -214,7 +219,7 @@ public class ArcHeader {
             if ("-".equals(urlStr)) {
                 urlStr = null;
             }
-            urlUri = fieldParsers.parseUri(urlStr, ArcConstants.FN_URL, false);
+            urlUri = fieldParsers.parseUri(urlStr, uriProfile, ArcConstants.FN_URL, false);
             if (urlUri != null) {
                 urlScheme = urlUri.getScheme();
                 if (urlScheme != null) {

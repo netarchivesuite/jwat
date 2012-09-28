@@ -35,6 +35,7 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.MaxLengthRecordingInputStream;
 import org.jwat.common.Uri;
+import org.jwat.common.UriProfile;
 
 /**
  * Central class for working with WARC headers. This class includes support for
@@ -52,6 +53,12 @@ public class WarcHeader {
     /** Diagnostics used to report diagnoses.
      *  Must be set prior to calling the various methods. */
     protected Diagnostics<Diagnosis> diagnostics;
+
+    /** WARC-Target-URI profile. */
+    protected UriProfile warcTargetUriProfile;
+
+    /** URI profile. */
+    protected UriProfile uriProfile;
 
     /** WARC field parser used.
      *  Must be set prior to calling the various methods. */
@@ -108,7 +115,7 @@ public class WarcHeader {
 
     /** WARC-Record-Id field string value. */
     public String warcRecordIdStr;
-    /** WARC-Record-Id converted to an <code>URI</code> object, if valid. */
+    /** WARC-Record-Id converted to an <code>Uri</code> object, if valid. */
     public Uri warcRecordIdUri;
 
     /** WARC-Date field string value. */
@@ -141,27 +148,27 @@ public class WarcHeader {
 
     /** WARC-Refers-To field string value. */
     public String warcRefersToStr;
-    /** WARC-Refers-To converted to an <code>URI</code> object, if valid. */
+    /** WARC-Refers-To converted to an <code>Uri</code> object, if valid. */
     public Uri warcRefersToUri;
 
     /** WARC_Target-URI field string value. */
     public String warcTargetUriStr;
-    /** WARC-TargetURI converted to an <code>URI</code> object, if valid. */
+    /** WARC-TargetURI converted to an <code>Uri</code> object, if valid. */
     public Uri warcTargetUriUri;
 
     /** WARC-Warcinfo-Id field string value. */
     public String warcWarcinfoIdStr;
-    /** WARC-Warcinfo-Id converted to an <code>URI</code> object, if valid. */
+    /** WARC-Warcinfo-Id converted to an <code>Uri</code> object, if valid. */
     public Uri warcWarcinfoIdUri;
 
     /** WARC-Block-Digest field string value. */
     public String warcBlockDigestStr;
-    /** WARC-Block-Digest converted to an <code>URI</code> object, if valid. */
+    /** WARC-Block-Digest converted to a <code>WarcDigest</code> object, if valid. */
     public WarcDigest warcBlockDigest;
 
     /** WARC-Payload-Digest field string value. */
     public String warcPayloadDigestStr;
-    /** WARC-Payload-Digest converted to an <code>URI</code> object, if valid. */
+    /** WARC-Payload-Digest converted to a <code>WarcDigest</code> object, if valid. */
     public WarcDigest warcPayloadDigest;
 
     /** WARC-Identified-Payload-Type field string value. */
@@ -172,6 +179,9 @@ public class WarcHeader {
     /** WARC-Profile field string value.
      *  (revisit record only) */
     public String warcProfileStr;
+    /** WARC-Profile field converted to an <code>Uri</code> object, if valid.
+     *  (revisit record only) */
+    public Uri warcProfileUri;
     /** WARC-Profile converted to an integer id, if valid.
      *  (revisit record only) */
     public Integer warcProfileIdx;
@@ -184,7 +194,7 @@ public class WarcHeader {
     /** WARC-Segment-Origin-Id field string value.
      *  (continuation record only) */
     public String warcSegmentOriginIdStr;
-    /** WARC-Segment-Origin-Id converted to an <code>URI</code> object, if valid.
+    /** WARC-Segment-Origin-Id converted to an <code>Uri</code> object, if valid.
      *  (continuation record only) */
     public Uri warcSegmentOriginIdUrl;
 
@@ -228,6 +238,8 @@ public class WarcHeader {
         // Set default version to "1.0".
         header.major = 1;
         header.minor = 0;
+        header.warcTargetUriProfile = writer.warcTargetUriProfile;
+        header.uriProfile = writer.uriProfile;
         header.fieldParsers = writer.fieldParsers;
         header.warcDateFormat = writer.warcDateFormat;
         header.diagnostics = diagnostics;
@@ -244,6 +256,8 @@ public class WarcHeader {
     public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
         header.reader = reader;
+        header.warcTargetUriProfile = reader.warcTargetUriProfile;
+        header.uriProfile = reader.uriProfile;
         header.fieldParsers = reader.fieldParsers;
         header.diagnostics = diagnostics;
         // This is only relevant for uncompressed sequentially read records
@@ -486,7 +500,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = fieldValue;
-                    warcRecordIdUri = fieldParsers.parseUri(fieldValue,
+                    warcRecordIdUri = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
@@ -505,7 +519,7 @@ public class WarcHeader {
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    Uri tmpUri = fieldParsers.parseUri(fieldValue,
+                    Uri tmpUri = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
@@ -531,12 +545,12 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = fieldValue;
-                    warcRefersToUri = fieldParsers.parseUri(fieldValue,
+                    warcRefersToUri = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = fieldValue;
-                    warcTargetUriUri = fieldParsers.parseUri(fieldValue,
+                    warcTargetUriUri = fieldParsers.parseUri(fieldValue, warcTargetUriProfile,
                             WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
@@ -551,7 +565,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
-                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue,
+                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
@@ -559,7 +573,8 @@ public class WarcHeader {
                             WarcConstants.FN_WARC_FILENAME);
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
-                    warcProfileStr = fieldParsers.parseString(fieldValue,
+                    warcProfileStr = fieldValue;
+                    warcProfileUri = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
@@ -575,7 +590,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValue;
-                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue,
+                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, uriProfile,
                             WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
@@ -772,7 +787,11 @@ public class WarcHeader {
      */
     public HeaderLine addHeader(String fieldName, Uri uriFieldValue, String fieldValueStr) {
         if (uriFieldValue == null && fieldValueStr != null) {
-            uriFieldValue = fieldParsers.parseUri(fieldValueStr, fieldName);
+            if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)) {
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, warcTargetUriProfile, fieldName);
+            } else {
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, uriProfile, fieldName);
+            }
         } else if (fieldValueStr == null && uriFieldValue != null) {
             fieldValueStr = uriFieldValue.toString();
         }
@@ -901,6 +920,16 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValueStr;
                     warcWarcinfoIdUri = uriFieldValue;
+                    break;
+                case WarcConstants.FN_IDX_WARC_PROFILE:
+                    warcProfileStr = fieldValueStr;
+                    warcProfileUri = uriFieldValue;
+                    if (warcProfileStr != null) {
+                        warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
+                    }
+                    if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
+                        warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
+                    }
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValueStr;
@@ -1046,7 +1075,8 @@ public class WarcHeader {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_BLOCK_DIGEST, warcBlockDigest, warcBlockDigestStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST, warcPayloadDigest, warcPayloadDigestStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileIdx, warcProfileStr);
+                // Could also use warcProfileIdx for really strict.
+                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileUri, warcProfileStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE, warcIdentifiedPayloadType, warcIdentifiedPayloadTypeStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);

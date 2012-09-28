@@ -28,14 +28,15 @@ import org.junit.runners.JUnit4;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.UriProfile;
 
 @RunWith(JUnit4.class)
-public class TestFieldParsers {
+public class TestArcFieldParsers {
 
     public static final String emptyFieldsFile = "test-arc-1.0-dashed-fields.arc";
 
     @Test
-    public void test_parsers_empty() {
+    public void test_arcfieldparsers_empty() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -90,7 +91,7 @@ public class TestFieldParsers {
     public static final String invalidFormatFieldsFile = "test-arc-1.0-invalid-fields.arc";
 
     @Test
-    public void test_parsers_invalid_format() {
+    public void test_arcfieldparsers_invalid_format() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -172,10 +173,12 @@ public class TestFieldParsers {
     }
 
     @Test
-    public void test_fieldparsers() {
+    public void test_arcfieldparsers() {
         Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
         ArcFieldParsers fieldParsers = new ArcFieldParsers();
         fieldParsers.diagnostics = diagnostics;
+
+        UriProfile uriProfile = UriProfile.RFC3986;
 
         Object[][] expectedDiagnoses;
         /*
@@ -186,7 +189,7 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong(null, null, true));
         Assert.assertNull(fieldParsers.parseContentType(null, null, true));
         Assert.assertNull(fieldParsers.parseIpAddress(null, null, true));
-        Assert.assertNull(fieldParsers.parseUri(null, null, true));
+        Assert.assertNull(fieldParsers.parseUri(null, uriProfile, null, true));
         Assert.assertNull(fieldParsers.parseDate(null, null, true));
 
         Assert.assertFalse(fieldParsers.diagnostics.hasErrors());
@@ -197,7 +200,7 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong("", null, true));
         Assert.assertNull(fieldParsers.parseContentType("", null, true));
         Assert.assertNull(fieldParsers.parseIpAddress("", null, true));
-        Assert.assertNull(fieldParsers.parseUri("", null, true));
+        Assert.assertNull(fieldParsers.parseUri("", uriProfile, null, true));
         Assert.assertNull(fieldParsers.parseDate("", null, true));
 
         Assert.assertFalse(fieldParsers.diagnostics.hasErrors());
@@ -207,8 +210,8 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong("very lengthy", "Long", true));
         Assert.assertNull(fieldParsers.parseContentType("gif\\image", "Content-Type", true));
         Assert.assertNull(fieldParsers.parseIpAddress("a.b.c.d", "IP-Address", true));
-        Assert.assertNull(fieldParsers.parseUri("bad_uri", "URI1", true));
-        Assert.assertNull(fieldParsers.parseUri("<zaphod>", "URI2", true));
+        Assert.assertNull(fieldParsers.parseUri("bad_uri", uriProfile, "URI1", true));
+        Assert.assertNull(fieldParsers.parseUri("<zaphod>", uriProfile, "URI2", true));
         Assert.assertNull(fieldParsers.parseDate("blue monday", "Date", true));
 
         Assert.assertTrue(fieldParsers.diagnostics.hasErrors());
@@ -231,7 +234,7 @@ public class TestFieldParsers {
         Assert.assertEquals(new Long(421234567890L), fieldParsers.parseLong("421234567890", null, true));
         Assert.assertEquals("text/plain", fieldParsers.parseContentType("text/plain", null, true).toStringShort());
         Assert.assertEquals("4.3.2.1", fieldParsers.parseIpAddress("4.3.2.1", null, true).getHostAddress());
-        Assert.assertEquals("http://test/uri", fieldParsers.parseUri("http://test/uri", null, true).toString());
+        Assert.assertEquals("http://test/uri", fieldParsers.parseUri("http://test/uri", uriProfile, null, true).toString());
         Assert.assertEquals(1141546971000L, fieldParsers.parseDate("20060305082251", null, true).getTime());
 
         Assert.assertFalse(fieldParsers.diagnostics.hasErrors());
@@ -244,7 +247,7 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong(null, "Long", false));
         Assert.assertNull(fieldParsers.parseContentType(null, "Content-Type", false));
         Assert.assertNull(fieldParsers.parseIpAddress(null, "IP-Address", false));
-        Assert.assertNull(fieldParsers.parseUri(null, "URI", false));
+        Assert.assertNull(fieldParsers.parseUri(null, uriProfile, "URI", false));
         Assert.assertNull(fieldParsers.parseDate(null, "Date", false));
 
         Assert.assertTrue(fieldParsers.diagnostics.hasErrors());
@@ -267,7 +270,7 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong("", "Long", false));
         Assert.assertNull(fieldParsers.parseContentType("", "Content-Type", false));
         Assert.assertNull(fieldParsers.parseIpAddress("", "IP-Address", false));
-        Assert.assertNull(fieldParsers.parseUri("", "URI", false));
+        Assert.assertNull(fieldParsers.parseUri("", uriProfile, "URI", false));
         Assert.assertNull(fieldParsers.parseDate("", "Date", false));
 
         Assert.assertTrue(fieldParsers.diagnostics.hasErrors());
@@ -289,8 +292,8 @@ public class TestFieldParsers {
         Assert.assertNull(fieldParsers.parseLong("very lengthy", "Long", false));
         Assert.assertNull(fieldParsers.parseContentType("gif\\image", "Content-Type", false));
         Assert.assertNull(fieldParsers.parseIpAddress("a.b.c.d", "IP-Address", false));
-        Assert.assertNull(fieldParsers.parseUri("bad_uri", "URI1", false));
-        Assert.assertNull(fieldParsers.parseUri("<zaphod>", "URI2", false));
+        Assert.assertNull(fieldParsers.parseUri("bad_uri", uriProfile, "URI1", false));
+        Assert.assertNull(fieldParsers.parseUri("<zaphod>", uriProfile, "URI2", false));
         Assert.assertNull(fieldParsers.parseDate("blue monday", "Date", false));
 
         Assert.assertTrue(fieldParsers.diagnostics.hasErrors());
@@ -313,7 +316,7 @@ public class TestFieldParsers {
         Assert.assertEquals(new Long(421234567890L), fieldParsers.parseLong("421234567890", null, false));
         Assert.assertEquals("text/plain", fieldParsers.parseContentType("text/plain", null, false).toStringShort());
         Assert.assertEquals("4.3.2.1", fieldParsers.parseIpAddress("4.3.2.1", null, false).getHostAddress());
-        Assert.assertEquals("http://test/uri", fieldParsers.parseUri("http://test/uri", null, false).toString());
+        Assert.assertEquals("http://test/uri", fieldParsers.parseUri("http://test/uri", uriProfile, null, false).toString());
         Assert.assertEquals(1141546971000L, fieldParsers.parseDate("20060305082251", null, false).getTime());
 
         Assert.assertFalse(fieldParsers.diagnostics.hasErrors());

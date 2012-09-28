@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 import org.jwat.gzip.GzipReader;
 
 @RunWith(JUnit4.class)
-public class TestParams_Readers {
+public class TestWarcReaders_Params {
 
     @Test
     public void test_parameters_readers() {

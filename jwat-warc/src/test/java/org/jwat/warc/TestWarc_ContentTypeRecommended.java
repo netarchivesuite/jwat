@@ -33,7 +33,7 @@ import org.jwat.warc.WarcReaderFactory;
 import org.jwat.warc.WarcRecord;
 
 @RunWith(Parameterized.class)
-public class TestFields {
+public class TestWarc_ContentTypeRecommended {
 
     private int expected_records;
     private int expected_errors;
@@ -43,21 +43,21 @@ public class TestFields {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 0, "test-fields-warcinfo.warc"},
-                {1, 0, 0, "test-fields-metainfo.warc"},
-                {1, 0, 0, "test-fields-continuation.warc"}
+                {1, 0, 1, "test-contenttype-warcinfo-recommended.warc"},
+                {7, 0, 1, "test-contenttype-recommended.warc"},
+                {1, 0, 0, "test-contenttype-continuation.warc"}
         });
     }
 
-    public TestFields(int records, int errors, int warnings, String warcFile) {
+    public TestWarc_ContentTypeRecommended(int records, int recommended, int warnings, String warcFile) {
         this.expected_records = records;
-        this.expected_errors = errors;
+        this.expected_errors = recommended;
         this.expected_warnings = warnings;
         this.warcFile = warcFile;
     }
 
     @Test
-    public void test_fields() {
+    public void test_contenttype_recommended() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;
@@ -80,6 +80,10 @@ public class TestFields {
 
                 record.close();
 
+                ++records;
+
+                errors = 0;
+                warnings = 0;
                 if (record.diagnostics.hasErrors()) {
                     errors += record.diagnostics.getErrors().size();
                 }
@@ -87,7 +91,8 @@ public class TestFields {
                     warnings += record.diagnostics.getWarnings().size();
                 }
 
-                ++records;
+                Assert.assertEquals(expected_errors, errors);
+                Assert.assertEquals(expected_warnings, warnings);
             }
 
             reader.close();
@@ -103,8 +108,6 @@ public class TestFields {
         }
 
         Assert.assertEquals(expected_records, records);
-        Assert.assertEquals(expected_errors, errors);
-        Assert.assertEquals(expected_warnings, warnings);
     }
 
 }

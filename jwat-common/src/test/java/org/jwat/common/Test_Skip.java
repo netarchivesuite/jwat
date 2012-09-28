@@ -37,7 +37,7 @@ import org.jwat.common.FixedLengthInputStream;
 import org.jwat.common.MaxLengthRecordingInputStream;
 
 @RunWith(JUnit4.class)
-public class TestSkip {
+public class Test_Skip {
 
     @Test
     public void test_inputstream_skipping() throws IOException {

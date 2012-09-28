@@ -29,7 +29,7 @@ public class WarcConcurrentTo {
     /** Warc-Concurrent-To string representation. */
     public String warcConcurrentToStr;
 
-    /** Warc-Concurrent-To URI object. */
+    /** Warc-Concurrent-To <code>Uri</code> object. */
     public Uri warcConcurrentToUri;
 
     @Override

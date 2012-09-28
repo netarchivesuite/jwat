@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.jwat.common.HeaderLine;
 
 @RunWith(Parameterized.class)
-public class TestNonWarcHeaders {
+public class TestWarc_NonWarcHeaders {
 
     private int expected_records;
     private int expected_errors;
@@ -46,7 +46,7 @@ public class TestNonWarcHeaders {
         });
     }
 
-    public TestNonWarcHeaders(int records, int errors, int warnings, String warcFile) {
+    public TestWarc_NonWarcHeaders(int records, int errors, int warnings, String warcFile) {
         this.expected_records = records;
         this.expected_errors = errors;
         this.expected_warnings = warnings;

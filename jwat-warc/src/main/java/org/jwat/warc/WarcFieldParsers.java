@@ -26,6 +26,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Uri;
+import org.jwat.common.UriProfile;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -177,7 +178,7 @@ public class WarcFieldParsers {
      * @return an URI object holding the value of the specified string or null,
      * if unable to parse the value as an URI object
      */
-    protected Uri parseUri(String uriStr, String field) {
+    protected Uri parseUri(String uriStr, UriProfile uriProfile, String field) {
         Uri uri = null;
         String uriStrClean = uriStr;
         if (uriStrClean != null && uriStrClean.length() != 0) {
@@ -185,16 +186,16 @@ public class WarcFieldParsers {
                 uriStrClean = uriStrClean.substring(1, uriStrClean.length() - 1);
             }
             try {
-                uri = new Uri(uriStrClean);
+                uri = new Uri(uriStrClean, uriProfile);
             } catch (Exception e) {
                 // Invalid URI.
                 addInvalidExpectedError("'" + field + "' value",
                         uriStrClean,
-                        "URI format");
+                        e.getMessage());
             }
             if (uri != null) {
                 String scheme = uri.getScheme();
-                if (scheme == null || scheme.length() == 0) {
+                if (scheme == null) {
                     uri = null;
                     // Relative URI.
                     addInvalidExpectedError("'" + field + "' value",

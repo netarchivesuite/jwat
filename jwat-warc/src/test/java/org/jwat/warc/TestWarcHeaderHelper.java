@@ -25,6 +25,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
+import org.jwat.common.UriProfile;
 
 public class TestWarcHeaderHelper {
 
@@ -38,6 +39,8 @@ public class TestWarcHeaderHelper {
 
     public WarcHeader getTestHeader() {
         WarcHeader header = new WarcHeader();
+        header.uriProfile = UriProfile.RFC3986;
+        header.warcTargetUriProfile = UriProfile.RFC3986;
         header.fieldParsers = new WarcFieldParsers();
         header.warcDateFormat = WarcDateParser.getDateFormat();
         header.diagnostics = new Diagnostics<Diagnosis>();

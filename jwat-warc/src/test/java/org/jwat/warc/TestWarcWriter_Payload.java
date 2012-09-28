@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class TestWarcWriterPayload {
+public class TestWarcWriter_Payload {
 
     private int min;
     private int max;
@@ -47,7 +47,7 @@ public class TestWarcWriterPayload {
         });
     }
 
-    public TestWarcWriterPayload(int min, int max, int runs, boolean bCompress) {
+    public TestWarcWriter_Payload(int min, int max, int runs, boolean bCompress) {
         this.min = min;
         this.max = max;
         this.runs = runs;

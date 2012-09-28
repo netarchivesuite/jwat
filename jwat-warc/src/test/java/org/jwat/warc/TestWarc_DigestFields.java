@@ -33,7 +33,7 @@ import org.jwat.warc.WarcReaderFactory;
 import org.jwat.warc.WarcRecord;
 
 @RunWith(Parameterized.class)
-public class TestSegmentNumber {
+public class TestWarc_DigestFields {
 
     private int expected_records;
     private int[] expected_errors;
@@ -43,20 +43,19 @@ public class TestSegmentNumber {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {2, new int[]{1, 0}, new int[]{0, 0}, "test-segment-number-continuation.warc"},
-                {2, new int[]{0, 1}, new int[]{0, 0}, "test-segment-number-response.warc"}
+                {4, new int[]{0, 2, 2, 2}, new int[]{0, 0, 0, 0}, "test-digest-fields.warc"}
         });
     }
 
-    public TestSegmentNumber(int records, int[] errors, int[] warnings, String warcFile) {
+    public TestWarc_DigestFields(int records, int[] errors, int[] warnings, String warcFile) {
         this.expected_records = records;
         this.expected_errors = errors;
-        this.expected_warnings= warnings;
+        this.expected_warnings = warnings;
         this.warcFile = warcFile;
     }
 
     @Test
-    public void test_segment_number() {
+    public void test_digest_fields() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
         InputStream in;

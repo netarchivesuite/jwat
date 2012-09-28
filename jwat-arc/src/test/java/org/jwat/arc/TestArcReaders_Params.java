@@ -29,7 +29,7 @@ import org.junit.runners.JUnit4;
 import org.jwat.gzip.GzipReader;
 
 @RunWith(JUnit4.class)
-public class TestParams_Readers {
+public class TestArcReaders_Params {
 
     @Test
     public void test_params_readers() throws IOException {
