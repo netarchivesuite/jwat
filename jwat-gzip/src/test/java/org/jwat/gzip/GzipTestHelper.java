@@ -17,6 +17,9 @@
  */
 package org.jwat.gzip;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Iterator;
 
 import org.jwat.common.Diagnosis;
@@ -25,7 +28,7 @@ import org.jwat.common.Diagnostics;
 
 public class GzipTestHelper {
 
-    public static boolean containsError(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
+	public static boolean containsError(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
         Iterator<Diagnosis> iter = diagnostics.getErrors().iterator();
         Diagnosis diagnosis;
         while (iter.hasNext()) {
@@ -47,6 +50,20 @@ public class GzipTestHelper {
             }
         }
         return false;
+    }
+
+    public static void storeStream(String filename, byte[] bytes) {
+        try {
+            RandomAccessFile raf = new RandomAccessFile("gzip_" + filename + ".gz", "rw");
+            raf.seek(0);
+            raf.setLength(0);
+            raf.write(bytes);
+            raf.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

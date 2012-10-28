@@ -394,6 +394,7 @@ public class UriProfile {
         RFC3986_ABS_16BIT_LAX.bAllow16bitPercentEncoding = true;
         RFC3986_ABS_16BIT_LAX.bAllowinvalidPercentEncoding = true;
         RFC3986_ABS_16BIT_LAX.charTypeAddAndOr(sb.toString(), 0, B_PATH | B_QUERY | B_FRAGMENT);
+        RFC3986_ABS_16BIT_LAX.charTypeAddAndOr("#", 0, B_FRAGMENT);
     }
 
 }

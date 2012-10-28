@@ -416,18 +416,18 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             reader.setBlockDigestEnabled(false);
             reader.setPayloadDigestEnabled(false);
 
-            Assert.assertEquals(8192, reader.warcHeaderMaxSize);
+            Assert.assertEquals(8192, reader.recordHeaderMaxSize);
             Assert.assertEquals(32768, reader.payloadHeaderMaxSize);
-            Assert.assertEquals(8192, reader.getWarcHeaderMaxSize());
+            Assert.assertEquals(8192, reader.getRecordHeaderMaxSize());
             Assert.assertEquals(32768, reader.getPayloadHeaderMaxSize());
-            reader.setWarcHeaderMaxSize(1024);
+            reader.setRecordHeaderMaxSize(1024);
             reader.setPayloadHeaderMaxSize(4096);
-            Assert.assertEquals(1024, reader.warcHeaderMaxSize);
+            Assert.assertEquals(1024, reader.recordHeaderMaxSize);
             Assert.assertEquals(4096, reader.payloadHeaderMaxSize);
-            Assert.assertEquals(1024, reader.getWarcHeaderMaxSize());
+            Assert.assertEquals(1024, reader.getRecordHeaderMaxSize());
             Assert.assertEquals(4096, reader.getPayloadHeaderMaxSize());
 
-            reader.warcHeaderMaxSize = 8192;
+            reader.recordHeaderMaxSize = 8192;
             reader.payloadHeaderMaxSize = 32;
             recordNumber = 0;
             while ((record = reader.getNextRecord()) != null) {

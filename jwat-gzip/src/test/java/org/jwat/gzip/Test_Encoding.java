@@ -66,6 +66,11 @@ public class Test_Encoding {
         wEntry.fcomment = sb.toString();
         wEntry.bFhCrc = true;
 
+        // TODO
+        //System.out.println( wEntry.extraBytes.length );
+        //System.out.println( wEntry.fname.length() );
+        //System.out.println( wEntry.fcomment.length() );
+
         byte[] data = null;
         try {
             data = "Not without my sheep - DOLLY. (æøå)".getBytes("UTF-8");
@@ -110,6 +115,14 @@ public class Test_Encoding {
             Assert.assertTrue(GzipTestHelper.containsWarning(wEntry.diagnostics, DiagnosisType.INVALID_ENCODING, "FComment", 2));
 
             gzipFile = out.toByteArray();
+
+            System.out.println( wEntry.extraBytes.length );
+            System.out.println( wEntry.fname.length() );
+            System.out.println( wEntry.fcomment.length() );
+
+            // TODO
+            //GzipTestHelper.storeStream("encoding", gzipFile);
+
             /*
              * Encoding fixed in writer.
              */

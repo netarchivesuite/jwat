@@ -67,7 +67,7 @@ public abstract class WarcReader {
     protected boolean bBlockDigest = false;
 
     /** Max size allowed for a record header. */
-    protected int warcHeaderMaxSize;
+    protected int recordHeaderMaxSize;
 
     /** Max size allowed for a payload header. */
     protected int payloadHeaderMaxSize;
@@ -116,7 +116,7 @@ public abstract class WarcReader {
     protected void init() {
         warcTargetUriProfile = UriProfile.RFC3986;
         uriProfile = UriProfile.RFC3986;
-        warcHeaderMaxSize = 8192;
+        recordHeaderMaxSize = 8192;
         payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
@@ -337,16 +337,16 @@ public abstract class WarcReader {
      * Get the max size allowed for a record header.
      * @return max size allowed for a record header
      */
-    public int getWarcHeaderMaxSize() {
-        return warcHeaderMaxSize;
+    public int getRecordHeaderMaxSize() {
+        return recordHeaderMaxSize;
     }
 
     /**
      * Set the max size allowed for a record header.
      * @param size max size allowed
      */
-    public void setWarcHeaderMaxSize(int size) {
-        warcHeaderMaxSize = size;
+    public void setRecordHeaderMaxSize(int size) {
+        recordHeaderMaxSize = size;
     }
 
     /**

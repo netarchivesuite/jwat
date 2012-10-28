@@ -114,6 +114,10 @@ public abstract class WarcWriter {
      */
     public abstract boolean isCompressed();
 
+    /**
+     * Set the URI profile used to validate WARC-Target URIs.
+     * @param uriProfile URI profile to use
+     */
     public void setWarcTargerUriProfile(UriProfile uriProfile) {
         if (uriProfile == null) {
             uriProfile = UriProfile.RFC3986;
@@ -121,10 +125,18 @@ public abstract class WarcWriter {
         this.warcTargetUriProfile = uriProfile;
     }
 
+    /**
+     * Get the URI profile used to validate WARC-Target URIs.
+     * @return the URI profile used to validate WARC-Target URIs
+     */
     public UriProfile getWarcTargetUriProfile() {
         return warcTargetUriProfile;
     }
 
+    /**
+     * Set the URI profile used to validate URIs.
+     * @param uriProfile URI profile to use
+     */
     public void setUriProfile(UriProfile uriProfile) {
         if (uriProfile == null) {
             uriProfile = UriProfile.RFC3986;
@@ -132,6 +144,10 @@ public abstract class WarcWriter {
         this.uriProfile = uriProfile;
     }
 
+    /**
+     * Get the URI profile used to validate URIs.
+     * @return the URI profile used to validate URIs
+     */
     public UriProfile getUriProfile() {
         return uriProfile;
     }
@@ -515,7 +531,9 @@ public abstract class WarcWriter {
          * Warc-Profile
          */
         String warcProfileStr = null;
-        if (header.warcProfileIdx != null) {
+        if (header.warcProfileUri != null) {
+        	warcProfileStr = header.warcProfileUri.toString();
+        } else if (header.warcProfileIdx != null) {
             if (header.warcProfileIdx > 0
                     && header.warcProfileIdx < WarcConstants.P_IDX_STRINGS.length) {
                 warcProfileStr = WarcConstants.P_IDX_STRINGS[header.warcProfileIdx];
@@ -525,6 +543,7 @@ public abstract class WarcWriter {
         }
         if (warcProfileStr == null) {
             warcProfileStr = header.warcProfileStr;
+            // Warning...
         }
         if (warcProfileStr != null) {
             outBuf.write(WarcConstants.FN_WARC_PROFILE.getBytes());

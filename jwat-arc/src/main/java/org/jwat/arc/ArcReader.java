@@ -66,7 +66,7 @@ public abstract class ArcReader {
     protected String payloadDigestEncoding = "base32";
 
     /** Max size allowed for a record header. */
-    protected int arcHeaderMaxSize;
+    protected int recordHeaderMaxSize;
 
     /** Max size allowed for a payload header. */
     protected int payloadHeaderMaxSize;
@@ -113,7 +113,7 @@ public abstract class ArcReader {
      */
     protected void init() {
         uriProfile = UriProfile.RFC3986;
-        arcHeaderMaxSize = 8192;
+        recordHeaderMaxSize = 8192;
         payloadHeaderMaxSize = 32768;
         lineReader = HeaderLineReader.getReader();
         lineReader.bNameValue = false;
@@ -319,16 +319,16 @@ public abstract class ArcReader {
      * Get the max size allowed for a record header.
      * @return max size allowed for a record header
      */
-    public int getArcHeaderMaxSize() {
-        return arcHeaderMaxSize;
+    public int getRecordHeaderMaxSize() {
+        return recordHeaderMaxSize;
     }
 
     /**
      * Set the max size allowed for a record header.
      * @param size max size allowed
      */
-    public void setArcHeaderMaxSize(int size) {
-        arcHeaderMaxSize = size;
+    public void setRecordHeaderMaxSize(int size) {
+        recordHeaderMaxSize = size;
     }
 
     /**

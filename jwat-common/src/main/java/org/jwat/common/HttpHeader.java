@@ -133,7 +133,7 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
      */
     public static HttpHeader processPayload(int headerType, ByteCountingPushBackInputStream pbin,
                     long length, String digestAlgorithm) throws IOException {
-        if (headerType != HT_RESPONSE && headerType != HT_REQUEST) {
+    	if (headerType != HT_RESPONSE && headerType != HT_REQUEST) {
             throw new IllegalArgumentException(
                     "Invalid 'headerType' argument: " + headerType);
         }
@@ -158,7 +158,8 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     @Override
     protected boolean readHeader(MaxLengthRecordingInputStream in, long payloadLength)
                             throws IOException {
-        PushbackInputStream pbin = new PushbackInputStream(in, 16);
+    	// TODO too low!
+        PushbackInputStream pbin = new PushbackInputStream(in, in_pb.getPushbackSize());
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
         hlr.bNameValue = false;
         hlr.encoding = HeaderLineReader.ENC_ISO8859_1;

@@ -339,8 +339,8 @@ public class WarcHeader {
                                 "Magic Version string", versionStr));
             }
 
-            MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, reader.warcHeaderMaxSize);
-            ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, reader.warcHeaderMaxSize);
+            MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, reader.recordHeaderMaxSize);
+            ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, reader.recordHeaderMaxSize);
 
             parseHeaders(pbin);
             pbin.close();
