@@ -25,6 +25,8 @@ import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Abstract base class for payload types that include a header. The header
@@ -135,6 +137,24 @@ public abstract class PayloadWithHeaderAbstract {
      */
     protected abstract boolean readHeader(MaxLengthRecordingInputStream in,
             long payloadLength) throws IOException;
+
+    /**
+     * Get a <code>List</code> of all the headers found during parsing.
+     * @return <code>List</code> of <code>HeaderLine</code>
+     */
+    public List<HeaderLine> getHeaderList() {
+    	throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a header line structure or null, if no header line structure is
+     * stored with the given header name.
+     * @param field header name
+     * @return WARC header line structure or null
+     */
+    public HeaderLine getHeader(String field) {
+    	throw new UnsupportedOperationException();
+    }
 
     /**
      * Returns the result of the header validation.

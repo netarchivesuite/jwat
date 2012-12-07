@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -619,6 +620,28 @@ public class WarcHeader {
     }
 
     /**
+     * Get a <code>List</code> of all the headers found during parsing.
+     * @return <code>List</code> of <code>HeaderLine</code>
+     */
+    public List<HeaderLine> getHeaderList() {
+        return Collections.unmodifiableList(headerList);
+    }
+
+    /**
+     * Get a header line structure or null, if no header line structure is
+     * stored with the given header name.
+     * @param field header name
+     * @return WARC header line structure or null
+     */
+    public HeaderLine getHeader(String field) {
+        if (field != null && field.length() > 0) {
+            return headerMap.get(field.toLowerCase());
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Add a String header using the supplied string and return a
      * <code>HeaderLine</code> object corresponding to how the header would be
      * read.
@@ -984,6 +1007,7 @@ public class WarcHeader {
          * Mandatory fields.
          */
 
+        // TODO Required yes, but is it always invalid.
         if (warcTypeIdx == null) {
             // Mandatory valid Warc-Type missing.
             addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", warcTypeStr);

@@ -356,20 +356,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
         return bIsHttpRequestLineValid;
     }
 
-    /**
-     * Get a <code>List</code> of all the headers found during parsing.
-     * @return <code>List</code> of <code>HeaderLine</code>
-     */
+    @Override
     public List<HeaderLine> getHeaderList() {
         return Collections.unmodifiableList(headerList);
     }
 
-    /**
-     * Get a header line structure or null, if no header line structure is
-     * stored with the given header name.
-     * @param field header name
-     * @return WARC header line structure or null
-     */
+    @Override
     public HeaderLine getHeader(String field) {
         if (field != null && field.length() > 0) {
             return headerMap.get(field.toLowerCase());

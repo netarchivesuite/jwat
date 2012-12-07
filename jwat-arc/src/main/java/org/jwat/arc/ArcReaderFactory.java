@@ -53,6 +53,7 @@ public class ArcReaderFactory {
      * @return boolean indicating presence of an ARC magic number
      * @throws IOException if an i/o error occurs while examining head of stream
      */
+    // TODO only works for the first record.
     public static boolean isArcFile(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] magicBytes = new byte[ArcConstants.ARC_MAGIC_HEADER.length()];
         byte[] arcBytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
