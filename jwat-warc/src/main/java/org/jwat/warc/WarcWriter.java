@@ -210,6 +210,7 @@ public abstract class WarcWriter {
     protected void closeRecord_impl() throws IOException {
         Diagnosis diagnosis = null;
         out.write(WarcConstants.endMark);
+        out.flush();
         if (headerContentLength == null) {
             diagnosis = new Diagnosis(
                     DiagnosisType.ERROR_EXPECTED,
@@ -532,7 +533,7 @@ public abstract class WarcWriter {
          */
         String warcProfileStr = null;
         if (header.warcProfileUri != null) {
-        	warcProfileStr = header.warcProfileUri.toString();
+            warcProfileStr = header.warcProfileUri.toString();
         } else if (header.warcProfileIdx != null) {
             if (header.warcProfileIdx > 0
                     && header.warcProfileIdx < WarcConstants.P_IDX_STRINGS.length) {

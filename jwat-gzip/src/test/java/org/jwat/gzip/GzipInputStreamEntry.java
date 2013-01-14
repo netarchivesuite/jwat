@@ -61,7 +61,7 @@ public class GzipInputStreamEntry
     protected long readCrc32 = -1L;
     protected long computedCrc32 = -1L;
 
-    
+
     /** Zero argument constructor. */
     public GzipInputStreamEntry()
     {

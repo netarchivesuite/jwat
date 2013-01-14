@@ -267,7 +267,7 @@ public class WarcConstants {
         FDT_STRING,
         FDT_URI,
         FDT_STRING,
-        FDT_STRING,
+        FDT_URI,
         FDT_CONTENTTYPE,
         FDT_URI,
         FDT_INTEGER,

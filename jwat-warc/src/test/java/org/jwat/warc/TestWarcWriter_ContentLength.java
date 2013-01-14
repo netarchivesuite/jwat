@@ -68,7 +68,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             recordHeader = writer.writeHeader(record);
             try {
@@ -99,7 +99,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, 1024L, null);
             writer.writeHeader(record);
@@ -131,7 +131,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, 1024L, null);
             writer.writeHeader(record);
@@ -165,7 +165,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, payload.length, null);
             writer.writeHeader(record);
@@ -273,7 +273,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             writer.writeHeader(record);
             writer.closeRecord();
@@ -300,7 +300,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, 1024L, null);
             writer.writeHeader(record);
@@ -328,7 +328,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, 1024L, null);
             writer.writeHeader(record);
@@ -358,7 +358,7 @@ public class TestWarcWriter_ContentLength {
             record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
             record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
             record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
-            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
             record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
             record.header.addHeader(WarcConstants.FN_CONTENT_LENGTH, payload.length, null);
             writer.writeHeader(record);

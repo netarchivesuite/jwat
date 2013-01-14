@@ -25,7 +25,6 @@ import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -143,7 +142,7 @@ public abstract class PayloadWithHeaderAbstract {
      * @return <code>List</code> of <code>HeaderLine</code>
      */
     public List<HeaderLine> getHeaderList() {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -153,7 +152,7 @@ public abstract class PayloadWithHeaderAbstract {
      * @return WARC header line structure or null
      */
     public HeaderLine getHeader(String field) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     /**

@@ -150,7 +150,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
          * URI add header.
          */
 
-        cases = generate_invalid_datatype_cases(uriObj, uriStr, WarcConstants.FN_WARC_RECORD_ID, WarcConstants.FN_WARC_IP_ADDRESS);
+        cases = generate_invalid_datatype_cases(uriObj, "<" + uriStr + ">", WarcConstants.FN_WARC_RECORD_ID, WarcConstants.FN_WARC_IP_ADDRESS);
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         /*
@@ -245,12 +245,12 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
 
         String recordIdStr = "urn:uuid:12eab1ec-8615-4f09-b6d2-976d96552073";
         Uri recordIdObj = Uri.create(recordIdStr);
-        cases = generate_header_datatype_cases(recordIdObj, recordIdStr, WarcConstants.FN_WARC_RECORD_ID, "warcRecordIdStr", "warcRecordIdUri");
+        cases = generate_header_datatype_cases(recordIdObj, "<" + recordIdStr + ">", WarcConstants.FN_WARC_RECORD_ID, "warcRecordIdStr", "warcRecordIdUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         String refersToStr = "urn:uuid:bfa9d26b-ff19-402a-8508-e7ff852d4ded";
         Uri refersToObj = Uri.create(refersToStr);
-        cases = generate_header_datatype_cases(refersToObj, refersToStr, WarcConstants.FN_WARC_REFERS_TO, "warcRefersToStr", "warcRefersToUri");
+        cases = generate_header_datatype_cases(refersToObj, "<" + refersToStr + ">", WarcConstants.FN_WARC_REFERS_TO, "warcRefersToStr", "warcRefersToUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         String targetUriStr = "urn:uuid:de715d47-9f36-4cdf-84db-eb3b47dcd0e3";
@@ -260,21 +260,31 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
 
         String warcinfoIdStr = "urn:uuid:1cb0e3be-d9e2-4058-bf00-9775c75a71a6";
         Uri warcinfoIdObj = Uri.create(warcinfoIdStr);
-        cases = generate_header_datatype_cases(warcinfoIdObj, warcinfoIdStr, WarcConstants.FN_WARC_WARCINFO_ID, "warcWarcinfoIdStr", "warcWarcinfoIdUri");
+        cases = generate_header_datatype_cases(warcinfoIdObj, "<" + warcinfoIdStr + ">", WarcConstants.FN_WARC_WARCINFO_ID, "warcWarcinfoIdStr", "warcWarcinfoIdUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         String segmentOriginIdStr = "urn:uuid:c4fc410a-4c7b-4bcc-a251-382b1d669f9a";
         Uri segmentOriginIdObj = Uri.create(segmentOriginIdStr);
-        cases = generate_header_datatype_cases(segmentOriginIdObj, segmentOriginIdStr, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, "warcSegmentOriginIdStr", "warcSegmentOriginIdUrl");
+        cases = generate_header_datatype_cases(segmentOriginIdObj, "<" + segmentOriginIdStr + ">", WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, "warcSegmentOriginIdStr", "warcSegmentOriginIdUrl");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         Object[][] concurrentHeaders = new Object[][] {
-                {Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"), "urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"},
-                {Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"), "urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"},
-                {Uri.create("urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"), "urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"}
+                {Uri.create("urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88"), "<urn:uuid:173a3db1-9ba4-496e-9eaf-6e550a62fd88>"},
+                {Uri.create("urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1"), "<urn:uuid:660b74e7-076e-4698-abba-4eeeb8e09bf1>"},
+                {Uri.create("urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8"), "<urn:uuid:e6c0d888-b384-4ef4-a698-6166bc0875b8>"}
         };
         cases = generate_multivalue_cases(concurrentHeaders, WarcConstants.FN_WARC_CONCURRENT_TO, "warcConcurrentToList");
         test_headeradd_multivalue_object_cases(cases, WarcConstants.FDT_URI);
+
+        String warcProfileStr = WarcConstants.PROFILE_IDENTICAL_PAYLOAD_DIGEST;
+        Uri warcProfileObj = Uri.create(warcProfileStr);
+        cases = generate_header_datatype_cases(warcProfileObj, warcProfileStr, WarcConstants.FN_WARC_PROFILE, "warcProfileStr", "warcProfileUri");
+        test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
+
+        warcProfileStr = "urn:uuid:de715d47-9f36-4cdf-84db-eb3b47dcd0e3";
+        warcProfileObj = Uri.create(warcProfileStr);
+        cases = generate_header_datatype_cases(warcProfileObj, warcProfileStr, WarcConstants.FN_WARC_PROFILE, "warcProfileStr", "warcProfileUri");
+        test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
         /*
         public List<WarcConcurrentTo> warcConcurrentToList = new LinkedList<WarcConcurrentTo>();

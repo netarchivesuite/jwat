@@ -467,7 +467,7 @@ public class TestHeaderLineReader_HeaderLineReader extends TestHeaderLineReaderH
             test_headerline_cases(cases);
 
             /*
-            String httpHeader = 
+            String httpHeader =
                     //"HTTP/1.1 200 OK\r\n" +
                     "Cache-Control: public\r\n" +
                     "Content-Length: 108388\r\n" +

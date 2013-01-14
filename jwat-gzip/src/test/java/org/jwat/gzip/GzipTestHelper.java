@@ -28,7 +28,7 @@ import org.jwat.common.Diagnostics;
 
 public class GzipTestHelper {
 
-	public static boolean containsError(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
+    public static boolean containsError(Diagnostics<Diagnosis> diagnostics, DiagnosisType type, String entity, int infos) {
         Iterator<Diagnosis> iter = diagnostics.getErrors().iterator();
         Diagnosis diagnosis;
         while (iter.hasNext()) {

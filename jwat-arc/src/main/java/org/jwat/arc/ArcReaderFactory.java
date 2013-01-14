@@ -70,7 +70,7 @@ public class ArcReaderFactory {
      * wrapped by a <code>BufferedInputStream</code>.
      * The <code>WarcReader</code> implementation returned is chosen based on
      * GZip auto detection.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @param buffer_size buffer size to use
      * @return appropriate <code>ArcReader</code> based on data read from
      * <code>InputStream</code>
@@ -102,7 +102,7 @@ public class ArcReaderFactory {
      * Creates a new <code>ArcReader</code> from an <code>InputStream</code>.
      * The <code>WarcReader</code> implementation returned is chosen based on
      * GZip auto detection.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @return appropriate <code>ArcReader</code> based on data read from
      * <code>InputStream</code>
      * @throws IOException if an i/o exception occurs during initialization
@@ -133,7 +133,7 @@ public class ArcReaderFactory {
     /**
      * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
      * primarily for random access to uncompressed records.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @return <code>ArcReader</code> for uncompressed records read from
      * <code>InputStream</code>
      * @throws IOException i/o exception while initializing reader
@@ -153,7 +153,7 @@ public class ArcReaderFactory {
      * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
      * wrapped by a <code>BufferedInputStream</code> primarily for random
      * access to uncompressed records.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @param buffer_size buffer size to use
      * @return <code>ArcReader</code> for uncompressed records read from
      * <code>InputStream</code>
@@ -190,7 +190,7 @@ public class ArcReaderFactory {
     /**
      * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
      * primarily for random access to GZip compressed records.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @return <code>ArcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
      * @throws IOException i/o exception while initializing reader
@@ -208,7 +208,7 @@ public class ArcReaderFactory {
      * Creates a new <code>ArcReader</code> from an <code>InputStream</code>
      * wrapped by a <code>BufferedInputStream</code> primarily for random
      * access to GZip compressed records.
-     * @param in ARC File represented as <code>InputStream</code> 
+     * @param in ARC File represented as <code>InputStream</code>
      * @param buffer_size buffer size to use
      * @return <code>ArcReader</code> for GZip compressed records read from
      * <code>InputStream</code>

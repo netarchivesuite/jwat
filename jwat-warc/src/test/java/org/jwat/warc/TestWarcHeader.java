@@ -57,7 +57,7 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
         String fieldValue;
 
         fieldName = "WARC-Record-ID";
-        fieldValue = "http://hello_kitty$";
+        fieldValue = "<http://hello_kitty$>";
         testHeader(fieldName, fieldValue, 0, 0);
         /*
         "WARC-Concurrent-To",
@@ -161,11 +161,13 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                  */
                 {WarcConstants.FN_WARC_RECORD_ID, new Object[][] {
                         {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_RECORD_ID + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_RECORD_ID + "' value", 2}
                         }, null, null}
                 }},
                 {WarcConstants.FN_WARC_CONCURRENT_TO, new Object[][] {
                         {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2}
                         }, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
@@ -173,6 +175,8 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                             }
                         }},
                         {"hello_kitty2", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2},
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_CONCURRENT_TO + "' value", 2}
                         }, null, new TestHeaderCallback() {
@@ -183,6 +187,7 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 }},
                 {WarcConstants.FN_WARC_REFERS_TO, new Object[][] {
                         {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO + "' value", 2}
                         }, null, null}
                 }},
@@ -193,6 +198,7 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 }},
                 {WarcConstants.FN_WARC_WARCINFO_ID, new Object[][] {
                         {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_WARCINFO_ID + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_WARCINFO_ID + "' value", 2}
                         }, null, null}
                 }},
@@ -208,6 +214,7 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 }},
                 {WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, new Object[][] {
                         {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID + "' value", 2}
                         }, null, null}
                 }},
