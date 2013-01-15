@@ -17,6 +17,9 @@
  */
 package org.jwat.common;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,8 +32,12 @@ import java.util.List;
  */
 public class HeaderLine {
 
+    /** Read line initial size. */
+    public static final int READLINE_INITIAL_SIZE = 128;
+
     /** Normal line parsed. */
     public static final byte HLT_LINE = 1;
+
     /** Header line parsed. */
     public static final byte HLT_HEADERLINE = 2;
 
@@ -54,5 +61,33 @@ public class HeaderLine {
 
     /** List of additional headers with the same name. */
     public List<HeaderLine> lines = new LinkedList<HeaderLine>();
+
+    /**
+     * Read a single line into a header line.
+     * @return single string line
+     * @throws IOException if an io error occurs while reading line
+     */
+    public static HeaderLine readLine(InputStream in) throws IOException {
+        StringBuffer sb = new StringBuffer(READLINE_INITIAL_SIZE);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(READLINE_INITIAL_SIZE);
+        int b;
+        while (true) {
+            b = in.read();
+            if (b == -1) {
+                return null;    //Unexpected EOF
+            }
+            out.write(b);
+            if (b == '\n'){
+                break;
+            }
+            if (b != '\r') {
+                sb.append((char) b);
+            }
+        }
+        HeaderLine headerLine = new HeaderLine();
+        headerLine.line = sb.toString();
+        headerLine.raw = out.toByteArray();
+        return headerLine;
+    }
 
 }

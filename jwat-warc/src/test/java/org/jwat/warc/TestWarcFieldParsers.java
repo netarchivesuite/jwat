@@ -259,18 +259,18 @@ public class TestWarcFieldParsers {
                 //TestBaseUtils.printDiagnoses(reader.fieldParsers.diagnostics.getErrors());
                 //TestBaseUtils.printDiagnoses(reader.fieldParsers.diagnostics.getWarnings());
                 expectedDiagnoses = new Object[][] {
-                		{DiagnosisType.INVALID_EXPECTED, "'1' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'2' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'3' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'4' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'5' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'6' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'7' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'8' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'9' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'10' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'11' value", 2},
-                		{DiagnosisType.INVALID_EXPECTED, "'12' value", 2}
+                        {DiagnosisType.INVALID_EXPECTED, "'1' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'2' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'3' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'4' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'5' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'6' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'7' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'8' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'9' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'10' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'11' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'12' value", 2}
                 };
                 TestBaseUtils.compareDiagnoses(expectedDiagnoses, reader.fieldParsers.diagnostics.getErrors());
 

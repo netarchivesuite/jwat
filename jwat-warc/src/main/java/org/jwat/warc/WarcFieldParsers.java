@@ -185,48 +185,48 @@ public class WarcFieldParsers {
         if (uriStrClean != null && uriStrClean.length() != 0) {
             int fIdx = 0;
             int tIdx = uriStrClean.length();
-        	if (uriStrClean.startsWith("<")) {
-        		ltGtBf |= 2;
-        		++fIdx;
-        	}
-        	if (uriStrClean.endsWith(">")) {
-        		ltGtBf |= 1;
-        		--tIdx;
-        	}
-        	if (ltGtBf != 0) {
+            if (uriStrClean.startsWith("<")) {
+                ltGtBf |= 2;
+                ++fIdx;
+            }
+            if (uriStrClean.endsWith(">")) {
+                ltGtBf |= 1;
+                --tIdx;
+            }
+            if (ltGtBf != 0) {
                 uriStrClean = uriStrClean.substring(fIdx, tIdx);
-        	}
-        	if (bLtGt) {
-            	switch (ltGtBf) {
-            	case 2:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Missing trailing '>' character");
-            		break;
-            	case 1:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Missing leading '<' character");
-            		break;
-            	case 0:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Missing encapsulating '<' and '>' characters");
-            		break;
-            	case 3:
-           		default:
-            		break;
-            	}
-        	} else {
-            	switch (ltGtBf) {
-            	case 2:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected leading '<' character");
-            		break;
-            	case 1:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected trailing '>' character");
-            		break;
-            	case 3:
-            		addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected encapsulating '<' and '>' characters");
-            		break;
-            	case 0:
-           		default:
-            		break;
-            	}
-        	}
+            }
+            if (bLtGt) {
+                switch (ltGtBf) {
+                case 2:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Missing trailing '>' character");
+                    break;
+                case 1:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Missing leading '<' character");
+                    break;
+                case 0:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Missing encapsulating '<' and '>' characters");
+                    break;
+                case 3:
+                default:
+                    break;
+                }
+            } else {
+                switch (ltGtBf) {
+                case 2:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected leading '<' character");
+                    break;
+                case 1:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected trailing '>' character");
+                    break;
+                case 3:
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Unexpected encapsulating '<' and '>' characters");
+                    break;
+                case 0:
+                default:
+                    break;
+                }
+            }
             try {
                 uri = new Uri(uriStrClean, uriProfile);
             } catch (Exception e) {

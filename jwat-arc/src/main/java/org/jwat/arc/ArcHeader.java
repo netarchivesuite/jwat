@@ -27,6 +27,7 @@ import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.HeaderLine;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
 
@@ -121,6 +122,9 @@ public class ArcHeader {
     /** Archive-length validated and converted into a <code>Long</code> object. */
     public Long archiveLength;
 
+    /** Raw ARC header line byte array. */
+    public byte[] headerBytes;
+
     /**
      * Create and initialize a new <code>ArcHeader</code> for writing.
      * @param writer writer which shall be used
@@ -171,16 +175,17 @@ public class ArcHeader {
         boolean bSeekRecord = true;
         while (bSeekRecord) {
             startOffset = in.getConsumed();
-            String recordLine = in.readLine();
+            HeaderLine recordLine = HeaderLine.readLine(in);
             if (recordLine != null) {
-                if (recordLine.length() > 0) {
-                    String[] fields = recordLine.split(" ", -1);
+                if (recordLine.line.length() > 0) {
+                    String[] fields = recordLine.line.split(" ", -1);
                     if (fields.length == ArcConstants.VERSION_1_BLOCK_NUMBER_FIELDS
                             || fields.length == ArcConstants.VERSION_2_BLOCK_NUMBER_FIELDS) {
                         // debug
                         //System.out.println(recordLine);
                         parseHeaders(fields);
                         bHeaderParsed = true;
+                        headerBytes = recordLine.raw;
                         bSeekRecord = false;
                     } else {
                         bInvalidDataBeforeVersion = true;

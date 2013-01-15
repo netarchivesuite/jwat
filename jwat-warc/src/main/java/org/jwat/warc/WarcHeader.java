@@ -502,7 +502,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = fieldValue;
                     warcRecordIdUri = fieldParsers.parseUri(fieldValue, true,
-                    		uriProfile, WarcConstants.FN_WARC_RECORD_ID);
+                            uriProfile, WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = fieldValue;
@@ -521,7 +521,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
                     Uri tmpUri = fieldParsers.parseUri(fieldValue, true,
-                    		uriProfile, WarcConstants.FN_WARC_CONCURRENT_TO);
+                            uriProfile, WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
                         warcConcurrentTo.warcConcurrentToStr = fieldValue;
@@ -547,12 +547,12 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = fieldValue;
                     warcRefersToUri = fieldParsers.parseUri(fieldValue, true,
-                    		uriProfile, WarcConstants.FN_WARC_REFERS_TO);
+                            uriProfile, WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = fieldValue;
                     warcTargetUriUri = fieldParsers.parseUri(fieldValue, false,
-                    		warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
+                            warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
                     warcTruncatedStr = fieldParsers.parseString(fieldValue,
@@ -567,7 +567,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
                     warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, true,
-                    		uriProfile, WarcConstants.FN_WARC_WARCINFO_ID);
+                            uriProfile, WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
                     warcFilename = fieldParsers.parseString(fieldValue,
@@ -576,7 +576,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_PROFILE:
                     warcProfileStr = fieldValue;
                     warcProfileUri = fieldParsers.parseUri(fieldValue, false,
-                    		uriProfile, WarcConstants.FN_WARC_PROFILE);
+                            uriProfile, WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
                     }
@@ -592,7 +592,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValue;
                     warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, true,
-                    		uriProfile, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
+                            uriProfile, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
                     warcSegmentNumberStr = fieldValue;
@@ -818,12 +818,12 @@ public class WarcHeader {
                 uriFieldValue = fieldParsers.parseUri(fieldValueStr, true, uriProfile, fieldName);
             }
         } else if (fieldValueStr == null && uriFieldValue != null) {
-        	if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)
-        			|| WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)) {
+            if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)
+                    || WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)) {
                 fieldValueStr = uriFieldValue.toString();
-        	} else {
+            } else {
                 fieldValueStr = "<" + uriFieldValue.toString() + ">";
-        	}
+            }
         }
         return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_URI,
                 null, null, null, null, null, null, uriFieldValue);
