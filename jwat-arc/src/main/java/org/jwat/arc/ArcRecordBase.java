@@ -167,9 +167,10 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             // a plain ARC file, not a GZipped ARC.
             if ((header.offset != null) && (header.startOffset > 0L)
                                 && (header.offset.longValue() != header.startOffset)) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA,
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
                         "'" + ArcConstants.FN_OFFSET + "' value",
-                        header.offset.toString()));
+                        header.offset.toString(),
+                        Long.toString(header.startOffset)));
             }
             if (reader.records == 1) {
                 if (record.recordType == ArcRecordBase.RT_ARC_RECORD) {

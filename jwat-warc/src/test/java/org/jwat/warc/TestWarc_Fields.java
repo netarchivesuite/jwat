@@ -43,9 +43,9 @@ public class TestWarc_Fields {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 0, "test-fields-warcinfo.warc"},
-                {1, 0, 0, "test-fields-metainfo.warc"},
-                {1, 0, 0, "test-fields-continuation.warc"}
+                {1, 0, 0, "valid-warcfile-fields-warcinfo.warc"},
+                {1, 0, 0, "valid-warcfile-fields-metainfo.warc"},
+                {1, 0, 0, "valid-warcfile-fields-continuation.warc"}
         });
     }
 

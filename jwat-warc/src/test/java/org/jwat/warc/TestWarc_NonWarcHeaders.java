@@ -42,7 +42,7 @@ public class TestWarc_NonWarcHeaders {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 0, "test-non-warc-headers.warc"}
+                {1, 0, 0, "valid-warcfile-non-warc-headers.warc"}
         });
     }
 

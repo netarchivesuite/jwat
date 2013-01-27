@@ -43,8 +43,8 @@ public class TestWarc_SegmentNumber {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {2, new int[]{1, 0}, new int[]{0, 0}, "test-segment-number-continuation.warc"},
-                {2, new int[]{0, 1}, new int[]{0, 0}, "test-segment-number-response.warc"}
+                {2, new int[]{1, 0}, new int[]{0, 0}, "invalid-warcfile-segment-number-continuation.warc"},
+                {2, new int[]{0, 1}, new int[]{0, 0}, "invalid-warcfile-segment-number-response.warc"}
         });
     }
 

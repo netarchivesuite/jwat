@@ -41,8 +41,8 @@ public class TestWarc_DuplicateFields {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 6, 0, 0, "test-duplicate-fields.warc"},
-                {1, 0, 0, 3, "test-duplicate-concurrentto.warc"}
+                {1, 6, 0, 0, "invalid-warcfile-duplicate-fields.warc"},
+                {1, 0, 0, 3, "valid-warcfile-duplicate-concurrentto.warc"}
         });
     }
 

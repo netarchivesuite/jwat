@@ -78,6 +78,9 @@ public class TestArcVersionBlock {
             Assert.assertNull(record.httpHeader);
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
@@ -118,6 +121,9 @@ public class TestArcVersionBlock {
             Assert.assertNotNull(record.getPayloadContent());
             Assert.assertNull(record.httpHeader);
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             record = reader.getNextRecord();
             Assert.assertNull(record);
@@ -179,6 +185,9 @@ public class TestArcVersionBlock {
             Assert.assertNull(record.httpHeader);
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
@@ -209,6 +218,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
@@ -250,6 +262,9 @@ public class TestArcVersionBlock {
             Assert.assertNull(record.version);
             Assert.assertEquals(record.version, record.getVersion());
             Assert.assertFalse(record.isCompliant());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
@@ -301,6 +316,9 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -351,6 +369,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR_EXPECTED, ArcConstants.ARC_FILE, 1}
@@ -417,6 +438,9 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1}
             };
@@ -481,6 +505,9 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1}
             };
@@ -530,6 +557,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
@@ -581,6 +611,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
             };
@@ -629,6 +662,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertTrue(record.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
@@ -700,6 +736,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasErrors());
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
             };
@@ -750,6 +789,9 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertTrue(record.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1},

@@ -105,6 +105,9 @@ public class TestArcVersionHeader {
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
+
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -119,6 +122,7 @@ public class TestArcVersionHeader {
              */
             bytes = "\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -131,6 +135,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -146,6 +153,7 @@ public class TestArcVersionHeader {
              */
             bytes = "\n\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -158,6 +166,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -173,6 +184,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("\n" + ArcConstants.VERSION_1_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -185,6 +197,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -199,6 +214,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("\n" + ArcConstants.VERSION_2_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -211,6 +227,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -225,6 +244,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 0 InternetArchive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -237,6 +257,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -251,6 +274,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 1 InternetArchive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -263,6 +287,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -277,6 +304,7 @@ public class TestArcVersionHeader {
              */
             bytes = "2 0 InternetArchive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -289,6 +317,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -303,6 +334,7 @@ public class TestArcVersionHeader {
              */
             bytes = "x 0 InternetArchive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -315,6 +347,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_VERSION_NUMBER + "' value", 2},
@@ -331,6 +366,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 x InternetArchive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -343,6 +379,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESERVED + "' value", 2},
@@ -359,6 +398,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 0 InternetArchive\nAtomic Twister!\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -371,6 +411,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -385,6 +428,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 0\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -397,6 +441,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -412,6 +459,7 @@ public class TestArcVersionHeader {
              */
             bytes = "1 0 Internet Archive\n".getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -424,6 +472,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -439,6 +490,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("2 0 InternetArchive\n" + ArcConstants.VERSION_1_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -451,6 +503,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -465,6 +520,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("1 0 InternetArchive\n" + ArcConstants.VERSION_2_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -477,6 +533,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -491,6 +550,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("1 1 InternetArchive\n" + ArcConstants.VERSION_2_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -503,6 +563,9 @@ public class TestArcVersionHeader {
 
             Assert.assertTrue(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 0);
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1}
@@ -517,6 +580,7 @@ public class TestArcVersionHeader {
              */
             bytes = ("1 0 InternetArchive\n" + ArcConstants.VERSION_1_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -530,13 +594,33 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 10);
+
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
             /*
              * V1.1 and v1 block desc.
              */
-            bytes = ("1 1 InternetArchive\n" + ArcConstants.VERSION_1_BLOCK_DEF + "\n").getBytes();
+            String mdData;
+            mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
+            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
+            mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
+            mdData += "<arc:hostname>blackbook</arc:hostname>\r\n";
+            mdData += "<arc:ip>192.168.1.13</arc:ip>\r\n";
+            mdData += "<dcterms:isPartOf>archive.org-shallow</dcterms:isPartOf>\r\n";
+            mdData += "<dc:description>archive.org shallow</dc:description>\r\n";
+            mdData += "<arc:operator>Admin</arc:operator>\r\n";
+            mdData += "<ns0:date xmlns:ns0=\"http://purl.org/dc/elements/1.1/\" xsi:type=\"dcterms:W3CDTF\">2008-04-30T20:48:24+00:00</ns0:date>\r\n";
+            mdData += "<arc:http-header-user-agent>Mozilla/5.0 (compatible; heritrix/1.14.0 +http://crawler.archive.org)</arc:http-header-user-agent>\r\n";
+            mdData += "<arc:http-header-from>archive-crawler-agent@lists.sourceforge.net</arc:http-header-from>\r\n";
+            mdData += "<arc:robots>classic</arc:robots>\r\n";
+            mdData += "<dc:format>ARC file version 1.1</dc:format>\r\n";
+            mdData += "<dcterms:conformsTo xsi:type=\"dcterms:URI\">http://www.archive.org/web/researcher/ArcFileFormat.php</dcterms:conformsTo>\r\n";
+            mdData += "</arcmetadata>\r\n";
+            bytes = ("1 1 InternetArchive\n" + ArcConstants.VERSION_1_BLOCK_DEF + "\n" + mdData).getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -550,13 +634,18 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 11);
+
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
+
             /*
              * V2.0 and v2 block desc.
              */
             bytes = ("2 0 InternetArchive\n" + ArcConstants.VERSION_2_BLOCK_DEF + "\n").getBytes();
             length = (long)bytes.length;
+
             in = new ByteArrayInputStream(bytes);
             pbin = new ByteCountingPushBackInputStream(in, 8192);
 
@@ -570,6 +659,9 @@ public class TestArcVersionHeader {
             Assert.assertFalse(header.diagnostics.hasErrors());
             Assert.assertFalse(header.diagnostics.hasWarnings());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcVersionHeader(bytes, !header.diagnostics.hasErrors() && !header.diagnostics.hasWarnings(), 20);
+
             tmpStr = header.toString();
             Assert.assertNotNull(tmpStr);
         } catch (IOException e) {
@@ -579,6 +671,7 @@ public class TestArcVersionHeader {
 
     }
 
+    // Reflecting new Enum's breaks JUnit.
     public void test_arcversionheader_reflection() {
         try {
             Constructor<?> con = ArcVersion.class.getDeclaredConstructors()[0];

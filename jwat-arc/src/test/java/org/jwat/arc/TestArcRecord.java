@@ -204,6 +204,9 @@ public class TestArcRecord {
                 // debug
                 //System.out.println(out);
 
+                // Save testfile.
+                GenerateArcTestFiles.saveTestArcRecord(out.toByteArray(), ((Object[][])test_cases[i][3]).length == 0 && ((Object[][])test_cases[i][4]).length == 0);
+
                 in = new ByteArrayInputStream(out.toByteArray());
                 reader = ArcReaderFactory.getReader(in, 1024);
                 record = reader.getNextRecord();

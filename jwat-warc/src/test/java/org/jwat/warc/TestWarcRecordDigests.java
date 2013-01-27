@@ -182,6 +182,9 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writeRecords(writer, warcHeaders, writedata);
             writer.close();
 
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
+
             // debug
             //System.out.println(new String(out.toByteArray()));
 
@@ -339,6 +342,10 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer = WarcWriterFactory.getWriter(out, false);
             writeRecords(writer, warcHeaders, writedata);
             writer.close();
+
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
+
             /*
              * Disable digest validation.
              */
@@ -503,6 +510,9 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writeRecords(writer, warcHeaders, writedata);
             writer.close();
 
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
+
             // debug
             //System.out.println(new String(out.toByteArray()));
 
@@ -587,6 +597,9 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer = WarcWriterFactory.getWriter(out, false);
             writeRecords(writer, warcHeaders, writedata);
             writer.close();
+
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -702,6 +715,9 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer = WarcWriterFactory.getWriter(out, false);
             writeRecords(writer, warcHeaders, writedata);
             writer.close();
+
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
 
             // debug
             //System.out.println(new String(out.toByteArray()));

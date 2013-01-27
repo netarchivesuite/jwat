@@ -113,6 +113,9 @@ public class TestArcHeader {
                 Object[][] expected_warnings = (Object[][])test_cases[i][4];
                 TestBaseUtils.assert_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
                 diagnostics.reset();
+
+                // Save testfile.
+                GenerateArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
             }
             /*
              * Test cases, parseHeader().
@@ -228,7 +231,7 @@ public class TestArcHeader {
                     /*
                      * Valid record V1.
                      */
-                    {true, 1, bytes = "http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html 4270\n".getBytes(), new String[] {
+                    {true, 1, bytes = "http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html 649\n".getBytes(), new String[] {
                         "http://cctr.umkc.edu:80/user/jbenz/tst.htm",
                         "134.193.4.1",
                         "19970417175710",
@@ -238,7 +241,7 @@ public class TestArcHeader {
                         null,
                         null,
                         null,
-                        "4270"
+                        "649"
                     }, new Object[] {
                         Uri.create("http://cctr.umkc.edu:80/user/jbenz/tst.htm"),
                         InetAddress.getByName("134.193.4.1"),
@@ -246,12 +249,12 @@ public class TestArcHeader {
                         ContentType.parseContentType("text/html"),
                         null,
                         null,
-                        new Long(4270)
+                        new Long(649)
                     }, new Object[][] {}, new Object[][] {}},
                     /*
                      * Valid record v2.
                      */
-                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 1234 filename 40\n".getBytes(), new String[] {
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum location 229 filename 649\n".getBytes(), new String[] {
                         "http://www.antiaction.com/",
                         "192.168.1.2",
                         "20120712144000",
@@ -259,17 +262,17 @@ public class TestArcHeader {
                         "200",
                         "checksum",
                         "location",
-                        "1234",
+                        "229",
                         "filename",
-                        "40"
+                        "649"
                     }, new Object[] {
                         Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         ContentType.parseContentType("text/htlm"),
                         new Integer(200),
-                        new Long(1234),
-                        new Long(40),
+                        new Long(229),
+                        new Long(649),
                     }, new Object[][] {}, new Object[][] {}},
                     /*
                      * Invalid record V1.
@@ -334,7 +337,7 @@ public class TestArcHeader {
                     /*
                      * Valid record v2 with "-".
                      */
-                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum - 1234 filename 40\n".getBytes(), new String[] {
+                    {true, 2, "http://www.antiaction.com/ 192.168.1.2 20120712144000 text/htlm 200 checksum - 229 filename 649\n".getBytes(), new String[] {
                         "http://www.antiaction.com/",
                         "192.168.1.2",
                         "20120712144000",
@@ -342,17 +345,17 @@ public class TestArcHeader {
                         "200",
                         "checksum",
                         null,
-                        "1234",
+                        "229",
                         "filename",
-                        "40"
+                        "649"
                     }, new Object[] {
                         Uri.create("http://www.antiaction.com/"),
                         InetAddress.getByName("192.168.1.2"),
                         ArcDateParser.getDate("20120712144000"),
                         ContentType.parseContentType("text/htlm"),
                         new Integer(200),
-                        new Long(1234),
-                        new Long(40)
+                        new Long(229),
+                        new Long(649)
                     }, new Object[][] {}, new Object[][] {}},
                     /*
                      * Semi-valid record v2 content-type=no-type, result-code out of bounds, minus offset, length.
@@ -426,6 +429,9 @@ public class TestArcHeader {
                 Object[][] expected_warnings = (Object[][])test_cases[i][6];
                 TestBaseUtils.assert_header(header, expected_fieldStrings, expected_fieldObjects, expected_errors, expected_warnings);
                 diagnostics.reset();
+
+                // Save testfile.
+                GenerateArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
             }
         } catch (IOException e) {
             e.printStackTrace();

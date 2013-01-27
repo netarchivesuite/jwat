@@ -43,9 +43,9 @@ public class TestWarc_ContentTypeRecommended {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 1, "test-contenttype-warcinfo-recommended.warc"},
-                {7, 0, 1, "test-contenttype-recommended.warc"},
-                {1, 0, 0, "test-contenttype-continuation.warc"}
+                {1, 0, 1, "invalid-warcfile-contenttype-warcinfo-recommended.warc"},
+                {7, 0, 1, "invalid-warcfile-contenttype-recommended.warc"},
+                {1, 0, 0, "valid-warcfile-contenttype-continuation.warc"}
         });
     }
 

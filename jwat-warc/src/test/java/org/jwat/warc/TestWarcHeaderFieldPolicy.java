@@ -17,6 +17,9 @@
  */
 package org.jwat.warc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -320,24 +323,42 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
     }
 
     public void test_checkfields_cases(Object[][] cases) {
-        for (int i=0; i<cases.length; ++i) {
-            // debug
-            //System.out.println(i + 1);
-            Object[][] headers = (Object[][])cases[i][0];
-            Object[][] expectedErrors = (Object[][])cases[i][1];
-            Object[][] expectedWarnings = (Object[][])cases[i][2];
-            TestHeaderCallback callback = (TestHeaderCallback)cases[i][3];
-            header = getTestHeader();
-            for (int j=0; j<headers.length; ++j) {
-                String fieldName = (String)headers[j][0];
-                String fieldValue = (String)headers[j][1];
-                headerLine = header.addHeader(fieldName, fieldValue);
-                Assert.assertNotNull(headerLine);
-                Assert.assertEquals(fieldName, headerLine.name);
-                Assert.assertEquals(fieldValue, headerLine.value);
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            for (int i=0; i<cases.length; ++i) {
+                out.reset();
+                out.write("WARC/1.0\r\n".getBytes("ISO-8859-1"));
+                // debug
+                //System.out.println(i + 1);
+                Object[][] headers = (Object[][])cases[i][0];
+                Object[][] expectedErrors = (Object[][])cases[i][1];
+                Object[][] expectedWarnings = (Object[][])cases[i][2];
+                TestHeaderCallback callback = (TestHeaderCallback)cases[i][3];
+                header = getTestHeader();
+                for (int j=0; j<headers.length; ++j) {
+                    String fieldName = (String)headers[j][0];
+                    String fieldValue = (String)headers[j][1];
+                    headerLine = header.addHeader(fieldName, fieldValue);
+                    Assert.assertNotNull(headerLine);
+                    Assert.assertEquals(fieldName, headerLine.name);
+                    Assert.assertEquals(fieldValue, headerLine.value);
+
+                    out.write(fieldName.getBytes("ISO-8859-1"));
+                    out.write(": ".getBytes("ISO-8859-1"));
+                    out.write(fieldValue.getBytes("ISO-8859-1"));
+                    out.write("\r\n".getBytes("ISO-8859-1"));
+                }
+                header.checkFields();
+                test_result(expectedErrors, expectedWarnings, callback);
+
+                out.write("\r\n".getBytes("ISO-8859-1"));
+
+                // Save testfile.
+                GenerateWarcTestFiles.saveTestWarcHeaderFieldPolicy(out.toByteArray());
             }
-            header.checkFields();
-            test_result(expectedErrors, expectedWarnings, callback);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

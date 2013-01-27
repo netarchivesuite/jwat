@@ -56,6 +56,9 @@ public class TestArcRecordBase {
             out.write(versionblock);
             out.write("\n".getBytes());
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
             ArcReader reader = ArcReaderFactory.getReader(in);
@@ -192,6 +195,9 @@ public class TestArcRecordBase {
             out.write("http://cctr.umkc.edu:80/user/jbenz/tst.htm 134.193.4.1 19970417175710 text/html 102 Checksum Location 2 Filename 4270\n".getBytes());
             out.write(truncatedPayload);
 
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;
@@ -318,7 +324,7 @@ public class TestArcRecordBase {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_DATA, "'" + ArcConstants.FN_OFFSET + "' value", 1},
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", 2},
                     {DiagnosisType.INVALID_DATA, "Payload length mismatch", 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
@@ -369,6 +375,10 @@ public class TestArcRecordBase {
             out.write(getArcRecord(out.size(), payload));
             out.write(payload);
             out.write("\n".getBytes());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), true);
+
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
             // r1
@@ -398,6 +408,10 @@ public class TestArcRecordBase {
             out.write(getVersionBlock(out.size(), versionblock));
             out.write(versionblock);
             out.write("\n".getBytes());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
             // r1
@@ -435,6 +449,10 @@ public class TestArcRecordBase {
             out.write(getVersionBlock(out.size(), versionblock));
             out.write(versionblock);
             out.write("\n".getBytes());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
             // r1
@@ -468,6 +486,10 @@ public class TestArcRecordBase {
             out.write(getArcRecord(out.size(), payload));
             out.write(payload);
             out.write("\n".getBytes());
+
+            // Save testfile.
+            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
             // r1

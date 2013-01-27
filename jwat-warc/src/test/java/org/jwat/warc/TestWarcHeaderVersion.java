@@ -86,6 +86,9 @@ public class TestWarcHeaderVersion {
                 } else {
                     Assert.assertNull(record);
                 }
+
+                // Save testfile.
+                GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
             }
 
             cases = new Object[][] {
@@ -117,11 +120,17 @@ public class TestWarcHeaderVersion {
                 } else {
                     Assert.assertNull(record);
                 }
+
+                // Save testfile.
+                GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
             }
 
             header = "WARC/1.0\r\nWARC-Type: resource\r\n";
             in = new ByteArrayInputStream(header.getBytes("ISO8859-1"));
             pbin = new ByteCountingPushBackInputStream(in, 16);
+
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
 
             reader = WarcReaderFactory.getReader(pbin);
             record = reader.getNextRecord();

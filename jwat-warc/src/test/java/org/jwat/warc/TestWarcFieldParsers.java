@@ -31,7 +31,8 @@ import org.jwat.common.UriProfile;
 @RunWith(JUnit4.class)
 public class TestWarcFieldParsers {
 
-    public static final String emptyFieldsFile = "test-fields-empty.txt";
+	//invalid-warcfile-fields-missing.warc
+    public static final String emptyFieldsFile = "invalid-warcfile-fields-empty.warc";
 
     @Test
     public void test_parsers_empty() {
@@ -86,7 +87,58 @@ public class TestWarcFieldParsers {
         //Assert.assertEquals(expected_warnings, warnings);
     }
 
-    public static final String invalidFormatFieldsFile = "test-fields-invalidformat.warc";
+    public static final String missingFieldsFile = "invalid-warcfile-fields-missing.warc";
+
+    @Test
+    public void test_parsers_missing() {
+        boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
+
+        InputStream in;
+
+        int records = 0;
+        int errors = 0;
+        int warnings = 0;
+
+        try {
+            in = this.getClass().getClassLoader().getResourceAsStream(missingFieldsFile);
+
+            WarcReader reader = WarcReaderFactory.getReader(in);
+            WarcRecord record;
+
+            while ((record = reader.getNextRecord()) != null) {
+                record.close();
+
+                if (bDebugOutput) {
+                    TestBaseUtils.printRecord(record);
+                    TestBaseUtils.printRecordErrors(record);
+                }
+
+                errors = 0;
+                warnings = 0;
+                if (record.diagnostics.hasErrors()) {
+                    errors += record.diagnostics.getErrors().size();
+                }
+                if (record.diagnostics.hasWarnings()) {
+                    warnings += record.diagnostics.getWarnings().size();
+                }
+
+                ++records;
+            }
+
+            reader.close();
+            in.close();
+
+            if (bDebugOutput) {
+                TestBaseUtils.printStatus(records, errors, warnings);
+            }
+        } catch (FileNotFoundException e) {
+            Assert.fail("Input file missing");
+        } catch (IOException e) {
+            Assert.fail("Unexpected io exception");
+        }
+    }
+
+    public static final String invalidFormatFieldsFile = "invalid-warcfile-fields-invalidformat.warc";
 
     @Test
     public void test_parsers_invalid_format() {

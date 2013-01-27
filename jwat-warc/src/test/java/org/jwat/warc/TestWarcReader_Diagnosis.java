@@ -43,6 +43,9 @@ public class TestWarcReader_Diagnosis {
             out.write("Donkey Kong country...\r\n".getBytes());
             out.write("\r\n".getBytes());
 
+            // Save testfile.
+            GenerateWarcTestFiles.saveTestWarcReader_Diagnosis(out.toByteArray());
+
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
             WarcReader reader = WarcReaderFactory.getReaderUncompressed();

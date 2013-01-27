@@ -43,7 +43,7 @@ public class TestWarc_DigestFields {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {4, new int[]{0, 2, 2, 2}, new int[]{0, 0, 0, 0}, "test-digest-fields.warc"}
+                {4, new int[]{0, 2, 2, 2}, new int[]{0, 0, 0, 0}, "invalid-warcfile-digest-fields.warc"}
         });
     }
 

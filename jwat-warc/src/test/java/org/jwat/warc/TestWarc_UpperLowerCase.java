@@ -41,7 +41,7 @@ public class TestWarc_UpperLowerCase {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {5, "test-upper-lower-case.warc"}
+                {5, "valid-warcfile-upper-lower-case.warc"}
         });
     }
 

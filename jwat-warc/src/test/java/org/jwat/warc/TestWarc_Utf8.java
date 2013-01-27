@@ -45,7 +45,7 @@ public class TestWarc_Utf8 {
     @Parameters
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
-                {1, 0, 0, "test-utf8.warc"}
+                {1, 0, 0, "valid-warcfile-utf8.warc"}
         });
     }
 

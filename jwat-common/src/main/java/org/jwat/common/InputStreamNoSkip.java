@@ -17,19 +17,19 @@
  */
 package org.jwat.common;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 
 /**
- * The standard <code>DigestInputStream</code> does not update the digest
- * when performing a skip operation. Since this is completely useless in
- * most situations, the following implementation remedies this.
+ * The standard <code>FileInputStream</code> has a known bug concerning it's
+ * skip method which does not correctly report the number of bytes skipped.
+ * This class provides a simple <code>InputStream</code> wrapper which ensures
+ * all skips are in turn done as reads.
  *
  * @author nicl
  */
-public class DigestInputStreamNoSkip extends DigestInputStream {
+public class InputStreamNoSkip extends FilterInputStream {
 
     /** Buffer size to use when read skipping. */
     public static final int SKIP_READ_BUFFER_SIZE = 8192;
@@ -38,28 +38,13 @@ public class DigestInputStreamNoSkip extends DigestInputStream {
     protected byte[] skip_read_buffer = new byte[SKIP_READ_BUFFER_SIZE];
 
     /**
-     * Construct a <code>DigestInputStream</code> with the skip method
+     * Construct a <code>InputStream</code> with the skip method
      * overridden.
-     * @param stream input stream to digest
-     * @param digest digest implementation to use
+     * @param stream input stream to no skip on
      */
-    public DigestInputStreamNoSkip(InputStream stream, MessageDigest digest) {
-        super(stream, digest);
-    }
-
-    @Override
-    public boolean markSupported() {
-        return false;
-    }
-
-    @Override
-    public synchronized void mark(int readlimit) {
-    }
-
-    @Override
-    public synchronized void reset() throws IOException {
-        throw new UnsupportedOperationException();
-    }
+	public InputStreamNoSkip(InputStream in) {
+		super(in);
+	}
 
     @Override
     public long skip(long n) throws IOException {
