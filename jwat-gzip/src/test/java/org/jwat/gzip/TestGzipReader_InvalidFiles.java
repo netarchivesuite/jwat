@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.zip.DataFormatException;
 import java.util.zip.ZipException;
 
 import org.junit.Assert;
@@ -153,6 +154,22 @@ public class TestGzipReader_InvalidFiles {
             Assert.assertEquals(1, entries);
         } catch (IOException e) {
             Assert.fail("Unexpected exception!");
+        }
+        in.close();
+
+        in = this.getClass().getClassLoader().getResourceAsStream("invalid-truncated.gz");
+        reader = new GzipReader(in);
+        try {
+            entries = 0;
+            while ((entry = reader.getNextEntry()) != null) {
+                entry.close();
+                ++entries;
+                Assert.fail("Exception expected!");
+            }
+            reader.close();
+            Assert.assertEquals(0, entries);
+        } catch (IOException e) {
+            Assert.assertTrue(e.getCause() instanceof DataFormatException);
         }
         in.close();
     }

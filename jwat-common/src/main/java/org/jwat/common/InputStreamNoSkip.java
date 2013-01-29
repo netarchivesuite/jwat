@@ -42,9 +42,9 @@ public class InputStreamNoSkip extends FilterInputStream {
      * overridden.
      * @param stream input stream to no skip on
      */
-	public InputStreamNoSkip(InputStream in) {
-		super(in);
-	}
+    public InputStreamNoSkip(InputStream in) {
+        super(in);
+    }
 
     @Override
     public long skip(long n) throws IOException {

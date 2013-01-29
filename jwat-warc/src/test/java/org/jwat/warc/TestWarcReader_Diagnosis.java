@@ -56,7 +56,7 @@ public class TestWarcReader_Diagnosis {
 
             Assert.assertTrue(reader.diagnostics.hasErrors());
             Assert.assertFalse(reader.diagnostics.hasWarnings());
-            Assert.assertEquals(2, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(3, reader.diagnostics.getErrors().size());
             Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
 
             d = reader.diagnostics.getErrors().get(0);
@@ -68,6 +68,11 @@ public class TestWarcReader_Diagnosis {
             Assert.assertEquals(DiagnosisType.INVALID, d.type);
             Assert.assertEquals("Empty lines before WARC version", d.entity);
             Assert.assertEquals(0, d.information.length);
+
+            d = reader.diagnostics.getErrors().get(2);
+            Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, d.type);
+            Assert.assertEquals("WARC file", d.entity);
+            Assert.assertEquals(1, d.information.length);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

@@ -30,59 +30,59 @@ public class GenerateArcTestFiles {
     public static int saveTestArcHeaderValidCount = 1;
 
     public static synchronized void saveTestArcHeader(byte[] bytes, boolean valid) throws IOException {
-    	byte[] filedesc = null;
-    	if (bytes.length != 0) {
-        	if (valid) {
-            	ByteArrayOutputStream out = new ByteArrayOutputStream();
-            	switch (saveTestArcHeaderValidCount) {
-            	case 1:
-                	filedesc = (
-                			"filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/plain 76\n"
-                			+ "1 0 InternetArchive\n"
-                			+ "URL IP-address Archive-date Content-type Archive-length\n").getBytes();
-            		break;
-            	case 2:
-            	case 3:
-                	filedesc = (
-                			"filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/plain 200 checksum location 1234 filename 122\n"
-                			+ "2 0 InternetArchive\n"
-                			+ "URL IP-address Archive-date Content-type Result-code Checksum Location Offset Filename Archive-length\n").getBytes();
-            		break;
-            	}
-            	byte[] payload = (
-            			"HTTP/1.1 404 Not Found\r\n"
-            			+ "Server: Mayhem WebServer/0.87 (JDK V1.6; Linux/2.6.32-trunk-686 i386)\r\n"
-            			+ "Date: Thu, 22 Sep 2011 13:12:13 GMT\r\n"
-            			+ "Connection: close\r\n"
-            			+ "Set-Cookie: JSESSIONID=243068592.7295797090016410982.4043211045; path=/; expires=Thursday, 22-Sep-2011 13:42:13 GMT\r\n"
-            			+ "Content-Length: 291\r\n"
-            			+ "Content-Type: text/html; charset=ISO-8859-1\r\n"
-            			+ "Content-Language: en\r\n"
-            			+ "\r\n"
-            			+ "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n"
-            			+ "<HTML><HEAD>\r\n"
-            			+ "<TITLE>Not Found</TITLE>\r\n"
-            			+ "</HEAD><BODY>\r\n"
-            			+ "<H1>404 Not Found</H1>\r\n"
-            			+ "The requested URL /robots.txt was not found on this server.<P>\r\n"
-            			+ "<HR>\r\n"
-            			+ "<ADDRESS>Mayhem WebServer/0.87 Server at www.rebels.dk Port 80</ADDRESS>\r\n"
-            			+ "</BODY></HTML>\r\n"
-            			).getBytes();
-            	out.write(filedesc);
-				out.write(lfByte);
-            	out.write(bytes);
-            	out.write(payload);
-				out.write(lfByte);
-            	out.close();
-            	bytes = out.toByteArray();
+        byte[] filedesc = null;
+        if (bytes.length != 0) {
+            if (valid) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                switch (saveTestArcHeaderValidCount) {
+                case 1:
+                    filedesc = (
+                            "filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/plain 76\n"
+                            + "1 0 InternetArchive\n"
+                            + "URL IP-address Archive-date Content-type Archive-length\n").getBytes();
+                    break;
+                case 2:
+                case 3:
+                    filedesc = (
+                            "filedesc://BNF-FS-072076.arc.gz 0.0.0.0 20060305082251 text/plain 200 checksum location 1234 filename 122\n"
+                            + "2 0 InternetArchive\n"
+                            + "URL IP-address Archive-date Content-type Result-code Checksum Location Offset Filename Archive-length\n").getBytes();
+                    break;
+                }
+                byte[] payload = (
+                        "HTTP/1.1 404 Not Found\r\n"
+                        + "Server: Mayhem WebServer/0.87 (JDK V1.6; Linux/2.6.32-trunk-686 i386)\r\n"
+                        + "Date: Thu, 22 Sep 2011 13:12:13 GMT\r\n"
+                        + "Connection: close\r\n"
+                        + "Set-Cookie: JSESSIONID=243068592.7295797090016410982.4043211045; path=/; expires=Thursday, 22-Sep-2011 13:42:13 GMT\r\n"
+                        + "Content-Length: 291\r\n"
+                        + "Content-Type: text/html; charset=ISO-8859-1\r\n"
+                        + "Content-Language: en\r\n"
+                        + "\r\n"
+                        + "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\r\n"
+                        + "<HTML><HEAD>\r\n"
+                        + "<TITLE>Not Found</TITLE>\r\n"
+                        + "</HEAD><BODY>\r\n"
+                        + "<H1>404 Not Found</H1>\r\n"
+                        + "The requested URL /robots.txt was not found on this server.<P>\r\n"
+                        + "<HR>\r\n"
+                        + "<ADDRESS>Mayhem WebServer/0.87 Server at www.rebels.dk Port 80</ADDRESS>\r\n"
+                        + "</BODY></HTML>\r\n"
+                        ).getBytes();
+                out.write(filedesc);
+                out.write(lfByte);
+                out.write(bytes);
+                out.write(payload);
+                out.write(lfByte);
+                out.close();
+                bytes = out.toByteArray();
                 saveFile("valid-archeader-" + saveTestArcHeaderValidCount + ".arc", bytes);
                 ++saveTestArcHeaderValidCount;
             } else {
-            	saveFile("invalid-archeader-" + saveTestArcHeaderInvalidCount + ".arc", bytes);
+                saveFile("invalid-archeader-" + saveTestArcHeaderInvalidCount + ".arc", bytes);
                 ++saveTestArcHeaderInvalidCount;
             }
-    	}
+        }
     }
 
     public static int saveTestArcRecordInvalidCount = 1;
@@ -160,7 +160,7 @@ public class GenerateArcTestFiles {
     }
 
     public static void saveFile(String fname, byte[] bytes) throws IOException {
-    	/*
+        /*
         File file = new File(fname);
         if (file.exists()) {
             file.delete();

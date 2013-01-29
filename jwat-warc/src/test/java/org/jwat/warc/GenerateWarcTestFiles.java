@@ -35,10 +35,10 @@ public class GenerateWarcTestFiles {
     public static int saveTestWarcHeaderVersionCount = 1;
 
     public static synchronized void saveTestWarcHeaderVersion(byte[] bytes) throws IOException {
-    	if ( bytes.length != 0) {
+        if ( bytes.length != 0) {
             saveFile("invalid-warcheaderversion-" + saveTestWarcHeaderVersionCount + ".warc", bytes);
             ++saveTestWarcHeaderVersionCount;
-    	}
+        }
     }
 
     public static int saveTestWarcReader_DiagnosisCount = 1;
@@ -75,7 +75,7 @@ public class GenerateWarcTestFiles {
     }
 
     public static void saveFile(String fname, byte[] bytes) throws IOException {
-    	/*
+        /*
         File file = new File(fname);
         if (file.exists()) {
             file.delete();

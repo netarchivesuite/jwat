@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.zip.DataFormatException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -192,45 +193,61 @@ public class Test_Flagged {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
         }
-        byte[] partialFile;
-        for (int i=1; i<gzipFile.length; ++i) {
-            partialFile = new byte[i];
-            System.arraycopy(gzipFile, 0, partialFile, 0, i);
-            try {
-                tryread(partialFile);
-                Assert.fail("Exception expected!");
-            } catch (IOException e) {
+        try {
+            byte[] partialFile;
+            for (int i=0; i<gzipFile.length; ++i) {
+                partialFile = new byte[i];
+                System.arraycopy(gzipFile, 0, partialFile, 0, i);
+
+                // debug
+                //System.out.println(gzipFile.length + " " + i);
+
+                tryread(partialFile, gzipFile.length);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 
-    public void tryread(byte[] gzipFile) throws IOException {
+    public void tryread(byte[] gzipFile, long length) throws IOException {
         GzipReader reader = new GzipReader(new ByteArrayInputStream(gzipFile));
-
-        GzipEntry rEntry;
+        GzipEntry entry;
         InputStream entryIn;
         int read;
-        if ((rEntry = reader.getNextEntry()) != null) {
-            out.reset();
-            entryIn = rEntry.getInputStream();
-            while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
-                out.write(tmpBuf, 0, read);
+        if ((entry = reader.getNextEntry()) != null) {
+            try {
+                out.reset();
+                entryIn = entry.getInputStream();
+                while ((read = entryIn.read(tmpBuf, 0, tmpBuf.length)) != -1) {
+                    out.write(tmpBuf, 0, read);
+                }
+                entryIn.close();
+                entry.close();
+                out.close();
+                out.reset();
+            } catch (IOException e) {
+                Assert.assertTrue(e.getCause() instanceof DataFormatException);
             }
-            entryIn.close();
-            rEntry.close();
-            out.close();
-            out.reset();
-        } else {
-            Assert.fail("Expected an entry!");
+            Assert.assertFalse(entry.isCompliant());
         }
-        if (reader.getNextEntry() != null) {
-            Assert.fail("Did not expect more entries!");
+        Assert.assertFalse(reader.isCompliant());
+        Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+        try {
+            if (reader.getNextEntry() != null) {
+                Assert.fail("Did not expect more entries!");
+            }
+        } catch (IOException e) {
+            Assert.assertTrue(e.getCause() instanceof DataFormatException);
         }
-        Assert.assertTrue(reader.isCompliant());
+        Assert.assertFalse(reader.isCompliant());
         Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
         reader.close();
-        Assert.assertTrue(reader.isCompliant());
+        Assert.assertFalse(reader.isCompliant());
         Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
+
+        // TODO Improvable...
+        //System.out.println(reader.diagnostics.getErrors().size());
     }
 
     @Test

@@ -116,9 +116,9 @@ public class Test_Encoding {
 
             gzipFile = out.toByteArray();
 
-            System.out.println( wEntry.extraBytes.length );
-            System.out.println( wEntry.fname.length() );
-            System.out.println( wEntry.fcomment.length() );
+            //System.out.println( wEntry.extraBytes.length );
+            //System.out.println( wEntry.fname.length() );
+            //System.out.println( wEntry.fcomment.length() );
 
             // TODO
             //GzipTestHelper.storeStream("encoding", gzipFile);

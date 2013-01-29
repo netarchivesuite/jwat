@@ -31,7 +31,7 @@ import org.jwat.common.UriProfile;
 @RunWith(JUnit4.class)
 public class TestWarcFieldParsers {
 
-	//invalid-warcfile-fields-missing.warc
+    //invalid-warcfile-fields-missing.warc
     public static final String emptyFieldsFile = "invalid-warcfile-fields-empty.warc";
 
     @Test

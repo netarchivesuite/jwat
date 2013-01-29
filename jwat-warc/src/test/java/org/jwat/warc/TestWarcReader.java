@@ -17,6 +17,7 @@
  */
 package org.jwat.warc;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -26,6 +27,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
 public class TestWarcReader {
@@ -107,6 +110,29 @@ public class TestWarcReader {
         Assert.assertEquals(0, reader.records);
         Assert.assertEquals(0, reader.errors);
         Assert.assertEquals(0, reader.warnings);
+    }
+
+    @Test
+    public void test_empty_warcfile() {
+        ByteArrayInputStream in = new ByteArrayInputStream(new byte[0]);
+        Diagnosis d;
+        try {
+            WarcReader reader = WarcReaderFactory.getReaderUncompressed(in);
+            WarcRecord record = reader.getNextRecord();
+            Assert.assertNull(record);
+            Assert.assertFalse(reader.isCompliant());
+            Assert.assertEquals(1, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            d = reader.diagnostics.getErrors().get(0);
+            Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, d.type);
+            Assert.assertEquals("WARC file", d.entity);
+            Assert.assertEquals(1, d.information.length);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
     }
 
 }

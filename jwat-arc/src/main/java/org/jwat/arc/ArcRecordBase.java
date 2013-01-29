@@ -206,9 +206,15 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler {
             reader.consumed += in.getConsumed() - startOffset;
             reader.diagnostics.addAll(diagnostics);
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
-                reader.bIsCompliant = false;
                 reader.errors += diagnostics.getErrors().size();
                 reader.warnings += diagnostics.getWarnings().size();
+                reader.bIsCompliant = false;
+            }
+            // Require one or more records to be present.
+            if (reader.records == 0) {
+                reader.diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED, "ARC file", "One or more records"));
+                ++reader.errors;
+                reader.bIsCompliant = false;
             }
         }
         return record;

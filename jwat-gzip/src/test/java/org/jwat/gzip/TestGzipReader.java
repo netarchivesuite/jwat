@@ -21,6 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
 
 @RunWith(JUnit4.class)
 public class TestGzipReader {
@@ -132,6 +135,55 @@ public class TestGzipReader {
             Assert.fail("Exception not expected!");
         }
         Assert.assertEquals(Math.min(822, max_entries), entries);
+    }
+
+    @Test
+    public void test_empty_gzipfile() {
+        ByteArrayInputStream in;
+        GzipReader reader;
+        GzipEntry record;
+        Diagnosis d;
+        try {
+            in = new ByteArrayInputStream(new byte[0]);
+            reader = new GzipReader(in);
+            record = reader.getNextEntry();
+            Assert.assertNull(record);
+            Assert.assertFalse(reader.isCompliant());
+            Assert.assertEquals(1, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            d = reader.diagnostics.getErrors().get(0);
+            Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, d.type);
+            Assert.assertEquals("GZip file", d.entity);
+            Assert.assertEquals(1, d.information.length);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+        try {
+            in = new ByteArrayInputStream("GZip".getBytes());
+            reader = new GzipReader(in);
+            record = reader.getNextEntry();
+            Assert.assertNull(record);
+            Assert.assertFalse(reader.isCompliant());
+            Assert.assertEquals(2, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            d = reader.diagnostics.getErrors().get(0);
+            Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, d.type);
+            Assert.assertEquals("GZip file", d.entity);
+            Assert.assertEquals(1, d.information.length);
+
+            d = reader.diagnostics.getErrors().get(1);
+            Assert.assertEquals(DiagnosisType.INVALID_DATA, d.type);
+            Assert.assertEquals("GZip file", d.entity);
+            Assert.assertEquals(1, d.information.length);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
     }
 
 }

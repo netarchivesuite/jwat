@@ -17,9 +17,6 @@
  */
 package org.jwat.gzip;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Iterator;
 
 import org.jwat.common.Diagnosis;
@@ -52,6 +49,7 @@ public class GzipTestHelper {
         return false;
     }
 
+    /*
     public static void storeStream(String filename, byte[] bytes) {
         try {
             RandomAccessFile raf = new RandomAccessFile("gzip_" + filename + ".gz", "rw");
@@ -65,5 +63,6 @@ public class GzipTestHelper {
             e.printStackTrace();
         }
     }
+    */
 
 }

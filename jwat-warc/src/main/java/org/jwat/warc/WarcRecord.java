@@ -221,16 +221,22 @@ public class WarcRecord implements PayloadOnClosedHandler {
             } else {
                 record.bIsCompliant = true;
             }
-            record.reader.bIsCompliant &= record.bIsCompliant;
+            reader.bIsCompliant &= record.bIsCompliant;
         } else {
-            if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
-                record.reader.errors += record.diagnostics.getErrors().size();
-                record.reader.warnings += record.diagnostics.getWarnings().size();
-                record.reader.bIsCompliant = false;
-            }
             // In case no record is found the errors/warnings in the record
             // object are transfered to the Reader.
             reader.diagnostics.addAll(record.diagnostics);
+            if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
+                reader.errors += record.diagnostics.getErrors().size();
+                reader.warnings += record.diagnostics.getWarnings().size();
+                reader.bIsCompliant = false;
+            }
+            // Require one or more records to be present.
+            if (reader.records == 0) {
+                reader.diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED, "WARC file", "One or more records"));
+                ++reader.errors;
+                reader.bIsCompliant = false;
+            }
             // EOF
             record = null;
         }
