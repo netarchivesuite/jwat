@@ -80,12 +80,9 @@ public class GzipInputStream extends InflaterInputStream
         byte[] magicBytes = new byte[2];
         int magicNumber = 0xdeadbeef;
         // Look for the leading 2 magic bytes in front of every valid GZip entry.
-        int read = pbin.readFully(magicBytes);
+        int read = pbin.peek(magicBytes);
         if (read == 2) {
             magicNumber = ((magicBytes[1] & 255) << 8) | (magicBytes[0] & 255);
-        }
-        if (read > 0) {
-            pbin.unread(magicBytes, 0, read);
         }
         return (magicNumber == GzipConstants.GZIP_MAGIC);
     }

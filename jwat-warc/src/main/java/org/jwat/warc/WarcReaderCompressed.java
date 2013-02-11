@@ -34,7 +34,7 @@ import org.jwat.gzip.GzipReader;
 public class WarcReaderCompressed extends WarcReader {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
-    public static final int PUSHBACK_BUFFER_SIZE = 16;
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /** WARC file <code>InputStream</code>. */
     protected GzipReader reader;

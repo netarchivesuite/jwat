@@ -33,7 +33,7 @@ import org.jwat.gzip.GzipEntry;
 public class ArcReaderCompressed extends ArcReader {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
-    public static final int PUSHBACK_BUFFER_SIZE = 16;
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /** ARC file <code>GzipInputStream</code>. */
     protected GzipReader reader;

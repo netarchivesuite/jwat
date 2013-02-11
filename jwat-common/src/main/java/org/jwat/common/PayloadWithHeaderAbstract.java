@@ -149,7 +149,7 @@ public abstract class PayloadWithHeaderAbstract {
      * Get a header line structure or null, if no header line structure is
      * stored with the given header name.
      * @param field header name
-     * @return WARC header line structure or null
+     * @return <code>HeaderLine</code> structure or null
      */
     public HeaderLine getHeader(String field) {
         throw new UnsupportedOperationException();

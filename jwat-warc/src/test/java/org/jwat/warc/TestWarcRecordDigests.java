@@ -183,7 +183,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
+            SaveWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -344,7 +344,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
 
             /*
              * Disable digest validation.
@@ -511,7 +511,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -599,7 +599,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -717,7 +717,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
+            SaveWarcTestFiles.saveTestWarcRecordDigests(out.toByteArray(), true);
 
             // debug
             //System.out.println(new String(out.toByteArray()));

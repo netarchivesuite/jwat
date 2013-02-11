@@ -116,9 +116,10 @@ public abstract class WarcWriter {
 
     /**
      * Set the URI profile used to validate WARC-Target URIs.
+     * If null, the uriProfile is set to RCF3986.
      * @param uriProfile URI profile to use
      */
-    public void setWarcTargerUriProfile(UriProfile uriProfile) {
+    public void setWarcTargetUriProfile(UriProfile uriProfile) {
         if (uriProfile == null) {
             uriProfile = UriProfile.RFC3986;
         }
@@ -135,6 +136,7 @@ public abstract class WarcWriter {
 
     /**
      * Set the URI profile used to validate URIs.
+     * If null, the uriProfile is set to RCF3986.
      * @param uriProfile URI profile to use
      */
     public void setUriProfile(UriProfile uriProfile) {

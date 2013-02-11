@@ -125,7 +125,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -347,7 +347,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));
@@ -614,7 +614,7 @@ public class TestWarcRecord extends TestWarcRecordHelper {
             writer.close();
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
+            SaveWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
 
             // debug
             //System.out.println(new String(out.toByteArray()));

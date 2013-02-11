@@ -388,6 +388,7 @@ public class UriProfile {
         for (int i=161; i<255; ++i) {
             sb.append((char) i);
         }
+        // The following characters are accepted in the relaxed mode. And NOT in the official RFC.
         // []"<>\^`{|}¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþ
         RFC3986_ABS_16BIT_LAX = new UriProfile();
         RFC3986_ABS_16BIT_LAX.bAllowRelativeUris = false;

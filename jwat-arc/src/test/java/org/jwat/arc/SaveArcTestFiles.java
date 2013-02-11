@@ -22,7 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class GenerateArcTestFiles {
+/**
+ * This class is used to save ARC test files to disk so they can be used
+ * to unit test applications that use the JWAT libraries for validation.
+ *
+ * @author nicl
+ */
+public class SaveArcTestFiles {
 
     public static final byte[] lfByte = new byte[] {0x0a};
 
@@ -159,6 +165,7 @@ public class GenerateArcTestFiles {
         }
     }
 
+    // Uncomment to save files.
     public static void saveFile(String fname, byte[] bytes) throws IOException {
         /*
         File file = new File(fname);

@@ -72,7 +72,7 @@ public class TestWarcHeaderVersion {
                 // debug
                 //System.out.println(header);
                 in = new ByteArrayInputStream(header.getBytes("ISO8859-1"));
-                pbin = new ByteCountingPushBackInputStream(in, 16);
+                pbin = new ByteCountingPushBackInputStream(in, WarcReaderFactory.PUSHBACK_BUFFER_SIZE);
                 reader = WarcReaderFactory.getReader(pbin);
                 record = reader.getNextRecord();
                 if (bValidVersion) {
@@ -88,7 +88,7 @@ public class TestWarcHeaderVersion {
                 }
 
                 // Save testfile.
-                GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
+                SaveWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
             }
 
             cases = new Object[][] {
@@ -106,7 +106,7 @@ public class TestWarcHeaderVersion {
                 // debug
                 //System.out.println(header);
                 in = new ByteArrayInputStream(header.getBytes("ISO8859-1"));
-                pbin = new ByteCountingPushBackInputStream(in, 16);
+                pbin = new ByteCountingPushBackInputStream(in, WarcReaderFactory.PUSHBACK_BUFFER_SIZE);
                 reader = WarcReaderFactory.getReader(pbin);
                 record = reader.getNextRecord();
                 if (bValidVersion) {
@@ -122,15 +122,15 @@ public class TestWarcHeaderVersion {
                 }
 
                 // Save testfile.
-                GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
+                SaveWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
             }
 
             header = "WARC/1.0\r\nWARC-Type: resource\r\n";
             in = new ByteArrayInputStream(header.getBytes("ISO8859-1"));
-            pbin = new ByteCountingPushBackInputStream(in, 16);
+            pbin = new ByteCountingPushBackInputStream(in, WarcReaderFactory.PUSHBACK_BUFFER_SIZE);
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
+            SaveWarcTestFiles.saveTestWarcHeaderVersion(header.getBytes("ISO8859-1"));
 
             reader = WarcReaderFactory.getReader(pbin);
             record = reader.getNextRecord();

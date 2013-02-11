@@ -354,7 +354,7 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                 out.write("\r\n".getBytes("ISO-8859-1"));
 
                 // Save testfile.
-                GenerateWarcTestFiles.saveTestWarcHeaderFieldPolicy(out.toByteArray());
+                SaveWarcTestFiles.saveTestWarcHeaderFieldPolicy(out.toByteArray());
             }
         } catch (IOException e) {
             e.printStackTrace();

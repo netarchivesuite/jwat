@@ -243,6 +243,8 @@ public class WarcFieldParsers {
                     addInvalidExpectedError("'" + field + "' value",
                             uriStrClean,
                             "Absolute URI");
+                } else {
+                    scheme = scheme.toLowerCase();
                 }
             }
         } else {

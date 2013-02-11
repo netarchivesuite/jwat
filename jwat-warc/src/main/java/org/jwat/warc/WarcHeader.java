@@ -47,6 +47,12 @@ import org.jwat.common.UriProfile;
  */
 public class WarcHeader {
 
+    /** An URI with encapsulating <> characters. */
+    public static final boolean URI_LTGT = true;
+
+    /** An URI without encapsulating <> characters. */
+    public static final boolean URI_NAKED = false;
+
     /** Associated WarcReader context.
      *  Must be set prior to calling the various methods. */
     protected WarcReader reader;
@@ -501,7 +507,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = fieldValue;
-                    warcRecordIdUri = fieldParsers.parseUri(fieldValue, true,
+                    warcRecordIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
                             uriProfile, WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
@@ -520,7 +526,7 @@ public class WarcHeader {
                             WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    Uri tmpUri = fieldParsers.parseUri(fieldValue, true,
+                    Uri tmpUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
                             uriProfile, WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
@@ -546,12 +552,12 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = fieldValue;
-                    warcRefersToUri = fieldParsers.parseUri(fieldValue, true,
+                    warcRefersToUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
                             uriProfile, WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = fieldValue;
-                    warcTargetUriUri = fieldParsers.parseUri(fieldValue, false,
+                    warcTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
                             warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
@@ -566,7 +572,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
-                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, true,
+                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
                             uriProfile, WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
@@ -575,7 +581,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
                     warcProfileStr = fieldValue;
-                    warcProfileUri = fieldParsers.parseUri(fieldValue, false,
+                    warcProfileUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
                             uriProfile, WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
@@ -591,7 +597,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValue;
-                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, true,
+                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, URI_LTGT,
                             uriProfile, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
@@ -631,7 +637,7 @@ public class WarcHeader {
      * Get a header line structure or null, if no header line structure is
      * stored with the given header name.
      * @param field header name
-     * @return WARC header line structure or null
+     * @return <code>HeaderLine</code> structure or null
      */
     public HeaderLine getHeader(String field) {
         if (field != null && field.length() > 0) {
@@ -811,11 +817,11 @@ public class WarcHeader {
     public HeaderLine addHeader(String fieldName, Uri uriFieldValue, String fieldValueStr) {
         if (uriFieldValue == null && fieldValueStr != null) {
             if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)) {
-                uriFieldValue = fieldParsers.parseUri(fieldValueStr, false, warcTargetUriProfile, fieldName);
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_NAKED, warcTargetUriProfile, fieldName);
             } else if (WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)) {
-                uriFieldValue = fieldParsers.parseUri(fieldValueStr, false, uriProfile, fieldName);
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_NAKED, uriProfile, fieldName);
             } else {
-                uriFieldValue = fieldParsers.parseUri(fieldValueStr, true, uriProfile, fieldName);
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_LTGT, uriProfile, fieldName);
             }
         } else if (fieldValueStr == null && uriFieldValue != null) {
             if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)

@@ -39,7 +39,7 @@ import org.jwat.gzip.GzipReader;
 public class WarcReaderFactory {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
-    public static final int PUSHBACK_BUFFER_SIZE = 16;
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /**
      * Private constructor to enforce factory method.
@@ -48,20 +48,29 @@ public class WarcReaderFactory {
     }
 
     /**
-     * Check head of <code>PushBackInputStream</code> for a WARC magic number.
+     * Check head of <code>PushBackInputStream</code> for a WARC file identifier.
+     * The identifier for WARC files is "WARC/" in the beginning.
+     * @param pbin <code>PushBackInputStream</code> with WARC records
+     * @return boolean indicating presence of a WARC file identifier
+     * @throws IOException if an i/o error occurs while examining head of stream
+     */
+    public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
+        return isWarcRecord(pbin);
+    }
+
+    /**
+     * Check head of <code>PushBackInputStream</code> for a WARC record identifier.
+     * The identifier for WARC records is "WARC/" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with WARC records
      * @return boolean indicating presence of a WARC magic number
      * @throws IOException if an i/o error occurs while examining head of stream
      */
-    public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
-        byte[] magicBytes = new byte[WarcConstants.WARC_MAGIC_HEADER.length()];
+    public static boolean isWarcRecord(ByteCountingPushBackInputStream pbin) throws IOException {
+        byte[] streamBytes = new byte[WarcConstants.WARC_MAGIC_HEADER.length()];
         byte[] warcBytes = WarcConstants.WARC_MAGIC_HEADER.getBytes();
         // Look for the leading magic bytes in front of every valid WARC record.
-        int read = pbin.readFully(magicBytes);
-        if (read > 0) {
-            pbin.unread(magicBytes, 0, read);
-        }
-        return (Arrays.equals(warcBytes, magicBytes));
+        pbin.peek(streamBytes);
+        return (Arrays.equals(warcBytes, streamBytes));
     }
 
     /**

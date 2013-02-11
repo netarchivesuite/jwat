@@ -32,7 +32,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 public class WarcReaderUncompressed extends WarcReader {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
-    public static final int PUSHBACK_BUFFER_SIZE = 16;
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /** WARC file <code>InputStream</code>. */
     protected ByteCountingPushBackInputStream in;

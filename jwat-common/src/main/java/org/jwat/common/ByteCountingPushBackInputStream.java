@@ -164,7 +164,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     /**
      * Read a single line into a string.
      * @return single string line
-     * @throws IOException if an io error occurs while reading line
+     * @throws IOException if an i/o error occurs while reading line
      */
     public String readLine() throws IOException {
         StringBuffer sb = new StringBuffer(READLINE_INITIAL_SIZE);
@@ -189,7 +189,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * if not, the bytes are pushed back into the stream before returning.
      * @param buffer byte buffer to read bytes into
      * @return the number of bytes read into array
-     * @throws IOException if an io error occurs while reading array
+     * @throws IOException if an i/o error occurs while reading array
      */
     public int readFully(byte[] buffer) throws IOException {
         int readOffset = 0;
@@ -203,6 +203,28 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
         if (readRemaining > 0) {
             unread(buffer, 0, readOffset);
             readOffset = 0;
+        }
+        return readOffset;
+    }
+
+    /**
+     * Peek into the stream by filling as much of the supplied array as
+     * possible before unreading the stream and returning.
+     * @param buffer byte buffer to read bytes into
+     * @return the number of bytes read into array
+     * @throws IOException if an i/o error occurs while reading array
+     */
+    public int peek(byte[] buffer) throws IOException {
+        int readOffset = 0;
+        int readRemaining = buffer.length;
+        int readLast = 0;
+        while (readRemaining > 0 && readLast != -1) {
+            readRemaining -= readLast;
+            readOffset += readLast;
+            readLast = read(buffer, readOffset, readRemaining);
+        }
+        if (readOffset > 0) {
+            unread(buffer, 0, readOffset);
         }
         return readOffset;
     }

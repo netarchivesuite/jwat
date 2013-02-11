@@ -36,27 +36,27 @@ public class TestArcReaderFactory_IsMagic {
         ByteCountingPushBackInputStream pbin;
         try {
             bytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
-            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertTrue(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
 
             bytes = "filedesc://url".getBytes();
-            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertTrue(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
 
             bytes = ArcConstants.ARC_MAGIC_HEADER.toUpperCase().getBytes();
-            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
 
             bytes = "FILEDESC://url".getBytes();
-            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
 
             bytes = "filedesc".getBytes();
-            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
 

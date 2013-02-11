@@ -44,7 +44,7 @@ public class TestWarcReader_Diagnosis {
             out.write("\r\n".getBytes());
 
             // Save testfile.
-            GenerateWarcTestFiles.saveTestWarcReader_Diagnosis(out.toByteArray());
+            SaveWarcTestFiles.saveTestWarcReader_Diagnosis(out.toByteArray());
 
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 

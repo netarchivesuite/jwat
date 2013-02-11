@@ -36,6 +36,9 @@ import org.jwat.common.PayloadWithHeaderAbstract;
  */
 public class ArcVersionHeader extends PayloadWithHeaderAbstract {
 
+    /** Buffer size used by <code>PushbackInputStream</code>. */
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
+
     /** ARC field parser used.
      * Must be set prior to calling the various methods. */
     protected ArcFieldParsers fieldParsers;
@@ -178,7 +181,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     @Override
     protected boolean readHeader(MaxLengthRecordingInputStream in,
             long payloadLength) throws IOException {
-        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, 16);
+        ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, PUSHBACK_BUFFER_SIZE);
         String versionLine = pbin.readLine();
         String blockDescLine = pbin.readLine();
         // debug

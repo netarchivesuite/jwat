@@ -67,7 +67,9 @@ public class TestArcRecord {
                             public String getArchiveLength(Object[] test_case) {
                                 return "0";
                             }
-                    }, new Object[][] {}, new Object[][] {}},
+                    }, new Object[][] {
+                            {DiagnosisType.ERROR_EXPECTED, ArcConstants.ARC_FILE, 1}
+                    }, new Object[][] {}},
                     /*
                      * ArchiveLength=0, TNT payload.
                      */
@@ -205,7 +207,8 @@ public class TestArcRecord {
                 //System.out.println(out);
 
                 // Save testfile.
-                GenerateArcTestFiles.saveTestArcRecord(out.toByteArray(), ((Object[][])test_cases[i][3]).length == 0 && ((Object[][])test_cases[i][4]).length == 0);
+                SaveArcTestFiles.saveTestArcRecord(out.toByteArray(),
+                        ((Object[][])test_cases[i][3]).length == 0 && ((Object[][])test_cases[i][4]).length == 0);
 
                 in = new ByteArrayInputStream(out.toByteArray());
                 reader = ArcReaderFactory.getReader(in, 1024);

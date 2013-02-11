@@ -426,7 +426,7 @@ public class GzipReader {
                 bIsCompliant = false;
             }
             if (pbin.read() != -1) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA, "GZip file", "Unexpected trailling data!"));
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA, "GZip file", "Unexpected trailing data!"));
                 bIsCompliant = false;
             }
         }
@@ -487,7 +487,6 @@ public class GzipReader {
         } else {
             gzipEntry.diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_DATA, "GZip file", "Unexpected EOF!"));
             bIsCompliant = false;
-            //throw new EOFException("Unexpected EOF!");
         }
         // Compliance
         if (gzipEntry.diagnostics.hasErrors() || gzipEntry.diagnostics.hasWarnings()) {

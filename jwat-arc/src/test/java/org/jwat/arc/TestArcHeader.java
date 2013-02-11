@@ -115,7 +115,7 @@ public class TestArcHeader {
                 diagnostics.reset();
 
                 // Save testfile.
-                GenerateArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
+                SaveArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
             }
             /*
              * Test cases, parseHeader().
@@ -431,7 +431,7 @@ public class TestArcHeader {
                 diagnostics.reset();
 
                 // Save testfile.
-                GenerateArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
+                SaveArcTestFiles.saveTestArcHeader(bytes, expected_errors.length == 0 && expected_warnings.length == 0);
             }
         } catch (IOException e) {
             e.printStackTrace();

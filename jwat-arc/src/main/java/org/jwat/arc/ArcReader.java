@@ -168,6 +168,7 @@ public abstract class ArcReader {
 
     /**
      * Set the URI profile used to validate URL URIs.
+     * If null, the uriProfile is set to RCF3986.
      * @param uriProfile URI profile to use
      */
     public void setUriProfile(UriProfile uriProfile) {

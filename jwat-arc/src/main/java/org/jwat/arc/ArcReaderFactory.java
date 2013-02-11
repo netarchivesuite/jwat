@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.Scheme;
 import org.jwat.gzip.GzipReader;
 
 /**
@@ -39,7 +40,7 @@ import org.jwat.gzip.GzipReader;
 public class ArcReaderFactory {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
-    public static final int PUSHBACK_BUFFER_SIZE = 16;
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /**
      * Private constructor to enforce factory method.
@@ -48,21 +49,32 @@ public class ArcReaderFactory {
     }
 
     /**
-     * Check head of <code>PushBackInputStream</code> for an ARC magic number.
+     * Check head of <code>PushBackInputStream</code> for an ARC file identifier.
+     * The identifier for ARC files is "filedesc:" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with an ARC version block
-     * @return boolean indicating presence of an ARC magic number
+     * @return boolean indicating presence of an ARC file identifier
      * @throws IOException if an i/o error occurs while examining head of stream
      */
-    // TODO only works for the first record.
     public static boolean isArcFile(ByteCountingPushBackInputStream pbin) throws IOException {
-        byte[] magicBytes = new byte[ArcConstants.ARC_MAGIC_HEADER.length()];
+        byte[] streamBytes = new byte[ArcConstants.ARC_MAGIC_HEADER.length()];
         byte[] arcBytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
-        // Look for the leading magic bytes in front of every valid ARC file.
-        int read = pbin.readFully(magicBytes);
-        if (read > 0) {
-            pbin.unread(magicBytes, 0, read);
-        }
-        return (Arrays.equals(arcBytes, magicBytes));
+        // Look for an ARC file identifier in the beginning of the stream.
+        pbin.peek(streamBytes);
+        return (Arrays.equals(arcBytes, streamBytes));
+    }
+
+    /**
+     * Check head of <code>PushBackInputStream</code> for an ARC record identifier.
+     * The identifier for ARC files is "filedesc:" in the beginning.
+     * @param pbin <code>PushBackInputStream</code> with an ARC version block
+     * @return boolean indicating presence of an ARC file identifier
+     * @throws IOException if an i/o error occurs while examining head of stream
+     */
+    public static boolean isArcRecord(ByteCountingPushBackInputStream pbin) throws IOException {
+        byte[] streamBytes = new byte[32];
+        // Look for a valid scheme in the beginning of the stream.
+        pbin.peek(streamBytes);
+        return Scheme.startsWithScheme(streamBytes);
     }
 
     /**

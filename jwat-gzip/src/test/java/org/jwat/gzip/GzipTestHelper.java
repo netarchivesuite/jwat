@@ -50,6 +50,7 @@ public class GzipTestHelper {
     }
 
     /*
+    // TODO To be continued...
     public static void storeStream(String filename, byte[] bytes) {
         try {
             RandomAccessFile raf = new RandomAccessFile("gzip_" + filename + ".gz", "rw");

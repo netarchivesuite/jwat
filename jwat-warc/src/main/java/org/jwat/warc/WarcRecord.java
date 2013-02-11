@@ -480,7 +480,7 @@ public class WarcRecord implements PayloadOnClosedHandler {
      * Get a non-standard WARC header or null, if nothing is stored for this
      * header name.
      * @param field header name
-     * @return WARC header line structure or null
+     * @return <code>HeaderLine</code> structure or null
      */
     public HeaderLine getHeader(String field) {
         if (field != null && field.length() > 0) {

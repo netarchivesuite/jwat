@@ -33,6 +33,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestUri {
 
+    private boolean debug = false;
+
     @Test
     public void test_uri_absolute() {
         /*
@@ -42,6 +44,10 @@ public class TestUri {
                 {"scheme://userinfo@host:42/path?query#fragment", true, false,
                     new Object[] {"//userinfo@host:42/path", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", "42", "/path", "query", "fragment"},
                     new Object[] {"scheme", "//userinfo@host:42/path?query", "userinfo@host:42", "userinfo", "host", 42, "/path", "query", "fragment"}
+                },
+                {"SCHEME://USERINFO@HOST:42/PATH?QUERY#FRAGMENT", true, false,
+                    new Object[] {"//USERINFO@HOST:42/PATH", "//USERINFO@HOST:42/PATH?QUERY", "USERINFO@HOST:42", "USERINFO", "HOST", "42", "/PATH", "QUERY", "FRAGMENT"},
+                    new Object[] {"SCHEME", "//USERINFO@HOST:42/PATH?QUERY", "USERINFO@HOST:42", "USERINFO", "HOST", 42, "/PATH", "QUERY", "FRAGMENT"}
                 },
                 // Fragment
                 {"scheme://userinfo@host:42/path?query#", true, false,
@@ -273,28 +279,37 @@ public class TestUri {
             try {
                 jdkuri = URI.create(str);
                 if (jdkuri != null) {
-                    System.out.println("      Scheme: " + jdkuri.getScheme());
-                    System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
-                    System.out.println("   Authority: " + jdkuri.getAuthority());
-                    System.out.println("    Userinfo: " + jdkuri.getUserInfo());
-                    System.out.println("        Host: " + jdkuri.getHost());
-                    System.out.println("        Port: " + jdkuri.getPort());
-                    System.out.println("        Path: " + jdkuri.getPath());
-                    System.out.println("       Query: " + jdkuri.getQuery());
-                    System.out.println("    Fragment: " + jdkuri.getFragment());
+                    // debug
+                    if (debug) {
+                        System.out.println("      Scheme: " + jdkuri.getScheme());
+                        System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
+                        System.out.println("   Authority: " + jdkuri.getAuthority());
+                        System.out.println("    Userinfo: " + jdkuri.getUserInfo());
+                        System.out.println("        Host: " + jdkuri.getHost());
+                        System.out.println("        Port: " + jdkuri.getPort());
+                        System.out.println("        Path: " + jdkuri.getPath());
+                        System.out.println("       Query: " + jdkuri.getQuery());
+                        System.out.println("    Fragment: " + jdkuri.getFragment());
+                    }
                 }
                 // debug
-                System.out.println(jdkuri);
+                if (debug) {
+                    System.out.println(jdkuri);
+                }
             } catch (IllegalArgumentException e) {
                 // debug
-                System.out.println("#### " + str);
+                if (debug) {
+                    System.out.println("#### " + str);
+                }
             }
             try {
                 uri1 = Uri.create(str);
                 Assert.assertEquals(UriProfile.RFC3986, uri1.uriProfile);
                 check_expected_uri(uri1, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
                 // debug
-                System.out.println(uri1.toString());
+                if (debug) {
+                    System.out.println(uri1.toString());
+                }
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 Assert.fail("Unexpected exception!");
@@ -304,12 +319,17 @@ public class TestUri {
                 Assert.assertEquals(UriProfile.RFC3986, uri2.uriProfile);
                 check_expected_uri(uri2, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
                 // debug
-                System.out.println(uri1.toString());
+                if (debug) {
+                    System.out.println(uri1.toString());
+                }
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 Assert.fail("Unexpected exception!");
             }
-            System.out.println(str);
+            // debug
+            if (debug) {
+                System.out.println(str);
+            }
             uris[i] = uri1;
             Assert.assertEquals(str, uri1.toString());
             Assert.assertEquals(str, uri2.toString());
@@ -500,36 +520,51 @@ public class TestUri {
             try {
                 try {
                     jdkuri = new URI(str);
-                    System.out.println(jdkuri);
-                    System.out.println("      Scheme: " + jdkuri.getScheme());
-                    System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
-                    System.out.println("   Authority: " + jdkuri.getAuthority());
-                    System.out.println("    Userinfo: " + jdkuri.getUserInfo());
-                    System.out.println("        Host: " + jdkuri.getHost());
-                    System.out.println("        Port: " + jdkuri.getPort());
-                    System.out.println("        Path: " + jdkuri.getPath());
-                    System.out.println("       Query: " + jdkuri.getQuery());
-                    System.out.println("    Fragment: " + jdkuri.getFragment());
+                    // debug
+                    if (debug) {
+                        System.out.println(jdkuri);
+                        System.out.println("      Scheme: " + jdkuri.getScheme());
+                        System.out.println("  SchemeSpec: " + jdkuri.getSchemeSpecificPart());
+                        System.out.println("   Authority: " + jdkuri.getAuthority());
+                        System.out.println("    Userinfo: " + jdkuri.getUserInfo());
+                        System.out.println("        Host: " + jdkuri.getHost());
+                        System.out.println("        Port: " + jdkuri.getPort());
+                        System.out.println("        Path: " + jdkuri.getPath());
+                        System.out.println("       Query: " + jdkuri.getQuery());
+                        System.out.println("    Fragment: " + jdkuri.getFragment());
+                    }
                 } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                    // debug
+                    if (debug) {
+                        e.printStackTrace();
+                    }
                 }
                 uri = Uri.create(str);
                 Assert.assertEquals(UriProfile.RFC3986, uri.uriProfile);
-                System.out.println("--------");
+                // debug
+                if (debug) {
+                    System.out.println("--------");
+                }
                 if (uri != null) {
-                    System.out.println("    Scheme: " + uri.scheme);
-                    System.out.println("SchemeSpec: " + uri.schemeSpecificPart);
-                    System.out.println(" Authority: " + uri.authority);
-                    System.out.println("  Userinfo: " + uri.userinfo);
-                    System.out.println("      Host: " + uri.host);
-                    System.out.println("      Port: " + uri.port);
-                    System.out.println("      Path: " + uri.path);
-                    System.out.println("     Query: " + uri.query);
-                    System.out.println("  Fragment: " + uri.fragment);
-                    System.out.println(uri);
+                    // debug
+                    if (debug) {
+                        System.out.println("    Scheme: " + uri.scheme);
+                        System.out.println("SchemeSpec: " + uri.schemeSpecificPart);
+                        System.out.println(" Authority: " + uri.authority);
+                        System.out.println("  Userinfo: " + uri.userinfo);
+                        System.out.println("      Host: " + uri.host);
+                        System.out.println("      Port: " + uri.port);
+                        System.out.println("      Path: " + uri.path);
+                        System.out.println("     Query: " + uri.query);
+                        System.out.println("  Fragment: " + uri.fragment);
+                        System.out.println(uri);
+                    }
                 }
                 check_expected_uri(uri, jdkuri, bAbsolute, bOpaque, expectedraw, expected);
-                System.out.println("--------");
+                // debug
+                if (debug) {
+                    System.out.println("--------");
+                }
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 Assert.fail("Unexpected exception!");

@@ -57,7 +57,7 @@ public class TestArcRecordBase {
             out.write("\n".getBytes());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
 
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 
@@ -196,7 +196,7 @@ public class TestArcRecordBase {
             out.write(truncatedPayload);
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
 
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
             ArcReader reader = ArcReaderFactory.getReader(in);
@@ -377,7 +377,7 @@ public class TestArcRecordBase {
             out.write("\n".getBytes());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), true);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), true);
 
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
@@ -410,7 +410,7 @@ public class TestArcRecordBase {
             out.write("\n".getBytes());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
 
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
@@ -451,7 +451,7 @@ public class TestArcRecordBase {
             out.write("\n".getBytes());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
 
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);
@@ -488,7 +488,7 @@ public class TestArcRecordBase {
             out.write("\n".getBytes());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
+            SaveArcTestFiles.saveTestArcRecordBase(out.toByteArray(), false);
 
             in = new ByteArrayInputStream(out.toByteArray());
             reader = ArcReaderFactory.getReader(in);

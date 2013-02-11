@@ -80,7 +80,7 @@ public class Uri implements Comparable<Uri> {
     /** Boolean indicating whether this URI is absolute. */
     protected boolean bAbsolute;
 
-    /** Boolean indicating whether this URI is opaque. */
+    /** Boolean indicating whether this URI is opaque, @see #isOpaque() */
     protected boolean bOpaque;
 
     /** Profile used to parse URI. */
@@ -167,7 +167,7 @@ public class Uri implements Comparable<Uri> {
     protected void validate_absoluteUri(String uriStr, int uIdx) throws URISyntaxException {
         // Scheme validation.
         if (scheme.length() > 0) {
-            scheme = scheme.toLowerCase();
+            //scheme = scheme.toLowerCase();
             uriProfile.validate_first_follow(scheme, UriProfile.B_SCHEME_FIRST, UriProfile.B_SCHEME_FOLLOW);
         } else {
             throw new URISyntaxException(scheme, "Empty URI scheme component");
@@ -425,10 +425,21 @@ public class Uri implements Comparable<Uri> {
     /**
      * Returns the host component of this URI.
      * The host component of a URI, if defined, will have one of the following forms:
-     * A domain name consisting of one or more labels separated by period characters ('.'), optionally followed by a period character. Each label consists of alphanum characters as well as hyphen characters ('-'), though hyphens never occur as the first or last characters in a label. The rightmost label of a domain name consisting of two or more labels, begins with an alpha character.
-     * A dotted-quad IPv4 address of the form digit+.digit+.digit+.digit+, where no digit sequence is longer than three characters and no sequence has a value larger than 255.
-     * An IPv6 address enclosed in square brackets ('[' and ']') and consisting of hexadecimal digits, colon characters (':'), and possibly an embedded IPv4 address. The full syntax of IPv6 addresses is specified in RFC 2373: IPv6 Addressing Architecture.
-     * The host component of a URI cannot contain escaped octets, hence this method does not perform any decoding.
+     * - A domain name consisting of one or more labels separated by period
+     *   characters ('.'), optionally followed by a period character.
+     *   Each label consists of alphanum characters as well as hyphen characters ('-'),
+     *   though hyphens never occur as the first or last characters in a label.
+     *   The rightmost label of a domain name consisting of two or more labels,
+     *    begins with an alpha character.
+     * - A dotted-quad IPv4 address of the form digit+.digit+.digit+.digit+,
+     *   where no digit sequence is longer than three characters and no sequence
+     *   has a value larger than 255.
+     * - An IPv6 address enclosed in square brackets ('[' and ']') and consisting
+     *   of hexadecimal digits, colon characters (':'), and possibly an embedded
+     *   IPv4 address. The full syntax of IPv6 addresses is specified in
+     *   RFC 2373: IPv6 Addressing Architecture.
+     * The host component of a URI cannot contain escaped octets,
+     * hence this method does not perform any decoding.
      * @return The host component of this URI, or null if the host is undefined
      */
     public String getHost() {
@@ -436,8 +447,8 @@ public class Uri implements Comparable<Uri> {
     }
 
     /**
-     * Returns the port number of this URI.
-     * The port component of a URI, if defined, is a non-negative integer.
+     * Returns the port number of this URI. The port component of a URI,
+     * if defined, is a non-negative integer between 1 and 65535.
      * @return The port component of this URI, or -1 if the port is undefined
      */
     public int getPort() {

@@ -100,9 +100,8 @@ public class ArcRecord extends ArcRecordBase {
                     reader.payloadHeaderMaxSize, digestAlgorithm);
             payload.setOnClosedHandler(this);
             // HttpHeader.
-            if (HttpHeader.isSupported(header.urlScheme)
-                    && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                            header.contentTypeStr)) {
+            if (HttpHeader.isSupported(header.urlScheme)) {
+                // Never! -> && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(header.contentTypeStr)
                 digestAlgorithm = null;
                 if (reader.bPayloadDigest) {
                     digestAlgorithm = reader.payloadDigestAlgorithm;
@@ -122,9 +121,8 @@ public class ArcRecord extends ArcRecordBase {
                     }
                 }
             }
-        } else if (HttpHeader.isSupported(header.urlScheme)
-                            && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(
-                                    header.contentTypeStr)) {
+        } else if (HttpHeader.isSupported(header.urlScheme)) {
+            // Never! -> && !ArcConstants.CONTENT_TYPE_NO_TYPE.equals(header.contentTypeStr)
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
                     ArcConstants.ARC_FILE,
                     "Expected payload not found in the record block"));

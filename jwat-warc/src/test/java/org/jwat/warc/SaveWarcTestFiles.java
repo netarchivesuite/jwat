@@ -21,7 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class GenerateWarcTestFiles {
+/**
+ * This class is used to save WARC test files to disk so they can be used
+ * to unit test applications that use the JWAT libraries for validation.
+ *
+ * @author nicl
+ */
+public class SaveWarcTestFiles {
 
     public static final byte[] lfByte = new byte[] {0x0a};
 
@@ -74,6 +80,7 @@ public class GenerateWarcTestFiles {
         }
     }
 
+    // Uncomment to save files.
     public static void saveFile(String fname, byte[] bytes) throws IOException {
         /*
         File file = new File(fname);

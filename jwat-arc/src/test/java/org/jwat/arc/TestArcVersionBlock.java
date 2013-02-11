@@ -79,7 +79,7 @@ public class TestArcVersionBlock {
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             record = reader.getNextRecord();
             Assert.assertNull(record);
@@ -123,7 +123,7 @@ public class TestArcVersionBlock {
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             record = reader.getNextRecord();
             Assert.assertNull(record);
@@ -138,7 +138,12 @@ public class TestArcVersionBlock {
             vbData = "1 1 InternetArchive\n";
             vbData += "URL IP-address Archive-date Content-type Archive-length\n";
             mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
-            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
+            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" +
+                    " xmlns:dcterms=\"http://purl.org/dc/terms/\"" +
+                    " xmlns:arc=\"http://archive.org/arc/1.0/\"" +
+                    " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                    " xmlns=\"http://archive.org/arc/1.0/\"" +
+                    " xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
             mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
             mdData += "<arc:hostname>blackbook</arc:hostname>\r\n";
             mdData += "<arc:ip>192.168.1.13</arc:ip>\r\n";
@@ -186,7 +191,7 @@ public class TestArcVersionBlock {
             Assert.assertEquals(record.httpHeader, record.getHttpHeader());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             record = reader.getNextRecord();
             Assert.assertNull(record);
@@ -220,7 +225,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_FILE, 1}
@@ -264,7 +269,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.isCompliant());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             Assert.assertTrue(record.diagnostics.hasErrors());
             Assert.assertFalse(record.diagnostics.hasWarnings());
@@ -317,7 +322,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID, ArcConstants.ARC_VERSION_BLOCK, 1},
@@ -371,7 +376,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.ERROR_EXPECTED, ArcConstants.ARC_FILE, 1}
@@ -399,7 +404,12 @@ public class TestArcVersionBlock {
             vbData = "1 0 InternetArchive\n";
             vbData += "URL IP-address Archive-date Content-type Archive-length\n";
             mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
-            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
+            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" +
+                    " xmlns:dcterms=\"http://purl.org/dc/terms/\"" +
+                    " xmlns:arc=\"http://archive.org/arc/1.0/\"" +
+                    " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                    " xmlns=\"http://archive.org/arc/1.0/\"" +
+                    " xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
             mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
             mdData += "<arc:hostname>blackbook</arc:hostname>\r\n";
             mdData += "<arc:ip>192.168.1.13</arc:ip>\r\n";
@@ -439,7 +449,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1}
@@ -468,7 +478,12 @@ public class TestArcVersionBlock {
             vbData = "2 0 InternetArchive\n";
             vbData += "URL IP-address Archive-date Content-type Result-code Checksum Location Offset Filename Archive-length\n";
             mdData = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n";
-            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:arc=\"http://archive.org/arc/1.0/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://archive.org/arc/1.0/\" xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
+            mdData += "<arcmetadata xmlns:dc=\"http://purl.org/dc/elements/1.1/\"" +
+                    " xmlns:dcterms=\"http://purl.org/dc/terms/\"" +
+                    " xmlns:arc=\"http://archive.org/arc/1.0/\"" +
+                    " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                    " xmlns=\"http://archive.org/arc/1.0/\"" +
+                    " xsi:schemaLocation=\"http://archive.org/arc/1.0/ http://www.archive.org/arc/1.0/arc.xsd\">\r\n";
             mdData += "<arc:software>Heritrix @VERSION@ http://crawler.archive.org</arc:software>\r\n";
             mdData += "<arc:hostname>blackbook</arc:hostname>\r\n";
             mdData += "<arc:ip>192.168.1.13</arc:ip>\r\n";
@@ -506,7 +521,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1}
@@ -559,7 +574,7 @@ public class TestArcVersionBlock {
             Assert.assertFalse(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
@@ -612,7 +627,7 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
@@ -664,7 +679,7 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
@@ -737,7 +752,7 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
@@ -791,7 +806,7 @@ public class TestArcVersionBlock {
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
             // Save testfile.
-            GenerateArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
+            SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.UNDESIRED_DATA, "version block metadata payload", 1},
