@@ -117,7 +117,7 @@ public class TestArcRecordBase {
             Assert.assertTrue(header.diagnostics.hasWarnings());
 
             Object[][] expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
@@ -262,7 +262,7 @@ public class TestArcRecordBase {
             Assert.assertTrue(record.diagnostics.hasWarnings());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
             /*

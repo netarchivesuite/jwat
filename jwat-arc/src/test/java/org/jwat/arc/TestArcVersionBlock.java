@@ -578,7 +578,7 @@ public class TestArcVersionBlock {
 
             expectedDiagnoses = new Object[][] {
                     {DiagnosisType.REQUIRED_MISSING, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 0},
-                    {DiagnosisType.ERROR_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 1}
+                    {DiagnosisType.ERROR_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 1}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
 
@@ -630,7 +630,7 @@ public class TestArcVersionBlock {
             SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
@@ -682,7 +682,7 @@ public class TestArcVersionBlock {
             SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
@@ -755,7 +755,7 @@ public class TestArcVersionBlock {
             SaveArcTestFiles.saveTestArcVersionBlock(bytes, record.isCompliant());
 
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 
@@ -814,7 +814,7 @@ public class TestArcVersionBlock {
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
             expectedDiagnoses = new Object[][] {
-                    {DiagnosisType.INVALID_EXPECTED, ArcConstants.FN_CONTENT_TYPE, 2}
+                    {DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_CONTENT_TYPE + "' value", 2}
             };
             TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
 

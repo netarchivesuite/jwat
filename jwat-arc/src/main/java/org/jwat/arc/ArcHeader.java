@@ -28,6 +28,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
+import org.jwat.common.Scheme;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
 
@@ -227,9 +228,12 @@ public class ArcHeader {
             urlUri = fieldParsers.parseUri(urlStr, uriProfile, ArcConstants.FN_URL, false);
             if (urlUri != null) {
                 urlScheme = urlUri.getScheme();
-                if (urlScheme != null) {
-                    urlScheme = urlScheme.toLowerCase();
-                }
+            } else if (urlStr != null) {
+                // TODO unit test
+                urlScheme = Scheme.getScheme(urlStr);
+            }
+            if (urlScheme != null) {
+                urlScheme = urlScheme.toLowerCase();
             }
 
             ipAddressStr = fields[ArcConstants.FN_IDX_IP_ADDRESS];

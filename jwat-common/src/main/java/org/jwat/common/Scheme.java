@@ -58,26 +58,64 @@ public class Scheme {
      */
     public static boolean startsWithScheme(byte[] bytes) {
         boolean result = false;
-        int idx = 0;
-        boolean bLoop = true;
-        while (bLoop) {
-            if (idx < bytes.length) {
-                if (bytes[idx] == ':') {
-                    bLoop = false;
-                    if (idx > 0) {
-                        result = true;
+        if (bytes != null) {
+            int idx = 0;
+            boolean bLoop = true;
+            int c;
+            while (bLoop) {
+                if (idx < bytes.length) {
+                    c = bytes[idx];
+                    if (c == ':') {
+                        bLoop = false;
+                        if (idx > 0) {
+                            result = true;
+                        }
+                    } else if (idx > 0) {
+                        bLoop = ((bf[c & 255] & 2) != 0);
+                    } else {
+                        bLoop = ((bf[c & 255] & 1) != 0);
                     }
-                } else if (idx > 0) {
-                    bLoop = ((bf[bytes[idx] & 255] & 2) != 0);
                 } else {
-                    bLoop = ((bf[bytes[idx] & 255] & 1) != 0);
+                    bLoop = false;
                 }
-            } else {
-                bLoop = false;
+                ++idx;
             }
-            ++idx;
         }
         return result;
+    }
+
+    public static String getScheme(String uri) {
+        if (uri != null) {
+            StringBuilder sb = new StringBuilder();
+            int idx = 0;
+            boolean bLoop = true;
+            int c;
+            while (bLoop) {
+                if (idx < uri.length()) {
+                    c = uri.charAt(idx);
+                    if (c < 256) {
+                        if (c == ':') {
+                            //bLoop = false;
+                            if (idx > 0) {
+                                return sb.toString();
+                            }
+                        } else if (idx > 0) {
+                            sb.append((char)c);
+                            bLoop = ((bf[c] & 2) != 0);
+                        } else {
+                            sb.append((char)c);
+                            bLoop = ((bf[c] & 1) != 0);
+                        }
+                    } else {
+                        bLoop = false;
+                    }
+                } else {
+                    bLoop = false;
+                }
+                ++idx;
+            }
+        }
+        return null;
     }
 
 }

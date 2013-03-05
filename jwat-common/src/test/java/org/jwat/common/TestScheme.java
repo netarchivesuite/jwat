@@ -31,6 +31,12 @@ public class TestScheme {
         Scheme scheme = new Scheme();
         Assert.assertNotNull(scheme);
 
+        /*
+         * startsWithScheme().
+         */
+
+        Assert.assertFalse(Scheme.startsWithScheme(null));
+
         Assert.assertFalse(Scheme.startsWithScheme("".getBytes()));
         Assert.assertFalse(Scheme.startsWithScheme(":".getBytes()));
         Assert.assertFalse(Scheme.startsWithScheme("#:".getBytes()));
@@ -56,6 +62,56 @@ public class TestScheme {
         Assert.assertTrue(Scheme.startsWithScheme("git+ssh:".getBytes()));
         Assert.assertTrue(Scheme.startsWithScheme("git-ssh:".getBytes()));
         Assert.assertTrue(Scheme.startsWithScheme("git.ssh:".getBytes()));
+
+        /*
+         * getScheme().
+         */
+
+        Assert.assertNull(Scheme.getScheme(null));
+
+        Assert.assertNull(Scheme.getScheme(""));
+        Assert.assertNull(Scheme.getScheme(":"));
+        Assert.assertNull(Scheme.getScheme("#:"));
+        Assert.assertNull(Scheme.getScheme("filedesc"));
+        Assert.assertNull(Scheme.getScheme("http"));
+        Assert.assertNull(Scheme.getScheme("git+"));
+        Assert.assertNull(Scheme.getScheme("git-"));
+        Assert.assertNull(Scheme.getScheme("git."));
+        Assert.assertNull(Scheme.getScheme("git+ssh"));
+        Assert.assertNull(Scheme.getScheme("git-ssh"));
+        Assert.assertNull(Scheme.getScheme("git.ssh"));
+        Assert.assertNull(Scheme.getScheme("+ssh"));
+        Assert.assertNull(Scheme.getScheme("-ssh"));
+        Assert.assertNull(Scheme.getScheme(".ssh"));
+        Assert.assertNull(Scheme.getScheme("112:"));
+        Assert.assertNull(Scheme.getScheme("filedesc#:"));
+
+        Assert.assertEquals("filedesc", Scheme.getScheme("filedesc:"));
+        Assert.assertEquals("http", Scheme.getScheme("http:"));
+        Assert.assertEquals("git+", Scheme.getScheme("git+:"));
+        Assert.assertEquals("git-", Scheme.getScheme("git-:"));
+        Assert.assertEquals("git.", Scheme.getScheme("git.:"));
+        Assert.assertEquals("git+ssh", Scheme.getScheme("git+ssh:"));
+        Assert.assertEquals("git-ssh", Scheme.getScheme("git-ssh:"));
+        Assert.assertEquals("git.ssh", Scheme.getScheme("git.ssh:"));
+
+        Assert.assertEquals("filedesc", Scheme.getScheme("filedesc:\u1234"));
+        Assert.assertEquals("http", Scheme.getScheme("http:\u1234"));
+        Assert.assertEquals("git+", Scheme.getScheme("git+:\u1234"));
+        Assert.assertEquals("git-", Scheme.getScheme("git-:\u1234"));
+        Assert.assertEquals("git.", Scheme.getScheme("git.:\u1234"));
+        Assert.assertEquals("git+ssh", Scheme.getScheme("git+ssh:\u1234"));
+        Assert.assertEquals("git-ssh", Scheme.getScheme("git-ssh:\u1234"));
+        Assert.assertEquals("git.ssh", Scheme.getScheme("git.ssh:\u1234"));
+
+        Assert.assertNull(Scheme.getScheme("\u1234filedesc:"));
+        Assert.assertNull(Scheme.getScheme("http\u1234:"));
+        Assert.assertNull(Scheme.getScheme("git\u1234+:"));
+        Assert.assertNull(Scheme.getScheme("git\u1234-:"));
+        Assert.assertNull(Scheme.getScheme("git\u1234.:"));
+        Assert.assertNull(Scheme.getScheme("git+\u1234ssh:"));
+        Assert.assertNull(Scheme.getScheme("git-\u1234ssh:"));
+        Assert.assertNull(Scheme.getScheme("git.\u1234ssh:"));
     }
 
 }

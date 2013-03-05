@@ -61,11 +61,11 @@ public class Payload {
     /** Payload content. */
     protected BufferedInputStream in_buffered;
 
-    /** Pushback input stream usable by payload processors. */
+    /** Pushback input stream exposed to the outside, usable by payload processors. */
     protected ByteCountingPushBackInputStream in_pb_exposed;
 
     /** Payload stream. */
-    protected ByteCountingPushBackInputStream in_exposed;
+    //protected ByteCountingPushBackInputStream in_exposed;
 
     /** Pushback size. */
     protected int pushback_size;
@@ -219,7 +219,12 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data.
      */
     public ByteCountingPushBackInputStream getInputStream() {
-        return in_pb_exposed;
+        // TODO Can override HTTP payload calculation! Fixed!
+        if (payloadHeaderWrapped != null) {
+            return payloadHeaderWrapped.getPayloadInputStream();
+        } else {
+            return in_pb_exposed;
+        }
     }
 
     /**

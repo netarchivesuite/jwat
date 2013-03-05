@@ -99,14 +99,14 @@ public class ArcVersionBlock extends ArcRecordBase {
         if (header.contentType == null) {
             // Version block content-type is required.
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED,
-                    ArcConstants.FN_CONTENT_TYPE,
+                    "'" + ArcConstants.FN_CONTENT_TYPE + "' value",
                     ArcConstants.CONTENT_TYPE_FORMAT));
         } else if (!ArcConstants.VERSION_BLOCK_CONTENT_TYPE.equals(
                 header.contentType.contentType) ||
                 !ArcConstants.VERSION_BLOCK_MEDIA_TYPE.equals(header.contentType.mediaType)) {
             // Version block content-type should be equal to "text/plain"
             diagnostics.addWarning(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-                    ArcConstants.FN_CONTENT_TYPE,
+                    "'" + ArcConstants.FN_CONTENT_TYPE + "' value",
                     header.contentTypeStr,
                     ArcConstants.CONTENT_TYPE_TEXT_PLAIN));
         }

@@ -77,6 +77,9 @@ public abstract class PayloadWithHeaderAbstract {
     /** Payload stream returned to user. */
     protected InputStream in_payload;
 
+    /** Pushback input stream exposed to the outside. */
+    protected ByteCountingPushBackInputStream in_pb_exposed;
+
     /** Sequence of the header as a stream combined with the payload stream. */
     protected SequenceInputStream in_complete;
 
@@ -116,6 +119,7 @@ public abstract class PayloadWithHeaderAbstract {
                 }
             };
             header = in_flr.getRecording();
+            in_pb_exposed = new ByteCountingPushBackInputStream(in_payload, in_pb.getPushbackSize());
             in_complete = new SequenceInputStream(new ByteArrayInputStream(header), in_payload);
             in_flr = null;
         } else {
@@ -234,11 +238,11 @@ public abstract class PayloadWithHeaderAbstract {
      * Get an <code>InputStream</code> containing only the payload.
      * @return <code>InputStream</code> containing only the payload.
      */
-    public InputStream getPayloadInputStream() {
+    public ByteCountingPushBackInputStream getPayloadInputStream() {
         if (!bIsValid) {
             throw new IllegalStateException("HttpHeader not valid");
         }
-        return in_payload;
+        return in_pb_exposed;
     }
 
     /**
