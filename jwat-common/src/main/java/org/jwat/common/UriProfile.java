@@ -66,7 +66,7 @@ public class UriProfile {
     public static final int B_FRAGMENT = 1 << 16;
 
     /** Array of integers used to categorize all 8bit chars. */
-    protected int[] charTypeMap = new int[256];
+    protected final int[] charTypeMap = new int[256];
 
     /** Does profile allow relative URIs. */
     public boolean bAllowRelativeUris;
@@ -88,6 +88,19 @@ public class UriProfile {
         bAllowRelativeUris = true;
         bAllow16bitPercentEncoding = false;
         bAllowinvalidPercentEncoding = false;
+    }
+
+    /**
+     * Construct an <code>UriProfile</code> initialized from another profile.
+     * @param uriProfile URI profile to base a new profile on
+     */
+    public UriProfile(UriProfile uriProfile) {
+        for (int i=0; i<charTypeMap.length; ++i) {
+            charTypeMap[i] = uriProfile.charTypeMap[i];
+        }
+        bAllowRelativeUris = uriProfile.bAllowRelativeUris;
+        bAllow16bitPercentEncoding = uriProfile.bAllow16bitPercentEncoding;
+        bAllowinvalidPercentEncoding = uriProfile.bAllowinvalidPercentEncoding;
     }
 
     /**

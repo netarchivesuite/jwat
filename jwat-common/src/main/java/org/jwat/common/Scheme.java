@@ -84,6 +84,12 @@ public class Scheme {
         return result;
     }
 
+    /**
+     * Returns a scheme if the given string has a valid scheme at the beginning
+     * of null if no scheme was found.
+     * @param uri a possible URI string
+     * @return a scheme if one is found or null
+     */
     public static String getScheme(String uri) {
         if (uri != null) {
             StringBuilder sb = new StringBuilder();

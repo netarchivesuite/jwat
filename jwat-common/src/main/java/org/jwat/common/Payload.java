@@ -219,7 +219,6 @@ public class Payload {
      * @return <code>InputStream</code> to read payload data.
      */
     public ByteCountingPushBackInputStream getInputStream() {
-        // TODO Can override HTTP payload calculation! Fixed!
         if (payloadHeaderWrapped != null) {
             return payloadHeaderWrapped.getPayloadInputStream();
         } else {

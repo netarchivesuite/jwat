@@ -17,6 +17,10 @@
  */
 package org.jwat.common;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+
 import java.net.URISyntaxException;
 
 import org.junit.Assert;
@@ -30,6 +34,33 @@ public class TestUriProfile {
     @Test
     public void test_uriprofile() {
         UriProfile uriProfile;
+        UriProfile uriProfile2;
+        /*
+         * new UriProfile(uriProfile)
+         */
+        uriProfile = UriProfile.RFC3986;
+        uriProfile2 = new UriProfile(uriProfile);
+        Assert.assertNotSame(uriProfile, uriProfile2);
+        Assert.assertEquals(uriProfile.bAllowRelativeUris, uriProfile2.bAllowRelativeUris);
+        Assert.assertEquals(uriProfile.bAllowinvalidPercentEncoding, uriProfile2.bAllowinvalidPercentEncoding);
+        Assert.assertEquals(uriProfile.bAllow16bitPercentEncoding, uriProfile2.bAllow16bitPercentEncoding);
+        Assert.assertArrayEquals(uriProfile.charTypeMap, uriProfile2.charTypeMap);
+
+        uriProfile = UriProfile.RFC3986_ABS_16BIT_LAX;
+        uriProfile2 = new UriProfile(uriProfile);
+        Assert.assertNotSame(uriProfile, uriProfile2);
+        Assert.assertEquals(uriProfile.bAllowRelativeUris, uriProfile2.bAllowRelativeUris);
+        Assert.assertEquals(uriProfile.bAllowinvalidPercentEncoding, uriProfile2.bAllowinvalidPercentEncoding);
+        Assert.assertEquals(uriProfile.bAllow16bitPercentEncoding, uriProfile2.bAllow16bitPercentEncoding);
+        Assert.assertArrayEquals(uriProfile.charTypeMap, uriProfile2.charTypeMap);
+
+        uriProfile = UriProfile.RFC3986;
+        uriProfile2 = new UriProfile(UriProfile.RFC3986_ABS_16BIT_LAX);
+        Assert.assertNotSame(uriProfile, uriProfile2);
+        Assert.assertNotSame(uriProfile.bAllowRelativeUris, uriProfile2.bAllowRelativeUris);
+        Assert.assertNotSame(uriProfile.bAllowinvalidPercentEncoding, uriProfile2.bAllowinvalidPercentEncoding);
+        Assert.assertNotSame(uriProfile.bAllow16bitPercentEncoding, uriProfile2.bAllow16bitPercentEncoding);
+        Assert.assertThat(uriProfile, is(not(equalTo(uriProfile2))));
         /*
          * indexOf().
          */
