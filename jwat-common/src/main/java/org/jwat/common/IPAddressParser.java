@@ -42,7 +42,7 @@ public final class IPAddressParser {
      * Checks the validity of an IP address.
      * Supports both IP v4 and IP v6 formats.
      * @param ipAddress the IP address
-     * @return true/false based on whether IP address is valid or not
+     * @return the inetAddress of the IP address if valid, if not, null is returned
      */
     public static InetAddress getAddress(String ipAddress){
         boolean isValid = (ipAddress == null) ? false
