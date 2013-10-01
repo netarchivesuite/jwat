@@ -128,6 +128,10 @@ public class WarcConstants {
     public static final String FN_WARC_SEGMENT_NUMBER = "WARC-Segment-Number";
     /** Warc-segment-totalt-length field name. */
     public static final String FN_WARC_SEGMENT_TOTAL_LENGTH = "WARC-Segment-Total-Length";
+    /** WARC-Refers-To-Target-URI field name */
+    public static final String FN_WARC_REFERS_TO_TARGET_URI = "WARC-Refers-To-Target-URI";
+    /** WARC-Refers-To-Date field name */
+    public static final String FN_WARC_REFERS_TO_DATE = "WARC-Refers-To-Date";
 
     /** WARC field name id to field name mapping table.
      *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */

@@ -211,6 +211,18 @@ public class WarcHeader {
     /** WARC-Segment-Total-Length converted to a <code>Long</code> object, if valid.
      *  (continuation record only) */
     public Long warcSegmentTotalLength;
+    
+    // see https://docs.google.com/document/d/1QyQBA7Ykgxie75V8Jziz_O7hbhwf7PF6_u9O6w6zgp0/edit
+    /** WARC-Refers-To-Target-URI field string value. */
+    public String warcRefersToTargetUriStr;
+    /** WARC-Refers-To-Target-URI converted to an <code>Uri</code> object, if valid. */
+    public Uri warcRefersToTargetUriUri;
+    /** WARC-Refers-To-Date */
+    public String warcRefersToDateStr;
+    /** WARC-Date converted to a <code>Date</code> object, if valid. */
+    public Date warcRefersToDate;
+
+    
 
     /*
      * WARC header fields collections.
