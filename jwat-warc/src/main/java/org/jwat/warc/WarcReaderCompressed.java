@@ -53,7 +53,7 @@ public class WarcReaderCompressed extends WarcReader {
      * The records are then accessed using the getNextRecordFrom methods
      * using a supplied input stream for each record.
      */
-    WarcReaderCompressed() {
+    public WarcReaderCompressed() {
         init();
     }
 
@@ -62,7 +62,7 @@ public class WarcReaderCompressed extends WarcReader {
      * This method is primarily for sequential access to records.
      * @param reader GZip reader
      */
-    WarcReaderCompressed(GzipReader reader) {
+    public WarcReaderCompressed(GzipReader reader) {
         if (reader == null) {
             throw new IllegalArgumentException(
                     "'reader' is null");
@@ -77,7 +77,7 @@ public class WarcReaderCompressed extends WarcReader {
      * @param reader GZip reader
      * @param buffer_size buffer size used on entries
      */
-    WarcReaderCompressed(GzipReader reader, int buffer_size) {
+    public WarcReaderCompressed(GzipReader reader, int buffer_size) {
         if (reader == null) {
             throw new IllegalArgumentException(
                     "'reader' is null");

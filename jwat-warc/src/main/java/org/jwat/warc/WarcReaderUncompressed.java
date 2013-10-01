@@ -45,7 +45,7 @@ public class WarcReaderUncompressed extends WarcReader {
      * The records are then accessed using the getNextRecordFrom methods
      * using a supplied input stream for each record.
      */
-    WarcReaderUncompressed() {
+    public WarcReaderUncompressed() {
         init();
     }
 
@@ -54,7 +54,7 @@ public class WarcReaderUncompressed extends WarcReader {
      * This method is primarily for sequential access to records.
      * @param in WARC file input stream
      */
-    WarcReaderUncompressed(ByteCountingPushBackInputStream in) {
+    public WarcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'in' is null");

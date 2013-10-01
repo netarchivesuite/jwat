@@ -77,9 +77,11 @@
 
   <modules>
     <module>jwat-common</module>
+    <module>jwat-archive-common</module>
     <module>jwat-gzip</module>
     <module>jwat-arc</module>
     <module>jwat-warc</module>
+    <!--module>jwat-archive</module-->
     <module>jwat-distribution</module>
   </modules>
 

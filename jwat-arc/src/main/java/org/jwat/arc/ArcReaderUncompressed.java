@@ -44,7 +44,7 @@ public class ArcReaderUncompressed extends ArcReader {
      * The records are then accessed using the getNextRecordFrom methods
      * using a supplied input stream for each record.
      */
-    ArcReaderUncompressed() {
+    public ArcReaderUncompressed() {
         init();
     }
 
@@ -53,7 +53,7 @@ public class ArcReaderUncompressed extends ArcReader {
      * This method is primarily for sequential access to records.
      * @param in ARC file input stream
      */
-    ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
+    public ArcReaderUncompressed(ByteCountingPushBackInputStream in) {
         if (in == null) {
             throw new IllegalArgumentException("The inputstream 'in' is null");
         }

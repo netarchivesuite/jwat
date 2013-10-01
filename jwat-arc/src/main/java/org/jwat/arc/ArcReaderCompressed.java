@@ -52,7 +52,7 @@ public class ArcReaderCompressed extends ArcReader {
      * The records are then accessed using the getNextRecordFrom methods
      * using a supplied input stream for each record.
      */
-    ArcReaderCompressed() {
+    public ArcReaderCompressed() {
         init();
     }
 
@@ -61,7 +61,7 @@ public class ArcReaderCompressed extends ArcReader {
      * This method is primarily for sequential access to records.
      * @param reader GZip reader
      */
-    ArcReaderCompressed(GzipReader reader) {
+    public ArcReaderCompressed(GzipReader reader) {
         if (reader == null) {
             throw new IllegalArgumentException("'reader' is null");
         }
@@ -75,7 +75,7 @@ public class ArcReaderCompressed extends ArcReader {
      * @param reader GZip reader
      * @param buffer_size buffer size used on entries
      */
-    ArcReaderCompressed(GzipReader reader, int buffer_size) {
+    public ArcReaderCompressed(GzipReader reader, int buffer_size) {
         if (reader == null) {
             throw new IllegalArgumentException("'reader' is null");
         }
