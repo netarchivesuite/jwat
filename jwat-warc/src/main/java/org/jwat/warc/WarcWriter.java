@@ -618,6 +618,41 @@ public abstract class WarcWriter {
             outBuf.write(warcSegmentTotalLengthStr.getBytes());
             outBuf.write("\r\n".getBytes());
         }
+        
+        /*
+         * WARC-Refers-To-Target-URI
+         */
+        String warcRefersToTargetUriStr = null;
+        if (header.warcRefersToTargetUriUri != null) {
+            warcRefersToTargetUriStr = header.warcRefersToTargetUriUri.toString();
+        } else if (header.warcRefersToTargetUriStr != null) {
+            warcRefersToTargetUriStr = header.warcRefersToTargetUriStr;
+        }
+        if (warcRefersToTargetUriStr != null) {
+            outBuf.write(WarcConstants.FN_WARC_REFERS_TO_TARGET_URI.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcTargetUriStr.getBytes());
+            outBuf.write("\r\n".getBytes());
+        }
+        
+        /*
+         * Warc-Refers-To-Date
+         */
+        String warcRefersToDateStr = null;
+        if (header.warcRefersToDate != null) {
+            warcRefersToDateStr = warcDateFormat.format(header.warcRefersToDate);
+        } else if (header.warcDateStr != null) {
+            warcRefersToDateStr = header.warcRefersToDateStr;
+            // Warning...
+        }
+        if (warcRefersToDateStr != null) {
+            outBuf.write(WarcConstants.FN_WARC_REFERS_TO_DATE.getBytes());
+            outBuf.write(": ".getBytes());
+            outBuf.write(warcRefersToDateStr.getBytes());
+            outBuf.write("\r\n".getBytes());
+        }
+
+        
         /*
          * End Of Header
          */
