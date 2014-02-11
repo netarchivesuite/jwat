@@ -18,9 +18,7 @@
 package org.jwat.arc;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 /**
  * This class is used to save ARC test files to disk so they can be used

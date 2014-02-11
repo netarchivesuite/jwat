@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.jwat.archive.common.ReaderFactoryAbstract;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.gzip.GzipReader;
 
@@ -36,7 +37,7 @@ import org.jwat.gzip.GzipReader;
  *
  * @author nicl
  */
-public class WarcReaderFactory {
+public class WarcReaderFactory extends ReaderFactoryAbstract {
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
     public static final int PUSHBACK_BUFFER_SIZE = 32;

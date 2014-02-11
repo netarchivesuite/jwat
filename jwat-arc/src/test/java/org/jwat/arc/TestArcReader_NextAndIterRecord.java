@@ -20,9 +20,9 @@ package org.jwat.arc;
 //import static org.hamcrest.CoreMatchers.is;
 //import static org.hamcrest.Matchers.lessThanOrEqualTo;
 //import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

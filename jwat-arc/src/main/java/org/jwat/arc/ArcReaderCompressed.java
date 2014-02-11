@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.gzip.GzipReader;
 import org.jwat.gzip.GzipEntry;
+import org.jwat.gzip.GzipReader;
 
 /**
  * ARC Reader implementation for reading GZip compressed files.

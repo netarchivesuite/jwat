@@ -20,10 +20,14 @@ package org.jwat.warc;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.Security;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -110,12 +114,14 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             md_md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            Assert.fail("Unexepected exception!");
         }
         MessageDigest md_sha1 = null;
         try {
             md_sha1 = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            Assert.fail("Unexepected exception!");
         }
 
         md_md5.reset();
@@ -810,6 +816,97 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                 Assert.assertEquals(0, reader.warnings);
             }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexepected exception!");
+        }
+    }
+
+    @Test
+    public void test_warcrecord_digestalgorithms() {
+    	Security.addProvider(new BouncyCastleProvider());
+    	SecureRandom random = new SecureRandom();
+        MessageDigest md = null;
+        byte[] blockDigest;
+        byte[] payloadDigest;
+
+        String[] algorithms = {"sha1", "sha-256", "sha-512", "tiger", "RipeMD128", "RipeMD160", "RipeMD256", "RipeMD320"};
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        InputStream in;
+        WarcWriter writer;
+        WarcReader reader;
+        WarcRecord record;
+        WarcHeader header;
+        int records = 0;
+
+        init_header1();
+
+        byte[] srcArr = new byte[ 8192 ];
+        random.nextBytes( srcArr );
+
+        Object[][] writedata = new Object[algorithms.length][];
+
+        try {
+        	for (int i=0; i<algorithms.length; ++i) {
+        		writedata[i] = new Object[4];
+        		writedata[i][0] = httpHeaderBytes;
+        		writedata[i][1] = payloadBytes;
+
+        		md = MessageDigest.getInstance(algorithms[i]);
+                md.reset();
+                md.update(httpHeaderBytes);
+                md.update(payloadBytes);
+                blockDigest = md.digest();
+
+                md.reset();
+                md.update(payloadBytes);
+                payloadDigest = md.digest();
+
+                writedata[i][2] = new Object[] {algorithms[i], blockDigest, "base32", Base32.encodeArray(blockDigest)};
+                writedata[i][3] = new Object[] {algorithms[i], payloadDigest, "base32", Base32.encodeArray(payloadDigest)};
+        	}
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            Assert.fail("Unexepected exception!");
+        }
+
+        try {
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, false);
+            writeRecords(writer, warcHeaders, writedata);
+            writer.close();
+
+            // debug
+            System.out.println(new String(out.toByteArray()));
+
+            in = new ByteArrayInputStream(out.toByteArray());
+            reader = WarcReaderFactory.getReader(in);
+            reader.setBlockDigestEnabled(true);
+            reader.setPayloadDigestEnabled(true);
+            while ((record = reader.getNextRecord()) != null) {
+            	header = record.header;
+            	record.close();
+
+            	Assert.assertTrue(record.isCompliant());
+            	Assert.assertEquals(0, record.diagnostics.getErrors().size());
+            	Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+            	Assert.assertTrue(record.isValidBlockDigest);
+            	Assert.assertTrue(record.isValidPayloadDigest);
+
+            	Object[] digestParams = (Object[])writedata[records][2];
+            	Assert.assertEquals(digestParams[0].toString().toLowerCase(), header.warcBlockDigest.algorithm);
+            	Assert.assertArrayEquals((byte[])digestParams[1], header.warcBlockDigest.digestBytes);
+            	Assert.assertEquals(digestParams[2], header.warcBlockDigest.encoding);
+            	Assert.assertEquals(digestParams[3], header.warcBlockDigest.digestString);
+
+            	++records;
+            }
+            Assert.assertNull(reader.getNextRecord());
+            reader.close();
+            Assert.assertTrue(reader.isCompliant());
+            Assert.assertEquals(0, reader.errors);
+            Assert.assertEquals(0, reader.warnings);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexepected exception!");

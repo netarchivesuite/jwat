@@ -222,8 +222,6 @@ public class WarcHeader {
     /** WARC-Date converted to a <code>Date</code> object, if valid. */
     public Date warcRefersToDate;
 
-    
-
     /*
      * WARC header fields collections.
      */
@@ -622,6 +620,16 @@ public class WarcHeader {
                     warcSegmentTotalLength = fieldParsers.parseLong(fieldValue,
                             WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
                     break;
+                case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
+                    warcRefersToTargetUriStr = fieldValue;
+                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
+                            uriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
+                    break;
+                case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
+                    warcRefersToDateStr = fieldValue;
+                    warcRefersToDate = fieldParsers.parseDate(fieldValue,
+                            WarcConstants.FN_WARC_REFERS_TO_DATE);
+                    break;
                 }
             } else {
                 // Duplicate field.
@@ -935,6 +943,10 @@ public class WarcHeader {
                     warcDateStr = fieldValueStr;
                     warcDate = dateFieldValue;
                     break;
+                case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
+                    warcRefersToDateStr = fieldValueStr;
+                    warcRefersToDate = dateFieldValue;
+                	break;
                 /*
                  * InetAddress.
                  */
@@ -983,6 +995,10 @@ public class WarcHeader {
                     warcSegmentOriginIdStr = fieldValueStr;
                     warcSegmentOriginIdUrl = uriFieldValue;
                     break;
+                case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
+                    warcRefersToTargetUriStr = fieldValueStr;
+                    warcRefersToTargetUriUri = uriFieldValue;
+                	break;
                 default:
                     break;
                 }
@@ -1131,6 +1147,9 @@ public class WarcHeader {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
             }
+            // TODO
+            // FN_IDX_WARC_REFERS_TO_TARGET_URI
+            // FN_IDX_WARC_REFERS_TO_DATE
         }
     }
 

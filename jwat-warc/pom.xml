@@ -17,12 +17,23 @@
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.jwat</groupId>
+      <artifactId>jwat-archive-common</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>org.jwat</groupId>
       <artifactId>jwat-gzip</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15</artifactId>
+      <version>1.45</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

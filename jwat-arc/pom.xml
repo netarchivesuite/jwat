@@ -16,7 +16,11 @@
       <artifactId>jwat-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.jwat</groupId>
+      <artifactId>jwat-archive-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.jwat</groupId>
       <artifactId>jwat-gzip</artifactId>

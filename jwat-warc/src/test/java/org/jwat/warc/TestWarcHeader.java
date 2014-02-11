@@ -48,7 +48,9 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE,
                 WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID,
                 WarcConstants.FN_WARC_SEGMENT_NUMBER,
-                WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH
+                WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH,
+                WarcConstants.FN_WARC_REFERS_TO_TARGET_URI,
+                WarcConstants.FN_WARC_REFERS_TO_DATE
         };
         testEmptyHeader(headers, null);
         testEmptyHeader(headers, "");
@@ -143,6 +145,11 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_DATE + "' value", 2}
                         }, null, null}
                 }},
+                {WarcConstants.FN_WARC_REFERS_TO_DATE, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_DATE + "' value", 2}
+                        }, null, null}
+                }},
                 /*
                  * Digest.
                  */
@@ -216,6 +223,12 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                         {"hello_kitty", new Object[][] {
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID + "' value", 2}
+                        }, null, null}
+                }},
+                {WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, new Object[][] {
+                        {"hello_kitty", new Object[][] {
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2},
+                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2}
                         }, null, null}
                 }},
         };

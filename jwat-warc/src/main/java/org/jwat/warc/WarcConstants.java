@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Class containing all relevant WARC constants and structures.
  * Including but not limited to field names and mime-types.
- * Also includes non statically initialized structures for validation.
+ * Also includes statically initialized structures for validation.
  *
  * @author nicl
  */
@@ -81,7 +81,7 @@ public class WarcConstants {
     public static final int WARC_RECORD_TRAILING_NEWLINES = 2;
 
     /** Number of WARC fields (zero-indexed). */
-    public static final int FN_MAX_NUMBER = 19+1;
+    public static final int FN_MAX_NUMBER = 21+1;
 
     /** Number of WARC types (zero indexed). */
     public static final int RT_MAX_NUMBER = 8+1;
@@ -128,9 +128,9 @@ public class WarcConstants {
     public static final String FN_WARC_SEGMENT_NUMBER = "WARC-Segment-Number";
     /** Warc-segment-totalt-length field name. */
     public static final String FN_WARC_SEGMENT_TOTAL_LENGTH = "WARC-Segment-Total-Length";
-    /** WARC-Refers-To-Target-URI field name */
+    /** WARC-Refers-To-Target-URI field name. */
     public static final String FN_WARC_REFERS_TO_TARGET_URI = "WARC-Refers-To-Target-URI";
-    /** WARC-Refers-To-Date field name */
+    /** WARC-Refers-To-Date field name. */
     public static final String FN_WARC_REFERS_TO_DATE = "WARC-Refers-To-Date";
 
     /** WARC field name id to field name mapping table.
@@ -155,7 +155,9 @@ public class WarcConstants {
         FN_WARC_IDENTIFIED_PAYLOAD_TYPE,
         FN_WARC_SEGMENT_ORIGIN_ID,
         FN_WARC_SEGMENT_NUMBER,
-        FN_WARC_SEGMENT_TOTAL_LENGTH
+        FN_WARC_SEGMENT_TOTAL_LENGTH,
+        FN_WARC_REFERS_TO_TARGET_URI,
+        FN_WARC_REFERS_TO_DATE
     };
 
     /** Warc reader warc-type field name id. */
@@ -196,6 +198,10 @@ public class WarcConstants {
     public static final int FN_IDX_WARC_SEGMENT_NUMBER = 18;
     /** Warc reader warc-segment-totalt-length field name id. */
     public static final int FN_IDX_WARC_SEGMENT_TOTAL_LENGTH = 19;        //continuation only
+    /** WARC-Refers-To-Target-URI field name id. */
+    public static final int FN_IDX_WARC_REFERS_TO_TARGET_URI = 20;
+    /** WARC-Refers-To-Date field name id. */
+    public static final int FN_IDX_WARC_REFERS_TO_DATE = 21;
 
     /** Map used to identify known warc field names. */
     public static final Map<String, Integer> fieldNameIdxMap = new HashMap<String, Integer>();
@@ -223,6 +229,8 @@ public class WarcConstants {
         fieldNameIdxMap.put(FN_WARC_SEGMENT_ORIGIN_ID.toLowerCase(), FN_IDX_WARC_SEGMENT_ORIGIN_ID);
         fieldNameIdxMap.put(FN_WARC_SEGMENT_NUMBER.toLowerCase(), FN_IDX_WARC_SEGMENT_NUMBER);
         fieldNameIdxMap.put(FN_WARC_SEGMENT_TOTAL_LENGTH.toLowerCase(), FN_IDX_WARC_SEGMENT_TOTAL_LENGTH);
+        fieldNameIdxMap.put(FN_WARC_REFERS_TO_TARGET_URI.toLowerCase(), FN_IDX_WARC_REFERS_TO_TARGET_URI);
+        fieldNameIdxMap.put(FN_WARC_REFERS_TO_DATE.toLowerCase(), FN_IDX_WARC_REFERS_TO_DATE);
     }
 
     /** WARC String field datatype identifier. */
@@ -560,6 +568,10 @@ public class WarcConstants {
 
         // Warc-Segment-Number
         field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
+
+        // TODO
+        // FN_IDX_WARC_REFERS_TO_TARGET_URI
+        // FN_IDX_WARC_REFERS_TO_DATE
     }
 
 }
