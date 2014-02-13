@@ -43,6 +43,7 @@ public class TestGzipExtraData {
     	InputStream dOut;
     	int read;
     	byte[] tmpBuf = new byte[256];
+    	long startOffset;
 
     	GzipWriter writer;
     	GzipEntry entry;
@@ -52,6 +53,9 @@ public class TestGzipExtraData {
     	Object[][] expectedDiagnoses = {
     			{DiagnosisType.INVALID_DATA, "FEXTRA", 2}
     	};
+
+    	int ic = 0;
+    	long[] consumed = new long[6];
 
     	try {
     		List<byte[]> srcDataList = new ArrayList<byte[]>();
@@ -75,11 +79,12 @@ public class TestGzipExtraData {
     		/*
     		 * Write.
     		 */
-
     		is = 0;
     		out.reset();
         	writer = new GzipWriter(out, 512);
-
+        	/*
+        	 * Write 1
+        	 */
         	entry = new GzipEntry();
         	Assert.assertEquals(GzipConstants.CM_DEFLATE, entry.cm);
         	Assert.assertEquals(GzipConstants.OS_UNKNOWN, entry.os);
@@ -89,6 +94,10 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertTrue(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
+        	/*
+        	 * Write 2.
+        	 */
         	entry = new GzipEntry();
         	entry.extraBytes = new byte[0];
         	entry.extraData.add(new GzipExtraData((byte)'A', (byte)'B', "Hello".getBytes()));
@@ -98,6 +107,10 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertTrue(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
+        	/*
+        	 * Write 3.
+        	 */
         	entry = new GzipEntry();
         	Assert.assertNull(entry.extraBytes);
         	entry.extraData.add(new GzipExtraData((byte)'B', (byte)'C', "World!".getBytes()));
@@ -107,6 +120,10 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertTrue(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
+        	/*
+        	 * Write 4.
+        	 */
         	entry = new GzipEntry();
         	Assert.assertNull(entry.extraBytes);
         	entry.extraData.add(new GzipExtraData((byte)'C', (byte)'D', "Hello".getBytes()));
@@ -117,8 +134,11 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertTrue(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
         	Assert.assertTrue(writer.isCompliant());
-
+        	/*
+        	 * Write 5.
+        	 */
         	entry = new GzipEntry();
         	entry.extraBytes = new byte[] {(byte)'E', (byte)'F', 5, 0, 'H', 'e', 'l', 'l', 'o', (byte)'F', (byte)'G'};
         	entry.extraData.add(new GzipExtraData((byte)'E', (byte)'F', "Hello".getBytes()));
@@ -129,11 +149,15 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertFalse(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
+
         	GzipTestHelper.compareDiagnoses(expectedDiagnoses, entry.diagnostics.getErrors());
         	Assert.assertEquals(0, entry.diagnostics.getWarnings().size());
 
         	Assert.assertFalse(writer.isCompliant());
-
+        	/*
+        	 * Write 6.
+        	 */
         	entry = new GzipEntry();
         	entry.extraBytes = new byte[] {(byte)'G', (byte)'H', 5, 0, 'H', 'e', 'l', 'l', 'o', (byte)'H', (byte)'I', 8, 0, 'W', 'o', 'r', 'l', 'd', '!'};
         	entry.extraData.add(new GzipExtraData((byte)'G', (byte)'H', "Hello".getBytes()));
@@ -144,20 +168,26 @@ public class TestGzipExtraData {
         	entry.close();
         	Assert.assertFalse(entry.isCompliant());
 
+        	consumed[ic++] = out.size();
+
         	GzipTestHelper.compareDiagnoses(expectedDiagnoses, entry.diagnostics.getErrors());
         	Assert.assertEquals(0, entry.diagnostics.getWarnings().size());
 
         	Assert.assertFalse(writer.isCompliant());
         	writer.close();
         	Assert.assertFalse(writer.isCompliant());
-
         	/*
         	 * Read.
         	 */
-
+        	ic = 0;
         	is = 0;
+        	startOffset = 0;
         	in = new ByteArrayInputStream(out.toByteArray());
         	reader = new GzipReader(in, 256);
+        	/*
+        	 * Read 1.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
 
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
@@ -172,6 +202,17 @@ public class TestGzipExtraData {
         	Assert.assertArrayEquals(srcDataList.get(is++), out.toByteArray());
         	Assert.assertTrue(entry.bIsCompliant);
 
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
+
+        	startOffset = reader.getConsumed();
+        	/*
+        	 * Read 2.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
+
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
         	out.reset();
@@ -184,6 +225,17 @@ public class TestGzipExtraData {
         	Assert.assertEquals(0, entry.extraData.size());
         	Assert.assertArrayEquals(srcDataList.get(is++), out.toByteArray());
         	Assert.assertTrue(entry.bIsCompliant);
+
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
+
+        	startOffset = reader.getConsumed();
+        	/*
+        	 * Read 3.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
 
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
@@ -201,6 +253,17 @@ public class TestGzipExtraData {
         	Assert.assertArrayEquals("World!".getBytes(), extraData.data);
         	Assert.assertArrayEquals(srcDataList.get(is++), out.toByteArray());
         	Assert.assertTrue(entry.bIsCompliant);
+
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
+
+        	startOffset = reader.getConsumed();
+        	/*
+        	 * Read 4.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
 
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
@@ -225,6 +288,17 @@ public class TestGzipExtraData {
 
         	Assert.assertTrue(reader.bIsCompliant);
 
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
+
+        	startOffset = reader.getConsumed();
+        	/*
+        	 * Read 5.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
+
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
         	out.reset();
@@ -247,6 +321,17 @@ public class TestGzipExtraData {
 
         	Assert.assertFalse(reader.bIsCompliant);
 
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
+
+        	startOffset = reader.getConsumed();
+        	/*
+        	 * Read 6.
+        	 */
+        	Assert.assertEquals(startOffset, reader.getOffset());
+
         	entry = reader.getNextEntry();
         	dOut = entry.getInputStream();
         	out.reset();
@@ -268,8 +353,19 @@ public class TestGzipExtraData {
         	Assert.assertEquals(0, entry.diagnostics.getWarnings().size());
 
         	Assert.assertFalse(reader.bIsCompliant);
+
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertEquals(reader.pbin.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic], reader.consumed);
+
         	reader.close();
         	Assert.assertFalse(reader.bIsCompliant);
+
+        	Assert.assertEquals(reader.consumed, reader.getConsumed());
+        	Assert.assertNull(reader.pbin);
+        	Assert.assertEquals(reader.getConsumed(), reader.getOffset());
+        	Assert.assertEquals(consumed[ic++], reader.consumed);
     	} catch (IOException e) {
     		e.printStackTrace();
     		Assert.fail("Unexpected exception!");

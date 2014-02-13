@@ -204,6 +204,7 @@ public class GzipReader {
 
     /**
      * Get number of bytes consumed by this reader.
+     * Updated after each record has been read.
      * @return number of bytes consumed by this reader
      */
     public long getConsumed() {

@@ -815,7 +815,6 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
                 Assert.assertEquals(0, reader.errors);
                 Assert.assertEquals(0, reader.warnings);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexepected exception!");
