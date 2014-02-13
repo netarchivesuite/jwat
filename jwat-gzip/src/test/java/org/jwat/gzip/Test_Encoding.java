@@ -61,7 +61,7 @@ public class Test_Encoding {
         wEntry.xfl = 0;
         wEntry.os = GzipConstants.OS_AMIGA;
         wEntry.bFText = true;
-        wEntry.extraBytes = new byte[] { 'W', 'A', 0, 5, 'D', 'o', 'l', 'l', 'y' };
+        wEntry.extraBytes = new byte[] { 'W', 'A', 5, 0, 'D', 'o', 'l', 'l', 'y' };
         wEntry.fname = sb.toString();
         wEntry.fcomment = sb.toString();
         wEntry.bFhCrc = true;

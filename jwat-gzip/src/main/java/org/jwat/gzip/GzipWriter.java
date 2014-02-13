@@ -210,6 +210,54 @@ public class GzipWriter {
         /*
          * FEXTRA.
          */
+        if (entry.extraBytes == null) {
+        	if (entry.extraData.size() > 0) {
+            	int xlen = 0;
+            	for (int i=0; i<entry.extraData.size(); ++i) {
+            		xlen += 4 + entry.extraData.get(i).data.length;
+            	}
+            	entry.extraBytes = new byte[xlen];
+            	GzipExtraData extraData;
+            	int idx = 0;
+            	for (int i=0; i<entry.extraData.size(); ++i) {
+            		extraData = entry.extraData.get(i);
+            		entry.extraBytes[idx++] = extraData.si1;
+            		entry.extraBytes[idx++] = extraData.si2;
+            		entry.extraBytes[idx++] = (byte)(extraData.data.length & 255);
+            		entry.extraBytes[idx++] = (byte)((extraData.data.length >> 8) & 255);
+            		System.arraycopy(extraData.data, 0, entry.extraBytes, idx, extraData.data.length);
+            		idx += extraData.data.length;
+            	}
+        	}
+        } else {
+            int idx = 0;
+            boolean b = true;
+            int len;
+            while (b) {
+            	if (idx <= entry.extraBytes.length - 4) {
+            		idx += 2;
+                    len = ((entry.extraBytes[idx + 1] & 255) << 8) | (entry.extraBytes[idx] & 255);
+                    idx += 2;
+                    if (idx + len <= entry.extraBytes.length) {
+                    	idx += len;
+                    } else {
+                    	b = false;
+                    }
+            	} else {
+            		b = false;
+                }
+            }
+            if (idx != gzipEntry.extraBytes.length) {
+                gzipEntry.diagnostics.addError(
+                        new Diagnosis(
+                                DiagnosisType.INVALID_DATA,
+                                "FEXTRA",
+                                "Invalid structure",
+                                "Data truncated"
+                            )
+                        );
+            }
+        }
         if (entry.extraBytes != null) {
             entry.flg |= GzipConstants.FLG_FEXTRA;
             entry.xlen = entry.extraBytes.length;

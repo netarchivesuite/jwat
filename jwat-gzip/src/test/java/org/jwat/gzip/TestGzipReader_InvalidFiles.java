@@ -186,7 +186,7 @@ public class TestGzipReader_InvalidFiles {
         wEntry.xfl = 0;
         wEntry.os = 142;
         wEntry.bFText = true;
-        wEntry.extraBytes = new byte[] { 'W', 'A', 0, 5, 'D', 'o', 'l', 'l', 'y' };
+        wEntry.extraBytes = new byte[] { 'W', 'A', 5, 0, 'D', 'o', 'l', 'l', 'y' };
         wEntry.fname = "hello dolly\t\n";
         wEntry.fcomment = "This is my gzip'ed sheep\nDolly!\t\n";
         wEntry.bFhCrc = true;

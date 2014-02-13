@@ -18,7 +18,9 @@
 package org.jwat.gzip;
 
 import java.util.Iterator;
+import java.util.List;
 
+import org.junit.Assert;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
@@ -47,6 +49,35 @@ public class GzipTestHelper {
             }
         }
         return false;
+    }
+
+    public static void compareDiagnoses(Object[][] expectedDiagnoses, List<Diagnosis> diagnosisList) {
+        Diagnosis diagnosis;
+        // debug
+        /*
+        System.out.println(diagnosisList.size());
+        for (int i=0; i<diagnosisList.size(); ++i) {
+            diagnosis = diagnosisList.get(i);
+            System.out.println(diagnosis.type);
+            System.out.println(diagnosis.entity);
+            System.out.println(diagnosis.information.length);
+        }
+        */
+        Assert.assertEquals(expectedDiagnoses.length, diagnosisList.size());
+        for (int i=0; i<expectedDiagnoses.length; ++i) {
+            diagnosis = diagnosisList.get(i);
+            Assert.assertEquals(expectedDiagnoses[i][0], diagnosis.type);
+            Assert.assertEquals(expectedDiagnoses[i][1], diagnosis.entity);
+            Assert.assertEquals(expectedDiagnoses[i][2], diagnosis.information.length);
+        }
+    }
+
+    public static void printDiagnoses(List<Diagnosis> diagnosisList) {
+        Diagnosis diagnosis;
+        for (int i=0; i<diagnosisList.size(); ++i) {
+            diagnosis = diagnosisList.get(i);
+            System.out.println("[" + i + "]: " + diagnosis.type + " - " + diagnosis.entity + " - " + diagnosis.information.length);
+        }
     }
 
     /*

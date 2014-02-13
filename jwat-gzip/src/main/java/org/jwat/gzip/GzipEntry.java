@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.DataFormatException;
 
 import org.jwat.common.Diagnosis;
@@ -65,6 +67,8 @@ public class GzipEntry {
     public Integer xlen;
     /** Optional FEXTRA data. */
     public byte[] extraBytes;
+    /** List of FEXTRA data container objects. */
+    public List<GzipExtraData> extraData = new LinkedList<GzipExtraData>();
     /** Optional FNAME in iso-8859-1 format. */
     public String fname;
     /** Optional FCOMMENT in iso-8859-1 format (new lines should be LF only).*/
@@ -110,6 +114,14 @@ public class GzipEntry {
 
     /** Validation errors and warnings. */
     public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+
+    /**
+     * Construct GZip Entry object.
+     */
+    public GzipEntry() {
+    	cm = GzipConstants.CM_DEFLATE;
+    	os = GzipConstants.OS_UNKNOWN;
+    }
 
     /**
      * Release resources associated with this record.
