@@ -211,40 +211,40 @@ public class GzipWriter {
          * FEXTRA.
          */
         if (entry.extraBytes == null) {
-        	if (entry.extraData.size() > 0) {
-            	int xlen = 0;
-            	for (int i=0; i<entry.extraData.size(); ++i) {
-            		xlen += 4 + entry.extraData.get(i).data.length;
-            	}
-            	entry.extraBytes = new byte[xlen];
-            	GzipExtraData extraData;
-            	int idx = 0;
-            	for (int i=0; i<entry.extraData.size(); ++i) {
-            		extraData = entry.extraData.get(i);
-            		entry.extraBytes[idx++] = extraData.si1;
-            		entry.extraBytes[idx++] = extraData.si2;
-            		entry.extraBytes[idx++] = (byte)(extraData.data.length & 255);
-            		entry.extraBytes[idx++] = (byte)((extraData.data.length >> 8) & 255);
-            		System.arraycopy(extraData.data, 0, entry.extraBytes, idx, extraData.data.length);
-            		idx += extraData.data.length;
-            	}
-        	}
+            if (entry.extraData.size() > 0) {
+                int xlen = 0;
+                for (int i=0; i<entry.extraData.size(); ++i) {
+                    xlen += 4 + entry.extraData.get(i).data.length;
+                }
+                entry.extraBytes = new byte[xlen];
+                GzipExtraData extraData;
+                int idx = 0;
+                for (int i=0; i<entry.extraData.size(); ++i) {
+                    extraData = entry.extraData.get(i);
+                    entry.extraBytes[idx++] = extraData.si1;
+                    entry.extraBytes[idx++] = extraData.si2;
+                    entry.extraBytes[idx++] = (byte)(extraData.data.length & 255);
+                    entry.extraBytes[idx++] = (byte)((extraData.data.length >> 8) & 255);
+                    System.arraycopy(extraData.data, 0, entry.extraBytes, idx, extraData.data.length);
+                    idx += extraData.data.length;
+                }
+            }
         } else {
             int idx = 0;
             boolean b = true;
             int len;
             while (b) {
-            	if (idx <= entry.extraBytes.length - 4) {
-            		idx += 2;
+                if (idx <= entry.extraBytes.length - 4) {
+                    idx += 2;
                     len = ((entry.extraBytes[idx + 1] & 255) << 8) | (entry.extraBytes[idx] & 255);
                     idx += 2;
                     if (idx + len <= entry.extraBytes.length) {
-                    	idx += len;
+                        idx += len;
                     } else {
-                    	b = false;
+                        b = false;
                     }
-            	} else {
-            		b = false;
+                } else {
+                    b = false;
                 }
             }
             if (idx != gzipEntry.extraBytes.length) {
@@ -443,11 +443,14 @@ public class GzipWriter {
             if (def.finished()) {
                 return -1;
             } else if (def.needsInput()) {
-                int lastInput = bb.remaining();
-                if (lastInput > 0) {
-                    bb.get(inputBytes, 0, lastInput);
-                    def.setInput(inputBytes, 0, lastInput);
-                    crc.update(inputBytes, 0, lastInput);
+                int write = bb.remaining();
+                if (write > 0) {
+                    if (write > inputBytes.length) {
+                        write = inputBytes.length;
+                    }
+                    bb.get(inputBytes, 0, write);
+                    def.setInput(inputBytes, 0, write);
+                    crc.update(inputBytes, 0, write);
                 } else {
                     if (bFinish) {
                         def.finish();

@@ -326,22 +326,22 @@ public class GzipReader {
                             GzipExtraData extraData;
                             int len;
                             while (b) {
-                            	if (idx <= gzipEntry.extraBytes.length - 4) {
-                            		extraData = new GzipExtraData();
-                            		extraData.si1 = (byte)(gzipEntry.extraBytes[idx++] & 255);
-                            		extraData.si2 = (byte)(gzipEntry.extraBytes[idx++] & 255);
+                                if (idx <= gzipEntry.extraBytes.length - 4) {
+                                    extraData = new GzipExtraData();
+                                    extraData.si1 = (byte)(gzipEntry.extraBytes[idx++] & 255);
+                                    extraData.si2 = (byte)(gzipEntry.extraBytes[idx++] & 255);
                                     len = ((gzipEntry.extraBytes[idx+1] & 255) << 8) | (gzipEntry.extraBytes[idx] & 255);
                                     idx += 2;
                                     if (idx + len <= gzipEntry.extraBytes.length) {
-                                    	extraData.data = new byte[len];
-                                    	System.arraycopy(gzipEntry.extraBytes, idx, extraData.data, 0, len);
-                                    	idx += len;
-                                    	gzipEntry.extraData.add(extraData);
+                                        extraData.data = new byte[len];
+                                        System.arraycopy(gzipEntry.extraBytes, idx, extraData.data, 0, len);
+                                        idx += len;
+                                        gzipEntry.extraData.add(extraData);
                                     } else {
-                                    	b = false;
+                                        b = false;
                                     }
-                            	} else {
-                            		b = false;
+                                } else {
+                                    b = false;
                                 }
                             }
                             if (idx != gzipEntry.extraBytes.length) {

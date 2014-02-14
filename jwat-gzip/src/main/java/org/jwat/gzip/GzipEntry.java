@@ -36,6 +36,9 @@ import org.jwat.common.Diagnostics;
  */
 public class GzipEntry {
 
+    /** Size of buffer used in writeFrom(). */
+    public static final int WRITE_FROM_BUFFER_SIZE = 8192;
+
     /** Is this entry compliant ie. error free. */
     protected boolean bIsCompliant;
 
@@ -119,8 +122,8 @@ public class GzipEntry {
      * Construct GZip Entry object.
      */
     public GzipEntry() {
-    	cm = GzipConstants.CM_DEFLATE;
-    	os = GzipConstants.OS_UNKNOWN;
+        cm = GzipConstants.CM_DEFLATE;
+        os = GzipConstants.OS_UNKNOWN;
     }
 
     /**
@@ -205,7 +208,7 @@ public class GzipEntry {
         if (in == null) {
             throw new IllegalArgumentException("'in' is null!");
         }
-        byte[] tmpBuf = new byte[512];
+        byte[] tmpBuf = new byte[WRITE_FROM_BUFFER_SIZE];
         int read;
         try {
             while ((read = writer.readCompressed(in, tmpBuf, 0, tmpBuf.length)) != -1) {

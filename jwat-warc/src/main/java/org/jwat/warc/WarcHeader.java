@@ -946,7 +946,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
                     warcRefersToDateStr = fieldValueStr;
                     warcRefersToDate = dateFieldValue;
-                	break;
+                    break;
                 /*
                  * InetAddress.
                  */
@@ -998,7 +998,7 @@ public class WarcHeader {
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
                     warcRefersToTargetUriStr = fieldValueStr;
                     warcRefersToTargetUriUri = uriFieldValue;
-                	break;
+                    break;
                 default:
                     break;
                 }

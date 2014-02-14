@@ -823,8 +823,8 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
 
     @Test
     public void test_warcrecord_digestalgorithms() {
-    	Security.addProvider(new BouncyCastleProvider());
-    	SecureRandom random = new SecureRandom();
+        Security.addProvider(new BouncyCastleProvider());
+        SecureRandom random = new SecureRandom();
         MessageDigest md = null;
         byte[] blockDigest;
         byte[] payloadDigest;
@@ -847,12 +847,12 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
         Object[][] writedata = new Object[algorithms.length][];
 
         try {
-        	for (int i=0; i<algorithms.length; ++i) {
-        		writedata[i] = new Object[4];
-        		writedata[i][0] = httpHeaderBytes;
-        		writedata[i][1] = payloadBytes;
+            for (int i=0; i<algorithms.length; ++i) {
+                writedata[i] = new Object[4];
+                writedata[i][0] = httpHeaderBytes;
+                writedata[i][1] = payloadBytes;
 
-        		md = MessageDigest.getInstance(algorithms[i]);
+                md = MessageDigest.getInstance(algorithms[i]);
                 md.reset();
                 md.update(httpHeaderBytes);
                 md.update(payloadBytes);
@@ -864,7 +864,7 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
 
                 writedata[i][2] = new Object[] {algorithms[i], blockDigest, "base32", Base32.encodeArray(blockDigest)};
                 writedata[i][3] = new Object[] {algorithms[i], payloadDigest, "base32", Base32.encodeArray(payloadDigest)};
-        	}
+            }
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Assert.fail("Unexepected exception!");
@@ -877,29 +877,29 @@ public class TestWarcRecordDigests extends TestWarcRecordHelper {
             writer.close();
 
             // debug
-            System.out.println(new String(out.toByteArray()));
+            //System.out.println(new String(out.toByteArray()));
 
             in = new ByteArrayInputStream(out.toByteArray());
             reader = WarcReaderFactory.getReader(in);
             reader.setBlockDigestEnabled(true);
             reader.setPayloadDigestEnabled(true);
             while ((record = reader.getNextRecord()) != null) {
-            	header = record.header;
-            	record.close();
+                header = record.header;
+                record.close();
 
-            	Assert.assertTrue(record.isCompliant());
-            	Assert.assertEquals(0, record.diagnostics.getErrors().size());
-            	Assert.assertEquals(0, record.diagnostics.getWarnings().size());
-            	Assert.assertTrue(record.isValidBlockDigest);
-            	Assert.assertTrue(record.isValidPayloadDigest);
+                Assert.assertTrue(record.isCompliant());
+                Assert.assertEquals(0, record.diagnostics.getErrors().size());
+                Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+                Assert.assertTrue(record.isValidBlockDigest);
+                Assert.assertTrue(record.isValidPayloadDigest);
 
-            	Object[] digestParams = (Object[])writedata[records][2];
-            	Assert.assertEquals(digestParams[0].toString().toLowerCase(), header.warcBlockDigest.algorithm);
-            	Assert.assertArrayEquals((byte[])digestParams[1], header.warcBlockDigest.digestBytes);
-            	Assert.assertEquals(digestParams[2], header.warcBlockDigest.encoding);
-            	Assert.assertEquals(digestParams[3], header.warcBlockDigest.digestString);
+                Object[] digestParams = (Object[])writedata[records][2];
+                Assert.assertEquals(digestParams[0].toString().toLowerCase(), header.warcBlockDigest.algorithm);
+                Assert.assertArrayEquals((byte[])digestParams[1], header.warcBlockDigest.digestBytes);
+                Assert.assertEquals(digestParams[2], header.warcBlockDigest.encoding);
+                Assert.assertEquals(digestParams[3], header.warcBlockDigest.digestString);
 
-            	++records;
+                ++records;
             }
             Assert.assertNull(reader.getNextRecord());
             reader.close();
