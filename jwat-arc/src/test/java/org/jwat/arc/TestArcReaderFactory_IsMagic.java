@@ -35,6 +35,9 @@ public class TestArcReaderFactory_IsMagic {
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {
+            /*
+             * isArcFile().
+             */
             bytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
             pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertTrue(ArcReaderFactory.isArcFile(pbin));
@@ -59,7 +62,72 @@ public class TestArcReaderFactory_IsMagic {
             pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
             Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
             pbin.close();
+            /*
+             * isArcRecord().
+             */
+            bytes = ArcConstants.ARC_MAGIC_HEADER.getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
 
+            bytes = "filedesc://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = ArcConstants.ARC_MAGIC_HEADER.toUpperCase().getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "FILEDESC://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "filedesc".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+        try {
+            /*
+             * isArcFile().
+             */
+            bytes = "http://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "HTTPS://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "http".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ArcReaderFactory.isArcFile(pbin));
+            pbin.close();
+            /*
+             * isArcRecord().
+             */
+            bytes = "http://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "HTTPS://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "http".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), ArcReaderFactory.PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ArcReaderFactory.isArcRecord(pbin));
+            pbin.close();
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Exception not expected!");

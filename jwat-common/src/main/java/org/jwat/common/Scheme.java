@@ -41,6 +41,10 @@ public class Scheme {
         for (int i=0; i<alphas.length(); ++i) {
             bf[alphas.charAt(i)] = 3;
         }
+        alphas = alphas.toUpperCase();
+        for (int i=0; i<alphas.length(); ++i) {
+            bf[alphas.charAt(i)] = 3;
+        }
         String digits = "1234567890";
         for (int i=0; i<digits.length(); ++i) {
             bf[digits.charAt(i)] = 2;
