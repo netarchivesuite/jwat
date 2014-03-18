@@ -21,6 +21,12 @@ public class ReaderFactoryAbstract {
     protected static final String WARC_MAGIC_HEADER = "WARC/";
 
     /**
+     * Private constructor to enforce factory methods.
+     */
+    protected ReaderFactoryAbstract() {
+    }
+
+    /**
      * Check head of <code>PushBackInputStream</code> for a GZip magic number.
      * The state of the <code>PushBackInputStream</code> is the same after the
      * call as before the call.

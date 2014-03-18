@@ -1,0 +1,237 @@
+package org.jwat.archive.common;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.jwat.common.ByteCountingPushBackInputStream;
+
+@RunWith(JUnit4.class)
+public class TestReaderFactoryAbstract {
+
+    /** GZip header magic number. */
+    public static final byte[] GZIP_MAGIC_HEADER = new byte[] {(byte)0x1f, (byte)0x8b};
+
+	@Test
+	public void test_readerfactoryabstract_isgzip() {
+    	Assert.assertNotNull(new ReaderFactoryAbstract());
+        byte[] bytes;
+        ByteCountingPushBackInputStream pbin;
+        try {
+        	ReaderFactoryAbstract.isGzipped(null);
+            Assert.fail("Exception expected!");
+        } catch (IllegalArgumentException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+        try {
+            bytes = GZIP_MAGIC_HEADER;
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(ReaderFactoryAbstract.isGzipped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x1f, (byte)0x8b, (byte)0x2f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertTrue(ReaderFactoryAbstract.isGzipped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x8b, (byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(ReaderFactoryAbstract.isGzipped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x1f};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(ReaderFactoryAbstract.isGzipped(pbin));
+            pbin.close();
+
+            bytes = new byte[] {(byte)0x8b};
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), 16);
+            Assert.assertFalse(ReaderFactoryAbstract.isGzipped(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+	}
+
+    /** Buffer size used by <code>PushbackInputStream</code>. */
+    public static final int PUSHBACK_BUFFER_SIZE = 32;
+
+    @Test
+    public void test_readerfactoryabstract_isarc() {
+    	Assert.assertNotNull(new ReaderFactoryAbstract());
+    	byte[] bytes;
+        ByteCountingPushBackInputStream pbin;
+        try {
+            /*
+             * isArcFile().
+             */
+            bytes = ReaderFactoryAbstract.ARC_MAGIC_HEADER.getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "filedesc://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = ReaderFactoryAbstract.ARC_MAGIC_HEADER.toUpperCase().getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "FILEDESC://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "filedesc".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+            /*
+             * isArcRecord().
+             */
+            bytes = ReaderFactoryAbstract.ARC_MAGIC_HEADER.getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "filedesc://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = ReaderFactoryAbstract.ARC_MAGIC_HEADER.toUpperCase().getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "FILEDESC://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "filedesc".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+        try {
+            /*
+             * isArcFile().
+             */
+            bytes = "http://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "HTTPS://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+
+            bytes = "http".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcFile(pbin));
+            pbin.close();
+            /*
+             * isArcRecord().
+             */
+            bytes = "http://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "HTTPS://url".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+
+            bytes = "http".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isArcRecord(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+    }
+
+    @Test
+    public void test_readerfactoryabstract_iswarc() {
+    	Assert.assertNotNull(new ReaderFactoryAbstract());
+        byte[] bytes;
+        ByteCountingPushBackInputStream pbin;
+        try {
+            /*
+             * isWarcFile.
+             */
+            bytes = ReaderFactoryAbstract.WARC_MAGIC_HEADER.getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isWarcFile(pbin));
+            pbin.close();
+
+            bytes = "WARC/1.0".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isWarcFile(pbin));
+            pbin.close();
+
+            bytes = ReaderFactoryAbstract.WARC_MAGIC_HEADER.toLowerCase().getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcFile(pbin));
+            pbin.close();
+
+            bytes = "warc/1.0".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcFile(pbin));
+            pbin.close();
+
+            bytes = "WARC".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcFile(pbin));
+            pbin.close();
+            /*
+             * isWarcRecord.
+             */
+            bytes = ReaderFactoryAbstract.WARC_MAGIC_HEADER.getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isWarcRecord(pbin));
+            pbin.close();
+
+            bytes = "WARC/1.0".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertTrue(ReaderFactoryAbstract.isWarcRecord(pbin));
+            pbin.close();
+
+            bytes = ReaderFactoryAbstract.WARC_MAGIC_HEADER.toLowerCase().getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcRecord(pbin));
+            pbin.close();
+
+            bytes = "warc/1.0".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcRecord(pbin));
+            pbin.close();
+
+            bytes = "WARC".getBytes();
+            pbin = new ByteCountingPushBackInputStream(new ByteArrayInputStream(bytes), PUSHBACK_BUFFER_SIZE);
+            Assert.assertFalse(ReaderFactoryAbstract.isWarcRecord(pbin));
+            pbin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Exception not expected!");
+        }
+    }
+
+}

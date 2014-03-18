@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class WarcWriterFactory {
 
     /**
-     * Private constructor to enforce factory method.
+     * Private constructor to enforce factory methods.
      */
     protected WarcWriterFactory() {
     }

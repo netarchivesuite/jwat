@@ -44,7 +44,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
     public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     /**
-     * Private constructor to enforce factory method.
+     * Private constructor to enforce factory methods.
      */
     protected ArcReaderFactory() {
     }

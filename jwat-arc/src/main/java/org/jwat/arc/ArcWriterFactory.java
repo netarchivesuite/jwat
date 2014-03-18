@@ -30,7 +30,7 @@ import java.io.OutputStream;
 public class ArcWriterFactory {
 
     /**
-     * Private constructor to enforce factory method.
+     * Private constructor to enforce factory methods.
      */
     protected ArcWriterFactory() {
     }
