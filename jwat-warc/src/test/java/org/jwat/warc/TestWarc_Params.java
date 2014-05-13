@@ -30,8 +30,6 @@ public class TestWarc_Params {
 
     @Test
     public void test_parameters() {
-        WarcConstants constants = new WarcConstants();
-        Assert.assertNotNull(constants);
 
         /*
          * Digest.

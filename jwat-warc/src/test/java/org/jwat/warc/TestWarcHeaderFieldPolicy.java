@@ -65,6 +65,8 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     {"WARC-Profile", "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest"},
                     {"WARC-Truncated", "length"},
                     {"WARC-Record-ID", "<urn:uuid:4b09f3c5-6aaa-460c-ba2c-b3c449394a1c>"},
+                    {"WARC-Refers-To-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.html"},
+                    {"WARC-Refers-To-Date", "2010-07-07T12:19:34Z"},
                     {"Content-Type", "application/http; msgtype=response"},
                     {"Content-Length", "206"},
                     }, null, null, null
@@ -78,10 +80,14 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     {"WARC-Profile", "hello kitty"},
                     {"WARC-Truncated", "length"},
                     {"WARC-Record-ID", "<urn:uuid:4b09f3c5-6aaa-460c-ba2c-b3c449394a1c>"},
+                    {"WARC-Refers-To-Target-URI", "hello kitty"},
+                    {"WARC-Refers-To-Date", "hello kitty"},
                     {"Content-Type", "application/http; msgtype=response"},
                     {"Content-Length", "206"},
                     }, new Object[][] {
                         {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2},
+                        {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_DATE + "' value", 2},
                         {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1},
                     }, new Object[][] {
                         {DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1}

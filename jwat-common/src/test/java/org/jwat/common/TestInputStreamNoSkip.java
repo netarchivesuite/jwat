@@ -35,7 +35,7 @@ public class TestInputStreamNoSkip {
     public void test_inputstreamnoskip() {
         SecureRandom random = new SecureRandom();
 
-    	byte[] srcArr = new byte[65336];
+        byte[] srcArr = new byte[65336];
         random.nextBytes(srcArr);
 
         final ByteArrayOutputStream dstOut = new ByteArrayOutputStream();
@@ -43,38 +43,38 @@ public class TestInputStreamNoSkip {
 
         MaxLengthRecordingInputStream in = new MaxLengthRecordingInputStream( new ByteArrayInputStream( srcArr ), srcArr.length );
 
-    	FilterInputStream fin = new FilterInputStream(in) {
-			@Override
-			public int read() throws IOException {
-				int b = super.read();
-				if (b != -1) {
-					dstOut.write(b);
-				}
-				return b;
-			}
-			@Override
-			public int read(byte[] b) throws IOException {
-				int read = super.read(b);
-				if (read > 0) {
-					dstOut.write(b, 0, read);
-				}
-				return read;
-			}
-			@Override
-			public int read(byte[] b, int off, int len) throws IOException {
-				int read = super.read(b, off, len);
-				if (read > 0) {
-					dstOut.write(b, off, read);
-				}
-				return read;
-			}
-			@Override
-			public long skip(long n) throws IOException {
-				throw new IOException("Method call unexpected!");
-			}
-    	};
+        FilterInputStream fin = new FilterInputStream(in) {
+            @Override
+            public int read() throws IOException {
+                int b = super.read();
+                if (b != -1) {
+                    dstOut.write(b);
+                }
+                return b;
+            }
+            @Override
+            public int read(byte[] b) throws IOException {
+                int read = super.read(b);
+                if (read > 0) {
+                    dstOut.write(b, 0, read);
+                }
+                return read;
+            }
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                int read = super.read(b, off, len);
+                if (read > 0) {
+                    dstOut.write(b, off, read);
+                }
+                return read;
+            }
+            @Override
+            public long skip(long n) throws IOException {
+                throw new IOException("Method call unexpected!");
+            }
+        };
 
-    	InputStreamNoSkip isns = new InputStreamNoSkip(fin);
+        InputStreamNoSkip isns = new InputStreamNoSkip(fin);
 
         long remaining;
         byte[] tmpBuf = new byte[ 16 ];
@@ -100,8 +100,8 @@ public class TestInputStreamNoSkip {
 
             in.close();
         } catch (IOException e) {
-        	e.printStackTrace();
-        	Assert.fail("Unexpected exception!");
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

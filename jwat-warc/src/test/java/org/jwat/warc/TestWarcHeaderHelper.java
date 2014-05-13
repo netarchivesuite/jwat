@@ -55,7 +55,7 @@ public class TestWarcHeaderHelper {
     public void test_result(Object[][] expectedErrors, Object[][] expectedWarnings, TestHeaderCallback callback) {
         errors = header.diagnostics.getErrors();
         // debug
-        //printDiagnoses(errors);
+        //TestBaseUtils.printDiagnoses(errors);
         if (expectedErrors != null) {
             Assert.assertEquals(expectedErrors.length, errors.size());
             for (int k=0; k<expectedErrors.length; ++k) {
@@ -69,7 +69,7 @@ public class TestWarcHeaderHelper {
         }
         warnings = header.diagnostics.getWarnings();
         // debug
-        //printDiagnoses(warnings);
+        //TestBaseUtils.printDiagnoses(warnings);
         if (expectedWarnings != null) {
             Assert.assertEquals(expectedWarnings.length, warnings.size());
             for (int k=0; k<expectedWarnings.length; ++k) {

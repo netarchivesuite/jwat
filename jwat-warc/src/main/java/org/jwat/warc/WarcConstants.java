@@ -80,11 +80,17 @@ public class WarcConstants {
     /** Trailing newlines after each record as per the WARC ISO standard. */
     public static final int WARC_RECORD_TRAILING_NEWLINES = 2;
 
-    /** Number of WARC fields (zero-indexed). */
-    public static final int FN_MAX_NUMBER = 21+1;
+    /** Number of WARC fields. */
+    public static final int FN_NUMBER = 21;
 
-    /** Number of WARC types (zero indexed). */
-    public static final int RT_MAX_NUMBER = 8+1;
+    /** Index of last WARC field (zero-indexed). */
+    public static final int FN_INDEX_OF_LAST = FN_NUMBER+1;
+
+    /** Number of WARC types. */
+    public static final int RT_NUMBER = 8;
+
+    /** Index of last WARC type (zero indexed). */
+    public static final int RT_INDEX_OF_LAST = RT_NUMBER+1;
 
     /*
      * WARC field names.
@@ -283,7 +289,9 @@ public class WarcConstants {
         FDT_CONTENTTYPE,
         FDT_URI,
         FDT_INTEGER,
-        FDT_LONG
+        FDT_LONG,
+        FDT_URI,
+        FDT_DATE
     };
 
     /*
@@ -291,7 +299,7 @@ public class WarcConstants {
      */
 
     /** Lookup table of Warc fields that can have multiple occurrences. */
-    public static final boolean[] fieldNamesRepeatableLookup = new boolean[FN_MAX_NUMBER];
+    public static final boolean[] fieldNamesRepeatableLookup = new boolean[FN_INDEX_OF_LAST];
 
     /**
      * Populate multiple occurrences lookup table.
@@ -492,14 +500,14 @@ public class WarcConstants {
      * The ISO standard was used to build the data in the matrix.
      */
     static {
-        field_policy = new int[RT_MAX_NUMBER][FN_MAX_NUMBER];
+        field_policy = new int[RT_INDEX_OF_LAST][FN_INDEX_OF_LAST];
 
         // Warc-Record-id
         // Warc-Type
         // Warc-Date
         // Content-Length
         // Also required for unknown warc-types.
-        for (int i=0; i<=8; ++i) {
+        for (int i=0; i<=RT_NUMBER; ++i) {
             field_policy[i][FN_IDX_WARC_RECORD_ID] = POLICY_MANDATORY;
             field_policy[i][FN_IDX_WARC_TYPE] = POLICY_MANDATORY;
             field_policy[i][FN_IDX_WARC_DATE] = POLICY_MANDATORY;
@@ -554,7 +562,7 @@ public class WarcConstants {
         // Warc-Profile
         // Warc-Segment-Origin-Id
         // Warc-Segment-Total-Length
-        for (int i=1; i<=8; ++i) {
+        for (int i=1; i<=RT_NUMBER; ++i) {
             field_policy[i][FN_IDX_WARC_WARCINFO_ID] = POLICY_MAY;
             field_policy[i][FN_IDX_WARC_FILENAME] = POLICY_SHALL_NOT;
             field_policy[i][FN_IDX_WARC_PROFILE] = POLICY_IGNORE;
@@ -569,9 +577,14 @@ public class WarcConstants {
         // Warc-Segment-Number
         field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
 
-        // TODO
-        // FN_IDX_WARC_REFERS_TO_TARGET_URI
-        // FN_IDX_WARC_REFERS_TO_DATE
+        // WARC-Refers-To-Target-URI
+        // WARC-Refers-To-Date
+        for (int i=1; i<=RT_NUMBER; ++i) {
+            field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_SHALL_NOT;
+            field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_SHALL_NOT;
+        }
+        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
+        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
     }
 
 }

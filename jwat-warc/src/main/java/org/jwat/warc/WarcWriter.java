@@ -618,7 +618,6 @@ public abstract class WarcWriter {
             outBuf.write(warcSegmentTotalLengthStr.getBytes());
             outBuf.write("\r\n".getBytes());
         }
-        
         /*
          * WARC-Refers-To-Target-URI
          */
@@ -634,7 +633,6 @@ public abstract class WarcWriter {
             outBuf.write(warcTargetUriStr.getBytes());
             outBuf.write("\r\n".getBytes());
         }
-        
         /*
          * Warc-Refers-To-Date
          */
@@ -651,8 +649,6 @@ public abstract class WarcWriter {
             outBuf.write(warcRefersToDateStr.getBytes());
             outBuf.write("\r\n".getBytes());
         }
-
-        
         /*
          * End Of Header
          */

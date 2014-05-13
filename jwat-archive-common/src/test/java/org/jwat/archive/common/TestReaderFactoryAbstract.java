@@ -1,3 +1,20 @@
+/**
+ * Java Web Archive Toolkit - Software to read and validate ARC, WARC
+ * and GZip files. (http://jwat.org/)
+ * Copyright 2011-2012 Netarkivet.dk (http://netarkivet.dk/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jwat.archive.common;
 
 import java.io.ByteArrayInputStream;
@@ -16,13 +33,13 @@ public class TestReaderFactoryAbstract {
     /** GZip header magic number. */
     public static final byte[] GZIP_MAGIC_HEADER = new byte[] {(byte)0x1f, (byte)0x8b};
 
-	@Test
-	public void test_readerfactoryabstract_isgzip() {
-    	Assert.assertNotNull(new ReaderFactoryAbstract());
+    @Test
+    public void test_readerfactoryabstract_isgzip() {
+        Assert.assertNotNull(new ReaderFactoryAbstract());
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {
-        	ReaderFactoryAbstract.isGzipped(null);
+            ReaderFactoryAbstract.isGzipped(null);
             Assert.fail("Exception expected!");
         } catch (IllegalArgumentException e) {
         } catch (IOException e) {
@@ -58,15 +75,15 @@ public class TestReaderFactoryAbstract {
             e.printStackTrace();
             Assert.fail("Exception not expected!");
         }
-	}
+    }
 
     /** Buffer size used by <code>PushbackInputStream</code>. */
     public static final int PUSHBACK_BUFFER_SIZE = 32;
 
     @Test
     public void test_readerfactoryabstract_isarc() {
-    	Assert.assertNotNull(new ReaderFactoryAbstract());
-    	byte[] bytes;
+        Assert.assertNotNull(new ReaderFactoryAbstract());
+        byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {
             /*
@@ -170,7 +187,7 @@ public class TestReaderFactoryAbstract {
 
     @Test
     public void test_readerfactoryabstract_iswarc() {
-    	Assert.assertNotNull(new ReaderFactoryAbstract());
+        Assert.assertNotNull(new ReaderFactoryAbstract());
         byte[] bytes;
         ByteCountingPushBackInputStream pbin;
         try {

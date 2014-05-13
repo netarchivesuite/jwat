@@ -106,7 +106,7 @@ public class WarcHeader {
      */
 
     /** Array used for duplicate header detection. */
-    protected boolean[] seen = new boolean[WarcConstants.FN_MAX_NUMBER];
+    protected boolean[] seen = new boolean[WarcConstants.FN_INDEX_OF_LAST];
 
     /** Is the header missing one of the mandatory headers. */
     public boolean bMandatoryMissing;
@@ -211,7 +211,7 @@ public class WarcHeader {
     /** WARC-Segment-Total-Length converted to a <code>Long</code> object, if valid.
      *  (continuation record only) */
     public Long warcSegmentTotalLength;
-    
+
     // see https://docs.google.com/document/d/1QyQBA7Ykgxie75V8Jziz_O7hbhwf7PF6_u9O6w6zgp0/edit
     /** WARC-Refers-To-Target-URI field string value. */
     public String warcRefersToTargetUriStr;
@@ -622,7 +622,7 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
                     warcRefersToTargetUriStr = fieldValue;
-                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
+                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
                             uriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
@@ -840,12 +840,15 @@ public class WarcHeader {
                 uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_NAKED, warcTargetUriProfile, fieldName);
             } else if (WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)) {
                 uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_NAKED, uriProfile, fieldName);
+            } else if (WarcConstants.FN_WARC_REFERS_TO_TARGET_URI.equalsIgnoreCase(fieldName)) {
+                uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_NAKED, warcTargetUriProfile, fieldName);
             } else {
                 uriFieldValue = fieldParsers.parseUri(fieldValueStr, URI_LTGT, uriProfile, fieldName);
             }
         } else if (fieldValueStr == null && uriFieldValue != null) {
             if (WarcConstants.FN_WARC_TARGET_URI.equalsIgnoreCase(fieldName)
-                    || WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)) {
+                    || WarcConstants.FN_WARC_PROFILE.equalsIgnoreCase(fieldName)
+                    || WarcConstants.FN_WARC_REFERS_TO_TARGET_URI.equalsIgnoreCase(fieldName)) {
                 fieldValueStr = uriFieldValue.toString();
             } else {
                 fieldValueStr = "<" + uriFieldValue.toString() + ">";
@@ -1146,10 +1149,9 @@ public class WarcHeader {
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
                 checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
+                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI, warcRefersToTargetUriUri, warcRefersToTargetUriStr);
+                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO_DATE, warcRefersToDate, warcRefersToDateStr);
             }
-            // TODO
-            // FN_IDX_WARC_REFERS_TO_TARGET_URI
-            // FN_IDX_WARC_REFERS_TO_DATE
         }
     }
 

@@ -33,9 +33,18 @@ public class GzipExtraData {
     /** Subfield data. */
     public byte[] data;
 
+    /**
+     * Construct a non initialized object.
+     */
     public GzipExtraData() {
     }
 
+    /**
+     * Initializing constructor used by unit tests.
+     * @param si1 subfield ID1
+     * @param si2 subfield ID2
+     * @param data byte data
+     */
     public GzipExtraData(byte si1, byte si2, byte[] data) {
         this.si1 = si1;
         this.si2 = si2;

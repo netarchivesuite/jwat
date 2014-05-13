@@ -224,6 +224,11 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
         cases = generate_header_datatype_cases(dateObj, dateStr, WarcConstants.FN_WARC_DATE, "warcDateStr", "warcDate");
         test_headeradd_object_cases(cases, WarcConstants.FDT_DATE);
 
+        String refersToDateStr = "2010-06-23T13:33:21Z";
+        Date refersToDateObj = WarcDateParser.getDate(refersToDateStr);
+        cases = generate_header_datatype_cases(refersToDateObj, refersToDateStr, WarcConstants.FN_WARC_REFERS_TO_DATE, "warcRefersToDateStr", "warcRefersToDate");
+        test_headeradd_object_cases(cases, WarcConstants.FDT_DATE);
+
         /*
          * InetAddress.
          */
@@ -286,9 +291,14 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
         cases = generate_header_datatype_cases(warcProfileObj, warcProfileStr, WarcConstants.FN_WARC_PROFILE, "warcProfileStr", "warcProfileUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
 
+        String warcRefersToTargetUriStr = "urn:uuid:de715d47-9f36-4cdf-84db-eb3b47dcd0e3";
+        Uri warcRefersToTargetUriObj = Uri.create(warcRefersToTargetUriStr);
+        cases = generate_header_datatype_cases(warcRefersToTargetUriObj, warcRefersToTargetUriStr, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, "warcRefersToTargetUriStr", "warcRefersToTargetUriUri");
+        test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
+
         /*
         public List<WarcConcurrentTo> warcConcurrentToList = new LinkedList<WarcConcurrentTo>();
-                */
+        */
     }
 
     public Object[][] generate_invalid_datatype_cases(Object valObj, String valStr, String fnGood, String fnBad) {

@@ -17,12 +17,15 @@
  */
 package org.jwat.warc;
 
+import java.util.List;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.HeaderLine;
 
 @RunWith(JUnit4.class)
 public class TestWarcHeader extends TestWarcHeaderHelper {
@@ -58,16 +61,37 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
         String fieldName;
         String fieldValue;
 
-        fieldName = "WARC-Record-ID";
+        fieldName = WarcConstants.FN_WARC_RECORD_ID;
         fieldValue = "<http://hello_kitty$>";
         testHeader(fieldName, fieldValue, 0, 0);
-        /*
-        "WARC-Concurrent-To",
-        "WARC-Refers-To",
-        "WARC-Target-URI",
-        "WARC-Warcinfo-ID",
-        "WARC-Segment-Origin-ID",
-         */
+
+        fieldName = WarcConstants.FN_WARC_CONCURRENT_TO;
+        fieldValue = "<http://hello_kitty$>";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_REFERS_TO;
+        fieldValue = "<http://hello_kitty$>";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_TARGET_URI;
+        fieldValue = "http://hello_kitty$";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_WARCINFO_ID;
+        fieldValue = "<http://hello_kitty$>";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_PROFILE;
+        fieldValue = "http://hello_kitty$";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID;
+        fieldValue = "<http://hello_kitty$>";
+        testHeader(fieldName, fieldValue, 0, 0);
+
+        fieldName = WarcConstants.FN_WARC_REFERS_TO_TARGET_URI;
+        fieldValue = "http://hello_kitty$";
+        testHeader(fieldName, fieldValue, 0, 0);
 
         /*
          * Add header.
@@ -209,7 +233,6 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_WARCINFO_ID + "' value", 2}
                         }, null, null}
                 }},
-
                 {WarcConstants.FN_WARC_PROFILE, new Object[][] {
                         {"hello_kitty", new Object[][] {
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2}
@@ -227,7 +250,6 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 }},
                 {WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, new Object[][] {
                         {"hello_kitty", new Object[][] {
-                                {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2},
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2}
                         }, null, null}
                 }},
@@ -279,9 +301,17 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
         for (int i=0; i<cases.length; ++i) {
             String fieldName = (String)cases[i][0];
             Object[][] values = (Object[][])cases[i][1];
+            // debug
+            //System.out.println(values.length);
             header = getTestHeader();
+            Assert.assertEquals(0, header.getHeaderList().size());
+            Assert.assertNull(header.getHeader(fieldName));
+            Assert.assertNull(header.getHeader(null));
+            Assert.assertNull(header.getHeader(""));
             for (int j=0; j<values.length; ++j) {
                 String fieldValue = (String)values[j][0];
+                // debug
+                //System.out.println(fieldValue);
                 Object[][] expectedErrors = (Object[][])values[j][1];
                 Object[][] expectedWarnings = (Object[][])values[j][2];
                 TestHeaderCallback callback = (TestHeaderCallback)values[j][3];
@@ -293,6 +323,18 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                 Assert.assertEquals(fieldValue, headerLine.value);
                 test_result(expectedErrors, expectedWarnings, callback);
             }
+            // Test getHeader(s)
+            List<HeaderLine> headerLines = header.getHeaderList();
+            // debug
+            //System.out.println(headerLines.size());
+            Assert.assertEquals(values.length, headerLines.size());
+            HeaderLine headerLine;
+            for (int j=0; j<headerLines.size(); ++j) {
+                headerLine = headerLines.get(j);
+                Assert.assertEquals(fieldName, headerLine.name);
+                Assert.assertEquals((String)values[j][0], headerLine.value);
+            }
+            Assert.assertTrue(header.getHeader(fieldName) == headerLines.get(0));
         }
     }
 
