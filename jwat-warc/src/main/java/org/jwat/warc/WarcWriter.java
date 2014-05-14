@@ -630,7 +630,7 @@ public abstract class WarcWriter {
         if (warcRefersToTargetUriStr != null) {
             outBuf.write(WarcConstants.FN_WARC_REFERS_TO_TARGET_URI.getBytes());
             outBuf.write(": ".getBytes());
-            outBuf.write(warcTargetUriStr.getBytes());
+            outBuf.write(warcRefersToTargetUriStr.getBytes());
             outBuf.write("\r\n".getBytes());
         }
         /*
@@ -639,7 +639,7 @@ public abstract class WarcWriter {
         String warcRefersToDateStr = null;
         if (header.warcRefersToDate != null) {
             warcRefersToDateStr = warcDateFormat.format(header.warcRefersToDate);
-        } else if (header.warcDateStr != null) {
+        } else if (header.warcRefersToDateStr != null) {
             warcRefersToDateStr = header.warcRefersToDateStr;
             // Warning...
         }

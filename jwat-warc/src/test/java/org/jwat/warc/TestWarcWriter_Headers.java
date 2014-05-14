@@ -73,6 +73,8 @@ public class TestWarcWriter_Headers {
          */
         String dateStr = "2010-06-23T13:33:21Z";
         Date dateObj = WarcDateParser.getDate(dateStr);
+        String refersToDateStr = "2010-06-23T12:23:11Z";
+        Date refersToDate = WarcDateParser.getDate(refersToDateStr);
         /*
          * InetAddress.
          */
@@ -97,6 +99,8 @@ public class TestWarcWriter_Headers {
         Uri warcinfoIdObj = Uri.create(warcinfoIdStr);
         String segmentOriginIdStr = "urn:uuid:c4fc410a-4c7b-4bcc-a251-382b1d669f9a";
         Uri segmentOriginIdObj = Uri.create(segmentOriginIdStr);
+        String refersToTargetUriStr = "urn:uuid:9c0433e9-7365-4228-a4b6-501d3c1ebc50";
+        Uri refersToTargetUriObj = Uri.create(refersToTargetUriStr);
         /*
          * ConcurrentTo.
          */
@@ -174,6 +178,8 @@ public class TestWarcWriter_Headers {
             header.warcFilename = warcFilenameStr;
             header.warcTruncatedStr = warcTruncatedStr;
             header.warcProfileStr = warcProfileStr;
+            header.warcRefersToTargetUriStr = refersToTargetUriStr;
+            header.warcRefersToDateStr = refersToDateStr;
 
             in = new ByteArrayInputStream(payload);
 
@@ -211,6 +217,8 @@ public class TestWarcWriter_Headers {
             header.warcFilename = warcFilenameStr;
             header.warcTruncatedIdx = warcTruncatedObj;
             header.warcProfileIdx = warcProfileObj;
+            header.warcRefersToTargetUriUri = refersToTargetUriObj;
+            header.warcRefersToDate = refersToDate;
 
             in = new ByteArrayInputStream(payload);
 
@@ -246,6 +254,8 @@ public class TestWarcWriter_Headers {
             header.addHeader(WarcConstants.FN_WARC_FILENAME, warcFilenameStr);
             header.addHeader(WarcConstants.FN_WARC_TRUNCATED, warcTruncatedStr);
             header.addHeader(WarcConstants.FN_WARC_PROFILE, warcProfileStr);
+            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, refersToTargetUriStr);
+            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_DATE, refersToDateStr);
 
             in = new ByteArrayInputStream(payload);
 
@@ -281,6 +291,8 @@ public class TestWarcWriter_Headers {
             header.addHeader(WarcConstants.FN_WARC_FILENAME, warcFilenameStr);
             header.addHeader(WarcConstants.FN_WARC_TRUNCATED, warcTruncatedStr);
             header.addHeader(WarcConstants.FN_WARC_PROFILE, warcProfileStr);
+            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, refersToTargetUriObj, null);
+            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_DATE, refersToDate, null);
 
             in = new ByteArrayInputStream(payload);
 
@@ -359,6 +371,10 @@ public class TestWarcWriter_Headers {
                     Assert.assertEquals(warcTruncatedObj, header.warcTruncatedIdx);
                     Assert.assertEquals(warcProfileStr, header.warcProfileStr);
                     Assert.assertEquals(warcProfileObj, header.warcProfileIdx);
+                    Assert.assertEquals(refersToTargetUriStr, header.warcRefersToTargetUriStr);
+                    Assert.assertEquals(refersToTargetUriObj, header.warcRefersToTargetUriUri);
+                    Assert.assertEquals(refersToDateStr, header.warcRefersToDateStr);
+                    Assert.assertEquals(refersToDate, header.warcRefersToDate);
                     break;
                 }
             }
