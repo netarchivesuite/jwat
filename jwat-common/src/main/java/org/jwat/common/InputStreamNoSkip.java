@@ -40,7 +40,7 @@ public class InputStreamNoSkip extends FilterInputStream {
     /**
      * Construct a <code>InputStream</code> with the skip method
      * overridden.
-     * @param stream input stream to no skip on
+     * @param in input stream to no skip on
      */
     public InputStreamNoSkip(InputStream in) {
         super(in);

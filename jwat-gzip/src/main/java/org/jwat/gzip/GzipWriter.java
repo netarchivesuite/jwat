@@ -17,6 +17,10 @@
  */
 package org.jwat.gzip;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.ISO8859_1;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,10 +30,6 @@ import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
-
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.ISO8859_1;
 
 /**
  * A writer for (multi-part) GZip files.
@@ -492,8 +492,8 @@ public class GzipWriter {
         byte[] compressedBytes = new byte[DEFAULT_INPUT_BUFFER_SIZE];
 
         /**
-         * Construct ouput stream bound to a specific reader and entry.
-         * @param reader GZip reader
+         * Construct ouput stream bound to a specific writer and entry.
+         * @param writer GZip writer
          * @param gzipEntry GZip entry
          */
         public GzipEntryOutputStream(GzipWriter writer,

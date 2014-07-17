@@ -64,6 +64,7 @@ public class HeaderLine {
 
     /**
      * Read a single line into a header line.
+     * @param in inputstream
      * @return single string line
      * @throws IOException if an io error occurs while reading line
      */

@@ -17,6 +17,16 @@
  */
 package org.jwat.warc;
 
+import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.ContentType;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+import org.jwat.common.HeaderLine;
+import org.jwat.common.MaxLengthRecordingInputStream;
+import org.jwat.common.Uri;
+import org.jwat.common.UriProfile;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -28,16 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.common.ContentType;
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.Diagnostics;
-import org.jwat.common.HeaderLine;
-import org.jwat.common.MaxLengthRecordingInputStream;
-import org.jwat.common.Uri;
-import org.jwat.common.UriProfile;
-
 /**
  * Central class for working with WARC headers. This class includes support for
  * reading and writing WARC headers. Methods are also available to validate
@@ -47,10 +47,10 @@ import org.jwat.common.UriProfile;
  */
 public class WarcHeader {
 
-    /** An URI with encapsulating <> characters. */
+    /** An URI with encapsulating &lt;&gt; characters. */
     public static final boolean URI_LTGT = true;
 
-    /** An URI without encapsulating <> characters. */
+    /** An URI without encapsulating &lt;&gt; characters. */
     public static final boolean URI_NAKED = false;
 
     /** Associated WarcReader context.
@@ -491,9 +491,7 @@ public class WarcHeader {
 
     /**
      * Identify a (WARC) header name, validate the value and set the header.
-     * @param fieldName header name
-     * @param fieldValue header value
-     * @param seen array of headers seen so far used for duplication check
+     * @param headerLine the headerLine
      */
     protected void addHeader(HeaderLine headerLine) {
         String fieldName = headerLine.name;
@@ -692,7 +690,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>Integer</code> field value object
+     * @param integerFieldValue <code>Integer</code> field value object
      * @param fieldValueStr Integer field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
@@ -715,7 +713,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>Long</code> field value object
+     * @param longFieldValue <code>Long</code> field value object
      * @param fieldValueStr Long field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
@@ -738,7 +736,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>Digest</code> field value object
+     * @param digestFieldValue <code>Digest</code> field value object
      * @param fieldValueStr Digest field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
@@ -761,7 +759,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>ContentType</code> field value object
+     * @param contentTypeFieldValue <code>ContentType</code> field value object
      * @param fieldValueStr Content-Type field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
@@ -784,7 +782,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>Date</code> field value object
+     * @param dateFieldValue <code>Date</code> field value object
      * @param fieldValueStr Date field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
@@ -807,7 +805,7 @@ public class WarcHeader {
      * If the object is null and the string is not null, the string is parsed
      * and validated resulting in an object, if valid.
      * @param fieldName name of field to add
-     * @param uriFieldValue <code>InetAddress</code> field value object
+     * @param inetAddrFieldValue <code>InetAddress</code> field value object
      * @param fieldValueStr IP-Address field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */

@@ -17,15 +17,15 @@
  */
 package org.jwat.warc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLineReader;
 import org.jwat.common.UriProfile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Base class for WARC reader implementations.
@@ -386,7 +386,6 @@ public abstract class WarcReader {
     /**
      * Get the current offset in the WARC <code>InputStream</code>.
      * @return offset in WARC <code>InputStream</code>
-     * @see WarcRecordBase#getStartOffset()
      */
     public abstract long getOffset();
 

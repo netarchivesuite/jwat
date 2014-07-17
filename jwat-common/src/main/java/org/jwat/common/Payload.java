@@ -86,7 +86,9 @@ public class Payload {
      * Creates new <code>ArcPayload</code> instance.
      * @param in the input stream to parse.
      * @param length payload length.
+     * @param pushback_size   pushback size
      * @param digestAlgorithm digest algorithm to use on payload or null
+     * @return the payload
      * @throws IOException if an io error occurs while initializing
      */
     public static Payload processPayload(InputStream in, long length,

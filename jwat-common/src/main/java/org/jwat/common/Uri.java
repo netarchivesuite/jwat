@@ -110,6 +110,7 @@ public class Uri implements Comparable<Uri> {
     /**
      * Creates a URI by parsing the given string using the requested profile.
      * @param str The string to be parsed into a URI
+     * @param uriProfile the requested profile
      * @return The new URI
      * @throws IllegalArgumentException If the given string violates the profile
      */
@@ -135,6 +136,7 @@ public class Uri implements Comparable<Uri> {
      * Constructs a URI by parsing the given string using the requested
      * profile.
      * @param str The string to be parsed into a URI
+     * @param uriProfile the requested profile
      * @throws URISyntaxException If the given string violates the profile
      */
     public Uri(String str, UriProfile uriProfile) throws URISyntaxException {

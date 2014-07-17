@@ -71,6 +71,7 @@ public class WarcDigest extends Digest {
      * @param digestBytes digest in byte form
      * @param encoding encoding used
      * @param digestValue digest value in encoded form.
+     * @return the warc digest
      */
     public static WarcDigest createWarcDigest(String algorithm, byte[] digestBytes, String encoding, String digestValue) {
         if (algorithm == null || algorithm.length() == 0) {

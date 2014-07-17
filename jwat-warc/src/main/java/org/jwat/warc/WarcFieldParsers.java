@@ -17,9 +17,6 @@
  */
 package org.jwat.warc;
 
-import java.net.InetAddress;
-import java.util.Date;
-
 import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
@@ -27,6 +24,9 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
+
+import java.net.InetAddress;
+import java.util.Date;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -175,6 +175,8 @@ public class WarcFieldParsers {
      * Returns an URI object holding the value of the specified string.
      * @param uriStr the URL to parse
      * @param field field name
+     * @param uriProfile the uri profile
+     * @param bLtGt something
      * @return an URI object holding the value of the specified string or null,
      * if unable to parse the value as an URI object
      */

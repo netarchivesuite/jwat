@@ -140,7 +140,7 @@ public class WarcConstants {
     public static final String FN_WARC_REFERS_TO_DATE = "WARC-Refers-To-Date";
 
     /** WARC field name id to field name mapping table.
-     *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+     *  Zero indexed array with all indexes used &gt; 1. (Index 0 is unused) */
     public static final String[] FN_IDX_STRINGS = {
         null,
         FN_WARC_TYPE,
@@ -330,7 +330,7 @@ public class WarcConstants {
     public static final String RT_CONTINUATION = "continuation";
 
     /** WARC type id to field name mapping table.
-     *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+     *  Zero indexed array with all indexes used &gt; 1. (Index 0 is unused) */
     public static final String[] RT_IDX_STRINGS = {
         null,
         RT_WARCINFO,
@@ -393,7 +393,7 @@ public class WarcConstants {
     public static final String TT_UNSPECIFIED = "unspecified";
 
     /** WARC truncation reason id to field name mapping table.
-     *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+     *  Zero indexed array with all indexes used &gt; 1. (Index 0 is unused) */
     public static final String[] TT_IDX_STRINGS = {
         null,
         TT_LENGTH,
@@ -439,7 +439,7 @@ public class WarcConstants {
             "http://netpreserve.org/warc/1.0/revisit/server-not-modified";
 
     /** WARC profile id to field name mapping table.
-     *  Zero indexed array with all indexes used > 1. (Index 0 is unused) */
+     *  Zero indexed array with all indexes used &gt; 1. (Index 0 is unused) */
     public static final String[] P_IDX_STRINGS = {
         null,
         PROFILE_IDENTICAL_PAYLOAD_DIGEST,

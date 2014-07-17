@@ -42,7 +42,7 @@ public class FieldValidator {
     /**
      * Prepares a validator for use on a given set of fields.
      * @param fieldNames array of field names.
-     * @return validator used to look field by field name->index.
+     * @return validator used to look field by field name -&gt; index.
      */
     public static FieldValidator prepare(String[] fieldNames) {
         FieldValidator fv = new FieldValidator();
