@@ -17,23 +17,24 @@
  */
 package org.jwat.warc;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DateFormat;
-
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.UriProfile;
+
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DateFormat;
 
 /**
  * Base class for WARC writer implementations.
  *
  * @author nicl
  */
-public abstract class WarcWriter {
+public abstract class WarcWriter implements Closeable{
 
     /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;

@@ -18,6 +18,7 @@
 package org.jwat.common;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ import java.util.List;
  *
  * @author nicl
  */
-public abstract class PayloadWithHeaderAbstract {
+public abstract class PayloadWithHeaderAbstract implements Closeable{
 
     /** Has record been closed before. */
     protected boolean bClosed;

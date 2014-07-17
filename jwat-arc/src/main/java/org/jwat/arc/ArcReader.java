@@ -17,23 +17,24 @@
  */
 package org.jwat.arc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Digest;
 import org.jwat.common.HeaderLineReader;
 import org.jwat.common.UriProfile;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 /**
  * ARC Reader base class.
  *
  * @author nicl
  */
-public abstract class ArcReader {
+public abstract class ArcReader implements Closeable{
 
     /*
      * Settings.

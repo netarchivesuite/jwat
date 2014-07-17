@@ -18,6 +18,7 @@
 package org.jwat.common;
 
 import java.io.BufferedInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -31,7 +32,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class Payload {
+public class Payload implements Closeable{
 
     /** Payload content. */
     private static final int BUFFER_SIZE = 8192;

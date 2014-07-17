@@ -22,6 +22,7 @@ import org.jwat.common.DiagnosisType;
 import org.jwat.common.ISO8859_1;
 
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,7 +41,7 @@ import java.util.zip.Deflater;
  *
  * @author nicl
  */
-public class GzipWriter {
+public class GzipWriter implements Closeable {
 
     /** Default input buffer size. */
     public static final int DEFAULT_INPUT_BUFFER_SIZE = 8192;

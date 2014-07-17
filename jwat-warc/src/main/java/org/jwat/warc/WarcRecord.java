@@ -17,12 +17,6 @@
  */
 package org.jwat.warc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
@@ -36,6 +30,13 @@ import org.jwat.common.NewlineParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * This class represents a parsed WARC record header block including
  * possible validation and format warnings/errors encountered in the process.
@@ -44,7 +45,7 @@ import org.jwat.common.PayloadOnClosedHandler;
  *
  * @author nicl
  */
-public class WarcRecord implements PayloadOnClosedHandler {
+public class WarcRecord implements PayloadOnClosedHandler, Closeable {
 
     /** Reader instance used, required for file compliance. */
     protected WarcReader reader;

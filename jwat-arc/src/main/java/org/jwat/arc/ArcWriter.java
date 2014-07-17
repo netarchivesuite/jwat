@@ -17,15 +17,16 @@
  */
 package org.jwat.arc;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
-
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.Diagnostics;
 
 /**
  * Base class for ARC writer implementations.
@@ -34,7 +35,7 @@ import org.jwat.common.Diagnostics;
  *
  * @author nicl
  */
-public abstract class ArcWriter {
+public abstract class ArcWriter implements Closeable{
 
     /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;

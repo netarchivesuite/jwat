@@ -17,6 +17,10 @@
  */
 package org.jwat.gzip;
 
+import org.jwat.common.Diagnosis;
+import org.jwat.common.Diagnostics;
+
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,16 +29,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
-import org.jwat.common.Diagnosis;
-import org.jwat.common.Diagnostics;
-
 /**
  * GZip entry container. Exposes methods for accessing the entry payload's
  * input or output stream.
  *
  * @author nicl
  */
-public class GzipEntry {
+public class GzipEntry implements Closeable{
 
     /** Size of buffer used in writeFrom(). */
     public static final int WRITE_FROM_BUFFER_SIZE = 8192;

@@ -17,11 +17,6 @@
  */
 package org.jwat.arc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.util.Date;
-
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
@@ -38,6 +33,12 @@ import org.jwat.common.PayloadOnClosedHandler;
 import org.jwat.common.PayloadWithHeaderAbstract;
 import org.jwat.common.Uri;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.Date;
+
 /**
  * This abstract class represents the common base ARC data which is present in
  * both a record or version block. The parser in this class is responsible for
@@ -48,7 +49,7 @@ import org.jwat.common.Uri;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public abstract class ArcRecordBase implements PayloadOnClosedHandler {
+public abstract class ArcRecordBase implements PayloadOnClosedHandler,Closeable {
 
     /** Version block record type. */
     public static final int RT_VERSION_BLOCK = 1;
