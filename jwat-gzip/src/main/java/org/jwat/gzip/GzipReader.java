@@ -171,6 +171,9 @@ public class GzipReader implements Closeable{
             inf.end();
             inf = null;
         }
+        if (pbin != null){
+            pbin.close();
+        }
         pbin = null;
     }
 
