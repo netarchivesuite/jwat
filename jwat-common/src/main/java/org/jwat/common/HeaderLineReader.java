@@ -645,7 +645,7 @@ public class HeaderLineReader {
      * @param c first character of the possibly encoded character sequence
      * @param in <code>InputStream</code> with possible extra encoded characters.
      * @return decoded character
-     * @throws IOException if an io error occurs in the underlying input stream
+     * @throws IOException if an i/o error occurs in the underlying input stream
      */
     protected int decode(int c, InputStream in) throws IOException {
         switch (encoding) {

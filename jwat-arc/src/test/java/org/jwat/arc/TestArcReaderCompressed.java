@@ -322,7 +322,7 @@ public class TestArcReaderCompressed {
             Assert.assertEquals(0, warnings);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail("Unexpected io exception");
+            Assert.fail("Unexpected i/o exception");
         }
     }
 
@@ -566,7 +566,7 @@ public class TestArcReaderCompressed {
             Assert.assertEquals(0, warnings);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail("Unexpected io exception");
+            Assert.fail("Unexpected i/o exception");
         }
     }
 

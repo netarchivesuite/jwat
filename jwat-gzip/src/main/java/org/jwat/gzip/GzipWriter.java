@@ -110,7 +110,7 @@ public class GzipWriter implements Closeable {
 
     /**
      * Release resources associated with this writer.
-     * @throws IOException if an io error occurs while closing writer
+     * @throws IOException if an i/o error occurs while closing writer
      */
     public void close() throws IOException {
         if (gzipEntry != null) {
@@ -163,7 +163,7 @@ public class GzipWriter implements Closeable {
     /**
      * Write a GZip entry header and prepare for compressing input data.
      * @param entry GZip entry object
-     * @throws IOException if an io error occurs while writing header
+     * @throws IOException if an i/o error occurs while writing header
      */
     public void writeEntryHeader(GzipEntry entry) throws IOException {
         if (gzipEntry != null) {
@@ -404,7 +404,7 @@ public class GzipWriter implements Closeable {
      * @param len length of compressed data to read
      * @return number of compressed bytes read
      * @throws DataFormatException if an error occurs in deflater
-     * @throws IOException if an error occurs while compressing
+     * @throws IOException if an i/o error occurs while compressing
      */
     protected int readCompressed(InputStream in, byte[] b, int off, int len) throws DataFormatException, IOException {
         int deflated = 0;
@@ -493,7 +493,7 @@ public class GzipWriter implements Closeable {
         byte[] compressedBytes = new byte[DEFAULT_INPUT_BUFFER_SIZE];
 
         /**
-         * Construct ouput stream bound to a specific writer and entry.
+         * Construct output stream bound to a specific writer and entry.
          * @param writer GZip writer
          * @param gzipEntry GZip entry
          */

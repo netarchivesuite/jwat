@@ -57,7 +57,7 @@ public class UTF8 {
      * @param c initial character
      * @param in input stream used to read extra UTF-8 encoded data
      * @return UTF-8 character or -1
-     * @throws IOException if an io error occurs while reading
+     * @throws IOException if an i/o error occurs while reading
      */
     public int readUtf8(int c, InputStream in) throws IOException {
         ByteArrayOutputStream charsOut = new ByteArrayOutputStream(4);
@@ -145,7 +145,7 @@ public class UTF8 {
      * @param c character to UTF-8 encode
      * @param out UTF-8 output stream
      * @return the number of bytes used to encode the character
-     * @throws IOException if an io error occurs while writing
+     * @throws IOException if an i/o error occurs while writing
      */
     public int writeUtf8(int c, OutputStream out) throws IOException {
         byte utf8_write = 1;

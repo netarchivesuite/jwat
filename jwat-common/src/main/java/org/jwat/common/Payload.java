@@ -32,7 +32,7 @@ import java.security.NoSuchAlgorithmException;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public class Payload implements Closeable{
+public class Payload implements Closeable {
 
     /** Payload content. */
     private static final int BUFFER_SIZE = 8192;
@@ -90,7 +90,7 @@ public class Payload implements Closeable{
      * @param pushback_size   pushback size
      * @param digestAlgorithm digest algorithm to use on payload or null
      * @return the payload
-     * @throws IOException if an io error occurs while initializing
+     * @throws IOException if an i/o error occurs while initializing
      */
     public static Payload processPayload(InputStream in, long length,
             int pushback_size, String digestAlgorithm) throws IOException {
@@ -170,7 +170,7 @@ public class Payload implements Closeable{
      * Get the number of unavailable bytes missing due to unexpected EOF.
      * This method always returns <code>0</code> as long as the stream is open.
      * @return number of unavailable bytes missing due to unexpected EOF
-     * @throws IOException if an io error occurs calling available method on stream
+     * @throws IOException if an i/o error occurs calling available method on stream
      */
     public long getUnavailable() throws IOException {
         return in_fl.available();
@@ -232,7 +232,7 @@ public class Payload implements Closeable{
     /**
      * Get payload remaining length.
      * @return payload remaining length
-     * @throws IOException if an io error occurs calling available method on stream
+     * @throws IOException if an i/o error occurs calling available method on stream
      */
     public long getRemaining() throws IOException {
         if (payloadHeaderWrapped != null) {
@@ -252,7 +252,7 @@ public class Payload implements Closeable{
 
     /**
      * Closes the this payload stream, skipping unread bytes in the process.
-     * @throws IOException if an io error occurs in the closing process
+     * @throws IOException if an i/o error occurs in the closing process
      */
     public void close() throws IOException {
         if (!bClosed) {

@@ -71,7 +71,7 @@ public class GzipInputStream extends InflaterInputStream
      * Check head of <code>PushBackInputStream</code> for a GZip magic number.
      * @param pbin <code>PushBackInputStream</code> with GZip entries
      * @return boolean indicating presence of a GZip magic number
-     * @throws IOException if an io error occurs while examining head of stream
+     * @throws IOException if an i/o error occurs while examining head of stream
      */
     public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
         if (pbin == null) {

@@ -42,7 +42,7 @@ import java.util.zip.Inflater;
  *
  * @author nicl
  */
-public class GzipReader implements Closeable{
+public class GzipReader implements Closeable {
 
     /** Buffer size to use when read skipping. */
     public static final int SKIP_READ_BUFFER_SIZE = 8192;
@@ -107,7 +107,7 @@ public class GzipReader implements Closeable{
      * call as before the call.
      * @param pbin <code>PushBackInputStream</code> with GZip entries
      * @return boolean indicating presence of a GZip magic number
-     * @throws IOException if an io error occurs while examining head of stream
+     * @throws IOException if an i/o error occurs while examining head of stream
      */
     public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
         if (pbin == null) {
@@ -159,7 +159,8 @@ public class GzipReader implements Closeable{
 
     /**
      * Release resources associated with this reader.
-     * @throws IOException if an io error occurs while closing reader
+     * Also closes the <code>InputStream</code> supplied to the constructor.
+     * @throws IOException if an i/o error occurs while closing reader
      */
     public void close() throws IOException {
         if (gzipEntry != null) {
@@ -219,7 +220,7 @@ public class GzipReader implements Closeable{
      * Get the next GZip entry header and prepare the compressed data for
      * input stream retrieval.
      * @return GZip entry or null
-     * @throws IOException if an io error occurs while reading entry
+     * @throws IOException if an i/o error occurs while reading entry
      */
     public GzipEntry getNextEntry() throws IOException {
         if (gzipEntry != null) {
@@ -474,7 +475,7 @@ public class GzipReader implements Closeable{
     /**
      * Read non-compressed zero terminated data.
      * @return zero terminated data
-     * @throws IOException if an io error occurs while reading data
+     * @throws IOException if an i/o error occurs while reading data
      */
     protected byte[] readZeroTerminated() throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(32);
@@ -488,7 +489,7 @@ public class GzipReader implements Closeable{
     /**
      * Read the non-compressed trailing 8 bytes with CRC32 and ISize values.
      * @param entry Gzip entry
-     * @throws IOException if an io error occurs while reading data
+     * @throws IOException if an i/o error occurs while reading data
      */
     protected void readTrailer(GzipEntry entry) throws IOException {
         int read = pbin.readFully(trailerBytes);
@@ -542,7 +543,7 @@ public class GzipReader implements Closeable{
      * @param len length of uncompressed data to read
      * @return number of bytes uncompressed or -1
      * @throws DataFormatException if the compressed data is in an unknown format
-     * @throws IOException if an io error occurs while reading data
+     * @throws IOException if an i/o error occurs while reading data
      */
     protected int readInflated(byte[] b, int off, int len)
                                     throws DataFormatException, IOException {

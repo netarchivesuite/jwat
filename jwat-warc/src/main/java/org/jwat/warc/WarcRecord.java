@@ -132,7 +132,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
      * @param reader <code>WarcReader</code> used, with access to user defined
      * options
      * @return <code>WarcRecord</code> or <code>null</code>
-     * @throws IOException io exception in the process of reading record
+     * @throws IOException i/o exception in the process of reading record
      */
     public static WarcRecord parseRecord(ByteCountingPushBackInputStream in,
                                     WarcReader reader) throws IOException {
@@ -247,7 +247,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
     /**
      * Called when the payload object is closed and final steps in the
      * validation process can be performed.
-     * @throws IOException io exception in final validation processing
+     * @throws IOException i/o exception in final validation processing
      */
     @Override
     public void payloadClosed() throws IOException {

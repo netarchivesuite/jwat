@@ -120,7 +120,7 @@ public class EncodedWords {
      * @param in input stream containing a possible encoded-word
      * @param bParseEqQm true if we should look for leading "=?", false if not
      * @return result of the validation and decoding
-     * @throws IOException if an io error occurs during parsing
+     * @throws IOException if an i/o error occurs during parsing
      */
     public static EncodedWords parseEncodedWords(InputStream in, boolean bParseEqQm) throws IOException {
         EncodedWords ew = new EncodedWords();

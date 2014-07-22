@@ -99,7 +99,7 @@ public class TestWarc_Fields {
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
-            Assert.fail("Unexpected io exception");
+            Assert.fail("Unexpected i/o exception");
         }
 
         Assert.assertEquals(expected_records, records);

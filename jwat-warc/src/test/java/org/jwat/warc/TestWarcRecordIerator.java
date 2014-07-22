@@ -280,7 +280,7 @@ public class TestWarcRecordIerator {
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
-            Assert.fail("Unexpected io exception");
+            Assert.fail("Unexpected i/o exception");
         }
 
         Assert.assertEquals(n_records, i_records);

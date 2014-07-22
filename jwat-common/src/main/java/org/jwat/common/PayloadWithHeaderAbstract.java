@@ -40,7 +40,7 @@ import java.util.List;
  *
  * @author nicl
  */
-public abstract class PayloadWithHeaderAbstract implements Closeable{
+public abstract class PayloadWithHeaderAbstract implements Closeable {
 
     /** Has record been closed before. */
     protected boolean bClosed;
@@ -137,7 +137,7 @@ public abstract class PayloadWithHeaderAbstract implements Closeable{
      * @param in the input stream to parse.
      * @param payloadLength the record length.
      * @return boolean indicating whether the header could be read
-     * @throws IOException io exception while reading headers
+     * @throws IOException i/o exception while reading headers
      */
     protected abstract boolean readHeader(MaxLengthRecordingInputStream in,
             long payloadLength) throws IOException;
@@ -268,7 +268,7 @@ public abstract class PayloadWithHeaderAbstract implements Closeable{
 
     /**
      * Closes the this payload stream, skipping unread bytes in the process.
-     * @throws IOException io exception in closing process
+     * @throws IOException i/o exception in closing process
      */
     public void close() throws IOException {
         if (!bClosed) {

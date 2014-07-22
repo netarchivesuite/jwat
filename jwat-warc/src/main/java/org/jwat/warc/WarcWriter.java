@@ -34,7 +34,7 @@ import java.text.DateFormat;
  *
  * @author nicl
  */
-public abstract class WarcWriter implements Closeable{
+public abstract class WarcWriter implements Closeable {
 
     /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;

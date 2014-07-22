@@ -45,7 +45,7 @@ public class RandomAccessFileOutputStream extends OutputStream {
 
     /**
      * Closing this stream has no effect.
-     * @throws IOException if an io error occurs while closing stream
+     * @throws IOException if an i/o error occurs while closing stream
      */
     @Override
     public void close() throws IOException {
@@ -54,7 +54,7 @@ public class RandomAccessFileOutputStream extends OutputStream {
 
     /**
      * Flushing this stream has no effect.
-     * @throws IOException if an io error occurs while flushing stream
+     * @throws IOException if an i/o error occurs while flushing stream
      */
     @Override
     public void flush() throws IOException {

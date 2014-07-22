@@ -48,7 +48,7 @@ public class RandomAccessFileInputStream extends InputStream {
 
     /**
      * Closing this stream has no effect.
-     * @throws IOException if an io error occurs while closing stream
+     * @throws IOException if an i/o error occurs while closing stream
      */
     @Override
     public void close() throws IOException {

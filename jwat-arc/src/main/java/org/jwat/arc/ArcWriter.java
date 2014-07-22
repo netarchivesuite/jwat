@@ -35,7 +35,7 @@ import java.text.DateFormat;
  *
  * @author nicl
  */
-public abstract class ArcWriter implements Closeable{
+public abstract class ArcWriter implements Closeable {
 
     /** State after writer has been constructed and before records have been written. */
     protected static final int S_INIT = 0;

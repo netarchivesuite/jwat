@@ -49,7 +49,7 @@ import java.util.Date;
  *
  * @author lbihanic, selghissassi, nicl
  */
-public abstract class ArcRecordBase implements PayloadOnClosedHandler,Closeable {
+public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable {
 
     /** Version block record type. */
     public static final int RT_VERSION_BLOCK = 1;
@@ -328,7 +328,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler,Closeable 
     /**
      * Close resources associated with the ARC record.
      * Mainly payload stream if any.
-     * @throws IOException io exception close the payload resources
+     * @throws IOException i/o exception close the payload resources
      */
     public void close() throws IOException {
         if (!bClosed) {
@@ -372,7 +372,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler,Closeable 
      * @param in ARC record <code>InputStream</code>
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @throws IOException io exception in the parsing process
+     * @throws IOException i/o exception in the parsing process
      */
     protected abstract void processPayload(ByteCountingPushBackInputStream in,
                                         ArcReader reader) throws IOException;
@@ -424,7 +424,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler,Closeable 
      * @param in <code>InputStream</code> to validate
      * @return true/false based on whether the remaining input stream contains
      * only LF and CR characters or not.
-     * @throws IOException io exception in parsing
+     * @throws IOException i/o exception in parsing
      */
     public boolean isValidStreamOfCRLF(InputStream in) throws IOException{
         if (in == null) {
