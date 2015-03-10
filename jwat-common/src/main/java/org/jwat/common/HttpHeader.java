@@ -313,6 +313,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
             } else {
                 bIsHttpVersionValid = false;
             }
+        } else if (versionString.equals("HTTP")) {
+            // IA-local change: be lenient with broken version field.
+            // See https://webarchive.jira.com/browse/WWM-160
+            httpVersionMajor = 1;
+            httpVersionMinor = 0;
+            bIsHttpVersionValid = true;
         }
         return bIsHttpVersionValid;
     }

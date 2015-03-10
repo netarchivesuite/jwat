@@ -91,7 +91,11 @@ public class TestHttpHeader_IsValidMethods {
                 {true, "HTTP/1.0 100 Monkeys are OK",
                     "HTTP/1.0", 1, 0, "100", 100, "Monkeys are OK"},
                 {true, "HTTP/1.0 100  Monkeys are OK",
-                    "HTTP/1.0", 1, 0, "100", 100, " Monkeys are OK"}
+                    "HTTP/1.0", 1, 0, "100", 100, " Monkeys are OK"},
+                // be lenient with broken version field
+                // see https://webarchive.jira.com/browse/WWM-160
+                {true, "HTTP 200 Document follows",
+                    "HTTP", 1, 0, "200", 200, "Document follows"}
         };
         for (int i=0; i<cases.length; ++i) {
             boolean expected = (Boolean)cases[i][0];
