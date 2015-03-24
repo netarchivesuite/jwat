@@ -69,9 +69,9 @@ public class TestANVLRecord {
 					name = nvs[j][0];
 					value = nvs[j][1];
 					if (name != null) {
-						anvlRecord.add(name, value);
+						anvlRecord.addLabelValue(name, value);
 					} else {
-						anvlRecord.add(value);
+						anvlRecord.addValue(value);
 					}
 				}
 				byte[] bytes = anvlRecord.getBytes("UTF-8");

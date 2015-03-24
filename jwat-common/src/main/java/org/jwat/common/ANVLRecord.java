@@ -41,7 +41,7 @@ public class ANVLRecord {
 	public ANVLRecord() {
 	}
 
-	public void add(String name, String value) {
+	public void addLabelValue(String name, String value) {
 		if (value == null) {
 			throw new IllegalArgumentException("Invalid value!");
 		}
@@ -52,14 +52,14 @@ public class ANVLRecord {
 		map.put(name, value);
 	}
 
-	public void add(String value) {
+	public void addValue(String value) {
 		if (value == null || value.length() == 0) {
 			throw new IllegalArgumentException("Invalid value!");
 		}
 		list.add(value);
 	}
 
-	public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
+	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		Iterator<String> iter = list.iterator();
 		while (iter.hasNext()) {
@@ -67,7 +67,15 @@ public class ANVLRecord {
 			sb.append(CRLF);
 		}
 		sb.append(CRLF);
-		return sb.toString().getBytes(charsetName);
+		return sb.toString();
+	}
+
+	public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
+		return toString().getBytes(charsetName);
+	}
+
+	public byte[] getUTF8Bytes() throws UnsupportedEncodingException {
+		return getBytes("UTF-8");
 	}
 
 	public ANVLRecord parse() {
