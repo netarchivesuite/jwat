@@ -42,13 +42,20 @@ public class ANVLRecord {
 	}
 
 	public void addLabelValue(String name, String value) {
+		int c = -1;
 		if (value == null) {
 			throw new IllegalArgumentException("Invalid value!");
+		} else if (value.length() > 0) {
+			c = value.charAt(0);
 		}
 		if (name == null || name.length() == 0) {
 			throw new IllegalArgumentException("Invalid name!");
 		}
-		list.add(name + ":" + value);
+		if (c != -1 && c != ' ' && c != '\t') {
+			list.add(name + ": " + value);
+		} else {
+			list.add(name + ":" + value);
+		}
 		map.put(name, value);
 	}
 

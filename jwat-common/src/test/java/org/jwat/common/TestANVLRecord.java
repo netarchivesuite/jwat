@@ -52,6 +52,21 @@ public class TestANVLRecord {
 						+ "       the Guard\r\n"
 						+ "when/created:  1888\r\n"
 						+ "\r\n").getBytes("UTF-8")
+					},
+					{
+						new String[][] {
+								{"software", "NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS"},
+								{"ip", "127.0.1.1"},
+								{"hostname", "ubuntu8a"},
+								{"conformsTo", "http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf"},
+								{"isPartOf", "3"}
+						},
+						("software: NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS\r\n"
+						+ "ip: 127.0.1.1\r\n"
+						+ "hostname: ubuntu8a\r\n"
+						+ "conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf\r\n"
+						+ "isPartOf: 3\r\n"								
+						+ "\r\n").getBytes("UTF-8")
 					}
 			};
 		} catch (UnsupportedEncodingException e) {
@@ -75,6 +90,9 @@ public class TestANVLRecord {
 					}
 				}
 				byte[] bytes = anvlRecord.getBytes("UTF-8");
+				System.out.println(i);
+				System.out.println(new String(expected));
+				System.out.println(new String(bytes));
 				Assert.assertArrayEquals(expected, bytes);
 			}
 		} catch (UnsupportedEncodingException e) {

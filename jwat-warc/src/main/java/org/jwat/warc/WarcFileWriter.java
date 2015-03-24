@@ -29,7 +29,7 @@ import org.jwat.warc.WarcWriterFactory;
 
 public class WarcFileWriter {
 
-    protected static final String ACTIVE_SUFFIX = ".open";
+    public static final String ACTIVE_SUFFIX = ".open";
 
     /*
      * Configuration.
