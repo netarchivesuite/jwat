@@ -23,28 +23,48 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 
+/**
+ * Simple class to allow the use of an in-memory buffer as an alternate input or output stream.
+ * 
+ * @author nicl
+ */
 public class ByteArrayIOStream {
 
 	/** Default buffer size if none specified. */
 	public static final int DEFAULT_BUFFER_SIZE = 10*1024*1024;
 
+	/** Buffer lock. */
 	protected Semaphore lock = new Semaphore(1);
 
+	/** Internal byte array. */
 	protected byte[] bytes;
 
+	/** Internal <code>ByteBuffer</code> wrapper of internal byte array. */
     protected ByteBuffer byteBuffer;
 
+    /** Current <code>ByteBuffer</code> limit. */
     protected int limit = 0;
 
+    /**
+     * Construct object with default buffer size.
+     */
     public ByteArrayIOStream() {
     	this(DEFAULT_BUFFER_SIZE);
     }
 
+    /**
+     * Construct object with supplied buffer size.
+     * @param bufferSize buffer size to use
+     */
     public ByteArrayIOStream(int bufferSize) {
     	bytes = new byte[bufferSize];
     	byteBuffer = ByteBuffer.wrap(bytes);
     }
 
+    /**
+     * Return <code>OutputStream</code> and lock this buffer
+     * @return <code>OutputStream</code> wrapper of this buffer
+     */
     public OutputStream getOutputStream() {
     	if (!lock.tryAcquire()) {
     		throw new IllegalStateException();
@@ -54,18 +74,34 @@ public class ByteArrayIOStream {
     	return new OutputStreamImpl(this);
     }
 
+    /**
+     * Return internal byte array.
+     * @return internal byte array
+     */
     public byte[] getBytes() {
     	return bytes;
     }
 
+    /**
+     * Return allocated length of internal buffer.
+     * @return allocated length of internal buffer
+     */
     public int getLength() {
     	return bytes.length;
     }
 
+    /**
+     * Return internal <code>ByteBuffer</code> limit.
+     * @return internal <code>ByteBuffer</code> limit
+     */
     public int getLimit() {
     	return limit;
     }
 
+    /**
+     * Return internal <code>ByteBuffer</code>.
+     * @return internal <code>ByteBuffer</code>
+     */
     public ByteBuffer getBuffer() {
     	ByteBuffer buffer = ByteBuffer.wrap(bytes);
     	buffer.position(0);
@@ -73,6 +109,10 @@ public class ByteArrayIOStream {
     	return buffer;
     }
 
+    /**
+     * Return <code>InputStream</code> and lock this buffer
+     * @return <code>InputStream</code> wrapper of this buffer
+     */
     public InputStream getInputStream() {
     	if (!lock.tryAcquire()) {
     		throw new IllegalStateException();
@@ -82,6 +122,9 @@ public class ByteArrayIOStream {
     	return new InputStreamImpl(this);
     }
 
+    /**
+     * Release lock, called when input/output stream is closed.
+     */
     protected void release() {
     	lock = null;
     	byteBuffer = null;

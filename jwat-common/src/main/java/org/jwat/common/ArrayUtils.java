@@ -20,14 +20,29 @@ package org.jwat.common;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Common byte array helper methods.
+ *
+ * @author nicl
+ */
 public class ArrayUtils {
 
-	protected static byte[] CASE_SENSITIVE = new byte[256];
-	protected static byte[] CASE_INSENSITIVE = new byte[256];
+	/** Case sensitive array where [i] == i. */
+	protected static final byte[] CASE_SENSITIVE = new byte[256];
+	/** Case insensitive array where [i] == toLowerCase(i). */
+	protected static final byte[] CASE_INSENSITIVE = new byte[256];
 
-	public static byte[] SKIP_WHITESPACE = new byte[256];
-	public static byte[] SKIP_NONWHITESPACE = new byte[256];
+	/** Array where the character equal to the index is 1 only for whitespace characters. **/
+	public static final byte[] SKIP_WHITESPACE = new byte[256];
+	/** Array where the character equal to the index is 1 only for non whitespace characters. **/
+	public static final byte[] SKIP_NONWHITESPACE = new byte[256];
 
+	/** Zero length byte array. */
+	protected static final byte[] zeroArr = new byte[0];
+
+	/**
+	 * Initialize static arrays.
+	 */
 	static {
 		for (int i=0; i<256; ++i) {
 			CASE_SENSITIVE[i] = (byte)i;
@@ -51,6 +66,13 @@ public class ArrayUtils {
 	protected ArrayUtils() {
     }
 
+	/**
+	 * Move index forward according to the values in the byte array and the skip byte array which decides which byte values must be skipped.
+	 * @param skip byte array deciding which byte values must be skipped
+	 * @param arr byte array to skip in
+	 * @param fIdx byte array index
+	 * @return updated index depending of how many bytes where skipped
+	 */
 	public static int skip(byte[] skip, byte[] arr, int fIdx) {
     	int arrLen = arr.length;
 		while (fIdx < arrLen && skip[arr[fIdx] & 255] == 1) {
@@ -59,6 +81,12 @@ public class ArrayUtils {
 		return fIdx;
 	}
 
+	/**
+	 * Check if a byte array starts with a specified case sensitive sub byte array.
+	 * @param subArr case sensitive sub byte array to compare for
+	 * @param arr byte array to look in
+	 * @return boolean indicating if there was a match
+	 */
 	public static boolean startsWith(byte[] subArr, byte[] arr) {
     	boolean bRes = false;
     	int lIdx = subArr.length - 1;
@@ -73,6 +101,12 @@ public class ArrayUtils {
     	return bRes;
     }
 
+	/**
+	 * Check if a byte array starts with a specified case insensitive sub byte array.
+	 * @param subArr case insensitive sub byte array to compare for
+	 * @param arr byte array to look in
+	 * @return boolean indicating if there was a match
+	 */
     public static boolean startsWithIgnoreCase(byte[] subArr, byte[] arr) {
     	boolean bRes = false;
     	int lIdx = subArr.length - 1;
@@ -87,6 +121,12 @@ public class ArrayUtils {
     	return bRes;
     }
 
+	/**
+	 * Check if a byte array matches a specified case sensitive sub byte array at a certain index.
+	 * @param subArr case sensitive sub byte array to compare against
+	 * @param arr byte array to look in
+	 * @return boolean indicating if there was a match
+	 */
 	public static boolean equalsAt(byte[] subArr, byte[] arr, int fIdx) {
     	boolean bRes = false;
     	int lIdx = subArr.length - 1;
@@ -103,6 +143,12 @@ public class ArrayUtils {
     	return bRes;
     }
 
+	/**
+	 * Check if a byte array matches a specified case insensitive sub byte array at a certain index.
+	 * @param subArr case sensitive sub byte array to compare against
+	 * @param arr byte array to look in
+	 * @return boolean indicating if there was a match
+	 */
     public static boolean equalsAtIgnoreCase(byte[] subArr, byte[] arr, int fIdx) {
     	boolean bRes = false;
     	int lIdx = subArr.length - 1;
@@ -119,6 +165,13 @@ public class ArrayUtils {
     	return bRes;
     }
 
+    /**
+     * Find the next case sensitive occurrence of a byte sub array in a larger byte array beginning from a specific index.
+     * @param subArr case sensitive byte sub array to compare against
+	 * @param arr byte array to look in
+     * @param fIdx index to starting looking from
+     * @return next occurrence or -1, if none was found
+     */
     public static int indexOf(byte[] subArr, byte[] arr, int fIdx) {
     	int csIdx;
     	int caIdx;
@@ -143,7 +196,7 @@ public class ArrayUtils {
     			++lIdx;
         	}
     	}
-    	else {
+    	else if (subArrLast == 0) {
     		while (fIdx < arrLen && idx == -1) {
         		if (subArr[0] == arr[fIdx]) {
     				idx = fIdx;
@@ -154,6 +207,13 @@ public class ArrayUtils {
     	return idx;
     }
 
+    /**
+     * Find the next case insensitive occurrence of a byte sub array in a larger byte array beginning from a specific index.
+     * @param subArr case insensitive byte sub array to compare against
+	 * @param arr byte array to look in
+     * @param fIdx index to starting looking from
+     * @return next occurrence or -1, if none was found
+     */
     public static int indexOfIgnoreCase(byte[] subArr, byte[] arr, int fIdx) {
     	int csIdx;
     	int caIdx;
@@ -178,7 +238,7 @@ public class ArrayUtils {
     			++lIdx;
         	}
     	}
-    	else {
+    	else if (subArrLast == 0) {
     		while (fIdx < arrLen && idx == -1) {
         		if (CASE_INSENSITIVE[subArr[0]] == CASE_INSENSITIVE[arr[fIdx]]) {
     				idx = fIdx;
@@ -189,6 +249,14 @@ public class ArrayUtils {
     	return idx;
     }
 
+    /**
+     * Case sensitive split a byte array into a list of byte arrays.
+     * @param arr byte array to split
+     * @param subArr case sensitive byte sub array to split around
+     * @param fIdx from index to start from when splitting
+     * @param tIdx to index to end splitting
+     * @return a list of byte arrays
+     */
     public static List<byte[]> split(byte[] arr, byte[] subArr, int fIdx, int tIdx) {
     	List<byte[]> list = new LinkedList<byte[]>();
     	byte[] tmpArr;
@@ -254,6 +322,9 @@ public class ArrayUtils {
     			System.arraycopy(arr, pIdx, tmpArr, 0, tmpArr.length);
     			list.add(tmpArr);
     		}
+    	}
+    	if (pIdx == fIdx) {
+			list.add(zeroArr);
     	}
     	return list;
     }

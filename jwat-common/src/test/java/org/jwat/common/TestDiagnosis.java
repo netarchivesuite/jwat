@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4;
 public class TestDiagnosis {
 
     @Test
-    public void test() {
+    public void test_diagnosis() {
         String str;
 
         /*
