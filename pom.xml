@@ -10,7 +10,7 @@
 
   <groupId>org.jwat</groupId>
   <artifactId>jwat</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
 
   <packaging>pom</packaging>
 
@@ -33,6 +33,7 @@
     <connection>scm:hg:http://bitbucket.org/nclarkekb/jwat</connection>
     <developerConnection>scm:hg:https://bitbucket.org/nclarkekb/jwat</developerConnection>
     <url>http://bitbucket.org/nclarkekb/jwat</url>
+    <tag>jwat-1.0.3</tag>
   </scm>
 
   <issueManagement>
