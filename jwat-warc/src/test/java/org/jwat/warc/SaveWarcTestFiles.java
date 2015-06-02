@@ -17,9 +17,7 @@
  */
 package org.jwat.warc;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 /**
  * This class is used to save WARC test files to disk so they can be used

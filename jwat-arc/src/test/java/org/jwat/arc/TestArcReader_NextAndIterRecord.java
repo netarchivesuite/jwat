@@ -87,7 +87,7 @@ public class TestArcReader_NextAndIterRecord {
              * getNextArcRecord.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = TestHelpers.getTestResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
 
@@ -164,7 +164,7 @@ public class TestArcReader_NextAndIterRecord {
              * Iterator.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = TestHelpers.getTestResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
             recordIterator = reader.iterator();

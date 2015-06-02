@@ -140,36 +140,31 @@ public abstract class ArcWriter implements Closeable {
      * @throws IOException if an i/o exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
-        Diagnostics<Diagnosis> diagnosticsUsed;
+        Diagnosis diagnosis = null;
         out.write(ArcConstants.endMark);
+        out.flush();
         if (headerContentLength == null) {
-            if (header != null) {
-                diagnosticsUsed = header.diagnostics;
-            } else {
-                diagnosticsUsed = diagnostics;
-            }
-            diagnosticsUsed.addError(new Diagnosis(
+            diagnosis = new Diagnosis(
                     DiagnosisType.ERROR_EXPECTED,
                     "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
-                    "Mandatory!"));
-            if (bExceptionOnContentLengthMismatch) {
-                throw new IllegalStateException("Payload size does not match content-length!");
-            }
+                    "Mandatory!");
         } else {
             if (headerContentLength != payloadWrittenTotal) {
-                if (header != null) {
-                    diagnosticsUsed = header.diagnostics;
-                } else {
-                    diagnosticsUsed = diagnostics;
-                }
-                diagnosticsUsed.addError(new Diagnosis(
+                diagnosis = new Diagnosis(
                         DiagnosisType.INVALID_EXPECTED,
                         "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' header",
                         Long.toString(payloadWrittenTotal),
-                        headerContentLength.toString()));
-                if (bExceptionOnContentLengthMismatch) {
-                    throw new IllegalStateException("Payload size does not match content-length!");
-                }
+                        headerContentLength.toString());
+            }
+        }
+        if (diagnosis != null) {
+            if (header != null) {
+                header.diagnostics.addError(diagnosis);
+            } else {
+                diagnostics.addError(diagnosis);
+            }
+            if (bExceptionOnContentLengthMismatch) {
+                throw new IllegalStateException("Payload size does not match content-length!");
             }
         }
         header = null;
@@ -224,11 +219,15 @@ public abstract class ArcWriter implements Closeable {
      * @throws IOException if an exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
-        /*
-         * Record line.
-         */
         header = record.header;
         headerContentLength = header.archiveLength;
+        if (headerContentLength == null && header.archiveLengthStr != null) {
+            try {
+                headerContentLength = Long.parseLong(header.archiveLengthStr);
+            } catch (NumberFormatException e) {
+                // TODO Add warning...
+            }
+        }
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         /*
          * URL

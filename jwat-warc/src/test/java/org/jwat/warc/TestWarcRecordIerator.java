@@ -98,7 +98,7 @@ public class TestWarcRecordIerator {
              * getNextArcRecord.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             reader = WarcReaderFactory.getReader(in, 8192);
 
@@ -179,7 +179,7 @@ public class TestWarcRecordIerator {
              * Iterator.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             reader = WarcReaderFactory.getReader(in, 8192);
 

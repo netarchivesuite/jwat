@@ -92,7 +92,7 @@ public class TestGzipWriter {
             } catch (IllegalStateException e) {
             }
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             entry.writeFrom(in);
             in.close();
 
@@ -143,7 +143,7 @@ public class TestGzipWriter {
             } catch (IllegalStateException e) {
             }
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             tmpBuf = new byte[16384];
             read = 0;
             while ((read = in.read(tmpBuf, 0, 16384)) != -1) {
@@ -200,7 +200,7 @@ public class TestGzipWriter {
             } catch (IllegalStateException e) {
             }
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             tmpBuf = new byte[1024];
             read = 0;
             mod = 2;

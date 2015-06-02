@@ -84,7 +84,7 @@ public class TestWarcReaderFactory {
             errors = 0;
             warnings = 0;
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             reader = WarcReaderFactory.getReader(in);
 
@@ -155,7 +155,7 @@ public class TestWarcReaderFactory {
             errors = 0;
             warnings = 0;
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             reader = WarcReaderFactory.getReader(in, 8192);
 

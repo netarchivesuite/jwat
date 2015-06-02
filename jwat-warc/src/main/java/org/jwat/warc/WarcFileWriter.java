@@ -24,54 +24,59 @@ import java.util.UUID;
 
 import org.jwat.common.RandomAccessFileOutputStream;
 import org.jwat.common.Uri;
-import org.jwat.warc.WarcWriter;
-import org.jwat.warc.WarcWriterFactory;
 
+/**
+ * Simple WARC file writer wrapping some of the trivial code related to writing records.
+ * Handles automatic max file size closing and renaming of old file and opening of new file.
+ * The preferred workflow is to class nextWriter() and close(). Using open() does not expose a clean internal state.
+ *
+ * @author nicl
+ */
 public class WarcFileWriter {
 
+    /** Suffix used for open files. */
     public static final String ACTIVE_SUFFIX = ".open";
 
-    /*
-     * Configuration.
-     */
-
+    /** Overall WARC file writer configuration. */
     protected WarcFileWriterConfig warcFileConfig;
 
-    /*
-     * Filename.
-     */
-
+    /** WARC file naming Configuration. */
     protected WarcFileNaming warcFileNaming;
 
-    protected int sequenceNr = 0;
+    /** Current sequence number. */
+    protected int sequenceNr = -1;
 
-    /*
-     * File.
-     */
-
+    /** Current WARC file. */
     protected File writerFile;
 
+    /** Current random access file. */
     protected RandomAccessFile writer_raf;
 
+    /** Current random access output stream. */
     protected RandomAccessFileOutputStream writer_rafout;
 
+    /** Current WARC writer. */
     public WarcWriter writer;
 
-    /*
-     * Metadata.
-     */
-
-    //protected String warcFields;
-
+    /** Generated WARC-Info-Record-ID for the current file. */
     public Uri warcinfoRecordId;
 
+    /**
+     * Constructor for internal and unit test use.
+     */
     protected WarcFileWriter() {
     }
 
+    /**
+     * Returns a configured WARC file writer.
+     * @param warcFileNaming WARC file naming configuration
+     * @param warcFileConfig overall WARC writer configuration
+     * @return WARC file writer instance using the supplied configuration
+     */
     public static WarcFileWriter getWarcWriterInstance(WarcFileNaming warcFileNaming, WarcFileWriterConfig warcFileConfig) {
-		WarcFileWriter wfw = new WarcFileWriter();
-		wfw.warcFileNaming = warcFileNaming;
-		wfw.warcFileConfig = warcFileConfig;
+        WarcFileWriter wfw = new WarcFileWriter();
+        wfw.warcFileNaming = warcFileNaming;
+        wfw.warcFileConfig = warcFileConfig;
         /*
         StringBuilder sb = new StringBuilder();
         sb.append("software");
@@ -88,45 +93,81 @@ public class WarcFileWriter {
         sb.append("\r\n");
         wfw.warcFields = sb.toString();
         */
-		return wfw;
-	}
+        return wfw;
+    }
 
+    /**
+     * Returns the current sequence number.
+     * @return the current sequence number
+     */
+    public int getSequenceNr() {
+        return sequenceNr;
+    }
+
+    /**
+     * Returns the current EARC file object.
+     * @return current EARC file object
+     */
     public File getFile() {
-    	return writerFile;
+        return writerFile;
     }
 
+    /**
+     * Returns the current WARC writer object.
+     * @return current WARC writer object
+     */
+    public WarcWriter getWriter() {
+        return writer;
+    }
+
+    /**
+     * Open new file with active prefix and prepare for writing.
+     * @throws IOException if an I/O exception occurs while opening file
+     */
     public void open() throws IOException {
-		String finishedFilename = warcFileNaming.getFilename(sequenceNr++, warcFileConfig.bCompression);
-		String activeFilename = finishedFilename + ACTIVE_SUFFIX;
-        File finishedFile = new File(warcFileConfig.targetDir, finishedFilename);
-        writerFile = new File(warcFileConfig.targetDir, activeFilename);
-        if (writerFile.exists()) {
-            throw new IOException(writerFile + " already exists, will not overwrite");
+        if (writer == null) {
+            ++sequenceNr;
+            String finishedFilename = warcFileNaming.getFilename(sequenceNr, warcFileConfig.bCompression);
+            String activeFilename = finishedFilename + ACTIVE_SUFFIX;
+            File finishedFile = new File(warcFileConfig.targetDir, finishedFilename);
+            writerFile = new File(warcFileConfig.targetDir, activeFilename);
+            if (writerFile.exists()) {
+                if (warcFileConfig.bOverwrite) {
+                    writerFile.delete();
+                } else {
+                    throw new IOException("'" + writerFile + "' already exists, will not overwrite");
+                }
+            }
+            if (finishedFile.exists()) {
+                if (warcFileConfig.bOverwrite) {
+                    finishedFile.delete();
+                } else {
+                    throw new IOException("'" + finishedFile + "' already exists, will not overwrite");
+                }
+            }
+            writer_raf = new RandomAccessFile(writerFile, "rw");
+            writer_raf.seek(0L);
+            writer_raf.setLength(0L);
+            writer_rafout = new RandomAccessFileOutputStream(writer_raf);
+            writer = WarcWriterFactory.getWriter(writer_rafout, 8192, warcFileConfig.bCompression);
         }
-        if (finishedFile.exists()) {
-        	if (warcFileConfig.bOverwrite) {
-        		finishedFile.delete();
-        	} else {
-                throw new IOException(finishedFile + " already exists, will not overwrite");
-        	}
-        }
-        writer_raf = new RandomAccessFile(writerFile, "rw");
-        writer_raf.seek(0L);
-        writer_raf.setLength(0L);
-        writer_rafout = new RandomAccessFileOutputStream(writer_raf);
-        writer = WarcWriterFactory.getWriter(writer_rafout, 8192, warcFileConfig.bCompression);
     }
 
-    public void nextWriter() throws Exception {
-    	boolean bNewWriter = false;
-    	if (writer_raf == null) {
-    		bNewWriter = true;
-    	} else if (writer_raf.length() > warcFileConfig.maxFileSize) {
-        	close();
-    		bNewWriter = true;
-    	}
-    	if (bNewWriter) {
-    		open();
+    /**
+     * Checks to see whether a new file needs to be created. Depending on the configuration this also checks if the max file size has been reached and closes/renames the old file and opens a new one.
+     * @return boolean indicating whether new writer/file was created
+     * @throws Exception if an exception occurs
+     */
+    public boolean nextWriter() throws Exception {
+        boolean bNewWriter = false;
+        if (writer_raf == null) {
+            bNewWriter = true;
+        } else if (warcFileNaming.supportMultipleFiles() && writer_raf.length() > warcFileConfig.maxFileSize) {
+            close();
+            bNewWriter = true;
+        }
+        if (bNewWriter) {
+            open();
             //byte[] warcFieldsBytes = warcFields.getBytes("ISO-8859-1");
             //ByteArrayInputStream bin = new ByteArrayInputStream(warcFieldsBytes);
             warcinfoRecordId = new Uri("urn:uuid:" + UUID.randomUUID());
@@ -143,9 +184,14 @@ public class WarcFileWriter {
             writer.streamPayload(bin);
             writer.closeRecord();
             */
-    	}
+        }
+        return bNewWriter;
     }
 
+    /**
+     * Close writer and release all resources.
+     * @throws IOException in an I/O exception occurs while closing resources
+     */
     public void close() throws IOException {
         if (writer != null) {
             writer.close();
@@ -164,11 +210,11 @@ public class WarcFileWriter {
             String finishedName = writerFile.getName().substring(0, writerFile.getName().length() - ACTIVE_SUFFIX.length());
             File finishedFile = new File(writerFile.getParent(), finishedName);
             if (finishedFile.exists()) {
-                throw new IOException("unable to rename " + writerFile + " to " + finishedFile + " - destination file already exists");
+                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - destination file already exists");
             }
             boolean success = writerFile.renameTo(finishedFile);
             if (!success) {
-                throw new IOException("unable to rename " + writerFile + " to " + finishedFile + " - unknown problem");
+                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - unknown problem");
             }
         }
         writerFile = null;

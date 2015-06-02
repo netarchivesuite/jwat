@@ -53,7 +53,7 @@ public class UTF8 {
      * character. The encoded UTF-8 character is between 1 and 4 bytes long.
      * In order to preserve the validity and character value, the character is
      * returned by the method and its validity is available through the
-     * @see bValidChar field.
+     * bValidChar {link #bValidChar} field.
      * @param c initial character
      * @param in input stream used to read extra UTF-8 encoded data
      * @return UTF-8 character or -1

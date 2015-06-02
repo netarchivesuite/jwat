@@ -20,8 +20,7 @@ package org.jwat.warc;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

@@ -57,7 +57,7 @@ public class TestUtf8 {
             if (bDebugOutput) {
             }
 
-            in = this.getClass().getClassLoader().getResourceAsStream(utf8File);
+            in = TestHelpers.getTestResourceAsStream(utf8File);
             while ((read = in.read(tmpBytes, 0, tmpBytes.length)) != -1) {
                 out.write(tmpBytes, 0, read);
             }

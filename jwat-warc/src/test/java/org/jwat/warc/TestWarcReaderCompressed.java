@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,19 +66,11 @@ public class TestWarcReaderCompressed {
         this.warcFile2 = warcFile2;
     }
 
-    public String getUrlPath(URL url) {
-        String path = url.getFile();
-        path = path.replaceAll("%5b", "[");
-        path = path.replaceAll("%5d", "]");
-        return path;
-    }
-
     @Test
     public void test_warcreaderfactory_compressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -104,9 +95,8 @@ public class TestWarcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderCompressed(in);
@@ -185,18 +175,17 @@ public class TestWarcReaderCompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(warcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(warcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -218,9 +207,8 @@ public class TestWarcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderCompressed(in, 8192);
@@ -299,18 +287,17 @@ public class TestWarcReaderCompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(warcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(warcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -332,8 +319,7 @@ public class TestWarcReaderCompressed {
     public void test_warcreaderfactory_compressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -358,9 +344,8 @@ public class TestWarcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderCompressed();
@@ -435,18 +420,17 @@ public class TestWarcReaderCompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed());
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(warcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(warcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -468,9 +452,8 @@ public class TestWarcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderCompressed();
@@ -545,18 +528,17 @@ public class TestWarcReaderCompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed(), 8192);
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(warcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(warcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -591,7 +573,7 @@ public class TestWarcReaderCompressed {
         int warnings = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            InputStream in = TestHelpers.getTestResourceAsStream(warcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
             WarcReader reader = WarcReaderFactory.getReader(bcin);
 
@@ -667,19 +649,18 @@ public class TestWarcReaderCompressed {
                 Assert.fail("Unexpected exception!");
             }
 
-            URL url = this.getClass().getClassLoader().getResource(warcFile2);
-            File file = new File(getUrlPath(url));
+            File resourceFile = TestHelpers.getTestResourceFile(warcFile2);
 
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
             bcin.close();
 
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
         } catch (IOException e) {
             Assert.fail("Unexpected i/o exception");
         }

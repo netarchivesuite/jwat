@@ -19,26 +19,46 @@ package org.jwat.warc;
 
 import java.io.File;
 
+/**
+ * Simple WARC file naming implementation used for writing to a single file only.
+ *
+ * @author nicl
+ */
 public class WarcFileNamingSingleFile implements WarcFileNaming {
 
-	protected String filename;
+    /** File name to use. */
+    protected String filename;
 
-	public WarcFileNamingSingleFile(String filename) {
-		this.filename = filename;
-	}
+    /**
+     * Construct a new instance with the filename to return.
+     * @param filename filename to return
+     */
+    public WarcFileNamingSingleFile(String filename) {
+        if (filename == null) {
+            throw new IllegalArgumentException("filename argument null");
+        }
+        this.filename = filename;
+    }
 
-	public WarcFileNamingSingleFile(File file) {
-		filename = file.getName();
-	}
+    /**
+     * Construct a new instance with the file whose filename to return.
+     * @param file file whose filename to return
+     */
+    public WarcFileNamingSingleFile(File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("file argument null");
+        }
+        filename = file.getName();
+    }
 
-	@Override
-	public boolean supportMultipleFiles() {
-		return false;
-	}
+    @Override
+    public boolean supportMultipleFiles() {
+        return false;
+    }
 
-	@Override
-	public String getFilename(int sequenceNr, boolean bCompressed) {
-		return filename;
-	}
+    @Override
+    public String getFilename(int sequenceNr, boolean bCompressed) {
+        return filename;
+    }
 
 }

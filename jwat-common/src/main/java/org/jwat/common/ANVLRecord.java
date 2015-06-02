@@ -32,61 +32,61 @@ import java.util.Map;
  */
 public class ANVLRecord {
 
-	public static final String CRLF = "\r\n";
+    public static final String CRLF = "\r\n";
 
-	protected List<String> list = new LinkedList<String>();
+    protected List<String> list = new LinkedList<String>();
 
-	protected Map<String, String> map = new HashMap<String, String>();
+    protected Map<String, String> map = new HashMap<String, String>();
 
-	public ANVLRecord() {
-	}
+    public ANVLRecord() {
+    }
 
-	public void addLabelValue(String name, String value) {
-		int c = -1;
-		if (value == null) {
-			throw new IllegalArgumentException("Invalid value!");
-		} else if (value.length() > 0) {
-			c = value.charAt(0);
-		}
-		if (name == null || name.length() == 0) {
-			throw new IllegalArgumentException("Invalid name!");
-		}
-		if (c != -1 && c != ' ' && c != '\t') {
-			list.add(name + ": " + value);
-		} else {
-			list.add(name + ":" + value);
-		}
-		map.put(name, value);
-	}
+    public void addLabelValue(String name, String value) {
+        int c = -1;
+        if (value == null) {
+            throw new IllegalArgumentException("Invalid value!");
+        } else if (value.length() > 0) {
+            c = value.charAt(0);
+        }
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Invalid name!");
+        }
+        if (c != -1 && c != ' ' && c != '\t') {
+            list.add(name + ": " + value);
+        } else {
+            list.add(name + ":" + value);
+        }
+        map.put(name, value);
+    }
 
-	public void addValue(String value) {
-		if (value == null || value.length() == 0) {
-			throw new IllegalArgumentException("Invalid value!");
-		}
-		list.add(value);
-	}
+    public void addValue(String value) {
+        if (value == null || value.length() == 0) {
+            throw new IllegalArgumentException("Invalid value!");
+        }
+        list.add(value);
+    }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Iterator<String> iter = list.iterator();
-		while (iter.hasNext()) {
-			sb.append(iter.next());
-			sb.append(CRLF);
-		}
-		sb.append(CRLF);
-		return sb.toString();
-	}
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> iter = list.iterator();
+        while (iter.hasNext()) {
+            sb.append(iter.next());
+            sb.append(CRLF);
+        }
+        sb.append(CRLF);
+        return sb.toString();
+    }
 
-	public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
-		return toString().getBytes(charsetName);
-	}
+    public byte[] getBytes(String charsetName) throws UnsupportedEncodingException {
+        return toString().getBytes(charsetName);
+    }
 
-	public byte[] getUTF8Bytes() throws UnsupportedEncodingException {
-		return getBytes("UTF-8");
-	}
+    public byte[] getUTF8Bytes() throws UnsupportedEncodingException {
+        return getBytes("UTF-8");
+    }
 
-	public ANVLRecord parse() {
-		return null;
-	}
+    public ANVLRecord parse() {
+        return null;
+    }
 
 }

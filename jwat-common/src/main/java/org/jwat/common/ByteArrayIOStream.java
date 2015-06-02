@@ -25,21 +25,21 @@ import java.util.concurrent.Semaphore;
 
 /**
  * Simple class to allow the use of an in-memory buffer as an alternate input or output stream.
- * 
+ *
  * @author nicl
  */
 public class ByteArrayIOStream {
 
-	/** Default buffer size if none specified. */
-	public static final int DEFAULT_BUFFER_SIZE = 10*1024*1024;
+    /** Default buffer size if none specified. */
+    public static final int DEFAULT_BUFFER_SIZE = 10*1024*1024;
 
-	/** Buffer lock. */
-	protected Semaphore lock = new Semaphore(1);
+    /** Buffer lock. */
+    protected Semaphore lock = new Semaphore(1);
 
-	/** Internal byte array. */
-	protected byte[] bytes;
+    /** Internal byte array. */
+    protected byte[] bytes;
 
-	/** Internal <code>ByteBuffer</code> wrapper of internal byte array. */
+    /** Internal <code>ByteBuffer</code> wrapper of internal byte array. */
     protected ByteBuffer byteBuffer;
 
     /** Current <code>ByteBuffer</code> limit. */
@@ -49,7 +49,7 @@ public class ByteArrayIOStream {
      * Construct object with default buffer size.
      */
     public ByteArrayIOStream() {
-    	this(DEFAULT_BUFFER_SIZE);
+        this(DEFAULT_BUFFER_SIZE);
     }
 
     /**
@@ -57,8 +57,8 @@ public class ByteArrayIOStream {
      * @param bufferSize buffer size to use
      */
     public ByteArrayIOStream(int bufferSize) {
-    	bytes = new byte[bufferSize];
-    	byteBuffer = ByteBuffer.wrap(bytes);
+        bytes = new byte[bufferSize];
+        byteBuffer = ByteBuffer.wrap(bytes);
     }
 
     /**
@@ -66,12 +66,12 @@ public class ByteArrayIOStream {
      * @return <code>OutputStream</code> wrapper of this buffer
      */
     public OutputStream getOutputStream() {
-    	if (!lock.tryAcquire()) {
-    		throw new IllegalStateException();
-    	}
-		byteBuffer.clear();
-		limit = 0;
-    	return new OutputStreamImpl(this);
+        if (!lock.tryAcquire()) {
+            throw new IllegalStateException();
+        }
+        byteBuffer.clear();
+        limit = 0;
+        return new OutputStreamImpl(this);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ByteArrayIOStream {
      * @return internal byte array
      */
     public byte[] getBytes() {
-    	return bytes;
+        return bytes;
     }
 
     /**
@@ -87,7 +87,7 @@ public class ByteArrayIOStream {
      * @return allocated length of internal buffer
      */
     public int getLength() {
-    	return bytes.length;
+        return bytes.length;
     }
 
     /**
@@ -95,7 +95,7 @@ public class ByteArrayIOStream {
      * @return internal <code>ByteBuffer</code> limit
      */
     public int getLimit() {
-    	return limit;
+        return limit;
     }
 
     /**
@@ -103,10 +103,10 @@ public class ByteArrayIOStream {
      * @return internal <code>ByteBuffer</code>
      */
     public ByteBuffer getBuffer() {
-    	ByteBuffer buffer = ByteBuffer.wrap(bytes);
-    	buffer.position(0);
-    	buffer.limit(limit);
-    	return buffer;
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        buffer.position(0);
+        buffer.limit(limit);
+        return buffer;
     }
 
     /**
@@ -114,22 +114,22 @@ public class ByteArrayIOStream {
      * @return <code>InputStream</code> wrapper of this buffer
      */
     public InputStream getInputStream() {
-    	if (!lock.tryAcquire()) {
-    		throw new IllegalStateException();
-    	}
-    	byteBuffer.clear();
-    	byteBuffer.limit(limit);
-    	return new InputStreamImpl(this);
+        if (!lock.tryAcquire()) {
+            throw new IllegalStateException();
+        }
+        byteBuffer.clear();
+        byteBuffer.limit(limit);
+        return new InputStreamImpl(this);
     }
 
     /**
      * Release lock, called when input/output stream is closed.
      */
     protected void release() {
-    	lock = null;
-    	byteBuffer = null;
-    	bytes = null;
-    	limit = 0;
+        lock = null;
+        byteBuffer = null;
+        bytes = null;
+        limit = 0;
     }
 
     /**
@@ -137,48 +137,48 @@ public class ByteArrayIOStream {
      */
     public static class OutputStreamImpl extends OutputStream {
 
-    	/** Owning <code>ByteArrayIOStream</code>. */
-		protected ByteArrayIOStream baios;
-    	/** <code>ByteArrayIOStream</code>'s <code>ByteBuffer</code>. */
-		protected ByteBuffer byteBuffer;
+        /** Owning <code>ByteArrayIOStream</code>. */
+        protected ByteArrayIOStream baios;
+        /** <code>ByteArrayIOStream</code>'s <code>ByteBuffer</code>. */
+        protected ByteBuffer byteBuffer;
 
-		/**
-		 * Construct <code>OutputStream</code> object.
-		 * @param baios owning <code>ByteArrayIOStream</code>
-		 */
-    	protected OutputStreamImpl(ByteArrayIOStream baios) {
-    		this.baios = baios;
-    		this.byteBuffer = baios.byteBuffer;
-    	}
+        /**
+         * Construct <code>OutputStream</code> object.
+         * @param baios owning <code>ByteArrayIOStream</code>
+         */
+        protected OutputStreamImpl(ByteArrayIOStream baios) {
+            this.baios = baios;
+            this.byteBuffer = baios.byteBuffer;
+        }
 
-    	@Override
-    	public void close() {
-    		if (baios != null) {
-    			baios.limit = baios.byteBuffer.position();
-    			baios.lock.release();
-    			baios = null;
-    			byteBuffer = null;
-    		}
-    	}
+        @Override
+        public void close() {
+            if (baios != null) {
+                baios.limit = baios.byteBuffer.position();
+                baios.lock.release();
+                baios = null;
+                byteBuffer = null;
+            }
+        }
 
-    	@Override
-		public void flush() throws IOException {
-		}
+        @Override
+        public void flush() throws IOException {
+        }
 
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			byteBuffer.put(b, off, len);
-		}
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            byteBuffer.put(b, off, len);
+        }
 
-		@Override
-		public void write(byte[] b) throws IOException {
-			byteBuffer.put(b);
-		}
+        @Override
+        public void write(byte[] b) throws IOException {
+            byteBuffer.put(b);
+        }
 
-    	@Override
-		public void write(int b) throws IOException {
-    		byteBuffer.put((byte)b);
-		}
+        @Override
+        public void write(int b) throws IOException {
+            byteBuffer.put((byte)b);
+        }
 
     }
 
@@ -187,104 +187,104 @@ public class ByteArrayIOStream {
      */
     public static class InputStreamImpl extends InputStream {
 
-    	/** Owning <code>ByteArrayIOStream</code>. */
-    	protected ByteArrayIOStream baios;
-    	/** <code>ByteArrayIOStream</code>'s <code>ByteBuffer</code>. */
-		protected ByteBuffer byteBuffer;
+        /** Owning <code>ByteArrayIOStream</code>. */
+        protected ByteArrayIOStream baios;
+        /** <code>ByteArrayIOStream</code>'s <code>ByteBuffer</code>. */
+        protected ByteBuffer byteBuffer;
 
-		/**
-		 * Construct <code>InputStream</code> object.
-		 * @param baios owning <code>ByteArrayIOStream</code>
-		 */
-    	protected InputStreamImpl(ByteArrayIOStream baios) {
-    		this.baios = baios;
-    		this.byteBuffer = baios.byteBuffer;
-    	}
+        /**
+         * Construct <code>InputStream</code> object.
+         * @param baios owning <code>ByteArrayIOStream</code>
+         */
+        protected InputStreamImpl(ByteArrayIOStream baios) {
+            this.baios = baios;
+            this.byteBuffer = baios.byteBuffer;
+        }
 
-    	@Override
-    	public void close() {
-    		if (baios != null) {
-    			baios.lock.release();
-    			baios = null;
-    			byteBuffer = null;
-    		}
-    	}
+        @Override
+        public void close() {
+            if (baios != null) {
+                baios.lock.release();
+                baios = null;
+                byteBuffer = null;
+            }
+        }
 
-		@Override
-		public int available() throws IOException {
-			return byteBuffer.limit() - byteBuffer.position();
-		}
+        @Override
+        public int available() throws IOException {
+            return byteBuffer.limit() - byteBuffer.position();
+        }
 
-		@Override
-		public boolean markSupported() {
-			return false;
-		}
+        @Override
+        public boolean markSupported() {
+            return false;
+        }
 
-		@Override
-		public synchronized void mark(int readlimit) {
-			throw new UnsupportedOperationException();
-		}
+        @Override
+        public synchronized void mark(int readlimit) {
+            throw new UnsupportedOperationException();
+        }
 
-		@Override
-		public synchronized void reset() throws IOException {
-			throw new UnsupportedOperationException();
-		}
+        @Override
+        public synchronized void reset() throws IOException {
+            throw new UnsupportedOperationException();
+        }
 
-    	@Override
-		public int read() throws IOException {
-    		if (byteBuffer.remaining() > 0) {
-    			return byteBuffer.get();
-    		} else {
-    			return -1;
-    		}
-		}
+        @Override
+        public int read() throws IOException {
+            if (byteBuffer.remaining() > 0) {
+                return byteBuffer.get();
+            } else {
+                return -1;
+            }
+        }
 
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			if (len == 0) {
-				return 0;
-			}
-			int remaining = byteBuffer.remaining();
-			if (len > remaining) {
-				len = remaining;
-			}
-			if (len > 0) {
-				byteBuffer.get(b, off, len);
-				return len;
-			} else {
-				return -1;
-			}
-		}
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) {
+                return 0;
+            }
+            int remaining = byteBuffer.remaining();
+            if (len > remaining) {
+                len = remaining;
+            }
+            if (len > 0) {
+                byteBuffer.get(b, off, len);
+                return len;
+            } else {
+                return -1;
+            }
+        }
 
-		@Override
-		public int read(byte[] b) throws IOException {
-			int len = b.length;
-			if (len == 0) {
-				return 0;
-			}
-			int remaining = byteBuffer.remaining();
-			if (len > remaining) {
-				len = remaining;
-			}
-			if (len > 0) {
-				byteBuffer.get(b, 0, len);
-				return len;
-			} else {
-				return -1;
-			}
-		}
+        @Override
+        public int read(byte[] b) throws IOException {
+            int len = b.length;
+            if (len == 0) {
+                return 0;
+            }
+            int remaining = byteBuffer.remaining();
+            if (len > remaining) {
+                len = remaining;
+            }
+            if (len > 0) {
+                byteBuffer.get(b, 0, len);
+                return len;
+            } else {
+                return -1;
+            }
+        }
 
-		@Override
-		public long skip(long n) throws IOException {
-			int remaining = byteBuffer.remaining();
-			if (n > remaining) {
-				n = remaining;
-			}
-			if (n > 0) {
-				byteBuffer.position(byteBuffer.position() + (int)n);
-			}
-			return n;
-		}
+        @Override
+        public long skip(long n) throws IOException {
+            int remaining = byteBuffer.remaining();
+            if (n > remaining) {
+                n = remaining;
+            }
+            if (n > 0) {
+                byteBuffer.position(byteBuffer.position() + (int)n);
+            }
+            return n;
+        }
 
     }
 

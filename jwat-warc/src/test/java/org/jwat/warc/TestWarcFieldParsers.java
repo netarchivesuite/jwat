@@ -44,7 +44,7 @@ public class TestWarcFieldParsers {
         int warnings = 0;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(emptyFieldsFile);
+            in = TestHelpers.getTestResourceAsStream(emptyFieldsFile);
 
             WarcReader reader = WarcReaderFactory.getReader(in);
             WarcRecord record;
@@ -99,7 +99,7 @@ public class TestWarcFieldParsers {
         int warnings = 0;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(missingFieldsFile);
+            in = TestHelpers.getTestResourceAsStream(missingFieldsFile);
 
             WarcReader reader = WarcReaderFactory.getReader(in);
             WarcRecord record;
@@ -154,7 +154,7 @@ public class TestWarcFieldParsers {
         Object[][] expectedDiagnoses;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(invalidFormatFieldsFile);
+            in = TestHelpers.getTestResourceAsStream(invalidFormatFieldsFile);
 
             WarcReader reader = WarcReaderFactory.getReader(in);
             WarcRecord record;

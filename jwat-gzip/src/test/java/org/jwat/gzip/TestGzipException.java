@@ -44,7 +44,7 @@ public class TestGzipException {
 
         ByteArrayInputStream in;
 
-        GzipWriter writer;
+        GzipWriter writer = null;
         GzipEntry entry;
         GzipReader reader;
         int read;
@@ -119,6 +119,14 @@ public class TestGzipException {
         } catch (IOException e) {
             Assert.assertEquals("Deflater malfunction!", e.getMessage());
         }
+        if (writer != null) {
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IOException e) {
+                Assert.assertEquals("Deflater malfunction!", e.getMessage());
+            }
+        }
 
         try {
             out.reset();
@@ -134,6 +142,13 @@ public class TestGzipException {
         } catch (IOException e) {
             Assert.assertEquals("Deflater malfunction!", e.getMessage());
         }
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                Assert.fail("Unexpected exception!");
+            }
+        }
 
         try {
             out.reset();
@@ -148,6 +163,14 @@ public class TestGzipException {
             Assert.fail("Exception expected!");
         } catch (IOException e) {
             Assert.assertEquals("java.util.zip.DataFormatException: Deflater malfunction!", e.getMessage());
+        }
+        if (writer != null) {
+            try {
+                writer.close();
+                Assert.fail("Exception expected!");
+            } catch (IOException e) {
+                Assert.assertEquals("Deflater malfunction!", e.getMessage());
+            }
         }
     }
 

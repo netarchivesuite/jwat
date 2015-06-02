@@ -291,6 +291,13 @@ public abstract class WarcWriter implements Closeable {
     protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
         header = record.header;
         headerContentLength = header.contentLength;
+        if (headerContentLength == null && header.contentLengthStr != null) {
+            try {
+                headerContentLength = Long.parseLong(header.contentLengthStr);
+            } catch (NumberFormatException e) {
+                // TODO Add warning...
+            }
+        }
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         /*
          * Version Line

@@ -21,8 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -50,6 +49,7 @@ public class TestWarcWriter_ContentLength {
         ByteArrayInputStream in;
         byte[] payload;
         Diagnosis diagnosis;
+
         try {
             payload = "Welcome to dænemark!".getBytes("UTF-8");
 
@@ -431,6 +431,35 @@ public class TestWarcWriter_ContentLength {
             writer.writeRawHeader(recordHeader, (long)payload.length * 2);
             writer.writePayload(payload);
             writer.writePayload(payload);
+            writer.closeRecord();
+
+            Assert.assertFalse(record.diagnostics.hasErrors());
+            Assert.assertFalse(record.diagnostics.hasWarnings());
+            Assert.assertEquals(0, record.diagnostics.getErrors().size());
+            Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+
+            Assert.assertFalse(writer.diagnostics.hasErrors());
+            Assert.assertFalse(writer.diagnostics.hasWarnings());
+            Assert.assertEquals(0, writer.diagnostics.getErrors().size());
+            Assert.assertEquals(0, writer.diagnostics.getWarnings().size());
+            /*
+             * Test contentLengthStr set only
+             */
+            out.reset();
+            writer = WarcWriterFactory.getWriter(out, compress);
+            writer.setExceptionOnContentLengthMismatch(true);
+
+            record = WarcRecord.createRecord(writer);
+            record.header.addHeader(WarcConstants.FN_WARC_TYPE, "response");
+            record.header.addHeader(WarcConstants.FN_WARC_TARGET_URI, "http://parolesdejeunes.free.fr/");
+            record.header.addHeader(WarcConstants.FN_WARC_DATE, "2010-06-23T13:33:18Z");
+            record.header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, "172.20.10.12");
+            record.header.addHeader(WarcConstants.FN_WARC_RECORD_ID, "<urn:uuid:909dc94b-8bef-4c23-927a-19ed107fa80e>");
+            record.header.addHeader(WarcConstants.FN_CONTENT_TYPE, "application/binary");
+            record.header.contentLengthStr = Long.toString(payload.length);
+            writer.writeHeader(record);
+            in = new ByteArrayInputStream(payload);
+            writer.streamPayload(in);
             writer.closeRecord();
 
             Assert.assertFalse(record.diagnostics.hasErrors());

@@ -77,7 +77,6 @@ public class TestInputStreamNoSkip {
         InputStreamNoSkip isns = new InputStreamNoSkip(fin);
 
         long remaining;
-        byte[] tmpBuf = new byte[ 16 ];
         long skipped;
 
         try {

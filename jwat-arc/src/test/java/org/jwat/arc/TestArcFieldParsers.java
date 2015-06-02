@@ -46,7 +46,7 @@ public class TestArcFieldParsers {
         int warnings = 0;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(emptyFieldsFile);
+            in = TestHelpers.getTestResourceAsStream(emptyFieldsFile);
 
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;
@@ -103,7 +103,7 @@ public class TestArcFieldParsers {
         int warnings = 0;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(invalidFormatFieldsFile);
+            in = TestHelpers.getTestResourceAsStream(invalidFormatFieldsFile);
 
             ArcReader reader = ArcReaderFactory.getReader(in);
             ArcRecordBase record;

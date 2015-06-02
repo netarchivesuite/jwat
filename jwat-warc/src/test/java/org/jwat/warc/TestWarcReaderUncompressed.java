@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,19 +73,11 @@ public class TestWarcReaderUncompressed {
         this.warcFile = warcFile;
     }
 
-    public String getUrlPath(URL url) {
-        String path = url.getFile();
-        path = path.replaceAll("%5b", "[");
-        path = path.replaceAll("%5d", "]");
-        return path;
-    }
-
     @Test
     public void test_warcreaderfactory_uncompressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File reousrceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -111,9 +102,8 @@ public class TestWarcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            reousrceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(reousrceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderUncompressed(in);
@@ -222,9 +212,8 @@ public class TestWarcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            reousrceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(reousrceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderUncompressed(in, 8192);
@@ -333,8 +322,7 @@ public class TestWarcReaderUncompressed {
     public void test_warcreaderfactory_uncompressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File reousrceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -359,9 +347,8 @@ public class TestWarcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            reousrceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(reousrceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderUncompressed();
@@ -466,9 +453,8 @@ public class TestWarcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(warcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            reousrceFile = TestHelpers.getTestResourceFile(warcFile);
+            ram = new RandomAccessFile(reousrceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = WarcReaderFactory.getReaderUncompressed();
@@ -586,7 +572,7 @@ public class TestWarcReaderUncompressed {
         int warnings = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            InputStream in = TestHelpers.getTestResourceAsStream(warcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
             WarcReader reader = WarcReaderFactory.getReader(bcin);
 

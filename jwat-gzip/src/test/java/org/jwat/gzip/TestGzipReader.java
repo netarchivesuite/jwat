@@ -48,7 +48,7 @@ public class TestGzipReader {
         String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader, Integer.MAX_VALUE);
@@ -58,7 +58,7 @@ public class TestGzipReader {
             Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
 
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
             readEntries(reader, Integer.MAX_VALUE);
@@ -68,7 +68,7 @@ public class TestGzipReader {
             Assert.assertTrue(reader.isCompliant());
             Assert.assertEquals(reader.bIsCompliant, reader.isCompliant());
 
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader, 1);
@@ -140,7 +140,7 @@ public class TestGzipReader {
     @Test
     public void test_empty_gzipfile() {
         ByteArrayInputStream in;
-        GzipReader reader;
+        GzipReader reader = null;
         GzipEntry record;
         Diagnosis d;
         try {
@@ -160,6 +160,13 @@ public class TestGzipReader {
         catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
+        }
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                Assert.fail("Unexpected exception!");
+            }
         }
         try {
             in = new ByteArrayInputStream("GZip".getBytes());
@@ -183,6 +190,13 @@ public class TestGzipReader {
         catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
+        }
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                Assert.fail("Unexpected exception!");
+            }
         }
     }
 

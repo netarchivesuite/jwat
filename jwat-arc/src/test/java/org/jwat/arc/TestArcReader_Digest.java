@@ -104,7 +104,7 @@ public class TestArcReader_Digest {
              */
             in_file = "IAH-20080430204825-00000-blackbook.arc";
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             bcin = new ByteCountingInputStream(in);
             reader = ArcReaderFactory.getReader(bcin, 8192);
             reader.setBlockDigestAlgorithm(blockAlgo);
@@ -232,7 +232,7 @@ public class TestArcReader_Digest {
              */
             in_file = "IAH-20080430204825-00000-blackbook.arc.gz";
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             bcin = new ByteCountingInputStream(in);
             reader = ArcReaderFactory.getReader(bcin, 8192);
             reader.setBlockDigestAlgorithm(blockAlgo);
@@ -360,7 +360,7 @@ public class TestArcReader_Digest {
              */
             in_file = "small_BNF.arc";
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             bcin = new ByteCountingInputStream(in);
             reader = ArcReaderFactory.getReader(bcin, 8192);
             reader.setBlockDigestAlgorithm(blockAlgo);

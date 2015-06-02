@@ -25,26 +25,26 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestDiagnosisType {
 
-	@Test
-	public void test_diagnosistype() {
-		DiagnosisType[] diagnosisTypes = DiagnosisType.values();
-		Assert.assertEquals( 15, diagnosisTypes.length);
+    @Test
+    public void test_diagnosistype() {
+        DiagnosisType[] diagnosisTypes = DiagnosisType.values();
+        Assert.assertEquals( 15, diagnosisTypes.length);
 
-	    Assert.assertEquals(DiagnosisType.DUPLICATE, DiagnosisType.valueOf("DUPLICATE"));
-	    Assert.assertEquals(DiagnosisType.EMPTY, DiagnosisType.valueOf("EMPTY"));
-	    Assert.assertEquals(DiagnosisType.ERROR, DiagnosisType.valueOf("ERROR"));
-	    Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, DiagnosisType.valueOf("ERROR_EXPECTED"));
-	    Assert.assertEquals(DiagnosisType.INVALID, DiagnosisType.valueOf("INVALID"));
-	    Assert.assertEquals(DiagnosisType.INVALID_DATA, DiagnosisType.valueOf("INVALID_DATA"));
-	    Assert.assertEquals(DiagnosisType.INVALID_ENCODING, DiagnosisType.valueOf("INVALID_ENCODING"));
-	    Assert.assertEquals(DiagnosisType.INVALID_EXPECTED, DiagnosisType.valueOf("INVALID_EXPECTED"));
-	    Assert.assertEquals(DiagnosisType.RECOMMENDED, DiagnosisType.valueOf("RECOMMENDED"));
-	    Assert.assertEquals(DiagnosisType.RECOMMENDED_MISSING, DiagnosisType.valueOf("RECOMMENDED_MISSING"));
-	    Assert.assertEquals(DiagnosisType.REQUIRED_INVALID, DiagnosisType.valueOf("REQUIRED_INVALID"));
-	    Assert.assertEquals(DiagnosisType.REQUIRED_MISSING, DiagnosisType.valueOf("REQUIRED_MISSING"));
-	    Assert.assertEquals(DiagnosisType.RESERVED, DiagnosisType.valueOf("RESERVED"));
-	    Assert.assertEquals(DiagnosisType.UNDESIRED_DATA, DiagnosisType.valueOf("UNDESIRED_DATA"));
-	    Assert.assertEquals(DiagnosisType.UNKNOWN, DiagnosisType.valueOf("UNKNOWN"));
-	}
+        Assert.assertEquals(DiagnosisType.DUPLICATE, DiagnosisType.valueOf("DUPLICATE"));
+        Assert.assertEquals(DiagnosisType.EMPTY, DiagnosisType.valueOf("EMPTY"));
+        Assert.assertEquals(DiagnosisType.ERROR, DiagnosisType.valueOf("ERROR"));
+        Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, DiagnosisType.valueOf("ERROR_EXPECTED"));
+        Assert.assertEquals(DiagnosisType.INVALID, DiagnosisType.valueOf("INVALID"));
+        Assert.assertEquals(DiagnosisType.INVALID_DATA, DiagnosisType.valueOf("INVALID_DATA"));
+        Assert.assertEquals(DiagnosisType.INVALID_ENCODING, DiagnosisType.valueOf("INVALID_ENCODING"));
+        Assert.assertEquals(DiagnosisType.INVALID_EXPECTED, DiagnosisType.valueOf("INVALID_EXPECTED"));
+        Assert.assertEquals(DiagnosisType.RECOMMENDED, DiagnosisType.valueOf("RECOMMENDED"));
+        Assert.assertEquals(DiagnosisType.RECOMMENDED_MISSING, DiagnosisType.valueOf("RECOMMENDED_MISSING"));
+        Assert.assertEquals(DiagnosisType.REQUIRED_INVALID, DiagnosisType.valueOf("REQUIRED_INVALID"));
+        Assert.assertEquals(DiagnosisType.REQUIRED_MISSING, DiagnosisType.valueOf("REQUIRED_MISSING"));
+        Assert.assertEquals(DiagnosisType.RESERVED, DiagnosisType.valueOf("RESERVED"));
+        Assert.assertEquals(DiagnosisType.UNDESIRED_DATA, DiagnosisType.valueOf("UNDESIRED_DATA"));
+        Assert.assertEquals(DiagnosisType.UNKNOWN, DiagnosisType.valueOf("UNKNOWN"));
+    }
 
 }

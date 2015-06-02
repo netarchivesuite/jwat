@@ -19,8 +19,7 @@ package org.jwat.warc;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;

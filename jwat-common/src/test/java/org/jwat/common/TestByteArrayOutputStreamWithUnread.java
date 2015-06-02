@@ -57,6 +57,13 @@ public class TestByteArrayOutputStreamWithUnread {
         ByteArrayOutputStreamWithUnread dstOut = new ByteArrayOutputStreamWithUnread();
         byte[] dstArr;
 
+        try {
+            dstOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+
         dstOut = new ByteArrayOutputStreamWithUnread( 1024 );
 
         try {
@@ -231,6 +238,13 @@ public class TestByteArrayOutputStreamWithUnread {
                     Assert.fail( "Exception not expected!" );
                 }
             }
+        }
+
+        try {
+            dstOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
         }
     }
 

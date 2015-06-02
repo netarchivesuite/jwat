@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,19 +62,11 @@ public class TestArcReaderUncompressed {
         this.arcFile = arcFile;
     }
 
-    public String getUrlPath(URL url) {
-        String path = url.getFile();
-        path = path.replaceAll("%5b", "[");
-        path = path.replaceAll("%5d", "]");
-        return path;
-    }
-
     @Test
     public void test_arcreaderfactory_uncompressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -100,9 +91,8 @@ public class TestArcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderUncompressed(in);
@@ -210,9 +200,8 @@ public class TestArcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderUncompressed(in, 8192);
@@ -320,8 +309,7 @@ public class TestArcReaderUncompressed {
     public void test_arcreaderfactory_uncompressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -346,9 +334,8 @@ public class TestArcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderUncompressed();
@@ -446,9 +433,8 @@ public class TestArcReaderUncompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderUncompressed();
@@ -559,7 +545,7 @@ public class TestArcReaderUncompressed {
         int warnings = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            InputStream in = TestHelpers.getTestResourceAsStream(arcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
             ArcReader reader = ArcReaderFactory.getReader(bcin, 8192);
             ArcRecordBase record;

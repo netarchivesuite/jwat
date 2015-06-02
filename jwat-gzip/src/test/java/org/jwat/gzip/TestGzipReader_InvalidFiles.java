@@ -40,7 +40,7 @@ public class TestGzipReader_InvalidFiles {
         GzipInputStream gzin;
         GzipInputStreamEntry entry;
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-compression.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-compression.gz");
         gzin = new GzipInputStream(in);
         try {
             while ((entry = gzin.getNextEntry()) != null) {
@@ -54,7 +54,7 @@ public class TestGzipReader_InvalidFiles {
         }
         in.close();
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-entries.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-entries.gz");
         gzin = new GzipInputStream(in);
         while ((entry = gzin.getNextEntry()) != null) {
             Assert.assertNotNull(entry);
@@ -64,7 +64,7 @@ public class TestGzipReader_InvalidFiles {
         gzin.close();
         in.close();
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-magic.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-magic.gz");
         gzin = new GzipInputStream(in);
         try {
             while ((entry = gzin.getNextEntry()) != null) {
@@ -86,7 +86,7 @@ public class TestGzipReader_InvalidFiles {
         GzipEntry entry;
         int entries;
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-compression.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-compression.gz");
         reader = new GzipReader(in);
         try {
             entries = 0;
@@ -105,7 +105,7 @@ public class TestGzipReader_InvalidFiles {
         }
         in.close();
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-entries.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-entries.gz");
         reader = new GzipReader(in);
         try {
             entries = 0;
@@ -138,7 +138,7 @@ public class TestGzipReader_InvalidFiles {
         }
         in.close();
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-magic.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-magic.gz");
         reader = new GzipReader(in);
         try {
             entries = 0;
@@ -157,7 +157,7 @@ public class TestGzipReader_InvalidFiles {
         }
         in.close();
 
-        in = this.getClass().getClassLoader().getResourceAsStream("invalid-truncated.gz");
+        in = TestHelpers.getTestResourceAsStream("invalid-truncated.gz");
         reader = new GzipReader(in);
         try {
             entries = 0;

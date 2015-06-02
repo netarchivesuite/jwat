@@ -68,7 +68,7 @@ public class TestWarc_Utf8 {
 
         try {
             if (bDebugOutput) {
-                in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+                in = TestHelpers.getTestResourceAsStream(warcFile);
 
                 byte[] bytes = new byte[8192];
                 int read;
@@ -89,7 +89,7 @@ public class TestWarc_Utf8 {
                 ram.close();
             }
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             WarcReader reader = WarcReaderFactory.getReader(in);
             WarcRecord record;

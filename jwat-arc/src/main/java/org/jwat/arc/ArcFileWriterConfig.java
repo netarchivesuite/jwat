@@ -21,31 +21,54 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * General configuration of <code>ArcFileWriter</code>.
+ *
+ * @author nicl
+ */
 public class ArcFileWriterConfig {
 
-	protected File targetDir;
+    /** Standard/default max file size. */
+    public static final long DEFAULT_MAX_FILE_SIZE = 104857600L;
 
-    protected boolean bCompression = false;
+    /** Target directory in which to write ARC file(s). */
+    protected File targetDir;
 
-    protected Long maxFileSize = 104857600L;
+    /** Compress archive(s). */
+    protected boolean bCompression;
 
+    /** Max file size used to determine when to close the current ARC file and start writing to the next one. */
+    protected Long maxFileSize = DEFAULT_MAX_FILE_SIZE;
+
+    /** Overwrite existing file(s). */
     public boolean bOverwrite;
 
+    /** Array of metadata. */
     protected LinkedHashMap<String, Map.Entry<String, String>> metadata = new LinkedHashMap<String, Map.Entry<String, String>>();
 
+    /**
+     * Construct instance with largely default values, except the targetDir which is null.
+     */
     public ArcFileWriterConfig() {
     }
 
+    /**
+     * Construct an instance with custom values.
+     * @param targetDir target directory in which to write ARC file(s)
+     * @param bCompression compress archive(s)
+     * @param maxFileSize max file size to determine when to move on to a fresh ARC file
+     * @param bOverwrite overwrite existing file(s)
+     */
     public ArcFileWriterConfig(File targetDir, boolean bCompression, long maxFileSize, boolean bOverwrite) {
         this.targetDir = targetDir;
         this.bCompression = bCompression;
         this.maxFileSize = maxFileSize;
         this.bOverwrite = bOverwrite;
-	}
+    }
 
     /*
     public void addMetadata(String key, String value) {
-    	metadata.put( key, new SimpleEntry<String, String>(key, value) );
+        metadata.put( key, new SimpleEntry<String, String>(key, value) );
     }
     */
 

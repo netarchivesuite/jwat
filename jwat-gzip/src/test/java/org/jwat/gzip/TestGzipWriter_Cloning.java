@@ -54,7 +54,7 @@ public class TestGzipWriter_Cloning {
             out_file1.deleteOnExit();
             out_file2.deleteOnExit();
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
 
@@ -84,7 +84,7 @@ public class TestGzipWriter_Cloning {
             Assert.assertTrue(writer.isCompliant());
             Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
 
@@ -114,7 +114,7 @@ public class TestGzipWriter_Cloning {
             Assert.assertTrue(writer.isCompliant());
             Assert.assertEquals(writer.bIsCompliant, writer.isCompliant());
 
-            in = this.getClass().getClassLoader().getResourceAsStream(in_file);
+            in = TestHelpers.getTestResourceAsStream(in_file);
             readEntriesOld(in);
 
             raf = new RandomAccessFile(out_file1, "rw");

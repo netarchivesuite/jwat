@@ -81,7 +81,7 @@ public class TestWarcWriterFactory {
              * Clone warc.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             out_file = File.createTempFile("jwat-warcwritetest-", ".warc");
 
@@ -238,7 +238,7 @@ public class TestWarcWriterFactory {
              * Clone warc.
              */
 
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             out_file = File.createTempFile("jwat-warcwritetest-", ".warc");
 

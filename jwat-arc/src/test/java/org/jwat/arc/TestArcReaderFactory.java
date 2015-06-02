@@ -76,7 +76,7 @@ public class TestArcReaderFactory {
             errors = 0;
             warnings = 0;
 
-            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = TestHelpers.getTestResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in);
 
@@ -152,7 +152,7 @@ public class TestArcReaderFactory {
             errors = 0;
             warnings = 0;
 
-            in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            in = TestHelpers.getTestResourceAsStream(arcFile);
 
             reader = ArcReaderFactory.getReader(in, 8192);
 

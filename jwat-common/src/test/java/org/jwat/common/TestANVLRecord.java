@@ -27,78 +27,79 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class TestANVLRecord {
 
-	@Test
-	public void test_anvlrecord() {
-		Object[][] cases = null;
-		try {
-			cases = new Object[][] {
-					{
-						new String[][] {
-						},
-						"\r\n".getBytes("UTF-8")
-					},
-					{
-						new String[][] {
-								{"entry", ""},
-								{null, "# first draft"},
-								{"who", "   Gilbert, W.S. | Sullivan, Arthur"},
-								{"what", "  The Yeomen of\r\n       the Guard"},
-								{"when/created", "  1888"}
-						},
-						("entry:\r\n"
-						+ "# first draft\r\n"
-						+ "who:   Gilbert, W.S. | Sullivan, Arthur\r\n"
-						+ "what:  The Yeomen of\r\n"
-						+ "       the Guard\r\n"
-						+ "when/created:  1888\r\n"
-						+ "\r\n").getBytes("UTF-8")
-					},
-					{
-						new String[][] {
-								{"software", "NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS"},
-								{"ip", "127.0.1.1"},
-								{"hostname", "ubuntu8a"},
-								{"conformsTo", "http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf"},
-								{"isPartOf", "3"}
-						},
-						("software: NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS\r\n"
-						+ "ip: 127.0.1.1\r\n"
-						+ "hostname: ubuntu8a\r\n"
-						+ "conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf\r\n"
-						+ "isPartOf: 3\r\n"								
-						+ "\r\n").getBytes("UTF-8")
-					}
-			};
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			Assert.fail("Unexpected exception!");
-		}
-		try {
-			String name;
-			String value;
-			for (int i=0; i<cases.length; ++i) {
-				String[][] nvs = (String[][])cases[i][0];
-				byte[] expected = (byte[])cases[i][1];
-				ANVLRecord anvlRecord = new ANVLRecord();
-				for (int j=0; j<nvs.length; ++j) {
-					name = nvs[j][0];
-					value = nvs[j][1];
-					if (name != null) {
-						anvlRecord.addLabelValue(name, value);
-					} else {
-						anvlRecord.addValue(value);
-					}
-				}
-				byte[] bytes = anvlRecord.getBytes("UTF-8");
-				System.out.println(i);
-				System.out.println(new String(expected));
-				System.out.println(new String(bytes));
-				Assert.assertArrayEquals(expected, bytes);
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			Assert.fail("Unexpected exception!");
-		}
-	}
+    @Test
+    public void test_anvlrecord() {
+        Object[][] cases = null;
+        try {
+            cases = new Object[][] {
+                    {
+                        new String[][] {
+                        },
+                        "\r\n".getBytes("UTF-8")
+                    },
+                    {
+                        new String[][] {
+                                {"entry", ""},
+                                {null, "# first draft"},
+                                {"who", "   Gilbert, W.S. | Sullivan, Arthur"},
+                                {"what", "  The Yeomen of\r\n       the Guard"},
+                                {"when/created", "  1888"}
+                        },
+                        ("entry:\r\n"
+                        + "# first draft\r\n"
+                        + "who:   Gilbert, W.S. | Sullivan, Arthur\r\n"
+                        + "what:  The Yeomen of\r\n"
+                        + "       the Guard\r\n"
+                        + "when/created:  1888\r\n"
+                        + "\r\n").getBytes("UTF-8")
+                    },
+                    {
+                        new String[][] {
+                                {"software", "NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS"},
+                                {"ip", "127.0.1.1"},
+                                {"hostname", "ubuntu8a"},
+                                {"conformsTo", "http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf"},
+                                {"isPartOf", "3"}
+                        },
+                        ("software: NetarchiveSuite/Version: 5.0.MILESTONE1 status UNSTABLE/https://sbforge.org/display/NAS\r\n"
+                        + "ip: 127.0.1.1\r\n"
+                        + "hostname: ubuntu8a\r\n"
+                        + "conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf\r\n"
+                        + "isPartOf: 3\r\n"
+                        + "\r\n").getBytes("UTF-8")
+                    }
+            };
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+        try {
+            String name;
+            String value;
+            for (int i=0; i<cases.length; ++i) {
+                String[][] nvs = (String[][])cases[i][0];
+                byte[] expected = (byte[])cases[i][1];
+                ANVLRecord anvlRecord = new ANVLRecord();
+                for (int j=0; j<nvs.length; ++j) {
+                    name = nvs[j][0];
+                    value = nvs[j][1];
+                    if (name != null) {
+                        anvlRecord.addLabelValue(name, value);
+                    } else {
+                        anvlRecord.addValue(value);
+                    }
+                }
+                byte[] bytes = anvlRecord.getBytes("UTF-8");
+                // debug
+                //System.out.println(i);
+                //System.out.println(new String(expected));
+                //System.out.println(new String(bytes));
+                Assert.assertArrayEquals(expected, bytes);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
 
 }

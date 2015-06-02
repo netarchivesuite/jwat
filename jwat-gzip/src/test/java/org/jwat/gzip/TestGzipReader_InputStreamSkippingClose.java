@@ -21,8 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -40,13 +39,13 @@ public class TestGzipReader_InputStreamSkippingClose {
         String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader);
             pbin.close();
 
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
             readEntries(reader);

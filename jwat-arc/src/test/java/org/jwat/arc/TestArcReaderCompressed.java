@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,19 +66,11 @@ public class TestArcReaderCompressed {
         this.arcFile2 = arcFile2;
     }
 
-    public String getUrlPath(URL url) {
-        String path = url.getFile();
-        path = path.replaceAll("%5b", "[");
-        path = path.replaceAll("%5d", "]");
-        return path;
-    }
-
     @Test
     public void test_arcreaderfactory_compressed_sequential() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -104,9 +95,8 @@ public class TestArcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed(in);
@@ -184,18 +174,17 @@ public class TestArcReaderCompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(arcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(arcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -217,9 +206,8 @@ public class TestArcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed(in, 8192);
@@ -297,18 +285,17 @@ public class TestArcReaderCompressed {
             record = reader.getNextRecord();
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(arcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(arcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -330,8 +317,7 @@ public class TestArcReaderCompressed {
     public void test_arcreaderfactory_compressed_random() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
 
-        URL url;
-        File file;
+        File resourceFile;
         RandomAccessFile ram;
         InputStream in;
 
@@ -356,9 +342,8 @@ public class TestArcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed();
@@ -432,18 +417,17 @@ public class TestArcReaderCompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed());
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(arcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(arcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -465,9 +449,8 @@ public class TestArcReaderCompressed {
             errors = 0;
             warnings = 0;
 
-            url = this.getClass().getClassLoader().getResource(arcFile);
-            file = new File(getUrlPath(url));
-            ram = new RandomAccessFile(file, "r");
+            resourceFile = TestHelpers.getTestResourceFile(arcFile);
+            ram = new RandomAccessFile(resourceFile, "r");
             in = new RandomAccessFileInputStream(ram);
 
             reader = ArcReaderFactory.getReaderCompressed();
@@ -541,18 +524,17 @@ public class TestArcReaderCompressed {
             record = reader.getNextRecordFrom(in, reader.getConsumed(), 8192);
             Assert.assertNull(record);
 
-            url = this.getClass().getClassLoader().getResource(arcFile2);
-            file = new File(getUrlPath(url));
+            resourceFile = TestHelpers.getTestResourceFile(arcFile2);
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
 
             Assert.assertEquals(ram.length(), reader.getConsumed());
             Assert.assertEquals(ram.length(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             in.close();
             ram.close();
@@ -587,7 +569,7 @@ public class TestArcReaderCompressed {
         int warnings = 0;
 
         try {
-            InputStream in = this.getClass().getClassLoader().getResourceAsStream(arcFile);
+            InputStream in = TestHelpers.getTestResourceAsStream(arcFile);
             ByteCountingInputStream bcin = new ByteCountingInputStream(in);
             ArcReader reader = ArcReaderFactory.getReader(bcin);
             ArcRecordBase record;
@@ -670,19 +652,18 @@ public class TestArcReaderCompressed {
                 Assert.fail("Unexpected exception!");
             }
 
-            URL url = this.getClass().getClassLoader().getResource(arcFile2);
-            File file = new File(getUrlPath(url));
+            File resourceFile = TestHelpers.getTestResourceFile(arcFile2);
 
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
 
             reader.close();
             bcin.close();
 
             Assert.assertEquals(bcin.getConsumed(), reader.getConsumed());
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
-            Assert.assertEquals(file.length(), consumed);
+            Assert.assertEquals(resourceFile.length(), consumed);
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception");

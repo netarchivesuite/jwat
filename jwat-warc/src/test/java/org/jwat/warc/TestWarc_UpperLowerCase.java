@@ -61,7 +61,7 @@ public class TestWarc_UpperLowerCase {
         int warnings = 0;
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(warcFile);
+            in = TestHelpers.getTestResourceAsStream(warcFile);
 
             WarcReader reader = WarcReaderFactory.getReader(in);
             WarcRecord record;

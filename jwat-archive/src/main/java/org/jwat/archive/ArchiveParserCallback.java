@@ -30,25 +30,25 @@ import org.jwat.warc.WarcRecord;
  */
 public interface ArchiveParserCallback {
 
-	/** Report the file and what it has been identified as. */
-	public void apcFileId(File file, int fileId);
+    /** Report the file and what it has been identified as. */
+    public void apcFileId(File file, int fileId);
 
-	/** Notity that a GZIP entry was encountered. */
-	public void apcGzipEntryStart(GzipEntry gzipEntry, long startOffset);
+    /** Notity that a GZIP entry was encountered. */
+    public void apcGzipEntryStart(GzipEntry gzipEntry, long startOffset);
 
-	/** Notity that an ARC record was encountered. */
-	public void apcArcRecordStart(ArcRecordBase arcRecord, long startOffset, boolean compressed) throws IOException;
+    /** Notity that an ARC record was encountered. */
+    public void apcArcRecordStart(ArcRecordBase arcRecord, long startOffset, boolean compressed) throws IOException;
 
-	/** Notity that a WARC record was encountered. */
-	public void apcWarcRecordStart(WarcRecord warcRecord, long startOffset, boolean compressed) throws IOException;
+    /** Notity that a WARC record was encountered. */
+    public void apcWarcRecordStart(WarcRecord warcRecord, long startOffset, boolean compressed) throws IOException;
 
-	/** Report updated consumed bytes number. */
-	public void apcUpdateConsumed(long consumed);
+    /** Report updated consumed bytes number. */
+    public void apcUpdateConsumed(long consumed);
 
-	/** Report a runtime exception was encountered during the parsing of a file. (Should hopefully not happen!) */
-	public void apcRuntimeError(Throwable t, long offset, long consumed);
+    /** Report a runtime exception was encountered during the parsing of a file. (Should hopefully not happen!) */
+    public void apcRuntimeError(Throwable t, long offset, long consumed);
 
-	/** Parser done, no more records/entries. */
-	public void apcDone();
+    /** Parser done, no more records/entries. */
+    public void apcDone();
 
 }

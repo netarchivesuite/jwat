@@ -17,10 +17,25 @@
  */
 package org.jwat.warc;
 
+/**
+ * Implementations of this interface are used to name the WARC files written by the <code>WarcFileWriter</code>.
+ *
+ * @author nicl
+ */
 public interface WarcFileNaming {
 
-	public boolean supportMultipleFiles();
+    /**
+     * Does this naming implementation support multiple files.
+     * @return boolean indicating support for multiple files
+     */
+    public boolean supportMultipleFiles();
 
-	public String getFilename(int sequenceNr, boolean bCompressed);
+    /**
+     * Return the next file name to use.
+     * @param sequenceNr sequence number to use
+     * @param bCompressed is the file compressed or not
+     * @return the next file name to use
+     */
+    public String getFilename(int sequenceNr, boolean bCompressed);
 
 }

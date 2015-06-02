@@ -41,19 +41,19 @@ public class TestGzipReader_InputStream {
          String fname = "IAH-20080430204825-00000-blackbook.warc.gz";
 
         try {
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin);
             readEntries(reader);
             pbin.close();
 
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             pbin = new ByteCountingPushBackInputStream(in, 16);
             reader = new GzipReader(pbin, 8192);
             readEntries(reader);
             pbin.close();
 
-            in = this.getClass().getClassLoader().getResourceAsStream(fname);
+            in = TestHelpers.getTestResourceAsStream(fname);
             readEntriesOld(in);
         } catch (IOException e) {
             e.printStackTrace();
