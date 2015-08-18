@@ -137,7 +137,7 @@ public class UriProfile {
                 }
                 ++pos;
             } else {
-                throw new URISyntaxException(str, "Invalid URI character '" + c + "'");
+                throw new URISyntaxException(str, "Invalid URI character '" + (Character.isISOControl(c)?String.format("0x%02x", (int)c):c) + "'");
             }
         }
         return -1;
@@ -247,13 +247,13 @@ public class UriProfile {
                             }
                         }
                     } else {
-                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
+                        throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + (Character.isISOControl(c)?String.format("0x%02x", (int)c):c) + "'");
                     }
                 } else {
                     sb.append(c);
                 }
             } else {
-                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + c + "'");
+                throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid character '" + (Character.isISOControl(c)?String.format("0x%02x", (int)c):c) + "'");
             }
         }
         return sb.toString();

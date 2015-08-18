@@ -190,6 +190,26 @@ public class TestUriProfile {
             } catch (URISyntaxException e) {
             }
         }
+
+        try {
+            uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", "\n");
+            Assert.fail("Exception expected!");
+        } catch (URISyntaxException e) {
+        	Assert.assertEquals(e.getMessage(), "Invalid URI unit-test component - invalid character '0x0a': \n");
+        }
+        try {
+            uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", " ");
+            Assert.fail("Exception expected!");
+        } catch (URISyntaxException e) {
+        	Assert.assertEquals(e.getMessage(), "Invalid URI unit-test component - invalid character ' ':  ");
+        }
+        try {
+            uriProfile.validate_decode(UriProfile.B_ALPHAS, "unit-test", "\u0019");
+            Assert.fail("Exception expected!");
+        } catch (URISyntaxException e) {
+        	Assert.assertEquals(e.getMessage(), "Invalid URI unit-test component - invalid character '0x19': \u0019");
+        }
+
         valid_cases = new String[][] {
                 {"", ""},
                 {"test", "test"},
