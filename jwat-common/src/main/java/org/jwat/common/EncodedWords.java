@@ -172,7 +172,13 @@ public class EncodedWords {
                             charset = Charset.forName(ew.charsetStr);
                             ew.bValidCharset = true;
                         } catch (IllegalCharsetNameException e) {
+                            //System.err.println("ERROR IllegalCharsetNameException Charset: " + ew.charsetStr + " => " + e.getMessage());
+                            charset = Charset.defaultCharset();
+                            ew.bValidCharset = false;
                         } catch (UnsupportedCharsetException e) {
+                            // System.err.println("ERROR UnsupportedCharsetException Charset: " + ew.charsetStr + " => " + e.getMessage());
+                            charset = Charset.defaultCharset();
+                            ew.bValidCharset = false;
                         }
                         state = S_ENCODING;
                     } else {
