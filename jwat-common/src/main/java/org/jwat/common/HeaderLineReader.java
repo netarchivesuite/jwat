@@ -162,6 +162,8 @@ public class HeaderLineReader {
     public static final int E_BIT_MISSING_QUOTED_PAIR_CHAR = 1 << 9;
     /** Bit denoting an invalid quoted pair character. */
     public static final int E_BIT_INVALID_QUOTED_PAIR_CHAR = 1 << 10;
+    /** Bit denoting an invalid encoding. */
+    public static final int E_BIT_INVALID_CHARSET = 1 << 11;
 
     /*
      * Internal state.
@@ -619,6 +621,11 @@ public class HeaderLineReader {
                         // TODO Decide whether to report encoded word errors or interpret as non encoded words.
                     }
                     */
+                    if (!ew.bValidCharset) {
+                        // In case of invalid charset errors, try to report.
+                        bfErrors |= E_BIT_INVALID_CHARSET;
+                        // Possible message : "Invalid charset : " + ew.charsetStr;
+                    }
                     nvSb.append("=?");
                     in.unread(ew.line, 2, ew.line.length - 2);
                     bytesOut.write("=?".getBytes());
@@ -759,6 +766,9 @@ public class HeaderLineReader {
         }
         if ((bfErrors & E_BIT_INVALID_QUOTED_PAIR_CHAR) != 0) {
             diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid quoted pair character"));
+        }
+        if ((bfErrors & E_BIT_INVALID_CHARSET) != 0) {
+            diagnostics.addError(new Diagnosis(DiagnosisType.ERROR, "header/line", "Invalid charset"));
         }
     }
 

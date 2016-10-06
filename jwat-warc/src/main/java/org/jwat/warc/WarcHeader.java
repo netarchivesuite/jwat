@@ -23,6 +23,7 @@ import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLine;
+import org.jwat.common.HeaderLineReader;
 import org.jwat.common.MaxLengthRecordingInputStream;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
@@ -456,6 +457,11 @@ public class WarcHeader {
         boolean bLoop = true;
         while (bLoop) {
             headerLine = reader.headerLineReader.readLine(in);
+            if ((headerLine.bfErrors & HeaderLineReader.E_BIT_INVALID_CHARSET) != 0) {
+                addErrorDiagnosis(DiagnosisType.INVALID_ENCODING,
+                        "Invalid encoding in header line",
+                        headerLine.value, "UNKNOWN");
+            }
             if (!reader.headerLineReader.bEof) {
                 headerBytesOut.write(headerLine.raw);
                 switch (headerLine.type) {
