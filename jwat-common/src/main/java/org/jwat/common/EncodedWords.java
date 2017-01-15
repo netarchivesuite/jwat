@@ -53,7 +53,7 @@ public class EncodedWords {
     protected static final int S_CHARSET = 2;
     /** Reading the encoding state. */
     protected static final int S_ENCODING = 3;
-    /** Reding the encoded words state. */
+    /** Reading the encoded words state. */
     protected static final int S_ENCODED_WORDS = 4;
     /** Looking for the last equal sign state. */
     protected static final int S_END_EQ = 5;

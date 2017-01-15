@@ -30,7 +30,8 @@ import org.jwat.gzip.GzipReader;
 @RunWith(JUnit4.class)
 public class TestWarcReaders_Params {
 
-    @Test
+    @SuppressWarnings("resource")
+	@Test
     public void test_parameters_readers() {
         InputStream is;
 
