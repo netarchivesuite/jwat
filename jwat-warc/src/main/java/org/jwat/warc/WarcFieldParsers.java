@@ -39,7 +39,7 @@ public class WarcFieldParsers {
 
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
-    protected Diagnostics<Diagnosis> diagnostics;
+    public Diagnostics<Diagnosis> diagnostics;
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid
@@ -48,7 +48,7 @@ public class WarcFieldParsers {
      * @param entity entity examined
      * @param information optional extra information
      */
-    protected void addInvalidExpectedError(String entity, String... information) {
+    public void addInvalidExpectedError(String entity, String... information) {
         diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
@@ -56,7 +56,7 @@ public class WarcFieldParsers {
      * Add a warning diagnosis on the given entity stating that it is empty.
      * @param entity entity examined
      */
-    protected void addEmptyWarning(String entity) {
+    public void addEmptyWarning(String entity) {
         diagnostics.addWarning(new Diagnosis(DiagnosisType.EMPTY, entity));
     }
 
@@ -66,7 +66,7 @@ public class WarcFieldParsers {
      * @param field field name
      * @return the original value
      */
-    protected String parseString(String str, String field) {
+    public String parseString(String str, String field) {
         if (((str == null) || (str.trim().length() == 0))) {
             addEmptyWarning("'" + field + "' field");
         }
@@ -80,7 +80,7 @@ public class WarcFieldParsers {
      * @return an integer object holding the value of the specified string or null,
      * if unable to parse the value as an integer
      */
-    protected Integer parseInteger(String intStr, String field) {
+    public Integer parseInteger(String intStr, String field) {
          Integer iVal = null;
          if (intStr != null && intStr.length() > 0) {
             try {
@@ -105,7 +105,7 @@ public class WarcFieldParsers {
      * @return a long object holding the value of the specified string or null,
      * if unable to parse the value as a Long
      */
-    protected Long parseLong(String longStr, String field) {
+    public Long parseLong(String longStr, String field) {
         Long lVal = null;
          if (longStr != null && longStr.length() > 0) {
             try {
@@ -130,7 +130,7 @@ public class WarcFieldParsers {
      * @return content type or null, if unable to extract the
      * content-type
      */
-    protected ContentType parseContentType(String contentTypeStr, String field) {
+    public ContentType parseContentType(String contentTypeStr, String field) {
         ContentType contentType = null;
         if (contentTypeStr != null && contentTypeStr.length() != 0) {
             contentType = ContentType.parseContentType(contentTypeStr);
@@ -154,7 +154,7 @@ public class WarcFieldParsers {
      * @return the IP address or null, if unable to parse the value as an
      * IP-address
      */
-    protected InetAddress parseIpAddress(String ipAddress, String field) {
+    public InetAddress parseIpAddress(String ipAddress, String field) {
         InetAddress inetAddr = null;
         if (ipAddress != null && ipAddress.length() > 0) {
             inetAddr = IPAddressParser.getAddress(ipAddress);
@@ -180,7 +180,7 @@ public class WarcFieldParsers {
      * @return an URI object holding the value of the specified string or null,
      * if unable to parse the value as an URI object
      */
-    protected Uri parseUri(String uriStr, boolean bLtGt, UriProfile uriProfile, String field) {
+    public Uri parseUri(String uriStr, boolean bLtGt, UriProfile uriProfile, String field) {
         Uri uri = null;
         String uriStrClean = uriStr;
         int ltGtBf = 0;
@@ -263,7 +263,7 @@ public class WarcFieldParsers {
      * @return the formatted date or null, if unable to parse the value as a
      * WARC record date
      */
-    protected Date parseDate(String dateStr, String field) {
+    public Date parseDate(String dateStr, String field) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
                 date = WarcDateParser.getDate(dateStr);
@@ -287,7 +287,7 @@ public class WarcFieldParsers {
      * @return digest wrapper object or null, if unable to parse the value as a
      * WARC Digest
      */
-    protected WarcDigest parseDigest(String labelledDigest, String field) {
+    public WarcDigest parseDigest(String labelledDigest, String field) {
         WarcDigest digest = null;
         if (labelledDigest != null && labelledDigest.length() > 0) {
                 digest = WarcDigest.parseWarcDigest(labelledDigest);

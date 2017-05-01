@@ -246,6 +246,27 @@ public class WarcHeader {
     }
 
     /**
+     * Create a new <code>WarcHeader</code> for recreating a header object.
+     * @param uriProfile uri profile used to validate urls
+     * @param fieldParsers parsers used for the individual types
+     * @param warcDateFormat date format object used to turn objects back to date strings
+     * @param diagnostics diagnostics object used by writer
+     * @return a <code>WarcHeader</code> prepared for reanimation
+     */
+    public static WarcHeader initHeader(UriProfile uriProfile, WarcFieldParsers fieldParsers, DateFormat warcDateFormat, Diagnostics<Diagnosis> diagnostics) {
+        WarcHeader header = new WarcHeader();
+        // Set default version to "1.0".
+        header.major = 1;
+        header.minor = 0;
+        header.warcTargetUriProfile = uriProfile;
+        header.uriProfile = uriProfile;
+        header.fieldParsers = fieldParsers;
+        header.warcDateFormat = warcDateFormat;
+        header.diagnostics = diagnostics;
+        return header;
+    }
+
+    /**
      * Create and initialize a new <code>WarcHeader</code> for writing.
      * @param writer writer which shall be used
      * @param diagnostics diagnostics object used by writer
@@ -376,7 +397,7 @@ public class WarcHeader {
      * @return true, if magic WARC header found
      * @throws IOException if an error occurs while reading version data
      */
-    protected boolean parseVersion(ByteCountingPushBackInputStream in) throws IOException {
+    public boolean parseVersion(ByteCountingPushBackInputStream in) throws IOException {
         bMagicIdentified = false;
         bVersionParsed = false;
         boolean bInvalidDataBeforeVersion = false;
@@ -452,7 +473,7 @@ public class WarcHeader {
      * @param in header input stream
      * @throws IOException if an error occurs while reading the WARC header
      */
-    protected void parseHeaders(ByteCountingPushBackInputStream in) throws IOException {
+    public void parseHeaders(ByteCountingPushBackInputStream in) throws IOException {
         HeaderLine headerLine;
         boolean bLoop = true;
         while (bLoop) {
@@ -499,7 +520,7 @@ public class WarcHeader {
      * Identify a (WARC) header name, validate the value and set the header.
      * @param headerLine the headerLine
      */
-    protected void addHeader(HeaderLine headerLine) {
+    public void addHeader(HeaderLine headerLine) {
         String fieldName = headerLine.name;
         String fieldValue = headerLine.value;
         WarcConcurrentTo warcConcurrentTo;
@@ -510,8 +531,7 @@ public class WarcHeader {
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
                 case WarcConstants.FN_IDX_WARC_TYPE:
-                    warcTypeStr = fieldParsers.parseString(fieldValue,
-                            WarcConstants.FN_WARC_TYPE);
+                    warcTypeStr = fieldParsers.parseString(fieldValue, WarcConstants.FN_WARC_TYPE);
                     if (warcTypeStr != null) {
                         warcTypeIdx = WarcConstants.recordTypeIdxMap.get(warcTypeStr.toLowerCase());
                     }
@@ -521,27 +541,22 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_RECORD_ID:
                     warcRecordIdStr = fieldValue;
-                    warcRecordIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
-                            uriProfile, WarcConstants.FN_WARC_RECORD_ID);
+                    warcRecordIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT, uriProfile, WarcConstants.FN_WARC_RECORD_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = fieldValue;
-                    warcDate = fieldParsers.parseDate(fieldValue,
-                            WarcConstants.FN_WARC_DATE);
+                    warcDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_DATE);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_LENGTH:
                     contentLengthStr = fieldValue;
-                    contentLength = fieldParsers.parseLong(fieldValue,
-                            WarcConstants.FN_CONTENT_LENGTH);
+                    contentLength = fieldParsers.parseLong(fieldValue, WarcConstants.FN_CONTENT_LENGTH);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_TYPE:
                     contentTypeStr = fieldValue;
-                    contentType = fieldParsers.parseContentType(fieldValue,
-                            WarcConstants.FN_CONTENT_TYPE);
+                    contentType = fieldParsers.parseContentType(fieldValue, WarcConstants.FN_CONTENT_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_CONCURRENT_TO:
-                    Uri tmpUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
-                            uriProfile, WarcConstants.FN_WARC_CONCURRENT_TO);
+                    Uri tmpUri = fieldParsers.parseUri(fieldValue, URI_LTGT, uriProfile, WarcConstants.FN_WARC_CONCURRENT_TO);
                     if (fieldValue != null && fieldValue.trim().length() > 0) {
                         warcConcurrentTo = new WarcConcurrentTo();
                         warcConcurrentTo.warcConcurrentToStr = fieldValue;
@@ -551,28 +566,23 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_BLOCK_DIGEST:
                     warcBlockDigestStr = fieldValue;
-                    warcBlockDigest = fieldParsers.parseDigest(fieldValue,
-                            WarcConstants.FN_WARC_BLOCK_DIGEST);
+                    warcBlockDigest = fieldParsers.parseDigest(fieldValue, WarcConstants.FN_WARC_BLOCK_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST:
                     warcPayloadDigestStr = fieldValue;
-                    warcPayloadDigest = fieldParsers.parseDigest(fieldValue,
-                            WarcConstants.FN_WARC_PAYLOAD_DIGEST);
+                    warcPayloadDigest = fieldParsers.parseDigest(fieldValue, WarcConstants.FN_WARC_PAYLOAD_DIGEST);
                     break;
                 case WarcConstants.FN_IDX_WARC_IP_ADDRESS:
                     warcIpAddress = fieldValue;
-                    warcInetAddress = fieldParsers.parseIpAddress(fieldValue,
-                            WarcConstants.FN_WARC_IP_ADDRESS);
+                    warcInetAddress = fieldParsers.parseIpAddress(fieldValue, WarcConstants.FN_WARC_IP_ADDRESS);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO:
                     warcRefersToStr = fieldValue;
-                    warcRefersToUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
-                            uriProfile, WarcConstants.FN_WARC_REFERS_TO);
+                    warcRefersToUri = fieldParsers.parseUri(fieldValue, URI_LTGT, uriProfile, WarcConstants.FN_WARC_REFERS_TO);
                     break;
                 case WarcConstants.FN_IDX_WARC_TARGET_URI:
                     warcTargetUriStr = fieldValue;
-                    warcTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
-                            warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
+                    warcTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED, warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
                     warcTruncatedStr = fieldParsers.parseString(fieldValue,
@@ -586,17 +596,14 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_WARCINFO_ID:
                     warcWarcinfoIdStr = fieldValue;
-                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT,
-                            uriProfile, WarcConstants.FN_WARC_WARCINFO_ID);
+                    warcWarcinfoIdUri = fieldParsers.parseUri(fieldValue, URI_LTGT, uriProfile, WarcConstants.FN_WARC_WARCINFO_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_FILENAME:
-                    warcFilename = fieldParsers.parseString(fieldValue,
-                            WarcConstants.FN_WARC_FILENAME);
+                    warcFilename = fieldParsers.parseString(fieldValue, WarcConstants.FN_WARC_FILENAME);
                     break;
                 case WarcConstants.FN_IDX_WARC_PROFILE:
                     warcProfileStr = fieldValue;
-                    warcProfileUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
-                            uriProfile, WarcConstants.FN_WARC_PROFILE);
+                    warcProfileUri = fieldParsers.parseUri(fieldValue, URI_NAKED, uriProfile, WarcConstants.FN_WARC_PROFILE);
                     if (warcProfileStr != null) {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
                     }
@@ -606,33 +613,27 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
                     warcIdentifiedPayloadTypeStr = fieldValue;
-                    warcIdentifiedPayloadType = fieldParsers.parseContentType(fieldValue,
-                            WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
+                    warcIdentifiedPayloadType = fieldParsers.parseContentType(fieldValue, WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
                     warcSegmentOriginIdStr = fieldValue;
-                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, URI_LTGT,
-                            uriProfile, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
+                    warcSegmentOriginIdUrl = fieldParsers.parseUri(fieldValue, URI_LTGT, uriProfile, WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER:
                     warcSegmentNumberStr = fieldValue;
-                    warcSegmentNumber = fieldParsers.parseInteger(fieldValue,
-                            WarcConstants.FN_WARC_SEGMENT_NUMBER);
+                    warcSegmentNumber = fieldParsers.parseInteger(fieldValue, WarcConstants.FN_WARC_SEGMENT_NUMBER);
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH:
                     warcSegmentTotalLengthStr = fieldValue;
-                    warcSegmentTotalLength = fieldParsers.parseLong(fieldValue,
-                            WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
+                    warcSegmentTotalLength = fieldParsers.parseLong(fieldValue, WarcConstants.FN_WARC_SEGMENT_TOTAL_LENGTH);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
                     warcRefersToTargetUriStr = fieldValue;
-                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED,
-                            uriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
+                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED, uriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
                     warcRefersToDateStr = fieldValue;
-                    warcRefersToDate = fieldParsers.parseDate(fieldValue,
-                            WarcConstants.FN_WARC_REFERS_TO_DATE);
+                    warcRefersToDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_REFERS_TO_DATE);
                     break;
                 }
             } else {

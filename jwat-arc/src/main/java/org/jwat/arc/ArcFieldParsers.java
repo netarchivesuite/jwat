@@ -37,9 +37,8 @@ import org.jwat.common.UriProfile;
  */
 public class ArcFieldParsers {
 
-    /** Diagnostics used to report diagnoses.
-     * Must be set prior to calling the various methods. */
-    protected Diagnostics<Diagnosis> diagnostics;
+    /** Diagnostics used to report diagnoses. Must be set prior to calling the various methods. */
+    public Diagnostics<Diagnosis> diagnostics;
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid
@@ -48,7 +47,7 @@ public class ArcFieldParsers {
      * @param entity entity examined
      * @param information optional extra information
      */
-    protected void addInvalidExpectedError(String entity, String... information) {
+    public void addInvalidExpectedError(String entity, String... information) {
         diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, entity, information));
     }
 
@@ -57,7 +56,7 @@ public class ArcFieldParsers {
      * but is missing.
      * @param entity entity examined
      */
-    protected void addRequiredMissingError(String entity) {
+    public void addRequiredMissingError(String entity) {
         diagnostics.addError(new Diagnosis(DiagnosisType.REQUIRED_MISSING, entity));
     }
 
@@ -68,7 +67,7 @@ public class ArcFieldParsers {
      * @param nullable allow empty or null value
      * @return the original value
      */
-    protected String parseString(String str, String field, boolean nullable) {
+    public String parseString(String str, String field, boolean nullable) {
         if ((!nullable) && ((str == null) || (str.trim().length() == 0))) {
             addRequiredMissingError("'" + field + "' value");
         }
@@ -80,19 +79,16 @@ public class ArcFieldParsers {
      * @param intStr the value to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return an integer object holding the value of the specified string or null,
-     * if unable to parse the value as an integer
+     * @return an integer object holding the value of the specified string or null, if unable to parse the value as an integer
      */
-    protected Integer parseInteger(String intStr, String field, boolean nullable) {
+    public Integer parseInteger(String intStr, String field, boolean nullable) {
          Integer iVal = null;
          if (intStr != null && intStr.length() > 0) {
             try {
                 iVal = Integer.valueOf(intStr);
             } catch (Exception e) {
                 // Invalid integer value.
-                addInvalidExpectedError("'" + field + "' value",
-                        intStr,
-                        "Numeric format");
+                addInvalidExpectedError("'" + field + "' value", intStr, "Numeric format");
             }
          } else if (!nullable) {
              // Missing mandatory value.
@@ -106,19 +102,16 @@ public class ArcFieldParsers {
      * @param longStr the value to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return a long object holding the value of the specified string or null,
-     * if unable to parse the value as a Long
+     * @return a long object holding the value of the specified string or null, if unable to parse the value as a Long
      */
-    protected Long parseLong(String longStr, String field, boolean nullable) {
+    public Long parseLong(String longStr, String field, boolean nullable) {
         Long lVal = null;
         if (longStr != null && longStr.length() > 0) {
             try {
                 lVal = Long.valueOf(longStr);
             } catch (Exception e) {
                 // Invalid long value.
-                addInvalidExpectedError("'" + field + "' value",
-                        longStr,
-                        "Numeric format");
+                addInvalidExpectedError("'" + field + "' value", longStr, "Numeric format");
             }
         } else if (!nullable) {
              // Missing mandatory value.
@@ -132,18 +125,15 @@ public class ArcFieldParsers {
      * @param contentTypeStr ARC record content type
      * @param field field name
      * @param nullable allow empty or null value
-     * @return content type or null, if unable to extract the
-     * content-type
+     * @return content type or null, if unable to extract the content-type
      */
-    protected ContentType parseContentType(String contentTypeStr, String field, boolean nullable) {
+    public ContentType parseContentType(String contentTypeStr, String field, boolean nullable) {
         ContentType contentType = null;
         if (contentTypeStr != null && contentTypeStr.length() != 0) {
             contentType = ContentType.parseContentType(contentTypeStr);
             if (contentType == null) {
                 // Invalid content-type.
-                addInvalidExpectedError("'" + field + "' value",
-                        contentTypeStr,
-                        ArcConstants.CONTENT_TYPE_FORMAT);
+                addInvalidExpectedError("'" + field + "' value", contentTypeStr, ArcConstants.CONTENT_TYPE_FORMAT);
             }
         } else if (!nullable) {
             // Missing content-type.
@@ -157,18 +147,15 @@ public class ArcFieldParsers {
      * @param ipAddress the IP address to parse
      * @param field field name
      * @param nullable allow empty or null value
-     * @return the IP address or null, if unable to parse the value as an
-     * IP-address
+     * @return the IP address or null, if unable to parse the value as an IP-address
      */
-    protected InetAddress parseIpAddress(String ipAddress, String field, boolean nullable) {
+    public InetAddress parseIpAddress(String ipAddress, String field, boolean nullable) {
         InetAddress inetAddr = null;
         if (ipAddress != null && ipAddress.length() > 0) {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid date.
-                addInvalidExpectedError("'" + field + "' value",
-                        ipAddress,
-                        "IPv4 or IPv6 format");
+                addInvalidExpectedError("'" + field + "' value", ipAddress, "IPv4 or IPv6 format");
             }
         } else if (!nullable) {
             // Missing mandatory value.
@@ -183,28 +170,23 @@ public class ArcFieldParsers {
      * @param uriProfile profile used to validate URI
      * @param field field name
      * @param nullable allow empty or null value
-     * @return an URL object holding the value of the specified string or null,
-     * if unable to parse the value as an URL object
+     * @return an URL object holding the value of the specified string or null, if unable to parse the value as an URL object
      */
-    protected Uri parseUri(String uriStr, UriProfile uriProfile, String field, boolean nullable) {
+    public Uri parseUri(String uriStr, UriProfile uriProfile, String field, boolean nullable) {
         Uri uri = null;
         if ((uriStr != null) && (uriStr.length() != 0)) {
             try {
                 uri = new Uri(uriStr, uriProfile);
             } catch (Exception e) {
                 // Invalid URI.
-                addInvalidExpectedError("'" + field + "' value",
-                        uriStr,
-                        e.getMessage());
+                addInvalidExpectedError("'" + field + "' value", uriStr, e.getMessage());
             }
             if (uri != null) {
                 String scheme = uri.getScheme();
                 if (scheme == null) {
                     uri = null;
                     // Relative URI.
-                    addInvalidExpectedError("'" + field + "' value",
-                            uriStr,
-                            "Absolute URI");
+                    addInvalidExpectedError("'" + field + "' value", uriStr, "Absolute URI");
                 } else {
                     scheme = scheme.toLowerCase();
                 }
@@ -221,18 +203,15 @@ public class ArcFieldParsers {
      * @param dateStr the date to parse.
      * @param field field name
      * @param nullable allow empty or null value
-     * @return the formatted date or null, if unable to parse the value as an
-     * ARC record date
+     * @return the formatted date or null, if unable to parse the value as an ARC record date
      */
-    protected Date parseDate(String dateStr, String field, boolean nullable) {
+    public Date parseDate(String dateStr, String field, boolean nullable) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
                 date = ArcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addInvalidExpectedError("'" + field + "' value",
-                            dateStr,
-                            ArcConstants.ARC_DATE_FORMAT);
+                    addInvalidExpectedError("'" + field + "' value", dateStr, ArcConstants.ARC_DATE_FORMAT);
                 }
         } else if (!nullable) {
             // Missing mandatory value.
