@@ -19,7 +19,6 @@ package org.jwat.arc;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.text.DateFormat;
 import java.util.Date;
 
 import org.jwat.common.ByteCountingPushBackInputStream;
@@ -54,9 +53,6 @@ public class ArcHeader {
     /** ARC field parser used.
      * Must be set prior to calling the various methods. */
     protected ArcFieldParsers fieldParsers;
-
-    /** ARC <code>DateFormat</code> as specified by the ARC specifications. */
-    protected DateFormat warcDateFormat;
 
     /** ARC record starting offset relative to the source ARC file input
      *  stream. The offset is correct for both compressed and uncompressed streams. */
@@ -127,6 +123,28 @@ public class ArcHeader {
     public byte[] headerBytes;
 
     /**
+     * Non public constructor to allow unit testing.
+     */
+    protected ArcHeader() {
+    }
+
+    /**
+     * Create a new <code>ArcHeader</code> for recreating a header object.
+     * @param uriProfile uri profile used to validate urls
+     * @param fieldParsers parsers used for the individual types
+     * @param diagnostics diagnostics object used by parser
+     * @return a <code>ArcHeader</code> prepared for writing
+     */
+    public static ArcHeader initHeader(ArcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics<Diagnosis> diagnostics) {
+        ArcHeader header = new ArcHeader();
+        header.fieldParsers = fieldParsers;
+        header.uriProfile = uriProfile;
+        header.fieldParsers = fieldParsers;
+        header.diagnostics = diagnostics;
+        return header;
+    }
+
+    /**
      * Create and initialize a new <code>ArcHeader</code> for writing.
      * @param writer writer which shall be used
      * @param diagnostics diagnostics object used by writer
@@ -135,7 +153,6 @@ public class ArcHeader {
     public static ArcHeader initHeader(ArcWriter writer, Diagnostics<Diagnosis> diagnostics) {
         ArcHeader header = new ArcHeader();
         header.fieldParsers = writer.fieldParsers;
-        header.warcDateFormat = writer.arcDateFormat;
         header.diagnostics = diagnostics;
         return header;
     }
@@ -268,25 +285,20 @@ public class ArcHeader {
                 resultCode = fieldParsers.parseInteger(
                         resultCodeStr, ArcConstants.FN_RESULT_CODE, false);
                 if (resultCode != null && (resultCode < 100 || resultCode > 999)) {
-                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-                            "'" + ArcConstants.FN_RESULT_CODE + "' value",
-                            resultCodeStr,
-                            "A number between 100 and 999"));
+                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_RESULT_CODE + "' value", resultCodeStr, "A number between 100 and 999"));
                 }
 
                 checksumStr = fields[ArcConstants.FN_IDX_CHECKSUM];
                 if ("-".equals(checksumStr)) {
                     checksumStr = null;
                 }
-                checksumStr = fieldParsers.parseString(
-                        checksumStr, ArcConstants.FN_CHECKSUM, true);
+                checksumStr = fieldParsers.parseString(checksumStr, ArcConstants.FN_CHECKSUM, true);
 
                 locationStr = fields[ArcConstants.FN_IDX_LOCATION];
                 if ("-".equals(locationStr)) {
                     locationStr = null;
                 }
-                locationStr = fieldParsers.parseString(
-                        locationStr, ArcConstants.FN_LOCATION, true);
+                locationStr = fieldParsers.parseString(locationStr, ArcConstants.FN_LOCATION, true);
 
                 offsetStr = fields[ArcConstants.FN_IDX_OFFSET];
                 if ("-".equals(offsetStr)) {
@@ -295,30 +307,22 @@ public class ArcHeader {
                 offset = fieldParsers.parseLong(
                         offsetStr, ArcConstants.FN_OFFSET, false);
                 if (offset != null && offset < 0) {
-                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-                            "'" + ArcConstants.FN_OFFSET + "' value",
-                            offsetStr,
-                            "A non negative number"));
+                    diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_OFFSET + "' value", offsetStr, "A non negative number"));
                 }
 
                 filenameStr = fields[ArcConstants.FN_IDX_FILENAME];
                 if ("-".equals(filenameStr)) {
                     filenameStr = null;
                 }
-                filenameStr = reader.fieldParsers.parseString(
-                        filenameStr, ArcConstants.FN_FILENAME, false);
+                filenameStr = reader.fieldParsers.parseString(filenameStr, ArcConstants.FN_FILENAME, false);
             }
             archiveLengthStr = fields[fields.length - 1];
             if ("-".equals(archiveLengthStr)) {
                 archiveLengthStr = null;
             }
-            archiveLength = reader.fieldParsers.parseLong(
-                    archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
+            archiveLength = reader.fieldParsers.parseLong(archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
             if (archiveLength != null && archiveLength < 0) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED,
-                        "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value",
-                        archiveLengthStr,
-                        "A non negative number"));
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", archiveLengthStr, "A non negative number"));
             }
         }
     }

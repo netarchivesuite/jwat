@@ -17,17 +17,16 @@
  */
 package org.jwat.warc;
 
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.Diagnostics;
-import org.jwat.common.UriProfile;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
+
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+import org.jwat.common.UriProfile;
 
 /**
  * Base class for WARC writer implementations.
@@ -60,9 +59,6 @@ public abstract class WarcWriter implements Closeable {
 
     /** Block Digesting enabled/disabled. */
     //protected boolean bDigestBlock = false;
-
-    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
-    protected DateFormat warcDateFormat;
 
     /** WARC field parser used. */
     protected WarcFieldParsers fieldParsers;
@@ -103,7 +99,6 @@ public abstract class WarcWriter implements Closeable {
     protected void init() {
         warcTargetUriProfile = UriProfile.RFC3986;
         uriProfile = UriProfile.RFC3986;
-        warcDateFormat = WarcDateParser.getDateFormat();
         fieldParsers = new WarcFieldParsers();
         stream_copy_buffer = new byte[8192];
         bExceptionOnContentLengthMismatch = true;
@@ -346,7 +341,7 @@ public abstract class WarcWriter implements Closeable {
          */
         String warcDateStr = null;
         if (header.warcDate != null) {
-            warcDateStr = warcDateFormat.format(header.warcDate);
+            warcDateStr = WarcDateParser.getDateFormat().format(header.warcDate);
         } else if (header.warcDateStr != null) {
             warcDateStr = header.warcDateStr;
             // Warning...
@@ -646,7 +641,7 @@ public abstract class WarcWriter implements Closeable {
          */
         String warcRefersToDateStr = null;
         if (header.warcRefersToDate != null) {
-            warcRefersToDateStr = warcDateFormat.format(header.warcRefersToDate);
+            warcRefersToDateStr = WarcDateParser.getDateFormat().format(header.warcRefersToDate);
         } else if (header.warcRefersToDateStr != null) {
             warcRefersToDateStr = header.warcRefersToDateStr;
             // Warning...

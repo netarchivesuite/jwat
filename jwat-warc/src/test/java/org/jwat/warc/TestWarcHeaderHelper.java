@@ -41,7 +41,6 @@ public class TestWarcHeaderHelper {
         header.uriProfile = UriProfile.RFC3986;
         header.warcTargetUriProfile = UriProfile.RFC3986;
         header.fieldParsers = new WarcFieldParsers();
-        header.warcDateFormat = WarcDateParser.getDateFormat();
         header.diagnostics = new Diagnostics<Diagnosis>();
         header.fieldParsers.diagnostics = header.diagnostics;
         return header;

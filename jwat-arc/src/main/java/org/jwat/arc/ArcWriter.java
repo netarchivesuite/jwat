@@ -17,16 +17,15 @@
  */
 package org.jwat.arc;
 
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.Diagnostics;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
+
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
 
 /**
  * Base class for ARC writer implementations.
@@ -52,9 +51,6 @@ public abstract class ArcWriter implements Closeable {
     /*
      * Settings.
      */
-
-    /** ARC <code>DateFormat</code> as described in the IA documentation. */
-    protected DateFormat arcDateFormat;
 
     /** ARC field parser used. */
     protected ArcFieldParsers fieldParsers;
@@ -92,7 +88,6 @@ public abstract class ArcWriter implements Closeable {
      * Must be called by all constructors.
      */
     protected void init() {
-        arcDateFormat = ArcDateParser.getDateFormat();
         fieldParsers = new ArcFieldParsers();
         stream_copy_buffer = new byte[8192];
         bExceptionOnContentLengthMismatch = true;
@@ -259,7 +254,7 @@ public abstract class ArcWriter implements Closeable {
          */
         String archiveDateStr;
         if (header.archiveDate != null) {
-            archiveDateStr = arcDateFormat.format(header.archiveDate);
+            archiveDateStr = ArcDateParser.getDateFormat().format(header.archiveDate);
         } else if (header.archiveDateStr != null && header.archiveDateStr.length() > 0) {
             archiveDateStr = header.archiveDateStr;
         } else {

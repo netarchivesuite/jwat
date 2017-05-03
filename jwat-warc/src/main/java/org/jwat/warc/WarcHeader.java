@@ -17,6 +17,16 @@
  */
 package org.jwat.warc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
@@ -27,17 +37,6 @@ import org.jwat.common.HeaderLineReader;
 import org.jwat.common.MaxLengthRecordingInputStream;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.text.DateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Central class for working with WARC headers. This class includes support for
@@ -72,8 +71,14 @@ public class WarcHeader {
      *  Must be set prior to calling the various methods. */
     protected WarcFieldParsers fieldParsers;
 
-    /** WARC <code>DateFormat</code> as specified by the WARC ISO standard. */
-    protected DateFormat warcDateFormat;
+    /** Max size allowed for a record header. */
+    protected int recordHeaderMaxSize = -1;
+
+    /** Line reader used to read version lines. */
+    protected HeaderLineReader lineReader;
+
+    /** Header line reader used to read the WARC headers. */
+    protected HeaderLineReader headerLineReader;
 
     /** WARC record starting offset relative to the source WARC file input
      *  stream. The offset is correct for both compressed and uncompressed streams. */
@@ -249,20 +254,18 @@ public class WarcHeader {
      * Create a new <code>WarcHeader</code> for recreating a header object.
      * @param uriProfile uri profile used to validate urls
      * @param fieldParsers parsers used for the individual types
-     * @param warcDateFormat date format object used to turn objects back to date strings
-     * @param diagnostics diagnostics object used by writer
+     * @param diagnostics diagnostics object used by parser
      * @return a <code>WarcHeader</code> prepared for reanimation
      */
-    public static WarcHeader initHeader(UriProfile uriProfile, WarcFieldParsers fieldParsers, DateFormat warcDateFormat, Diagnostics<Diagnosis> diagnostics) {
+    public static WarcHeader initHeader(int recordHeaderMaxSize, HeaderLineReader lineReader, HeaderLineReader headerLineReader, WarcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics<Diagnosis> diagnostics) {
         WarcHeader header = new WarcHeader();
-        // Set default version to "1.0".
-        header.major = 1;
-        header.minor = 0;
         header.warcTargetUriProfile = uriProfile;
         header.uriProfile = uriProfile;
         header.fieldParsers = fieldParsers;
-        header.warcDateFormat = warcDateFormat;
         header.diagnostics = diagnostics;
+        header.recordHeaderMaxSize = recordHeaderMaxSize;
+        header.lineReader = lineReader;
+        header.headerLineReader = headerLineReader;
         return header;
     }
 
@@ -280,7 +283,6 @@ public class WarcHeader {
         header.warcTargetUriProfile = writer.warcTargetUriProfile;
         header.uriProfile = writer.uriProfile;
         header.fieldParsers = writer.fieldParsers;
-        header.warcDateFormat = writer.warcDateFormat;
         header.diagnostics = diagnostics;
         return header;
     }
@@ -299,6 +301,9 @@ public class WarcHeader {
         header.uriProfile = reader.uriProfile;
         header.fieldParsers = reader.fieldParsers;
         header.diagnostics = diagnostics;
+        header.recordHeaderMaxSize = reader.recordHeaderMaxSize;
+        header.lineReader = reader.lineReader;
+        header.headerLineReader = reader.headerLineReader;
         // This is only relevant for uncompressed sequentially read records
         header.startOffset = startOffset;
         return header;
@@ -378,8 +383,8 @@ public class WarcHeader {
                                 "Magic Version string", versionStr));
             }
 
-            MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, reader.recordHeaderMaxSize);
-            ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, reader.recordHeaderMaxSize);
+            MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, recordHeaderMaxSize);
+            ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, recordHeaderMaxSize);
 
             parseHeaders(pbin);
             pbin.close();
@@ -409,8 +414,8 @@ public class WarcHeader {
         while (bSeekMagic) {
             // This is only relevant for uncompressed sequentially read records
             startOffset = in.getConsumed();
-            line = reader.lineReader.readLine(in);
-            if (!reader.lineReader.bEof) {
+            line = lineReader.readLine(in);
+            if (!lineReader.bEof) {
                 switch (line.type) {
                 case HeaderLine.HLT_LINE:
                     tmpStr = line.line;
@@ -477,13 +482,11 @@ public class WarcHeader {
         HeaderLine headerLine;
         boolean bLoop = true;
         while (bLoop) {
-            headerLine = reader.headerLineReader.readLine(in);
+            headerLine = headerLineReader.readLine(in);
             if ((headerLine.bfErrors & HeaderLineReader.E_BIT_INVALID_CHARSET) != 0) {
-                addErrorDiagnosis(DiagnosisType.INVALID_ENCODING,
-                        "Invalid encoding in header line",
-                        headerLine.value, "UNKNOWN");
+                addErrorDiagnosis(DiagnosisType.INVALID_ENCODING, "Invalid encoding in header line", headerLine.value, "UNKNOWN");
             }
-            if (!reader.headerLineReader.bEof) {
+            if (!headerLineReader.bEof) {
                 headerBytesOut.write(headerLine.raw);
                 switch (headerLine.type) {
                 case HeaderLine.HLT_HEADERLINE:
@@ -585,8 +588,7 @@ public class WarcHeader {
                     warcTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED, warcTargetUriProfile, WarcConstants.FN_WARC_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_TRUNCATED:
-                    warcTruncatedStr = fieldParsers.parseString(fieldValue,
-                            WarcConstants.FN_WARC_TRUNCATED);
+                    warcTruncatedStr = fieldParsers.parseString(fieldValue, WarcConstants.FN_WARC_TRUNCATED);
                     if (warcTruncatedStr != null) {
                         warcTruncatedIdx = WarcConstants.truncatedTypeIdxMap.get(warcTruncatedStr.toLowerCase());
                     }
@@ -797,7 +799,7 @@ public class WarcHeader {
         if (dateFieldValue == null && fieldValueStr != null) {
             dateFieldValue = fieldParsers.parseDate(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && dateFieldValue != null) {
-            fieldValueStr = warcDateFormat.format(dateFieldValue);
+            fieldValueStr = WarcDateParser.getDateFormat().format(dateFieldValue);
         }
         return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_DATE,
                 null, null, null, null, dateFieldValue, null, null);
