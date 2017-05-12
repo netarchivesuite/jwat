@@ -314,13 +314,13 @@ public class ArcHeader {
                 if ("-".equals(filenameStr)) {
                     filenameStr = null;
                 }
-                filenameStr = reader.fieldParsers.parseString(filenameStr, ArcConstants.FN_FILENAME, false);
+                filenameStr = fieldParsers.parseString(filenameStr, ArcConstants.FN_FILENAME, false);
             }
             archiveLengthStr = fields[fields.length - 1];
             if ("-".equals(archiveLengthStr)) {
                 archiveLengthStr = null;
             }
-            archiveLength = reader.fieldParsers.parseLong(archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
+            archiveLength = fieldParsers.parseLong(archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
             if (archiveLength != null && archiveLength < 0) {
                 diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", archiveLengthStr, "A non negative number"));
             }
