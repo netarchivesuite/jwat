@@ -224,8 +224,9 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
             }
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
-            // In case no record is found the errors/warnings in the record
-            // object are transfered to the Reader.
+            // In case no record is found the errors/warnings in the record object are transfered to the Reader.
+        	long excess = in.getConsumed() - record.startOffset;
+            reader.consumed += excess;
             reader.diagnostics.addAll(record.diagnostics);
             if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
                 reader.errors += record.diagnostics.getErrors().size();
@@ -238,6 +239,9 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                 ++reader.errors;
                 reader.bIsCompliant = false;
             }
+        	if (excess != 0) {
+        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + record.startOffset));
+        	}
             // EOF
             record = null;
         }

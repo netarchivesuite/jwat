@@ -19,21 +19,54 @@ package org.jwat.warc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
+import org.jwat.common.RandomAccessFileInputStream;
 
 @RunWith(JUnit4.class)
 public class TestWarcReader_Diagnosis {
 
     @Test
-    public void test_warcreader_diagnosis() {
-        Diagnosis d;
+    public void test_warcreader_emptyfile() {
+        try {
+        	byte[] bytes = new byte[0];
+        	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+
+        	// Save testfile.
+            SaveWarcTestFiles.saveTestWarcReader_Diagnosis(bytes);
+
+            WarcReader reader = WarcReaderFactory.getReaderUncompressed();
+            WarcRecord record = reader.getNextRecordFrom(in, 0);
+
+            Assert.assertNull(record);
+
+            Assert.assertTrue(reader.diagnostics.hasErrors());
+            Assert.assertFalse(reader.diagnostics.hasWarnings());
+            Assert.assertEquals(1, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            Object[][] expectedErrors = new Object[][] {
+                {DiagnosisType.ERROR_EXPECTED, "WARC file", 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedErrors, reader.diagnostics.getErrors());
+
+            reader.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_warcreader_diagnosis_garbage() {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             out.write("\r\n".getBytes());
@@ -46,7 +79,6 @@ public class TestWarcReader_Diagnosis {
             SaveWarcTestFiles.saveTestWarcReader_Diagnosis(out.toByteArray());
 
             ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-
             WarcReader reader = WarcReaderFactory.getReaderUncompressed();
 
             WarcRecord record = reader.getNextRecordFrom(in, 0);
@@ -55,23 +87,61 @@ public class TestWarcReader_Diagnosis {
 
             Assert.assertTrue(reader.diagnostics.hasErrors());
             Assert.assertFalse(reader.diagnostics.hasWarnings());
+            Assert.assertEquals(4, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            Object[][] expectedErrors = new Object[][] {
+                {DiagnosisType.INVALID, "Data before WARC version", 0},
+                {DiagnosisType.INVALID, "Empty lines before WARC version", 0},
+                {DiagnosisType.ERROR_EXPECTED, "WARC file", 1},
+                {DiagnosisType.UNDESIRED_DATA, "Trailing data", 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedErrors, reader.diagnostics.getErrors());
+
+            reader.close();
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+
+    @Test
+    public void test_warcreader_diagnosis_record_garbage() {
+        try {
+        	File testfile = TestHelpers.getTestResourceFile("invalid-warcfile-record-then-garbage.warc");
+        	RandomAccessFile raf = new RandomAccessFile(testfile, "r");
+        	RandomAccessFileInputStream rafIn = new RandomAccessFileInputStream(raf);
+
+            WarcReader reader = WarcReaderFactory.getReaderUncompressed(rafIn);
+            WarcRecord record = reader.getNextRecord();
+
+            Assert.assertNotNull(record);
+
+            Assert.assertFalse(reader.diagnostics.hasErrors());
+            Assert.assertFalse(reader.diagnostics.hasWarnings());
+            Assert.assertEquals(0, reader.diagnostics.getErrors().size());
+            Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
+
+            record = reader.getNextRecord();
+
+            Assert.assertNull(record);
+
+            Assert.assertTrue(reader.diagnostics.hasErrors());
+            Assert.assertFalse(reader.diagnostics.hasWarnings());
             Assert.assertEquals(3, reader.diagnostics.getErrors().size());
             Assert.assertEquals(0, reader.diagnostics.getWarnings().size());
 
-            d = reader.diagnostics.getErrors().get(0);
-            Assert.assertEquals(DiagnosisType.INVALID, d.type);
-            Assert.assertEquals("Data before WARC version", d.entity);
-            Assert.assertEquals(0, d.information.length);
+            Object[][] expectedErrors = new Object[][] {
+                {DiagnosisType.INVALID, "Data before WARC version", 0},
+                {DiagnosisType.INVALID, "Empty lines before WARC version", 0},
+                {DiagnosisType.UNDESIRED_DATA, "Trailing data", 1}
+            };
+            TestBaseUtils.compareDiagnoses(expectedErrors, reader.diagnostics.getErrors());
 
-            d = reader.diagnostics.getErrors().get(1);
-            Assert.assertEquals(DiagnosisType.INVALID, d.type);
-            Assert.assertEquals("Empty lines before WARC version", d.entity);
-            Assert.assertEquals(0, d.information.length);
-
-            d = reader.diagnostics.getErrors().get(2);
-            Assert.assertEquals(DiagnosisType.ERROR_EXPECTED, d.type);
-            Assert.assertEquals("WARC file", d.entity);
-            Assert.assertEquals(1, d.information.length);
+            reader.close();
+            rafIn.close();
+            raf.close();
         } catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");

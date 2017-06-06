@@ -202,9 +202,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
             }
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
-            // Transfer errors/warnings identified in the header parser
-            // to the reader since we are not returning a record.
-            reader.consumed += in.getConsumed() - startOffset;
+            // Transfer errors/warnings identified in the header parser to the reader since we are not returning a record.
+        	long excess = in.getConsumed() - startOffset;
+            reader.consumed += excess;
             reader.diagnostics.addAll(diagnostics);
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
                 reader.errors += diagnostics.getErrors().size();
@@ -217,6 +217,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
                 ++reader.errors;
                 reader.bIsCompliant = false;
             }
+        	if (excess != 0) {
+        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + startOffset));
+        	}
         }
         return record;
     }
