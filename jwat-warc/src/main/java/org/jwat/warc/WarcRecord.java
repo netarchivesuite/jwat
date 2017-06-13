@@ -280,7 +280,8 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                     processComputedDigest(computedBlockDigest,
                             reader.blockDigestAlgorithm, reader.blockDigestEncoding, "block");
                 }
-                if (httpHeader != null && httpHeader.isValid()) {
+                // Revisit payload digest refers to the original. Continuation payload digest in first recotrd also refers to original.
+                if (header.warcTypeIdx != WarcConstants.RT_IDX_REVISIT && header.warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION && httpHeader != null && httpHeader.isValid()) {
                     /*
                      * Check payload digest.
                      */
