@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.Base32;
+import org.jwat.common.DiagnosisType;
 import org.jwat.common.Uri;
 
 @RunWith(JUnit4.class)
@@ -142,7 +143,8 @@ public class TestWarc_RecordTypeDigestCheck {
 		        WarcConstants.RT_IDX_WARCINFO, new String[][] {
 		        	{WarcConstants.FN_CONTENT_TYPE, WarcConstants.CT_APP_WARC_FIELDS},
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest1}
-		        }, payload1
+		        }, payload1, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_RESPONSE, new String[][] {
@@ -151,14 +153,16 @@ public class TestWarc_RecordTypeDigestCheck {
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest2},
 		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + contentDigest2},
 					{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=response"}
-				}, payload2
+				}, payload2, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_RESOURCE, new String[][] {
 					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest3},
 					{WarcConstants.FN_CONTENT_TYPE, "text/html;charset=UTF-8"},
-				}, payload3
+				}, payload3, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_REQUEST, new String[][] {
@@ -166,13 +170,15 @@ public class TestWarc_RecordTypeDigestCheck {
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest4},
 		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + emptyDigest},
 		        	{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=request"}
-				}, payload4
+				}, payload4, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_METADATA, new String[][] {
 		        	{WarcConstants.FN_CONTENT_TYPE, WarcConstants.CT_APP_WARC_FIELDS},
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest5}
-				}, payload5
+				}, payload5, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_REVISIT, new String[][] {
@@ -185,14 +191,16 @@ public class TestWarc_RecordTypeDigestCheck {
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest6},
 		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + contentDigest2},
 		        	{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=response"}
-				}, payload6
+				}, payload6, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_CONVERSION, new String[][] {
 					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/transformers-go.gif"},
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest7},
 		        	{WarcConstants.FN_CONTENT_TYPE, "image/gif"}
-				}, payload7
+				}, payload7, new Object[][] {
+		        }
 			},
 			{
 				WarcConstants.RT_IDX_CONTINUATION, new String[][] {
@@ -201,7 +209,8 @@ public class TestWarc_RecordTypeDigestCheck {
 					{WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, "urn:uuid:" + UUID.randomUUID().toString()},
 		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest8},
 		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + blockDigest3}
-				}, payload8
+				}, payload8, new Object[][] {
+		        }
 			}
 		};
 
@@ -210,10 +219,113 @@ public class TestWarc_RecordTypeDigestCheck {
             write_warcfile(records, out);
             out.close();
 
-            System.out.println(new String(out.toByteArray()));
+            // debug
+            //System.out.println(new String(out.toByteArray()));
 
         	in = new ByteArrayInputStream(out.toByteArray());
-        	test_warcfile(in);
+        	test_warcfile(records, in);
+        	in.close();
+        }
+        catch (IOException e) {
+        	e.printStackTrace();
+        	Assert.fail("Unexpected exception!");
+        }
+
+        records = new Object[][] {
+			{
+		        WarcConstants.RT_IDX_WARCINFO, new String[][] {
+		        	{WarcConstants.FN_CONTENT_TYPE, WarcConstants.CT_APP_WARC_FIELDS},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest2}
+		        }, payload1, new Object[][] {
+		            {DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_RESPONSE, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
+					{WarcConstants.FN_WARC_IP_ADDRESS, "87.119.197.90"},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest3},
+		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + blockDigest3},
+					{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=response"}
+				}, payload2, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2},
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect payload digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_RESOURCE, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest4},
+					{WarcConstants.FN_CONTENT_TYPE, "text/html;charset=UTF-8"},
+				}, payload3, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_REQUEST, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest5},
+		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + emptyDigest},
+		        	{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=request"}
+				}, payload4, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_METADATA, new String[][] {
+		        	{WarcConstants.FN_CONTENT_TYPE, WarcConstants.CT_APP_WARC_FIELDS},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest6}
+				}, payload5, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_REVISIT, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
+					{WarcConstants.FN_WARC_TRUNCATED, "length"},
+					{WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, "https://i.vimeocdn.com/portrait/8927943_64x64.jpg"},
+					{WarcConstants.FN_WARC_REFERS_TO_DATE, "2017-03-03T03:53:36Z"},
+					{WarcConstants.FN_WARC_REFERS_TO, "<urn:uuid:33ab10b0-6a22-4b6b-976c-36746569ce2f>"},
+					{WarcConstants.FN_WARC_PROFILE, WarcConstants.PROFILE_IDENTICAL_PAYLOAD_DIGEST},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest7},
+		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + blockDigest1},
+		        	{WarcConstants.FN_CONTENT_TYPE, "application/http; msgtype=response"}
+				}, payload6, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_CONVERSION, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/transformers-go.gif"},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest8},
+		        	{WarcConstants.FN_CONTENT_TYPE, "image/gif"}
+				}, payload7, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			},
+			{
+				WarcConstants.RT_IDX_CONTINUATION, new String[][] {
+					{WarcConstants.FN_WARC_TARGET_URI, "https://jwat.org/"},
+					{WarcConstants.FN_WARC_SEGMENT_NUMBER, "42"},
+					{WarcConstants.FN_WARC_SEGMENT_ORIGIN_ID, "urn:uuid:" + UUID.randomUUID().toString()},
+		        	{WarcConstants.FN_WARC_BLOCK_DIGEST, "sha1:" + blockDigest1},
+		        	{WarcConstants.FN_WARC_PAYLOAD_DIGEST, "sha1:" + blockDigest1}
+				}, payload8, new Object[][] {
+					{DiagnosisType.INVALID_EXPECTED, "Incorrect block digest", 2}
+		        }
+			}
+		};
+
+        try {
+            out.reset();
+            write_warcfile(records, out);
+            out.close();
+
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+        	in = new ByteArrayInputStream(out.toByteArray());
+        	test_warcfile(records, in);
         	in.close();
         }
         catch (IOException e) {
@@ -249,14 +361,26 @@ public class TestWarc_RecordTypeDigestCheck {
         writer.close();
 	}
 
-	public static void test_warcfile(InputStream in) throws IOException {
-        WarcReader reader;
-        WarcRecord record;
-        reader = WarcReaderFactory.getReader(in);
+	public static Object[][] expectedWarnings = new Object[][] {};
+
+	public static void test_warcfile(Object[][] records, InputStream in) throws IOException {
+        WarcReader reader = WarcReaderFactory.getReader(in);
+        WarcRecord record = null;
         reader.setBlockDigestEnabled(true);
         reader.setPayloadDigestEnabled(true);
-        while ((record = reader.getNextRecord()) != null) {
+        /*
+        expectedDiagnoses = new Object[][] {
+            {DiagnosisType.INVALID, "Data before WARC version", 0},
+            {DiagnosisType.INVALID, "Empty lines before WARC version", 0}
+        };
+        */
+        Object[][] expectedErrors;
+        for (int i=0; i<records.length; ++i) {
+        	Assert.assertNotNull(records);
+        	record = reader.getNextRecord();
         	record.close();
+        	//debug
+        	/*
         	System.out.println(record.header.warcTypeStr);
         	if (record.header.warcBlockDigest != null) {
             	System.out.println("expected block digest: " + record.header.warcBlockDigest.digestString);
@@ -272,8 +396,14 @@ public class TestWarc_RecordTypeDigestCheck {
         	}
         	TestBaseUtils.printDiagnoses(record.diagnostics.getErrors());
         	TestBaseUtils.printDiagnoses(record.diagnostics.getWarnings());
+        	*/
+        	expectedErrors = (Object[][])records[i][3];
+            TestBaseUtils.compareDiagnoses(expectedErrors, record.diagnostics.getErrors());
+            TestBaseUtils.compareDiagnoses(expectedWarnings, record.diagnostics.getWarnings());
         }
+    	record = reader.getNextRecord();
         reader.close();
+    	Assert.assertNull(record);
 	}
 
 }
