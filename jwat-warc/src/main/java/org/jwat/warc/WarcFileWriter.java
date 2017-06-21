@@ -74,25 +74,15 @@ public class WarcFileWriter {
      * @return WARC file writer instance using the supplied configuration
      */
     public static WarcFileWriter getWarcWriterInstance(WarcFileNaming warcFileNaming, WarcFileWriterConfig warcFileConfig) {
+    	if (warcFileNaming == null) {
+    		throw new IllegalArgumentException("'warcFileNaming' is null!");
+    	}
+    	if (warcFileConfig == null) {
+    		throw new IllegalArgumentException("'warcFileConfig' is null!");
+    	}
         WarcFileWriter wfw = new WarcFileWriter();
         wfw.warcFileNaming = warcFileNaming;
         wfw.warcFileConfig = warcFileConfig;
-        /*
-        StringBuilder sb = new StringBuilder();
-        sb.append("software");
-        sb.append(": ");
-        sb.append("Netarchivesuite");
-        sb.append("\r\n");
-        sb.append("format");
-        sb.append(": ");
-        sb.append("WARC file version 1.0");
-        sb.append("\r\n");
-        sb.append("conformsTo");
-        sb.append(": ");
-        sb.append("http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf");
-        sb.append("\r\n");
-        wfw.warcFields = sb.toString();
-        */
         return wfw;
     }
 
@@ -105,7 +95,7 @@ public class WarcFileWriter {
     }
 
     /**
-     * Returns the current EARC file object.
+     * Returns the current WARC file object.
      * @return current EARC file object
      */
     public File getFile() {
@@ -168,22 +158,7 @@ public class WarcFileWriter {
         }
         if (bNewWriter) {
             open();
-            //byte[] warcFieldsBytes = warcFields.getBytes("ISO-8859-1");
-            //ByteArrayInputStream bin = new ByteArrayInputStream(warcFieldsBytes);
             warcinfoRecordId = new Uri("urn:uuid:" + UUID.randomUUID());
-            /*
-            WarcRecord record = WarcRecord.createRecord(writer);
-            WarcHeader header = record.header;
-            header.warcTypeIdx = WarcConstants.RT_IDX_WARCINFO;
-            header.warcDate = new Date();
-            header.warcFilename = finishedFilename;
-            header.warcRecordIdUri = warcinfoRecordId;
-            header.contentTypeStr = WarcConstants.CT_APP_WARC_FIELDS;
-            header.contentLength = new Long(warcFieldsBytes.length);
-            writer.writeHeader(record);
-            writer.streamPayload(bin);
-            writer.closeRecord();
-            */
         }
         return bNewWriter;
     }
@@ -210,11 +185,11 @@ public class WarcFileWriter {
             String finishedName = writerFile.getName().substring(0, writerFile.getName().length() - ACTIVE_SUFFIX.length());
             File finishedFile = new File(writerFile.getParent(), finishedName);
             if (finishedFile.exists()) {
-                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - destination file already exists");
+                throw new IOException("Unable to rename '" + writerFile + "' to '" + finishedFile + "' - destination file already exists");
             }
             boolean success = writerFile.renameTo(finishedFile);
             if (!success) {
-                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - unknown problem");
+                throw new IOException("Unable to rename '" + writerFile + "' to '" + finishedFile + "' - unknown problem");
             }
         }
         writerFile = null;

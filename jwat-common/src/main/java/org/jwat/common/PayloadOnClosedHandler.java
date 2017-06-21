@@ -31,7 +31,7 @@ public interface PayloadOnClosedHandler {
     /**
      * Method called when the associated payload has been fully read or
      * skipped.
-     * @throws IOException i/o exception while closing payload
+     * @throws IOException I/O exception while closing payload
      */
     void payloadClosed() throws IOException;
 

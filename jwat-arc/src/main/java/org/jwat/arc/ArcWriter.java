@@ -119,20 +119,20 @@ public abstract class ArcWriter implements Closeable {
 
     /**
      * Close ARC writer and free its resources.
-     * @throws IOException if an i/o exception occurs while closing the writer
+     * @throws IOException if an I/O exception occurs while closing the writer
      */
     public abstract void close() throws IOException;
 
     /**
      * Close the ARC record in an implementation specific way.
-     * @throws IOException if an i/o exception occurs while closing the record
+     * @throws IOException if an I/O exception occurs while closing the record
      */
     public abstract void closeRecord() throws IOException;
 
     /**
      * Closes the ARC record by writing one newline and comparing the amount of
      * payload data streamed with the content-length supplied with the header.
-     * @throws IOException if an i/o exception occurs while closing the record
+     * @throws IOException if an I/O exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
         Diagnosis diagnosis = null;
@@ -201,7 +201,7 @@ public abstract class ArcWriter implements Closeable {
      * Errors and warnings are reported on the records diagnostics object.
      * @param record ARC record to output
      * @return byte array version of header as it was written
-     * @throws IOException if an exception occurs while writing header data
+     * @throws IOException if an I/O exception occurs while writing header data
      */
     public abstract byte[] writeHeader(ArcRecordBase record) throws IOException;
 
@@ -211,16 +211,15 @@ public abstract class ArcWriter implements Closeable {
      * Errors and warnings are reported on the records diagnostics object.
      * @param record ARC record to output
      * @return byte array version of header as it was written
-     * @throws IOException if an exception occurs while writing header data
+     * @throws IOException if an I/O exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(ArcRecordBase record) throws IOException {
         header = record.header;
         headerContentLength = header.archiveLength;
         if (headerContentLength == null && header.archiveLengthStr != null) {
-            try {
-                headerContentLength = Long.parseLong(header.archiveLengthStr);
-            } catch (NumberFormatException e) {
-                // TODO Add warning...
+            headerContentLength = fieldParsers.parseLong(header.archiveLengthStr, ArcConstants.FN_ARCHIVE_LENGTH, false);
+            if (headerContentLength != null && headerContentLength < 0) {
+                diagnostics.addError(new Diagnosis(DiagnosisType.INVALID_EXPECTED, "'" + ArcConstants.FN_ARCHIVE_LENGTH + "' value", header.archiveLengthStr, "A non negative number"));
             }
         }
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
@@ -367,7 +366,7 @@ public abstract class ArcWriter implements Closeable {
      * Stream the content of an input stream to the payload content.
      * @param in input stream containing payload data
      * @return number of bytes written during method invocation
-     * @throws IOException if an i/o exception occurs while writing payload data
+     * @throws IOException if an I/O exception occurs while writing payload data
      */
    public long streamPayload(InputStream in) throws IOException {
        if (in == null) {
@@ -393,7 +392,7 @@ public abstract class ArcWriter implements Closeable {
     * Append the content of a byte array to the payload content.
     * @param b byte array with data to be written
     * @return number of bytes written during method invocation
-    * @throws IOException if an i/o exception occurs while writing payload data
+    * @throws IOException if an I/O exception occurs while writing payload data
     */
    public long writePayload(byte[] b) throws IOException {
        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
@@ -411,7 +410,7 @@ public abstract class ArcWriter implements Closeable {
     * @param offset offset to data to be written
     * @param len length of data to be written
     * @return number of bytes written during method invocation
-    * @throws IOException if an i/o exception occurs while writing payload data
+    * @throws IOException if an I/O exception occurs while writing payload data
     */
    public long writePayload(byte[] b, int offset, int len) throws IOException {
        if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {

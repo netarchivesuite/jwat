@@ -66,10 +66,4 @@ public class WarcFileWriterConfig {
         this.bOverwrite = bOverwrite;
     }
 
-    /*
-    public void addMetadata(String key, String value) {
-        metadata.put( key, new SimpleEntry<String, String>(key, value) );
-    }
-    */
-
 }

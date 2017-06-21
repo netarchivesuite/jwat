@@ -368,12 +368,6 @@ public class TestWarc_RecordTypeDigestCheck {
         WarcRecord record = null;
         reader.setBlockDigestEnabled(true);
         reader.setPayloadDigestEnabled(true);
-        /*
-        expectedDiagnoses = new Object[][] {
-            {DiagnosisType.INVALID, "Data before WARC version", 0},
-            {DiagnosisType.INVALID, "Empty lines before WARC version", 0}
-        };
-        */
         Object[][] expectedErrors;
         for (int i=0; i<records.length; ++i) {
         	Assert.assertNotNull(records);

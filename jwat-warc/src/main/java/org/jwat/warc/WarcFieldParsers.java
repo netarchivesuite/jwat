@@ -174,9 +174,9 @@ public class WarcFieldParsers {
     /**
      * Returns an URI object holding the value of the specified string.
      * @param uriStr the URL to parse
-     * @param field field name
+     * @param bLtGt switch indicating if we expected the uri inside '<' / '>' characters
      * @param uriProfile the uri profile
-     * @param bLtGt something
+     * @param field field name
      * @return an URI object holding the value of the specified string or null,
      * if unable to parse the value as an URI object
      */
@@ -245,8 +245,6 @@ public class WarcFieldParsers {
                     addInvalidExpectedError("'" + field + "' value",
                             uriStrClean,
                             "Absolute URI");
-                } else {
-                    scheme = scheme.toLowerCase();
                 }
             }
         } else {

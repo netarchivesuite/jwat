@@ -29,9 +29,18 @@ import org.jwat.warc.WarcRecord;
 import org.jwat.warc.WarcWriter;
 import org.jwat.warc.WarcWriterFactory;
 
+/**
+ * Simple class used to clone every record read from a (W)ARC file.
+ * Used for debugging purposes.
+ *
+ * @author nicl
+ */
 public class Cloner {
 
-    private static Cloner cloner;
+	/** Buffer size used when writing (W)ARC data. */
+	public static final int DEFAULT_WRITER_BUFFER_SIZE = 8192;
+
+	private static Cloner cloner;
 
     public static synchronized Cloner getCloner() {
         if (cloner == null) {
@@ -57,7 +66,7 @@ public class Cloner {
             arcRaf.seek(0);
             arcRaf.setLength(0);
             arcRafOut = new RandomAccessFileOutputStream(arcRaf);
-            arcWriter = ArcWriterFactory.getWriter(arcRafOut, 8192, false);
+            arcWriter = ArcWriterFactory.getWriter(arcRafOut, DEFAULT_WRITER_BUFFER_SIZE, false);
         }
         arcWriter.writeHeader(record);
         InputStream httpHeaderStream = managedPayload.getHttpHeaderStream();
@@ -81,7 +90,7 @@ public class Cloner {
             warcRaf.seek(0);
             warcRaf.setLength(0);
             warcRafOut = new RandomAccessFileOutputStream(warcRaf);
-            warcWriter = WarcWriterFactory.getWriter(warcRafOut, 8192, false);
+            warcWriter = WarcWriterFactory.getWriter(warcRafOut, DEFAULT_WRITER_BUFFER_SIZE, false);
         }
         warcWriter.writeHeader(record);
         InputStream httpHeaderStream = managedPayload.getHttpHeaderStream();

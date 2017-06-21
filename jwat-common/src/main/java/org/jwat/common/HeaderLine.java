@@ -66,7 +66,7 @@ public class HeaderLine {
      * Read a single line into a header line.
      * @param in inputstream
      * @return single string line
-     * @throws IOException if an i/o error occurs while reading line
+     * @throws IOException if an I/O error occurs while reading line
      */
     public static HeaderLine readLine(InputStream in) throws IOException {
         StringBuffer sb = new StringBuffer(READLINE_INITIAL_SIZE);

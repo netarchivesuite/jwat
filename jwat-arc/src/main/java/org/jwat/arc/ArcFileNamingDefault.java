@@ -25,7 +25,8 @@ import java.util.Date;
 
 /**
  * Default ARC file naming implementation used for writing to multiple files.
- * (prefix-date-sequenceNr-hostname.extension)
+ * Automatically add '.gz' to the extension.
+ * Format: prefix-date-sequenceNr-hostname.extension
  *
  * @author nicl
  */

@@ -169,7 +169,6 @@ public class Uri implements Comparable<Uri> {
     protected void validate_absoluteUri(String uriStr, int uIdx) throws URISyntaxException {
         // Scheme validation.
         if (scheme.length() > 0) {
-            //scheme = scheme.toLowerCase();
             uriProfile.validate_first_follow(scheme, UriProfile.B_SCHEME_FIRST, UriProfile.B_SCHEME_FOLLOW);
         } else {
             throw new URISyntaxException(scheme, "Empty URI scheme component");

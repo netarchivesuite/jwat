@@ -54,7 +54,7 @@ public class ReaderFactoryAbstract {
      * call as before the call.
      * @param pbin <code>PushBackInputStream</code> with GZip entries
      * @return boolean indicating presence of a GZip magic number
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isGzipped(ByteCountingPushBackInputStream pbin) throws IOException {
         if (pbin == null) {
@@ -78,7 +78,7 @@ public class ReaderFactoryAbstract {
      * The identifier for ARC files is "filedesc:" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with an ARC version block
      * @return boolean indicating presence of an ARC file identifier
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isArcFile(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] streamBytes = new byte[ARC_MAGIC_HEADER.length()];
@@ -93,7 +93,7 @@ public class ReaderFactoryAbstract {
      * The identifier for ARC files is "filedesc:" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with an ARC version block
      * @return boolean indicating presence of an ARC file identifier
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isArcRecord(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] streamBytes = new byte[32];
@@ -107,7 +107,7 @@ public class ReaderFactoryAbstract {
      * The identifier for WARC files is "WARC/" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with WARC records
      * @return boolean indicating presence of a WARC file identifier
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isWarcFile(ByteCountingPushBackInputStream pbin) throws IOException {
         return isWarcRecord(pbin);
@@ -118,7 +118,7 @@ public class ReaderFactoryAbstract {
      * The identifier for WARC records is "WARC/" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with WARC records
      * @return boolean indicating presence of a WARC magic number
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isWarcRecord(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] streamBytes = new byte[WARC_MAGIC_HEADER.length()];

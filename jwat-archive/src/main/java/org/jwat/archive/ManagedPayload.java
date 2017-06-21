@@ -38,6 +38,12 @@ import org.jwat.common.PayloadWithHeaderAbstract;
 import org.jwat.common.RandomAccessFileInputStream;
 import org.jwat.warc.WarcRecord;
 
+/**
+ * Class used to buffer a record payload so it can be read multiple times.
+ * Either buffers in memory or on temporary storage depending on the payload size.
+ *
+ * @author nicl
+ */
 public class ManagedPayload {
 
     public static final int T_NONE = 0;
@@ -47,6 +53,10 @@ public class ManagedPayload {
     public static final int DEFAULT_COPY_BUFFER_SIZE = 8192;
 
     public static final int DEFAULT_IN_MEMORY_BUFFER_SIZE = 10*1024*1024;
+
+    public static final String DEFAULT_BLOCK_DIGEST_ALGO = "SHA1";
+
+    public static final String DEFAULT_PAYLOAD_DIGEST_ALGO = "SHA1";
 
     protected static Semaphore queueLock = new Semaphore(1);
 
@@ -102,11 +112,15 @@ public class ManagedPayload {
     public long httpHeaderLength;
 
     protected ManagedPayload(int copyBufferSize, int inMemorybufferSize) {
+    	this(copyBufferSize, inMemorybufferSize, DEFAULT_BLOCK_DIGEST_ALGO, DEFAULT_PAYLOAD_DIGEST_ALGO);
+    }
+
+    protected ManagedPayload(int copyBufferSize, int inMemorybufferSize, String blockDigestAlgo, String payloadDigestAlgo) {
         try {
-            blockDigestObj = MessageDigest.getInstance("SHA1");
-            payloadDigestObj = MessageDigest.getInstance("SHA1");
+            blockDigestObj = MessageDigest.getInstance(blockDigestAlgo);
+            payloadDigestObj = MessageDigest.getInstance(payloadDigestAlgo);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException("Digest algorithm not supported!", e);
         }
         copyBuf = new byte[copyBufferSize];
         baios = new ByteArrayIOStream(inMemorybufferSize);
@@ -358,7 +372,7 @@ public class ManagedPayload {
     }
 
     public ByteBuffer getBuffer() {
-        return baios.getBuffer();
+        return baios.getByteBuffer();
     }
 
     public File getFile() {

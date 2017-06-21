@@ -183,7 +183,7 @@ public class ArcHeader {
      * in the remaining input stream.
      * @param in input stream supposedly containing ARC records
      * @return true if an ARC record header was parsed and validated
-     * @throws IOException if an i/o exception occurs while trying to read an
+     * @throws IOException if an I/O exception occurs while trying to read an
      * ARC record header
      */
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {

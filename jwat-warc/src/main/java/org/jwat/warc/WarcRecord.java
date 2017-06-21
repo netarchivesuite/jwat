@@ -132,7 +132,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
      * @param reader <code>WarcReader</code> used, with access to user defined
      * options
      * @return <code>WarcRecord</code> or <code>null</code>
-     * @throws IOException i/o exception in the process of reading record
+     * @throws IOException I/O exception in the process of reading record
      */
     public static WarcRecord parseRecord(ByteCountingPushBackInputStream in,
                                     WarcReader reader) throws IOException {
@@ -240,7 +240,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                 reader.bIsCompliant = false;
             }
         	if (excess != 0) {
-        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + record.startOffset));
+        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + record.startOffset + " - length=" + excess));
         	}
             // EOF
             record = null;
@@ -251,7 +251,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
     /**
      * Called when the payload object is closed and final steps in the
      * validation process can be performed.
-     * @throws IOException i/o exception in final validation processing
+     * @throws IOException I/O exception in final validation processing
      */
     @Override
     public void payloadClosed() throws IOException {
@@ -280,7 +280,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                     processComputedDigest(computedBlockDigest,
                             reader.blockDigestAlgorithm, reader.blockDigestEncoding, "block");
                 }
-                // Revisit payload digest refers to the original. Continuation payload digest in first recotrd also refers to original.
+                // Revisit payload digest refers to the original. Continuation payload digest in first record also refers to original.
                 if (header.warcTypeIdx != WarcConstants.RT_IDX_REVISIT && header.warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION && httpHeader != null && httpHeader.isValid()) {
                     /*
                      * Check payload digest.

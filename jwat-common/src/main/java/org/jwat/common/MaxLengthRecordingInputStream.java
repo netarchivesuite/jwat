@@ -65,7 +65,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
     /**
      * Closing will only close the recording and not call the parent's close
      * method.
-     * @throws IOException if an i/o error occurs while closing stream
+     * @throws IOException if an I/O error occurs while closing stream
      */
     @Override
     public void close() throws IOException {
@@ -74,8 +74,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
 
     @Override
     public int available() throws IOException {
-        return (available > Integer.MAX_VALUE)
-                                ? Integer.MAX_VALUE : (int) (available);
+        return (available > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) (available);
     }
 
     @Override
@@ -85,6 +84,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
 
     @Override
     public synchronized void mark(int readlimit) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -127,8 +127,7 @@ public class MaxLengthRecordingInputStream extends FilterInputStream {
     public long skip(long n) throws IOException {
         long bytesSkipped = 0;
         if (available > 0) {
-            bytesSkipped = read(skip_read_buffer, 0, (int) Math.min(
-                            Math.min(n, available), SKIP_READ_BUFFER_SIZE));
+            bytesSkipped = read(skip_read_buffer, 0, (int) Math.min(Math.min(n, available), SKIP_READ_BUFFER_SIZE));
             if (bytesSkipped == -1) {
                 bytesSkipped = 0;
             }

@@ -99,10 +99,10 @@ public class ByteArrayIOStream {
     }
 
     /**
-     * Return internal <code>ByteBuffer</code>.
-     * @return internal <code>ByteBuffer</code>
+     * Return internal byte array wrapped in a new <code>ByteBuffer</code> object.
+     * @return internal byte array wrapped in a new <code>ByteBuffer</code> object
      */
-    public ByteBuffer getBuffer() {
+    public ByteBuffer getByteBuffer() {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         buffer.position(0);
         buffer.limit(limit);

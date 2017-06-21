@@ -75,6 +75,7 @@ public class TestArcFileNamingDefault {
         Assert.assertEquals("Prefix" + "-" + afn.dateStr + "-" + String.format("%05d", 42) + "-" + "hostname" + ".car", afn.getFilename(42, false));
         Assert.assertEquals("Prefix" + "-" + afn.dateStr + "-" + String.format("%05d", 43) + "-" + "hostname" + ".car" + ".gz", afn.getFilename(43, true));
     }
+// TODO cleanup or use
 /*
     @Test
     public void test_arcfilenaming_default_unknownhostexception() {

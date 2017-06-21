@@ -207,7 +207,7 @@ public class TestWarcFileWriter {
                 warcFileWriter.close();
                 Assert.fail("Unexpected exception!");
             } catch (IOException e) {
-                Assert.assertEquals(true, e.getMessage().startsWith("unable to rename "));
+                Assert.assertEquals(true, e.getMessage().startsWith("Unable to rename "));
                 Assert.assertEquals(true, e.getMessage().endsWith("single-file.warc' - destination file already exists"));
             }
             deleteSingleFileWarc(targetDir);
@@ -219,7 +219,7 @@ public class TestWarcFileWriter {
                 warcFileWriter.close();
                 Assert.fail("Unexpected exception!");
             } catch (IOException e) {
-                Assert.assertEquals(true, e.getMessage().startsWith("unable to rename "));
+                Assert.assertEquals(true, e.getMessage().startsWith("Unable to rename "));
                 Assert.assertEquals(true, e.getMessage().endsWith("single-file.warc' - unknown problem"));
             }
             deleteSingleFileWarc(targetDir);

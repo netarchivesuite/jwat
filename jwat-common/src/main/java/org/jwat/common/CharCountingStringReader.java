@@ -50,6 +50,7 @@ public class CharCountingStringReader extends StringReader {
 
     @Override
     public synchronized void mark(int readlimit) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -114,7 +115,7 @@ public class CharCountingStringReader extends StringReader {
      * Reads a line defined as characters read until encountering a
      * <code>LF</code> or EOF.
      * @return Line read from buffered <code>StringReader</code>
-     * @throws IOException if an i/o error occurs while reading line
+     * @throws IOException if an I/O error occurs while reading line
      */
     public String readLine() throws IOException {
         StringBuilder buf = new StringBuilder();

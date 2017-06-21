@@ -198,7 +198,7 @@ public class TestWarcWriterFactory {
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
         finally {
             if ( raf != null ) {
@@ -355,7 +355,7 @@ public class TestWarcWriterFactory {
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
         finally {
             if ( raf != null ) {

@@ -147,7 +147,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
      * @param fieldParsers parser used for the different field types
      * @param diagnostics object used to report errors and/or warnings
      * @return <code>ArcVersionHeader</code> object
-     * @throws IOException if an i/o exception occurs while parsing the version block
+     * @throws IOException if an I/O exception occurs while parsing the version block
      */
     public static ArcVersionHeader processPayload(ByteCountingPushBackInputStream pbin,
             long length, String digestAlgorithm, ArcFieldParsers fieldParsers,

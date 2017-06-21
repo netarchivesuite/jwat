@@ -190,20 +190,20 @@ public abstract class WarcWriter implements Closeable {
 
     /**
      * Close WARC writer and free its resources.
-     * @throws IOException if an i/o exception occurs while closing the writer
+     * @throws IOException if an I/O exception occurs while closing the writer
      */
     public abstract void close() throws IOException;
 
     /**
      * Close the WARC record in an implementation specific way.
-     * @throws IOException if an i/o exception occurs while closing the record
+     * @throws IOException if an I/O exception occurs while closing the record
      */
     public abstract void closeRecord() throws IOException;
 
     /**
      * Closes the WARC record by writing two newlines and comparing the amount of
      * payload data streamed with the content-length supplied with the header.
-     * @throws IOException if an i/o exception occurs while closing the record
+     * @throws IOException if an I/O exception occurs while closing the record
      */
     protected void closeRecord_impl() throws IOException {
         Diagnosis diagnosis = null;
@@ -243,7 +243,7 @@ public abstract class WarcWriter implements Closeable {
      * Errors and warnings are reported on the writers diagnostics object.
      * @param header_bytes raw WARC header to output
      * @param contentLength the expected content-length to be written and validated
-     * @throws IOException if an i/o exception occurs while writing header data
+     * @throws IOException if an I/O exception occurs while writing header data
      */
     public void writeRawHeader(byte[] header_bytes, Long contentLength) throws IOException {
         if (header_bytes == null) {
@@ -271,7 +271,7 @@ public abstract class WarcWriter implements Closeable {
      * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
      * @return byte array version of header as it was written
-     * @throws IOException if an i/o exception occurs while writing header data
+     * @throws IOException if an I/O exception occurs while writing header data
      */
     public abstract byte[] writeHeader(WarcRecord record) throws IOException;
 
@@ -281,7 +281,7 @@ public abstract class WarcWriter implements Closeable {
      * Errors and warnings are reported on the records diagnostics object.
      * @param record WARC record to output
      * @return byte array version of header as it was written
-     * @throws IOException if an i/o exception occurs while writing header data
+     * @throws IOException if an I/O exception occurs while writing header data
      */
     protected byte[] writeHeader_impl(WarcRecord record) throws IOException {
         header = record.header;
@@ -667,7 +667,7 @@ public abstract class WarcWriter implements Closeable {
      * Stream the content of an input stream to the payload content.
      * @param in input stream containing payload data
      * @return number of bytes written during method invocation
-     * @throws IOException if an i/o exception occurs while writing payload data
+     * @throws IOException if an I/O exception occurs while writing payload data
      */
     public long streamPayload(InputStream in) throws IOException {
         if (in == null) {
@@ -693,7 +693,7 @@ public abstract class WarcWriter implements Closeable {
      * Append the content of a byte array to the payload content.
      * @param b byte array with data to be written
      * @return number of bytes written during method invocation
-     * @throws IOException if an i/o exception occurs while writing payload data
+     * @throws IOException if an I/O exception occurs while writing payload data
      */
     public long writePayload(byte[] b) throws IOException {
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {
@@ -711,7 +711,7 @@ public abstract class WarcWriter implements Closeable {
      * @param offset offset to data to be written
      * @param len length of data to be written
      * @return number of bytes written during method invocation
-     * @throws IOException if an i/o exception occurs while writing payload data
+     * @throws IOException if an I/O exception occurs while writing payload data
      */
     public long writePayload(byte[] b, int offset, int len) throws IOException {
         if (state != S_HEADER_WRITTEN && state != S_PAYLOAD_WRITTEN) {

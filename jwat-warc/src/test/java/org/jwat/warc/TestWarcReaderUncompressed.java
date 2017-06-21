@@ -314,7 +314,7 @@ public class TestWarcReaderUncompressed {
             Assert.assertEquals(0, warnings);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
     }
 
@@ -551,7 +551,7 @@ public class TestWarcReaderUncompressed {
             Assert.assertEquals(0, warnings);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
     }
 
@@ -659,7 +659,7 @@ public class TestWarcReaderUncompressed {
             Assert.assertEquals(bcin.getConsumed(), reader.getOffset());
             Assert.assertEquals(bcin.getConsumed(), consumed);
         } catch (IOException e) {
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
 
         Assert.assertEquals(expected_records, records);

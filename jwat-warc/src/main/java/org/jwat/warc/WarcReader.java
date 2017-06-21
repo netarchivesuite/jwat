@@ -400,7 +400,7 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
      * Parses and gets the next record.
      * This method is for linear access to records.
      * @return the next record
-     * @throws IOException i/o exception in parsing process
+     * @throws IOException I/O exception in parsing process
      */
     public abstract WarcRecord getNextRecord() throws IOException;
 
@@ -412,7 +412,7 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
      * @param in <code>InputStream</code> used to read next record
      * @param offset offset provided by caller
      * @return the next record
-     * @throws IOException i/o exception in parsing process
+     * @throws IOException I/O exception in parsing process
      */
     public abstract WarcRecord getNextRecordFrom(InputStream in, long offset)
                                                         throws IOException;
@@ -427,7 +427,7 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
      * @param offset offset provided by caller
      * @param buffer_size buffer size to use
      * @return the next record
-     * @throws IOException i/o exception in parsing process
+     * @throws IOException I/O exception in parsing process
      */
     public abstract WarcRecord getNextRecordFrom(InputStream in, long offset,
                                         int buffer_size) throws IOException;

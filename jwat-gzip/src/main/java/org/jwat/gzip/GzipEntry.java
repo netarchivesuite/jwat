@@ -129,7 +129,7 @@ public class GzipEntry implements Closeable {
 
     /**
      * Release resources associated with this record.
-     * @throws IOException if an i/o error occurs while closing entry
+     * @throws IOException if an I/O error occurs while closing entry
      */
     public void close() throws IOException {
         if (!bEof) {
@@ -200,7 +200,7 @@ public class GzipEntry implements Closeable {
      * This method closes the GZip entry before returning thus rendering
      * the OutputStream invalid.
      * @param in input stream with uncompressed data
-     * @throws IOException if an i/o error occurs while transferring
+     * @throws IOException if an I/O error occurs while transferring
      */
     public void writeFrom(InputStream in) throws IOException {
         if (writer == null) {

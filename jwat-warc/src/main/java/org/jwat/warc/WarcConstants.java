@@ -86,10 +86,10 @@ public class WarcConstants {
     /** Index of last WARC field (zero-indexed). */
     public static final int FN_INDEX_OF_LAST = FN_NUMBER+1;
 
-    /** Number of WARC types. */
+    /** Number of WARC record types. */
     public static final int RT_NUMBER = 8;
 
-    /** Index of last WARC type (zero indexed). */
+    /** Index of last WARC record type (zero indexed). */
     public static final int RT_INDEX_OF_LAST = RT_NUMBER+1;
 
     /*

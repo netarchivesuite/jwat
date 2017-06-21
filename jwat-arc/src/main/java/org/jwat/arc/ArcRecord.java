@@ -70,7 +70,7 @@ public class ArcRecord extends ArcRecordBase {
      * @param header record header that has already been processed
      * @param in <code>InputStream</code> used to read possible payload
      * @return an <code>ArcRecord</code>
-     * @throws IOException i/o exception while processing possible payload
+     * @throws IOException I/O exception while processing possible payload
      */
     public static ArcRecord parseArcRecord(ArcReader reader,
             Diagnostics<Diagnosis> diagnostics,

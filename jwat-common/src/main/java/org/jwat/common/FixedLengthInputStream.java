@@ -47,7 +47,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
     /**
      * Closing will only skip to the end of this fixed length input stream and
      * not call the parent's close method.
-     * @throws IOException if an i/o error occurs while closing stream
+     * @throws IOException if an I/O error occurs while closing stream
      */
     @Override
     public void close() throws IOException {
@@ -62,8 +62,7 @@ public final class FixedLengthInputStream extends FilterInputStream {
 
     @Override
     public int available() throws IOException {
-        return (remaining > Integer.MAX_VALUE)
-                                ? Integer.MAX_VALUE : (int) (remaining);
+        return (remaining > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int) (remaining);
     }
 
     @Override

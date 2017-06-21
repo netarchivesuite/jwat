@@ -41,6 +41,12 @@ import org.jwat.warc.WarcRecord;
  */
 public class ArchiveParser {
 
+	/** Buffer size used to read the input stream. */
+    public static final int DEFAULT_READER_BUFFER_SIZE = 8192;
+
+    /** Buffer size used to peek into the input stream. */
+    public static final int DEFAULT_PUSHBASH_BUFFER_SIZE = 32;
+
     /*
      * Settings.
      */
@@ -96,13 +102,13 @@ public class ArchiveParser {
         try {
             raf = new RandomAccessFile( file, "r" );
             rafin = new RandomAccessFileInputStream( raf );
-            pbin = new ByteCountingPushBackInputStream( new BufferedInputStream( rafin, 8192 ), 32 );
+            pbin = new ByteCountingPushBackInputStream( new BufferedInputStream( rafin, DEFAULT_READER_BUFFER_SIZE ), DEFAULT_PUSHBASH_BUFFER_SIZE );
             if ( GzipReader.isGzipped( pbin ) ) {
                 gzipReader = new GzipReader( pbin );
                 ByteCountingPushBackInputStream in;
                 int gzipEntries = 0;
                 while ( (gzipEntry = gzipReader.getNextEntry()) != null ) {
-                    in = new ByteCountingPushBackInputStream( new BufferedInputStream( gzipEntry.getInputStream(), 8192 ), 32 );
+                    in = new ByteCountingPushBackInputStream( new BufferedInputStream( gzipEntry.getInputStream(), DEFAULT_READER_BUFFER_SIZE ), DEFAULT_PUSHBASH_BUFFER_SIZE );
                     ++gzipEntries;
                     //System.out.println(gzipEntries + " - " + gzipEntry.getStartOffset() + " (0x" + (Long.toHexString(gzipEntry.getStartOffset())) + ")");
                     if ( gzipEntries == 1 ) {

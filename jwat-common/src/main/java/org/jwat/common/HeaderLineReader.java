@@ -223,7 +223,7 @@ public class HeaderLineReader {
         HeaderLineReader hlr = new HeaderLineReader();
         hlr.bNameValue = true;
         hlr.encoding = ENC_ISO8859_1;
-        //hlr.eol
+        hlr.eol = EOL_CRLF;
         hlr.bLWS = true;
         hlr.bQuotedText = true;
         hlr.bEncodedWords = true;
@@ -236,7 +236,7 @@ public class HeaderLineReader {
      * from public fields on the reader.
      * @param in <code>InputStream</code> with characters
      * @return result wrapped in a <code>HeaderLine</code> object
-     * @throws IOException if an i/o error occurs in the underlying input stream
+     * @throws IOException if an I/O error occurs in the underlying input stream
      */
     public HeaderLine readLine(PushbackInputStream in) throws IOException {
         HeaderLine headerLine = new HeaderLine();
@@ -652,7 +652,7 @@ public class HeaderLineReader {
      * @param c first character of the possibly encoded character sequence
      * @param in <code>InputStream</code> with possible extra encoded characters.
      * @return decoded character
-     * @throws IOException if an i/o error occurs in the underlying input stream
+     * @throws IOException if an I/O error occurs in the underlying input stream
      */
     protected int decode(int c, InputStream in) throws IOException {
         switch (encoding) {

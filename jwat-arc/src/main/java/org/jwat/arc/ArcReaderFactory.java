@@ -54,7 +54,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * The identifier for ARC files is "filedesc:" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with an ARC version block
      * @return boolean indicating presence of an ARC file identifier
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isArcFile(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] streamBytes = new byte[ArcConstants.ARC_MAGIC_HEADER.length()];
@@ -69,7 +69,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * The identifier for ARC files is "filedesc:" in the beginning.
      * @param pbin <code>PushBackInputStream</code> with an ARC version block
      * @return boolean indicating presence of an ARC file identifier
-     * @throws IOException if an i/o error occurs while examining head of stream
+     * @throws IOException if an I/O error occurs while examining head of stream
      */
     public static boolean isArcRecord(ByteCountingPushBackInputStream pbin) throws IOException {
         byte[] streamBytes = new byte[32];
@@ -87,7 +87,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param buffer_size buffer size to use
      * @return appropriate <code>ArcReader</code> based on data read from
      * <code>InputStream</code>
-     * @throws IOException if an i/o exception occurs during initialization
+     * @throws IOException if an I/O exception occurs during initialization
      */
     public static ArcReader getReader(InputStream in, int buffer_size)
                                                         throws IOException {
@@ -118,7 +118,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param in ARC File represented as <code>InputStream</code>
      * @return appropriate <code>ArcReader</code> based on data read from
      * <code>InputStream</code>
-     * @throws IOException if an i/o exception occurs during initialization
+     * @throws IOException if an I/O exception occurs during initialization
      */
     public static ArcReader getReader(InputStream in) throws IOException {
         if (in == null) {
@@ -149,7 +149,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param in ARC File represented as <code>InputStream</code>
      * @return <code>ArcReader</code> for uncompressed records read from
      * <code>InputStream</code>
-     * @throws IOException i/o exception while initializing reader
+     * @throws IOException I/O exception while initializing reader
      */
     public static ArcReaderUncompressed getReaderUncompressed(InputStream in)
                                                         throws IOException {
@@ -170,7 +170,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param buffer_size buffer size to use
      * @return <code>ArcReader</code> for uncompressed records read from
      * <code>InputStream</code>
-     * @throws IOException i/o exception while initializing reader
+     * @throws IOException I/O exception while initializing reader
      */
     public static ArcReaderUncompressed getReaderUncompressed(InputStream in,
                                         int buffer_size) throws IOException {
@@ -206,7 +206,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param in ARC File represented as <code>InputStream</code>
      * @return <code>ArcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
-     * @throws IOException i/o exception while initializing reader
+     * @throws IOException I/O exception while initializing reader
      */
     public static ArcReaderCompressed getReaderCompressed(InputStream in)
                                                         throws IOException {
@@ -225,7 +225,7 @@ public class ArcReaderFactory extends ReaderFactoryAbstract {
      * @param buffer_size buffer size to use
      * @return <code>ArcReader</code> for GZip compressed records read from
      * <code>InputStream</code>
-     * @throws IOException i/o exception while initializing reader
+     * @throws IOException I/O exception while initializing reader
      */
     public static ArcReaderCompressed getReaderCompressed(InputStream in,
                                         int buffer_size) throws IOException {

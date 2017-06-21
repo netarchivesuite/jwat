@@ -207,7 +207,7 @@ public class TestArcFileWriter {
                 arcFileWriter.close();
                 Assert.fail("Unexpected exception!");
             } catch (IOException e) {
-                Assert.assertEquals(true, e.getMessage().startsWith("unable to rename "));
+                Assert.assertEquals(true, e.getMessage().startsWith("Unable to rename "));
                 Assert.assertEquals(true, e.getMessage().endsWith("single-file.arc' - destination file already exists"));
             }
             deleteSingleFileArc(targetDir);
@@ -219,7 +219,7 @@ public class TestArcFileWriter {
                 arcFileWriter.close();
                 Assert.fail("Unexpected exception!");
             } catch (IOException e) {
-                Assert.assertEquals(true, e.getMessage().startsWith("unable to rename "));
+                Assert.assertEquals(true, e.getMessage().startsWith("Unable to rename "));
                 Assert.assertEquals(true, e.getMessage().endsWith("single-file.arc' - unknown problem"));
             }
             deleteSingleFileArc(targetDir);

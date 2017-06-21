@@ -32,6 +32,12 @@ import org.jwat.warc.WarcReaderFactory;
 
 public final class FileIdent {
 
+	/** Buffer size used to read the input stream. */
+    public static final int DEFAULT_READER_BUFFER_SIZE = 8192;
+
+    /** Buffer size used to peek into the input stream. */
+    public static final int DEFAULT_PUSHBASH_BUFFER_SIZE = 32;
+
     public static final int FILEID_ERROR = -1;
     public static final int FILEID_UNKNOWN = 0;
     public static final int FILEID_GZIP = 1;
@@ -80,14 +86,14 @@ public final class FileIdent {
         try {
             raf = new RandomAccessFile( file, "r" );
             rafin = new RandomAccessFileInputStream( raf );
-            pbin = new ByteCountingPushBackInputStream(rafin, 32);
+            pbin = new ByteCountingPushBackInputStream(rafin, DEFAULT_PUSHBASH_BUFFER_SIZE);
             read = pbin.peek(magicBytes);
             if (read == 32) {
                 if (GzipReader.isGzipped(pbin)) {
                     gzipReader = new GzipReader( pbin );
                     ByteCountingPushBackInputStream in;
                     if ( (gzipEntry = gzipReader.getNextEntry()) != null ) {
-                        in = new ByteCountingPushBackInputStream( new BufferedInputStream( gzipEntry.getInputStream(), 8192 ), 32 );
+                        in = new ByteCountingPushBackInputStream( new BufferedInputStream( gzipEntry.getInputStream(), DEFAULT_READER_BUFFER_SIZE ), DEFAULT_PUSHBASH_BUFFER_SIZE );
                         if (ArcReaderFactory.isArcRecord(in)) {
                             fileId = FILEID_ARC_GZ;
                         } else if (WarcReaderFactory.isWarcRecord(in)) {

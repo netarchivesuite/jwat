@@ -82,7 +82,7 @@ public class TestByteArrayIOStream {
             /*
              * getByteBuffer().
              */
-            ByteBuffer byteBuffer = baios.getBuffer();
+            ByteBuffer byteBuffer = baios.getByteBuffer();
             Assert.assertEquals(0, byteBuffer.position());
             Assert.assertEquals(0, byteBuffer.limit());
             Assert.assertEquals(0, baios.byteBuffer.position());
@@ -182,7 +182,7 @@ public class TestByteArrayIOStream {
             /*
              * getByteBuffer().
              */
-            ByteBuffer byteBuffer = baios.getBuffer();
+            ByteBuffer byteBuffer = baios.getByteBuffer();
             Assert.assertEquals(0, byteBuffer.position());
             Assert.assertEquals(0, byteBuffer.limit());
             Assert.assertEquals(0, baios.byteBuffer.position());
@@ -319,7 +319,7 @@ public class TestByteArrayIOStream {
             /*
              * getByteBuffer().
              */
-            ByteBuffer byteBuffer = baios.getBuffer();
+            ByteBuffer byteBuffer = baios.getByteBuffer();
             Assert.assertEquals(0, byteBuffer.position());
             Assert.assertEquals(srcBuf.length, byteBuffer.limit());
             Assert.assertEquals(srcBuf.length, baios.byteBuffer.position());

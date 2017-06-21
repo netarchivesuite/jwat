@@ -61,7 +61,11 @@ public class TestMaxLengthRecordingInputStream {
         MaxLengthRecordingInputStream in = new MaxLengthRecordingInputStream( new ByteArrayInputStream( srcArr ), 0 );
 
         Assert.assertFalse( in.markSupported() );
-        in.mark( 1 );
+        try {
+            in.mark( 1 );
+            Assert.fail( "Exception expected!" );
+        } catch (UnsupportedOperationException e) {
+        }
         try {
             in.reset();
             Assert.fail( "Exception expected!" );

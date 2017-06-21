@@ -73,7 +73,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @param fieldParsers parser used to read and validate fields
      * @param in <code>InputStream</code> used to read version block
      * @return an <code>ArcVersionBlock</code>
-     * @throws IOException if an i/o exception occurs in the process of reading
+     * @throws IOException if an I/O exception occurs in the process of reading
      * version block
      */
     public static ArcVersionBlock parseVersionBlock(ArcReader reader,
@@ -119,7 +119,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * @param in input stream containing the payload
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @throws IOException if an i/o exception occurs while reading the payload
+     * @throws IOException if an I/O exception occurs while reading the payload
      */
     @Override
     protected void processPayload(ByteCountingPushBackInputStream in,

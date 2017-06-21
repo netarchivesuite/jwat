@@ -136,7 +136,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
      * @param in input stream with ARC record data
      * @param reader ARC reader used with access to overall configuration and status
      * @return <code>ArcRecord</code>, <code>ArcVersionBlock</code> or null
-     * @throws IOException i/o exception while parsing ARC record data
+     * @throws IOException I/O exception while parsing ARC record data
      */
     public static ArcRecordBase parseRecord(ByteCountingPushBackInputStream in, ArcReader reader) throws IOException {
         ArcRecordBase record = null;
@@ -218,7 +218,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
                 reader.bIsCompliant = false;
             }
         	if (excess != 0) {
-        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + startOffset));
+        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + startOffset + " - length=" + excess));
         	}
         }
         return record;
@@ -227,7 +227,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
     /**
      * Called when the payload object is closed and final steps in the
      * validation process can be performed.
-     * @throws IOException i/o exception in final validation processing
+     * @throws IOException I/O exception in final validation processing
      */
     @Override
     public void payloadClosed() throws IOException {
@@ -331,7 +331,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
     /**
      * Close resources associated with the ARC record.
      * Mainly payload stream if any.
-     * @throws IOException i/o exception close the payload resources
+     * @throws IOException I/O exception close the payload resources
      */
     public void close() throws IOException {
         if (!bClosed) {
@@ -375,7 +375,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
      * @param in ARC record <code>InputStream</code>
      * @param reader <code>ArcReader</code> used, with access to user defined
      * options
-     * @throws IOException i/o exception in the parsing process
+     * @throws IOException I/O exception in the parsing process
      */
     protected abstract void processPayload(ByteCountingPushBackInputStream in,
                                         ArcReader reader) throws IOException;
@@ -427,7 +427,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
      * @param in <code>InputStream</code> to validate
      * @return true/false based on whether the remaining input stream contains
      * only LF and CR characters or not.
-     * @throws IOException i/o exception in parsing
+     * @throws IOException I/O exception in parsing
      */
     public boolean isValidStreamOfCRLF(InputStream in) throws IOException{
         if (in == null) {

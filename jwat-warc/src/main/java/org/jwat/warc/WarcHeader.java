@@ -346,7 +346,7 @@ public class WarcHeader {
      * failure of this.
      * @param in input stream with WARC data
      * @return boolean indicating whether a header was parsed or not
-     * @throws IOException if an i/o exception occurs while parsing for a header
+     * @throws IOException if an I/O exception occurs while parsing for a header
      */
     public boolean parseHeader(ByteCountingPushBackInputStream in) throws IOException {
         if (parseVersion(in)) {

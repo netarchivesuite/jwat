@@ -187,8 +187,6 @@ public class ArcFieldParsers {
                     uri = null;
                     // Relative URI.
                     addInvalidExpectedError("'" + field + "' value", uriStr, "Absolute URI");
-                } else {
-                    scheme = scheme.toLowerCase();
                 }
             }
         } else if (!nullable) {

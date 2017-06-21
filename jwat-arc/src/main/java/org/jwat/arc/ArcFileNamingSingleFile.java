@@ -21,6 +21,7 @@ import java.io.File;
 
 /**
  * Simple ARC file naming implementation used for writing to a single file only.
+ * Ignores sequenceNr and bCompressed method arguments.
  *
  * @author nicl
  */
@@ -56,7 +57,12 @@ public class ArcFileNamingSingleFile implements ArcFileNaming {
         return false;
     }
 
-    @Override
+    /**
+     * Just returns the filename used to construct this object. Ignores sequenceNr and bCompressed arguments.
+     * @param sequenceNr sequence number to use
+     * @param bCompressed is the file compressed or not
+     * @return the file name to use
+     */
     public String getFilename(int sequenceNr, boolean bCompressed) {
         return filename;
     }

@@ -164,7 +164,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
     /**
      * Read a single line into a string.
      * @return single string line
-     * @throws IOException if an i/o error occurs while reading line
+     * @throws IOException if an I/O error occurs while reading line
      */
     public String readLine() throws IOException {
         StringBuffer sb = new StringBuffer(READLINE_INITIAL_SIZE);
@@ -189,7 +189,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * if not, the bytes are pushed back into the stream before returning.
      * @param buffer byte buffer to read bytes into
      * @return the number of bytes read into array
-     * @throws IOException if an i/o error occurs while reading array
+     * @throws IOException if an I/O error occurs while reading array
      */
     public int readFully(byte[] buffer) throws IOException {
         int readOffset = 0;
@@ -212,7 +212,7 @@ public class ByteCountingPushBackInputStream extends PushbackInputStream {
      * possible before unreading the stream and returning.
      * @param buffer byte buffer to read bytes into
      * @return the number of bytes read into array
-     * @throws IOException if an i/o error occurs while reading array
+     * @throws IOException if an I/O error occurs while reading array
      */
     public int peek(byte[] buffer) throws IOException {
         int readOffset = 0;

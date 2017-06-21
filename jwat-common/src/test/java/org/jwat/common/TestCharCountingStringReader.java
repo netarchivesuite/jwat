@@ -71,7 +71,11 @@ public class TestCharCountingStringReader {
         Assert.assertNotNull( in );
 
         Assert.assertFalse( in.markSupported() );
-        in.mark( 1 );
+        try {
+            in.mark( 1 );
+            Assert.fail( "Exception expected!" );
+        } catch (UnsupportedOperationException e) {
+        }
         try {
             in.reset();
             Assert.fail( "Exception expected!" );

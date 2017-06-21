@@ -69,6 +69,12 @@ public class ArcFileWriter {
      * @return ARC file writer instance using the supplied configuration
      */
     public static ArcFileWriter getArcWriterInstance(ArcFileNaming arcFileNaming, ArcFileWriterConfig arcFileConfig) {
+    	if (arcFileNaming == null) {
+    		throw new IllegalArgumentException("'arcFileNaming' is null!");
+    	}
+    	if (arcFileConfig == null) {
+    		throw new IllegalArgumentException("'arcFileConfig' is null!");
+    	}
         ArcFileWriter wfw = new ArcFileWriter();
         wfw.arcFileNaming = arcFileNaming;
         wfw.arcFileConfig = arcFileConfig;
@@ -172,11 +178,11 @@ public class ArcFileWriter {
             String finishedName = writerFile.getName().substring(0, writerFile.getName().length() - ACTIVE_SUFFIX.length());
             File finishedFile = new File(writerFile.getParent(), finishedName);
             if (finishedFile.exists()) {
-                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - destination file already exists");
+                throw new IOException("Unable to rename '" + writerFile + "' to '" + finishedFile + "' - destination file already exists");
             }
             boolean success = writerFile.renameTo(finishedFile);
             if (!success) {
-                throw new IOException("unable to rename '" + writerFile + "' to '" + finishedFile + "' - unknown problem");
+                throw new IOException("Unable to rename '" + writerFile + "' to '" + finishedFile + "' - unknown problem");
             }
         }
         writerFile = null;

@@ -381,7 +381,7 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
     /**
      * Parses and gets the next ARC record.
      * @return the next ARC record
-     * @throws IOException i/o exception in reading process
+     * @throws IOException I/O exception in reading process
      */
     public abstract ArcRecordBase getNextRecord() throws IOException;
 
@@ -390,7 +390,7 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
      * @param in ARC record <code>InputStream</code>
      * @param offset offset provided by caller
      * @return the next ARC record
-     * @throws IOException i/o exception in reading process
+     * @throws IOException I/O exception in reading process
      */
     public abstract ArcRecordBase getNextRecordFrom(InputStream in, long offset)
             throws IOException;
@@ -401,7 +401,7 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
      * @param buffer_size size of buffer used to wrap <code>InputStream</code>
      * @param offset offset provided by caller
      * @return the next ARC record
-     * @throws IOException i/o exception in reading process
+     * @throws IOException I/O exception in reading process
      */
     public abstract ArcRecordBase getNextRecordFrom(InputStream in,
             long offset, int buffer_size) throws IOException;

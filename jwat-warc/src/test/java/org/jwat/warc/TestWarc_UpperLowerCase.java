@@ -93,7 +93,7 @@ public class TestWarc_UpperLowerCase {
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {
-            Assert.fail("Unexpected i/o exception");
+            Assert.fail("Unexpected I/O exception");
         }
 
         Assert.assertEquals(expected_records, records);
