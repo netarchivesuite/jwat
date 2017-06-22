@@ -55,7 +55,7 @@ public class HeaderLineReader {
     /** State for reading a quoted LWS character sequence. */
     protected static final int S_QUOTED_LWS = 6;
     /** Status for reading an encoded word character sequence. */
-    protected static final int S_ENCODED_WORD_EQ = 7;
+    //protected static final int S_ENCODED_WORD_EQ = 7;
 
     /*
      * 8-bit character characteristics.
@@ -437,6 +437,7 @@ public class HeaderLineReader {
                                     state = S_QUOTED_TEXT;
                                 }
                                 break;
+/*
                             case '=':
                                 if (bEncodedWords) {
                                     state = S_ENCODED_WORD_EQ;
@@ -444,6 +445,7 @@ public class HeaderLineReader {
                                     nvSb.append((char)c);
                                 }
                                 break;
+*/
                             default:
                                 nvSb.append((char)c);
                                 break;
@@ -599,6 +601,7 @@ public class HeaderLineReader {
                     break;
                 }
                 break;
+/*
             case S_ENCODED_WORD_EQ:
                 switch (c) {
                 case -1:
@@ -616,11 +619,13 @@ public class HeaderLineReader {
                     bytesOut.unread('?');
                     bytesOut.unread('=');
                     EncodedWords ew = EncodedWords.parseEncodedWords(in, true);
+*/
                     /*
                     if (!ew.bIsValid) {
                         // TODO Decide whether to report encoded word errors or interpret as non encoded words.
                     }
                     */
+/*
                     if (!ew.bValidCharset) {
                         // In case of invalid charset errors, try to report.
                         bfErrors |= E_BIT_INVALID_CHARSET;
@@ -639,6 +644,7 @@ public class HeaderLineReader {
                     break;
                 }
                 break;
+*/
             }
         }
         headerLine.raw = bytesOut.toByteArray();

@@ -22,14 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.common.HeaderLine;
 
 @RunWith(Parameterized.class)
 public class TestWarc_BadEncodingHeader {
@@ -53,6 +52,7 @@ public class TestWarc_BadEncodingHeader {
         this.warcFile = warcFile;
     }
 
+    @Ignore
     @Test
     public void test_bad_encoding_warc_header() {
         boolean bDebugOutput = System.getProperty("jwat.debug.output") != null;
