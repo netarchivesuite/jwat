@@ -183,9 +183,9 @@ public class ArchiveParser {
                 warcReader.close();
             }
             else {
-                callbacks.apcFileId(file, FileIdent.FILEID_UNKNOWN);
+                callbacks.apcFileId(file, FileIdent.identFileName(file));
             }
-            callbacks.apcDone();
+            callbacks.apcDone(gzipReader, arcReader, warcReader);
         }
         catch (Throwable t) {
             // TODO just use reader.getStartOffset?

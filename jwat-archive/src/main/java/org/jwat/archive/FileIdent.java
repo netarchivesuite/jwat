@@ -60,15 +60,15 @@ public final class FileIdent {
     public static int identFileName(File file) {
         int fileId = FILEID_UNKNOWN;
         String fname = file.getName().toLowerCase();
-        if (fname.endsWith(".arc.gz")) {
+        if (fname.endsWith(".arc.gz") || fname.endsWith(".arc.gz.open")) {
             fileId = FILEID_ARC_GZ;
-        } else if (fname.endsWith(".warc.gz")) {
+        } else if (fname.endsWith(".warc.gz") || fname.endsWith(".warc.gz.open")) {
             fileId = FILEID_WARC_GZ;
-        } else if (fname.endsWith(".arc")) {
+        } else if (fname.endsWith(".arc") || fname.endsWith(".arc.open")) {
             fileId = FILEID_ARC;
-        } else if (fname.endsWith(".warc")) {
+        } else if (fname.endsWith(".warc") || fname.endsWith(".warc.open")) {
             fileId = FILEID_WARC;
-        } else if (fname.endsWith(".gz")) {
+        } else if (fname.endsWith(".gz") || fname.endsWith(".gz.open")) {
             fileId = FILEID_GZIP;
         }
         return fileId;

@@ -20,8 +20,11 @@ package org.jwat.archive;
 import java.io.File;
 import java.io.IOException;
 
+import org.jwat.arc.ArcReader;
 import org.jwat.arc.ArcRecordBase;
 import org.jwat.gzip.GzipEntry;
+import org.jwat.gzip.GzipReader;
+import org.jwat.warc.WarcReader;
 import org.jwat.warc.WarcRecord;
 
 /**
@@ -49,6 +52,6 @@ public interface ArchiveParserCallback {
     public void apcRuntimeError(Throwable t, long offset, long consumed);
 
     /** Parser done, no more records/entries. */
-    public void apcDone();
+    public void apcDone(GzipReader gzipReader, ArcReader arcReader, WarcReader warcReader);
 
 }

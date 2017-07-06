@@ -461,7 +461,7 @@ public class GzipReader implements Closeable {
         } else {
             // Require one or more entries to be present.
             if (entries == 0) {
-                diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED, "GZip file", "One or more records"));
+                diagnostics.addError(new Diagnosis(DiagnosisType.ERROR_EXPECTED, "GZip file", "One or more entries"));
                 bIsCompliant = false;
             }
             if (pbin.read() != -1) {
