@@ -109,6 +109,9 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
+    /** Callback used to monitor and modify internal data as it is being parsed. */
+    protected ArcRecordParserCallback arpCallback;
+
     /**
      * Method used to initialize a readers internal state.
      */
@@ -412,6 +415,14 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
      */
     public Exception getIteratorExceptionThrown() {
         return iteratorExceptionThrown;
+    }
+
+    public ArcRecordParserCallback getArcRecordParserCallback() {
+    	return arpCallback;
+    }
+
+    public void setArcRecordParserCallback(ArcRecordParserCallback arpCallback) {
+    	this.arpCallback = arpCallback;
     }
 
     /**

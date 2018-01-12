@@ -17,6 +17,12 @@
  */
 package org.jwat.arc;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.Date;
+
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
@@ -32,12 +38,6 @@ import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
 import org.jwat.common.PayloadWithHeaderAbstract;
 import org.jwat.common.Uri;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.util.Date;
 
 /**
  * This abstract class represents the common base ARC data which is present in
@@ -149,9 +149,14 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
         // Returns true if a record has been processed.
         // And false if only garbage has been processed.
         if (header.parseHeader(in)) {
+            if (reader.arpCallback != null) {
+            	reader.arpCallback.arcParsedRecordHeader(reader, startOffset, header);
+            }
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
                 record = ArcVersionBlock.parseVersionBlock(reader, diagnostics, header, reader.fieldParsers, in);
-                reader.versionHeader = record.versionHeader;
+                if (record != null) {
+                    reader.versionHeader = record.versionHeader;
+                }
             }
             if (record == null) {
                 record = ArcRecord.parseArcRecord(reader, diagnostics, header, in);

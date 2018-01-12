@@ -110,6 +110,9 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
     /** Exception thrown while using the iterator. */
     protected Exception iteratorExceptionThrown;
 
+    /** Callback used to monitor and modify internal data as it is being parsed. */
+    protected WarcRecordParserCallback wrpCallback;
+
     /**
      * Method used to initialize a readers internal state.
      * Must be called by all constructors.
@@ -438,6 +441,14 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
      */
     public Exception getIteratorExceptionThrown() {
         return iteratorExceptionThrown;
+    }
+
+    public WarcRecordParserCallback getWarcRecordParserCallback() {
+    	return wrpCallback;
+    }
+
+    public void setWarcRecordParserCallback(WarcRecordParserCallback wrpCallback) {
+    	this.wrpCallback = wrpCallback;
     }
 
     /**

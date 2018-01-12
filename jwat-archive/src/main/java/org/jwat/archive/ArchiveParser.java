@@ -66,6 +66,9 @@ public class ArchiveParser {
     /** Max payload header size (http header etc.). */
     public int payloadHeaderMaxSize = 32768;
 
+    /** Callback used to monitor and modify internal data as it is being parsed. */
+    public ArchiveRecordParserCallback arpCallback;
+
     /*
      * State.
      */
@@ -119,6 +122,7 @@ public class ArchiveParser {
                             arcReader.setPayloadDigestEnabled( bPayloadDigestEnabled );
                             arcReader.setRecordHeaderMaxSize( recordHeaderMaxSize );
                             arcReader.setPayloadHeaderMaxSize( payloadHeaderMaxSize );
+                            arcReader.setArcRecordParserCallback( arpCallback );
                             callbacks.apcFileId(file, FileIdent.FILEID_ARC_GZ);
                         }
                         else if ( WarcReaderFactory.isWarcFile( in ) ) {
@@ -128,6 +132,7 @@ public class ArchiveParser {
                             warcReader.setPayloadDigestEnabled( bPayloadDigestEnabled );
                             warcReader.setRecordHeaderMaxSize( recordHeaderMaxSize );
                             warcReader.setPayloadHeaderMaxSize( payloadHeaderMaxSize );
+                            warcReader.setWarcRecordParserCallback( arpCallback );
                             callbacks.apcFileId(file, FileIdent.FILEID_WARC_GZ);
                         }
                         else {
@@ -161,6 +166,7 @@ public class ArchiveParser {
                 arcReader.setPayloadDigestEnabled( bPayloadDigestEnabled );
                 arcReader.setRecordHeaderMaxSize( recordHeaderMaxSize );
                 arcReader.setPayloadHeaderMaxSize( payloadHeaderMaxSize );
+                arcReader.setArcRecordParserCallback( arpCallback );
                 callbacks.apcFileId(file, FileIdent.FILEID_ARC);
                 while ( (arcRecord = arcReader.getNextRecord()) != null ) {
                     callbacks.apcArcRecordStart(arcRecord, arcReader.getStartOffset(), false);
@@ -175,6 +181,7 @@ public class ArchiveParser {
                 warcReader.setPayloadDigestEnabled( bPayloadDigestEnabled );
                 warcReader.setRecordHeaderMaxSize( recordHeaderMaxSize );
                 warcReader.setPayloadHeaderMaxSize( payloadHeaderMaxSize );
+                warcReader.setWarcRecordParserCallback( arpCallback );
                 callbacks.apcFileId(file, FileIdent.FILEID_WARC);
                 while ( (warcRecord = warcReader.getNextRecord()) != null ) {
                     callbacks.apcWarcRecordStart(warcRecord, warcReader.getStartOffset(), false);

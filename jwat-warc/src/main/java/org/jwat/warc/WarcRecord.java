@@ -17,6 +17,13 @@
  */
 package org.jwat.warc;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.jwat.common.Base16;
 import org.jwat.common.Base32;
 import org.jwat.common.Base64;
@@ -29,13 +36,6 @@ import org.jwat.common.HttpHeader;
 import org.jwat.common.NewlineParser;
 import org.jwat.common.Payload;
 import org.jwat.common.PayloadOnClosedHandler;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This class represents a parsed WARC record header block including
@@ -147,6 +147,9 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
         reader.fieldParsers.diagnostics = record.diagnostics;
         if (header.parseHeader(in)) {
             ++reader.records;
+            if (reader.wrpCallback != null) {
+            	reader.wrpCallback.warcParsedRecordHeader(reader, record.startOffset, header);
+            }
             /*
              * Payload processing.
              */
