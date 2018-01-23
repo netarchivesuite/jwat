@@ -19,11 +19,9 @@ package org.jwat.archive;
 
 import org.jwat.arc.ArcHeader;
 import org.jwat.arc.ArcReader;
-import org.jwat.arc.ArcRecordBase;
 import org.jwat.arc.ArcRecordParserCallback;
 import org.jwat.warc.WarcHeader;
 import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcRecord;
 import org.jwat.warc.WarcRecordParserCallback;
 
 public abstract class ArchiveRecordParserCallback implements ArcRecordParserCallback, WarcRecordParserCallback {
