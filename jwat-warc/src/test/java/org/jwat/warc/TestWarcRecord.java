@@ -33,6 +33,124 @@ import org.jwat.common.HttpHeader;
 
 @RunWith(JUnit4.class)
 public class TestWarcRecord extends TestWarcRecordHelper {
+    /**
+     *
+     * Test for missing mandatory header field WARC-Type
+     */
+    @Test
+    public void test_warcrecord_missing_mandatory_header_fields() {
+        Object[][] recordHeaderNoType = null;
+        byte[] responseHeaderBytes = null;
+        byte[] responsePayloadBytes = null;
+
+        Object[][] expectedDiagnoses;
+
+        recordHeaderNoType = new Object[][] {
+                // missing {"WARC-Type", "response"},
+                {"WARC-Target-URI", "http://www.archive.org/robots.txt"},
+                {"WARC-Date", "2008-04-30T20:48:25Z"},
+                {"WARC-IP-Address", "207.241.229.39"},
+                {"WARC-Record-ID", "<urn:uuid:e7c9eff8-f5bc-4aeb-b3d2-9d3df99afb30>"},
+                {"Content-Length", "782"}
+        };
+
+        String responseHeader =
+                "HTTP/1.1 200 OK\r\n"
+                        + "Date: Wed, 30 Apr 2008 20:48:24 GMT\r\n"
+                        + "Server: Apache/2.0.54 (Ubuntu) PHP/5.0.5-2ubuntu1.4 mod_ssl/2.0.54 OpenSSL/0.9.7g\r\n"
+                        + "Last-Modified: Sat, 02 Feb 2008 19:40:44 GMT\r\n"
+                        + "ETag: \"47c3-1d3-11134700\"\r\n"
+                        + "Accept-Ranges: bytes\r\n"
+                        + "Content-Length: 467\r\n"
+                        + "Connection: close\r\n"
+                        + "Content-Type: text/plain; charset=UTF-8\r\n"
+                        + "\r\n";
+
+        String responsePayload =
+                "##############################################\n"
+                        +"#\n"
+                        + "# Welcome to the Archive!\n"
+                        + "#\n"
+                        + "##############################################\n"
+                        + "# Please crawl our files.\n"
+                        + "# We appreciate if you can crawl responsibly.\n"
+                        + "# Stay open!\n"
+                        + "##############################################\n"
+                        + "User-agent: *\n"
+                        + "Disallow: /nothing---please-crawl-us--\n"
+                        + "\n"
+                        + "# slow down the ask jeeves crawler which was hitting our SE a little too fast\n"
+                        + "# via collection pages.   --Feb2008 tracey--\n"
+                        + "User-agent: Teoma\n"
+                        + "Crawl-Delay: 10\n";
+
+        try {
+            responseHeaderBytes = responseHeader.getBytes("ISO8859-1");
+            responsePayloadBytes = responsePayload.getBytes("ISO8859-1");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        WarcReader reader;
+        WarcRecord record;
+
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            WarcWriter writer = WarcWriterFactory.getWriter(out, false);
+            Assert.assertTrue(writer.bExceptionOnContentLengthMismatch);
+            writer.setExceptionOnContentLengthMismatch(false);
+            Assert.assertFalse(writer.bExceptionOnContentLengthMismatch);
+
+            record = createRecord(writer, recordHeaderNoType, null, null);
+            writeRecord(writer, record, responseHeaderBytes, responsePayloadBytes);
+            writer.closeRecord();
+
+            writer.close();
+
+            // Save testfile.
+            SaveWarcTestFiles.saveTestWarcRecord(out.toByteArray(), false);
+
+            // debug
+            //System.out.println(new String(out.toByteArray()));
+
+            reader = WarcReaderFactory.getReader(new ByteArrayInputStream(out.toByteArray()));
+            reader.setBlockDigestEnabled(true);
+            reader.setPayloadDigestEnabled(true);
+            int recordNumber = 0;
+            while ((record = reader.getNextRecord()) != null) {
+                record.close();
+                ++recordNumber;
+                Assert.assertTrue(record.isClosed());
+
+                Assert.assertEquals(1, record.diagnostics.getErrors().size());
+                Assert.assertEquals(1, record.diagnostics.getWarnings().size());
+                expectedDiagnoses = new Object[][] {
+                        {DiagnosisType.REQUIRED_INVALID, "'WARC-Type' header", 1}
+                };
+                TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                Assert.assertNotNull(record.payload);
+                Assert.assertNull(record.httpHeader);
+
+                Assert.assertNull(record.computedBlockDigest);
+                Assert.assertNull(record.computedPayloadDigest);
+                Assert.assertNull(record.isValidBlockDigest);
+                Assert.assertNull(record.isValidPayloadDigest);
+                Assert.assertNotNull(record.getPayload());
+                Assert.assertNotNull(record.getPayloadContent());
+
+                if (record.diagnostics.getErrors().size() == 0 && record.diagnostics.getWarnings().size() == 0) {
+                    Assert.assertTrue(record.isCompliant());
+                } else {
+                    Assert.assertFalse(record.isCompliant());
+                }
+            }
+            reader.close();
+            Assert.assertFalse(reader.isCompliant());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexepected exception!");
+        }
+    }
 
     /**
      * Test various combinations with and without content-length and
