@@ -174,7 +174,7 @@ public class WarcFieldParsers {
     /**
      * Returns an URI object holding the value of the specified string.
      * @param uriStr the URL to parse
-     * @param bLtGt switch indicating if we expected the uri inside '<' / '>' characters
+     * @param bLtGt switch indicating if we expected the uri inside '&lt;' / '&gt;' characters
      * @param uriProfile the uri profile
      * @param field field name
      * @return an URI object holding the value of the specified string or null,

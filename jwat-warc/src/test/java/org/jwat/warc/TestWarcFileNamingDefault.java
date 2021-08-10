@@ -55,7 +55,7 @@ public class TestWarcFileNamingDefault {
         Assert.assertEquals(wafn.filePrefix + "-" + wafn.dateStr + "-" + String.format("%05d", 42) + "-" + wafn.hostname + wafn.extension, wafn.getFilename(42, false));
         Assert.assertEquals(wafn.filePrefix + "-" + wafn.dateStr + "-" + String.format("%05d", 43) + "-" + wafn.hostname + wafn.extension + ".gz", wafn.getFilename(43, true));
 
-        //String dateStr = afn.dateFormat.format(date);
+        dateStr = wafn.dateFormat.format(date);
 
         wafn = new WarcFileNamingDefault("Prefix", date, "hostname", ".carw");
         Assert.assertEquals("Prefix", wafn.filePrefix);

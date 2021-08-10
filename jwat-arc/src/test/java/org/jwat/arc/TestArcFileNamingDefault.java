@@ -63,7 +63,7 @@ public class TestArcFileNamingDefault {
         Assert.assertEquals(afn.filePrefix + "-" + afn.dateStr + "-" + String.format("%05d", 42) + "-" + afn.hostname + afn.extension, afn.getFilename(42, false));
         Assert.assertEquals(afn.filePrefix + "-" + afn.dateStr + "-" + String.format("%05d", 43) + "-" + afn.hostname + afn.extension + ".gz", afn.getFilename(43, true));
 
-        //String dateStr = afn.dateFormat.format(date);
+        dateStr = afn.dateFormat.format(date);
 
         afn = new ArcFileNamingDefault("Prefix", date, "hostname", ".car");
         Assert.assertEquals("Prefix", afn.filePrefix);

@@ -252,8 +252,8 @@ public class WarcHeader {
 
     /**
      * Create a new <code>WarcHeader</code> for recreating a header object.
-     * @param uriProfile uri profile used to validate urls
      * @param fieldParsers parsers used for the individual types
+     * @param uriProfile uri profile used to validate urls
      * @param diagnostics diagnostics object used by parser
      * @return a <code>WarcHeader</code> prepared for reanimation
      */
