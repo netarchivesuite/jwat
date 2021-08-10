@@ -1,41 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.jwat</groupId>
-    <artifactId>jwat</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
+	<parent>
+		<groupId>org.jwat</groupId>
+		<artifactId>jwat</artifactId>
+		<version>1.1.2-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>jwat-archive</artifactId>
+	<artifactId>jwat-archive</artifactId>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.jwat</groupId>
-      <artifactId>jwat-arc</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jwat</groupId>
-      <artifactId>jwat-warc</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
+	<name>JWAT archive</name>
+	<description>
+		Common code used with both ARC and WARC archives.
+		Also include some useful utilities to use when working with ARC/WARC/GZip files.
+	</description>
 
-  <build>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-      </testResource>
-      <testResource>
-        <directory>../jwat-arc/src/test/resources</directory>
-      </testResource>
-      <testResource>
-        <directory>../jwat-warc/src/test/resources</directory>
-      </testResource>
-    </testResources>
-  </build>
+	<dependencies>
+		<dependency>
+			<groupId>org.jwat</groupId>
+			<artifactId>jwat-arc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jwat</groupId>
+			<artifactId>jwat-warc</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>../jwat-arc/src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>../jwat-warc/src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
 </project>

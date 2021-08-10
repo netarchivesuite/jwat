@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.jwat</groupId>
-    <artifactId>jwat</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
-  </parent>
+	<parent>
+		<groupId>org.jwat</groupId>
+		<artifactId>jwat</artifactId>
+		<version>1.1.2-SNAPSHOT</version>
+	</parent>
 
-  <artifactId>jwat-gzip</artifactId>
+	<artifactId>jwat-gzip</artifactId>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.jwat</groupId>
-      <artifactId>jwat-common</artifactId>
-      <version>${project.version}</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
+	<name>JWAT GZip</name>
+	<description>
+		Used for reading, writing and validating GZip files.
+		Internal header parser, constructor and validation.
+		Implemented in accordance with the RFC.
+	</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jwat</groupId>
+			<artifactId>jwat-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 </project>
