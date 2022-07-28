@@ -19,6 +19,7 @@ package org.jwat.common;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -32,6 +33,13 @@ import java.util.zip.Checksum;
  * @author nicl
  */
 public class Digest {
+
+    static {
+        Provider[] providers = SecurityProviderTools.getSecurityProviders();
+        if (!SecurityProviderTools.isProviderAvailable(providers, "BC")) {
+            SecurityProviderTools.loadBCProvider();
+        }
+    }
 
     /** Digest algorithm used. */
     public String algorithm;
