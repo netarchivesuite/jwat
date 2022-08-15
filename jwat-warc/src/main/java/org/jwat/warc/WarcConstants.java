@@ -580,11 +580,14 @@ public class WarcConstants {
         // WARC-Refers-To-Target-URI
         // WARC-Refers-To-Date
         for (int i=1; i<=RT_NUMBER; ++i) {
-            field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_SHALL_NOT;
-            field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_SHALL_NOT;
+            //field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_SHALL_NOT;
+            //field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_SHALL_NOT;
+            // FIXME Ignore headers in WARC/1.0 - Add WARC/1.1 matrix.
+            field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
+            field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
         }
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
+        //field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
+        //field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
     }
 
 }
