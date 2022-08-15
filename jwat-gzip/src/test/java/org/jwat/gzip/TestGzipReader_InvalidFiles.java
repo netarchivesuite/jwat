@@ -120,9 +120,10 @@ public class TestGzipReader_InvalidFiles {
                 } else if (entries == 2) {
                     Assert.assertFalse(entry.diagnostics.hasErrors());
                     Assert.assertTrue(entry.diagnostics.hasWarnings());
-                    Assert.assertEquals(2, entry.diagnostics.getWarnings().size());
+                    Assert.assertEquals(1, entry.diagnostics.getWarnings().size());
                     Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.RESERVED, "FLaGs", 1));
-                    Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
+                    // TODO Do not worry about unknown OS'es.
+                    //Assert.assertTrue(GzipTestHelper.containsWarning(entry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
                 } else if (entries == 3) {
                     Assert.assertTrue(entry.diagnostics.hasErrors());
                     Assert.assertFalse(entry.diagnostics.hasWarnings());
@@ -235,9 +236,10 @@ public class TestGzipReader_InvalidFiles {
         Assert.assertEquals(142, rEntry.os);
 
         Assert.assertFalse(rEntry.diagnostics.hasErrors());
-        Assert.assertTrue(rEntry.diagnostics.hasWarnings());
-        Assert.assertEquals(1, rEntry.diagnostics.getWarnings().size());
-        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
+        Assert.assertFalse(rEntry.diagnostics.hasWarnings());
+        // TODO Do not worry about unknown OS'es.
+        //Assert.assertEquals(1, rEntry.diagnostics.getWarnings().size());
+        //Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
 
         gzipFile[0] = GzipConstants.GZIP_MAGIC_HEADER[1];
         gzipFile[1] = GzipConstants.GZIP_MAGIC_HEADER[0];
@@ -266,9 +268,10 @@ public class TestGzipReader_InvalidFiles {
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "CRC16", 2));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "CRC32", 2));
         Assert.assertTrue(GzipTestHelper.containsError(rEntry.diagnostics, DiagnosisType.INVALID_EXPECTED, "ISize", 2));
-        Assert.assertEquals(2, rEntry.diagnostics.getWarnings().size());
+        Assert.assertEquals(1, rEntry.diagnostics.getWarnings().size());
         Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.RESERVED, "FLaGs", 1));
-        Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
+        // TODO Do not worry about unknown OS'es.
+        //Assert.assertTrue(GzipTestHelper.containsWarning(rEntry.diagnostics, DiagnosisType.UNKNOWN, "Operating System", 1));
 
         gzipFile[0] = GzipConstants.GZIP_MAGIC_HEADER[0];
         gzipFile[1] = GzipConstants.GZIP_MAGIC_HEADER[1];

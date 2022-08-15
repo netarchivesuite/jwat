@@ -298,6 +298,8 @@ public class GzipReader implements Closeable {
                                 )
                             );
                 }
+                // TODO Do not worry about unknown OS'es.
+                /*
                 if (!GzipConstants.osIdxStr.containsKey((int)gzipEntry.os)) {
                     gzipEntry.diagnostics.addWarning(
                             new Diagnosis(
@@ -307,6 +309,7 @@ public class GzipReader implements Closeable {
                         )
                     );
                 }
+                */
                 /*
                  * FTEXT.
                  */
