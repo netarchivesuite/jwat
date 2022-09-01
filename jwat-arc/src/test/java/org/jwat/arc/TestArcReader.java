@@ -148,7 +148,7 @@ public class TestArcReader {
 
     @Test
     public void test_arcfile_garbage() {
-    	try {
+        try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             out.write("http://www.bt.dk/node/100".getBytes());
 
@@ -173,7 +173,7 @@ public class TestArcReader {
 
             reader.close();
             in.close();
-    	}
+        }
         catch (IOException e) {
             e.printStackTrace();
             Assert.fail("Unexpected exception!");
@@ -183,9 +183,9 @@ public class TestArcReader {
     @Test
     public void test_arcfile_record_then_garbage() {
         try {
-        	File testfile = TestHelpers.getTestResourceFile("invalid-arcfile-record-then-garbage.arc");
-        	RandomAccessFile raf = new RandomAccessFile(testfile, "r");
-        	RandomAccessFileInputStream rafIn = new RandomAccessFileInputStream(raf);
+            File testfile = TestHelpers.getTestResourceFile("invalid-arcfile-record-then-garbage.arc");
+            RandomAccessFile raf = new RandomAccessFile(testfile, "r");
+            RandomAccessFileInputStream rafIn = new RandomAccessFileInputStream(raf);
 
             ArcReader reader = ArcReaderFactory.getReaderUncompressed(rafIn);
             ArcRecordBase record = reader.getNextRecord();

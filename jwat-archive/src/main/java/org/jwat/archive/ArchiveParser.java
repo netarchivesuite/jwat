@@ -41,7 +41,7 @@ import org.jwat.warc.WarcRecord;
  */
 public class ArchiveParser {
 
-	/** Buffer size used to read the input stream. */
+    /** Buffer size used to read the input stream. */
     public static final int DEFAULT_READER_BUFFER_SIZE = 8192;
 
     /** Buffer size used to peek into the input stream. */

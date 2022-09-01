@@ -26,12 +26,12 @@ import org.jwat.warc.WarcRecordParserCallback;
 
 public abstract class ArchiveRecordParserCallback implements ArcRecordParserCallback, WarcRecordParserCallback {
 
-	@Override
-	public void arcParsedRecordHeader(ArcReader reader, long startOffset, ArcHeader header) {
-	}
+    @Override
+    public void arcParsedRecordHeader(ArcReader reader, long startOffset, ArcHeader header) {
+    }
 
-	@Override
-	public void warcParsedRecordHeader(WarcReader reader, long startOffset, WarcHeader header) {
-	}
+    @Override
+    public void warcParsedRecordHeader(WarcReader reader, long startOffset, WarcHeader header) {
+    }
 
 }

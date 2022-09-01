@@ -37,10 +37,10 @@ import org.jwat.warc.WarcWriterFactory;
  */
 public class Cloner {
 
-	/** Buffer size used when writing (W)ARC data. */
-	public static final int DEFAULT_WRITER_BUFFER_SIZE = 8192;
+    /** Buffer size used when writing (W)ARC data. */
+    public static final int DEFAULT_WRITER_BUFFER_SIZE = 8192;
 
-	private static Cloner cloner;
+    private static Cloner cloner;
 
     public static synchronized Cloner getCloner() {
         if (cloner == null) {

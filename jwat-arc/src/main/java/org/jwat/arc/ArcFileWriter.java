@@ -69,12 +69,12 @@ public class ArcFileWriter {
      * @return ARC file writer instance using the supplied configuration
      */
     public static ArcFileWriter getArcWriterInstance(ArcFileNaming arcFileNaming, ArcFileWriterConfig arcFileConfig) {
-    	if (arcFileNaming == null) {
-    		throw new IllegalArgumentException("'arcFileNaming' is null!");
-    	}
-    	if (arcFileConfig == null) {
-    		throw new IllegalArgumentException("'arcFileConfig' is null!");
-    	}
+        if (arcFileNaming == null) {
+            throw new IllegalArgumentException("'arcFileNaming' is null!");
+        }
+        if (arcFileConfig == null) {
+            throw new IllegalArgumentException("'arcFileConfig' is null!");
+        }
         ArcFileWriter wfw = new ArcFileWriter();
         wfw.arcFileNaming = arcFileNaming;
         wfw.arcFileConfig = arcFileConfig;

@@ -150,7 +150,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
         // And false if only garbage has been processed.
         if (header.parseHeader(in)) {
             if (reader.arpCallback != null) {
-            	reader.arpCallback.arcParsedRecordHeader(reader, startOffset, header);
+                reader.arpCallback.arcParsedRecordHeader(reader, startOffset, header);
             }
             if (header.urlScheme != null && header.urlScheme.startsWith(ArcConstants.ARC_SCHEME)) {
                 record = ArcVersionBlock.parseVersionBlock(reader, diagnostics, header, reader.fieldParsers, in);
@@ -208,7 +208,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
             // Transfer errors/warnings identified in the header parser to the reader since we are not returning a record.
-        	long excess = in.getConsumed() - startOffset;
+            long excess = in.getConsumed() - startOffset;
             reader.consumed += excess;
             reader.diagnostics.addAll(diagnostics);
             if (diagnostics.hasErrors() || diagnostics.hasWarnings()) {
@@ -222,9 +222,9 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
                 ++reader.errors;
                 reader.bIsCompliant = false;
             }
-        	if (excess != 0) {
-        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + startOffset + " - length=" + excess));
-        	}
+            if (excess != 0) {
+                reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + startOffset + " - length=" + excess));
+            }
         }
         return record;
     }

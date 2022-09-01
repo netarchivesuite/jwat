@@ -75,7 +75,7 @@ public class UriProfile {
     public boolean bAllow16bitPercentEncoding;
 
     /** Does profile allow invalid percent encoding. */
-    public boolean bAllowinvalidPercentEncoding;
+    public boolean bAllowInvalidPercentEncoding;
 
     /**
      * Construct an <code>UriProfile</code> initialized with RFC3986
@@ -87,7 +87,7 @@ public class UriProfile {
         }
         bAllowRelativeUris = true;
         bAllow16bitPercentEncoding = false;
-        bAllowinvalidPercentEncoding = false;
+        bAllowInvalidPercentEncoding = false;
     }
 
     /**
@@ -100,7 +100,7 @@ public class UriProfile {
         }
         bAllowRelativeUris = uriProfile.bAllowRelativeUris;
         bAllow16bitPercentEncoding = uriProfile.bAllow16bitPercentEncoding;
-        bAllowinvalidPercentEncoding = uriProfile.bAllowinvalidPercentEncoding;
+        bAllowInvalidPercentEncoding = uriProfile.bAllowInvalidPercentEncoding;
     }
 
     /**
@@ -196,7 +196,7 @@ public class UriProfile {
                             c = str.charAt(pos);
                             if (c == 'u' || c == 'U') {
                                 if (!bAllow16bitPercentEncoding) {
-                                    if (!bAllowinvalidPercentEncoding) {
+                                    if (!bAllowInvalidPercentEncoding) {
                                         throw new URISyntaxException(str, "Invalid URI " + componentName + " component - 16-bit percent encoding not allowed");
                                     } else {
                                         bValid = false;
@@ -230,12 +230,12 @@ public class UriProfile {
                                     bValid = false;
                                 }
                             }
-                            if (!bValid && !bAllowinvalidPercentEncoding) {
+                            if (!bValid && !bAllowInvalidPercentEncoding) {
                                 throw new URISyntaxException(str, "Invalid URI " + componentName + " component - invalid percent encoding");
                             }
                             sb.append((char) decodedC);
                         } else {
-                            if (!bAllowinvalidPercentEncoding) {
+                            if (!bAllowInvalidPercentEncoding) {
                                 throw new URISyntaxException(str, "Invalid URI " + componentName + " component - incomplete percent encoding");
                             } else {
                                 bValid = false;
@@ -390,7 +390,7 @@ public class UriProfile {
         RFC3986_ABS_16BIT = new UriProfile();
         RFC3986_ABS_16BIT.bAllowRelativeUris = false;
         RFC3986_ABS_16BIT.bAllow16bitPercentEncoding = true;
-        RFC3986_ABS_16BIT.bAllowinvalidPercentEncoding = false;
+        RFC3986_ABS_16BIT.bAllowInvalidPercentEncoding = false;
 
         StringBuilder sb = new StringBuilder("[]");
         for (int i=33; i<127; ++i) {
@@ -406,7 +406,7 @@ public class UriProfile {
         RFC3986_ABS_16BIT_LAX = new UriProfile();
         RFC3986_ABS_16BIT_LAX.bAllowRelativeUris = false;
         RFC3986_ABS_16BIT_LAX.bAllow16bitPercentEncoding = true;
-        RFC3986_ABS_16BIT_LAX.bAllowinvalidPercentEncoding = true;
+        RFC3986_ABS_16BIT_LAX.bAllowInvalidPercentEncoding = true;
         RFC3986_ABS_16BIT_LAX.charTypeAddAndOr(sb.toString(), 0, B_PATH | B_QUERY | B_FRAGMENT);
         RFC3986_ABS_16BIT_LAX.charTypeAddAndOr("#", 0, B_FRAGMENT);
     }

@@ -112,7 +112,7 @@ public class ManagedPayload {
     public long httpHeaderLength;
 
     protected ManagedPayload(int copyBufferSize, int inMemorybufferSize) {
-    	this(copyBufferSize, inMemorybufferSize, DEFAULT_BLOCK_DIGEST_ALGO, DEFAULT_PAYLOAD_DIGEST_ALGO);
+        this(copyBufferSize, inMemorybufferSize, DEFAULT_BLOCK_DIGEST_ALGO, DEFAULT_PAYLOAD_DIGEST_ALGO);
     }
 
     protected ManagedPayload(int copyBufferSize, int inMemorybufferSize, String blockDigestAlgo, String payloadDigestAlgo) {

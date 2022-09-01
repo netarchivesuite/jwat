@@ -418,11 +418,11 @@ public abstract class ArcReader implements Closeable, Iterable<ArcRecordBase> {
     }
 
     public ArcRecordParserCallback getArcRecordParserCallback() {
-    	return arpCallback;
+        return arpCallback;
     }
 
     public void setArcRecordParserCallback(ArcRecordParserCallback arpCallback) {
-    	this.arpCallback = arpCallback;
+        this.arpCallback = arpCallback;
     }
 
     /**

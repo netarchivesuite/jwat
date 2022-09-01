@@ -19,6 +19,6 @@ package org.jwat.arc;
 
 public interface ArcRecordParserCallback {
 
-	public void arcParsedRecordHeader(ArcReader reader, long startOffset, ArcHeader header);
+    public void arcParsedRecordHeader(ArcReader reader, long startOffset, ArcHeader header);
 
 }
