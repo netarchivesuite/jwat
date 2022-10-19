@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,9 +56,12 @@ public class WarcHeader {
      *  Must be set prior to calling the various methods. */
     protected WarcReader reader;
 
+    /** Version based WARC validation. */
+    protected WarcValidatorBase warcValidator;
+
     /** Diagnostics used to report diagnoses.
      *  Must be set prior to calling the various methods. */
-    protected Diagnostics<Diagnosis> diagnostics;
+    protected Diagnostics diagnostics;
 
     /** WARC-Target-URI profile. */
     protected UriProfile warcTargetUriProfile;
@@ -134,7 +136,7 @@ public class WarcHeader {
     /** WARC-Date field string value. */
     public String warcDateStr;
     /** WARC-Date converted to a <code>Date</code> object, if valid. */
-    public Date warcDate;
+    public WarcDate warcDate;
 
     /** Content-Length field string value. */
     public String contentLengthStr;
@@ -226,7 +228,7 @@ public class WarcHeader {
     /** WARC-Refers-To-Date */
     public String warcRefersToDateStr;
     /** WARC-Date converted to a <code>Date</code> object, if valid. */
-    public Date warcRefersToDate;
+    public WarcDate warcRefersToDate;
 
     /*
      * WARC header fields collections.
@@ -257,7 +259,7 @@ public class WarcHeader {
      * @param diagnostics diagnostics object used by parser
      * @return a <code>WarcHeader</code> prepared for reanimation
      */
-    public static WarcHeader initHeader(int recordHeaderMaxSize, HeaderLineReader lineReader, HeaderLineReader headerLineReader, WarcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics<Diagnosis> diagnostics) {
+    public static WarcHeader initHeader(int recordHeaderMaxSize, HeaderLineReader lineReader, HeaderLineReader headerLineReader, WarcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics diagnostics) {
         WarcHeader header = new WarcHeader();
         header.warcTargetUriProfile = uriProfile;
         header.uriProfile = uriProfile;
@@ -275,7 +277,7 @@ public class WarcHeader {
      * @param diagnostics diagnostics object used by writer
      * @return a <code>WarcHeader</code> prepared for writing
      */
-    public static WarcHeader initHeader(WarcWriter writer, Diagnostics<Diagnosis> diagnostics) {
+    public static WarcHeader initHeader(WarcWriter writer, Diagnostics diagnostics) {
         WarcHeader header = new WarcHeader();
         // Set default version to "1.0".
         header.major = 1;
@@ -294,7 +296,7 @@ public class WarcHeader {
      * @param diagnostics diagnostics object used by reader
      * @return a <code>WarcHeader</code> prepared for reading
      */
-    public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
+    public static WarcHeader initHeader(WarcReader reader, long startOffset, Diagnostics diagnostics) {
         WarcHeader header = new WarcHeader();
         header.reader = reader;
         header.warcTargetUriProfile = reader.warcTargetUriProfile;
@@ -307,18 +309,6 @@ public class WarcHeader {
         // This is only relevant for uncompressed sequentially read records
         header.startOffset = startOffset;
         return header;
-    }
-
-    /**
-     * Add an error diagnosis of the given type on a specific entity with
-     * optional extra information. The information varies according to the
-     * diagnosis type.
-     * @param type diagnosis type
-     * @param entity entity examined
-     * @param information optional extra information
-     */
-    protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
-        diagnostics.addError(new Diagnosis(type, entity, information));
     }
 
     /**
@@ -354,34 +344,7 @@ public class WarcHeader {
             //System.out.println(wr.bMagicIdentified);
             //System.out.println(wr.bVersionParsed);
             //System.out.println(wr.major + "." + wr.minor);
-            if (bVersionParsed && versionArr.length == 2) {
-                switch (major) {
-                case 1:
-                    if (minor == 0) {
-                        bValidVersion = true;
-                    }
-                    break;
-                case 0:
-                    switch (minor) {
-                    case 17:
-                    case 18:
-                        bValidVersion = true;
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-                }
-                if (!bValidVersion) {
-                    diagnostics.addError(
-                            new Diagnosis(DiagnosisType.UNKNOWN,
-                                    "Magic version number", versionStr));
-                }
-            } else {
-                diagnostics.addError(
-                        new Diagnosis(DiagnosisType.INVALID_DATA,
-                                "Magic Version string", versionStr));
-            }
+            warcValidator = reader.validation.getValidatorFor(this, diagnostics);
 
             MaxLengthRecordingInputStream mrin = new MaxLengthRecordingInputStream(in, recordHeaderMaxSize);
             ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(mrin, recordHeaderMaxSize);
@@ -389,7 +352,7 @@ public class WarcHeader {
             parseHeaders(pbin);
             pbin.close();
 
-            checkFields();
+            warcValidator.checkFields(this);
 
             headerBytes = headerBytesOut.toByteArray();
         }
@@ -464,10 +427,10 @@ public class WarcHeader {
             }
         }
         if (bInvalidDataBeforeVersion) {
-            addErrorDiagnosis(DiagnosisType.INVALID, "Data before WARC version");
+            diagnostics.addError(DiagnosisType.INVALID, "Data before WARC version");
         }
         if (bEmptyLinesBeforeVersion) {
-            addErrorDiagnosis(DiagnosisType.INVALID, "Empty lines before WARC version");
+            diagnostics.addError(DiagnosisType.INVALID, "Empty lines before WARC version");
         }
         return bMagicIdentified;
     }
@@ -484,7 +447,7 @@ public class WarcHeader {
         while (bLoop) {
             headerLine = headerLineReader.readLine(in);
             if ((headerLine.bfErrors & HeaderLineReader.E_BIT_INVALID_CHARSET) != 0) {
-                addErrorDiagnosis(DiagnosisType.INVALID_ENCODING, "Invalid encoding in header line", headerLine.value, "UNKNOWN");
+                diagnostics.addError(DiagnosisType.INVALID_ENCODING, "Invalid encoding in header line", headerLine.value, "UNKNOWN");
             }
             if (!headerLineReader.bEof) {
                 headerBytesOut.write(headerLine.raw);
@@ -548,7 +511,8 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = fieldValue;
-                    warcDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_DATE);
+                    //warcDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_DATE);
+                    warcDate = fieldParsers.parseWarcDate(fieldValue, WarcConstants.FN_WARC_DATE);
                     break;
                 case WarcConstants.FN_IDX_CONTENT_LENGTH:
                     contentLengthStr = fieldValue;
@@ -610,7 +574,7 @@ public class WarcHeader {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
                     }
                     if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
-                        warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
+                        warcProfileIdx = WarcConstants.WARC_PROFILE_IDX_UNKNOWN;
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE:
@@ -631,16 +595,17 @@ public class WarcHeader {
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI:
                     warcRefersToTargetUriStr = fieldValue;
-                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED, uriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
+                    warcRefersToTargetUriUri = fieldParsers.parseUri(fieldValue, URI_NAKED, warcTargetUriProfile, WarcConstants.FN_WARC_REFERS_TO_TARGET_URI);
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
                     warcRefersToDateStr = fieldValue;
-                    warcRefersToDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_REFERS_TO_DATE);
+                    //warcRefersToDate = fieldParsers.parseDate(fieldValue, WarcConstants.FN_WARC_REFERS_TO_DATE);
+                    warcRefersToDate = fieldParsers.parseWarcDate(fieldValue, WarcConstants.FN_WARC_REFERS_TO_DATE);
                     break;
                 }
             } else {
                 // Duplicate field.
-                addErrorDiagnosis(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValue);
+                diagnostics.addError(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValue);
             }
         }
         HeaderLine tmpLine = headerMap.get(fieldName.toLowerCase());
@@ -795,11 +760,16 @@ public class WarcHeader {
      * @param fieldValueStr Date field value string
      * @return <code>HeaderLine</code> object corresponding to what would have been read
      */
-    public HeaderLine addHeader(String fieldName, Date dateFieldValue, String fieldValueStr) {
+    public HeaderLine addHeader(String fieldName, WarcDate dateFieldValue, String fieldValueStr) {
         if (dateFieldValue == null && fieldValueStr != null) {
-            dateFieldValue = fieldParsers.parseDate(fieldValueStr, fieldName);
+            // FIXME Check check check.
+            //dateFieldValue = fieldParsers.parseDate(fieldValueStr, fieldName);
+            dateFieldValue = fieldParsers.parseWarcDate(fieldValueStr, fieldName);
         } else if (fieldValueStr == null && dateFieldValue != null) {
-            fieldValueStr = WarcDateParser.getDateFormat().format(dateFieldValue);
+            // FIXME Check check check.
+            //fieldValueStr = WarcDateParser.getDateFormat().format(dateFieldValue);
+            // FIXME Tricky since precision is WARC version dependent!
+            fieldValueStr = dateFieldValue.toString();
         }
         return addHeader(fieldName, fieldValueStr, WarcConstants.FDT_DATE,
                 null, null, null, null, dateFieldValue, null, null);
@@ -886,13 +856,12 @@ public class WarcHeader {
     public HeaderLine addHeader(String fieldName, String fieldValueStr, int dt,
             Integer integerFieldValue, Long longFieldValue,
             WarcDigest digestFieldValue, ContentType contentTypeFieldValue,
-            Date dateFieldValue, InetAddress inetAddrFieldValue,
+            WarcDate dateFieldValue, InetAddress inetAddrFieldValue,
             Uri uriFieldValue) {
         Integer fn_idx = WarcConstants.fieldNameIdxMap.get(fieldName.toLowerCase());
         if (fn_idx != null) {
             // Implicit cast from integer to long, if needed.
-            if (WarcConstants.FN_IDX_DT[fn_idx] == WarcConstants.FDT_LONG
-                    && dt == WarcConstants.FDT_INTEGER) {
+            if (WarcConstants.FN_IDX_DT[fn_idx] == WarcConstants.FDT_LONG && dt == WarcConstants.FDT_INTEGER) {
                 longFieldValue = (long)integerFieldValue;
                 dt = WarcConstants.FDT_LONG;
             }
@@ -900,9 +869,7 @@ public class WarcHeader {
                 // WARC field name defined in WARC specification.
                 if (seen[fn_idx] && !WarcConstants.fieldNamesRepeatableLookup[fn_idx]) {
                     // Duplicate field.
-                    addErrorDiagnosis(DiagnosisType.DUPLICATE,
-                            "'" + fieldName + "' header",
-                            fieldValueStr);
+                    diagnostics.addError(DiagnosisType.DUPLICATE, "'" + fieldName + "' header", fieldValueStr);
                 }
                 seen[fn_idx] = true;
                 switch (fn_idx.intValue()) {
@@ -951,10 +918,14 @@ public class WarcHeader {
                  */
                 case WarcConstants.FN_IDX_WARC_DATE:
                     warcDateStr = fieldValueStr;
+                    // FIXME Maybe change parameter type if it does not break too many things.
+                    //warcDate = WarcDate.getWarcDate(dateFieldValue);
                     warcDate = dateFieldValue;
                     break;
                 case WarcConstants.FN_IDX_WARC_REFERS_TO_DATE:
                     warcRefersToDateStr = fieldValueStr;
+                    // FIXME Maybe change parameter type if it does not break too many things.
+                    //warcRefersToDate = WarcDate.getWarcDate(dateFieldValue);
                     warcRefersToDate = dateFieldValue;
                     break;
                 /*
@@ -998,7 +969,7 @@ public class WarcHeader {
                         warcProfileIdx = WarcConstants.profileIdxMap.get(warcProfileStr.toLowerCase());
                     }
                     if (warcProfileIdx == null && warcProfileStr != null && warcProfileStr.length() > 0) {
-                        warcProfileIdx = WarcConstants.PROFILE_IDX_UNKNOWN;
+                        warcProfileIdx = WarcConstants.WARC_PROFILE_IDX_UNKNOWN;
                     }
                     break;
                 case WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID:
@@ -1014,7 +985,7 @@ public class WarcHeader {
                 }
             } else {
                 // Invalid datatype for field.
-                addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
+                diagnostics.addError(DiagnosisType.INVALID_EXPECTED,
                         "Invalid datatype for '" + fieldName + "' header",
                         WarcConstants.FDT_IDX_STRINGS[WarcConstants.FN_IDX_DT[fn_idx]],
                         WarcConstants.FDT_IDX_STRINGS[dt]);
@@ -1031,181 +1002,6 @@ public class WarcHeader {
             tmpLine.lines.add(headerLine);
         }
         return headerLine;
-    }
-
-    /**
-     * Validate the WARC header relative to the WARC-Type and according to the
-     * WARC ISO standard.
-     */
-    protected void checkFields() {
-        bMandatoryMissing = false;
-
-        /*
-         * Unknown Warc-Type and/or Warc-Profile.
-         */
-
-        if (warcTypeIdx != null && warcTypeIdx == WarcConstants.RT_IDX_UNKNOWN) {
-            // Warning: Unknown Warc-Type.
-            addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_TYPE + "' value", warcTypeStr);
-        }
-
-        if (warcProfileIdx != null && warcProfileIdx == WarcConstants.PROFILE_IDX_UNKNOWN) {
-            // Warning: Unknown Warc-Profile.
-            addWarningDiagnosis(DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", warcProfileStr);
-        }
-
-        /*
-         * Mandatory fields.
-         */
-
-        // TODO Required yes, but is it always invalid.
-        if (warcTypeIdx == null) {
-            // Mandatory valid Warc-Type missing.
-            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", warcTypeStr);
-            bMandatoryMissing = true;
-        }
-        if (warcRecordIdUri == null) {
-            // Mandatory valid Warc-Record-Id missing.
-            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_RECORD_ID + "' header", warcRecordIdStr);
-            bMandatoryMissing = true;
-        }
-        if (warcDate == null) {
-            // Mandatory valid Warc-Date missing.
-            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_DATE + "' header", warcDateStr);
-            bMandatoryMissing = true;
-        }
-        if (contentLength == null) {
-            // Mandatory valid Content-Length missing.
-            addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_CONTENT_LENGTH + "' header", contentLengthStr);
-            bMandatoryMissing = true;
-        }
-
-        /*
-         * Content-Type should be present if Content-Length > 0.
-         * Except for continuation records.
-         */
-
-        if (contentLength != null && contentLength.longValue() > 0L &&
-                        (contentTypeStr == null || contentTypeStr.length() == 0)) {
-            if (warcTypeIdx == null || warcTypeIdx != WarcConstants.RT_IDX_CONTINUATION) {
-                addWarningDiagnosis(DiagnosisType.RECOMMENDED_MISSING,
-                        "'" + WarcConstants.FN_CONTENT_TYPE + "' header");
-            }
-        }
-
-        /*
-         * WARC record type dependent policies.
-         */
-
-        if (warcTypeIdx != null) {
-            /*
-             * Warcinfo record should have "application/warc-fields" content-type.
-             */
-
-            if (warcTypeIdx == WarcConstants.RT_IDX_WARCINFO) {
-                if (contentType != null &&
-                        (!contentType.contentType.equals("application")
-                        || !contentType.mediaType.equals("warc-fields"))) {
-                    addWarningDiagnosis(DiagnosisType.RECOMMENDED,
-                            "'" + WarcConstants.FN_CONTENT_TYPE + "' value",
-                            WarcConstants.CT_APP_WARC_FIELDS,
-                            contentTypeStr);
-                }
-            }
-
-            if (warcTypeIdx == WarcConstants.RT_IDX_RESPONSE) {
-                if (warcSegmentNumber != null && warcSegmentNumber != 1) {
-                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                            "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
-                            warcSegmentNumber.toString(),
-                            "1");
-                }
-            }
-
-            if (warcTypeIdx == WarcConstants.RT_IDX_CONTINUATION) {
-                if (warcSegmentNumber != null && warcSegmentNumber < 2) {
-                    addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
-                            "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value",
-                            warcSegmentNumber.toString(),
-                            ">1");
-                }
-            }
-
-            /*
-             * Check the policies for each field.
-             */
-
-            WarcConcurrentTo warcConcurrentTo;
-            if (warcTypeIdx  > 0) {
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_CONTENT_TYPE, contentType, contentTypeStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IP_ADDRESS, warcInetAddress, warcIpAddress);
-                for (int i=0; i<warcConcurrentToList.size(); ++i) {
-                    warcConcurrentTo = warcConcurrentToList.get(0);
-                    checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_CONCURRENT_TO, warcConcurrentTo.warcConcurrentToUri, warcConcurrentTo.warcConcurrentToStr);
-                }
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO, warcRefersToUri, warcRefersToStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TARGET_URI, warcTargetUriUri, warcTargetUriStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_TRUNCATED, warcTruncatedIdx, warcTruncatedStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_WARCINFO_ID, warcWarcinfoIdUri, warcWarcinfoIdStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_BLOCK_DIGEST, warcBlockDigest, warcBlockDigestStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PAYLOAD_DIGEST, warcPayloadDigest, warcPayloadDigestStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_FILENAME, warcFilename, warcFilename);
-                // Could also use warcProfileIdx for really strict.
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_PROFILE, warcProfileUri, warcProfileStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_IDENTIFIED_PAYLOAD_TYPE, warcIdentifiedPayloadType, warcIdentifiedPayloadTypeStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_NUMBER, warcSegmentNumber, warcSegmentNumberStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_ORIGIN_ID, warcSegmentOriginIdUrl, warcSegmentOriginIdStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_SEGMENT_TOTAL_LENGTH, warcSegmentTotalLength, warcSegmentTotalLengthStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO_TARGET_URI, warcRefersToTargetUriUri, warcRefersToTargetUriStr);
-                checkFieldPolicy(warcTypeIdx, WarcConstants.FN_IDX_WARC_REFERS_TO_DATE, warcRefersToDate, warcRefersToDateStr);
-            }
-        }
-    }
-
-    /**
-     * Given a WARC record type and a WARC field looks up the policy in a
-     * matrix build from the WARC ISO standard.
-     * @param recordType WARC record type id
-     * @param fieldType WARC field type id
-     * @param fieldObj WARC field
-     * @param valueStr WARC raw field value
-     */
-    protected void checkFieldPolicy(int recordType, int fieldType, Object fieldObj, String valueStr) {
-        int policy = WarcConstants.field_policy[recordType][fieldType];
-        switch (policy) {
-        case WarcConstants.POLICY_MANDATORY:
-            if (fieldObj == null) {
-                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_SHALL:
-            if (fieldObj == null) {
-                addErrorDiagnosis(DiagnosisType.REQUIRED_INVALID,
-                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_SHALL_NOT:
-            if (fieldObj != null) {
-                addErrorDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_MAY_NOT:
-            if (fieldObj != null) {
-                addWarningDiagnosis(DiagnosisType.UNDESIRED_DATA,
-                        "'" + WarcConstants.FN_IDX_STRINGS[fieldType] + "' value",
-                        valueStr);
-            }
-            break;
-        case WarcConstants.POLICY_MAY:
-        case WarcConstants.POLICY_IGNORE:
-        default:
-            break;
-        }
     }
 
 }

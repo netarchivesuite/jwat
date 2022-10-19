@@ -30,13 +30,13 @@ public class TestHeaderLineReader {
         Diagnosis diagnosis;
 
         int bf_errors = 0;
-        Diagnostics<Diagnosis> diagnostics = null;
+        Diagnostics diagnostics = null;
         try {
             HeaderLineReader.report_error(bf_errors, diagnostics);
         } catch (IllegalArgumentException e) {
         }
 
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertFalse(diagnostics.hasErrors());
@@ -45,7 +45,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals(0, diagnostics.getWarnings().size());
 
         bf_errors = HeaderLineReader.E_BIT_EOF;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -58,7 +58,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Unexpected EOF", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_MISPLACED_CR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -71,7 +71,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Misplaced CR", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_MISSING_CR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -84,7 +84,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Missing CR", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_UNEXPECTED_CR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -97,7 +97,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Unexpected CR", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_UTF8_ENCODING;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -110,7 +110,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Invalid UTF-8 encoded character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_US_ASCII_CHAR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -123,7 +123,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Invalid US-ASCII character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_CONTROL_CHAR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -136,7 +136,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Invalid control character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_SEPARATOR_CHAR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -149,7 +149,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Invalid separator character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_MISSING_QUOTE;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -162,7 +162,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Missing quote character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_MISSING_QUOTED_PAIR_CHAR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());
@@ -175,7 +175,7 @@ public class TestHeaderLineReader {
         Assert.assertEquals("Missing quoted pair character", diagnosis.information[0]);
 
         bf_errors = HeaderLineReader.E_BIT_INVALID_QUOTED_PAIR_CHAR;
-        diagnostics = new Diagnostics<Diagnosis>();
+        diagnostics = new Diagnostics();
         HeaderLineReader.report_error(bf_errors, diagnostics);
 
         Assert.assertTrue(diagnostics.hasErrors());

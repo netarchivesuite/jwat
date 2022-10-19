@@ -36,10 +36,10 @@ public class TestWarcReader_Diagnosis {
     @Test
     public void test_warcreader_emptyfile() {
         try {
-        	byte[] bytes = new byte[0];
-        	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+            byte[] bytes = new byte[0];
+            ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 
-        	// Save testfile.
+            // Save testfile.
             SaveWarcTestFiles.saveTestWarcReader_Diagnosis(bytes);
 
             WarcReader reader = WarcReaderFactory.getReaderUncompressed();
@@ -109,9 +109,9 @@ public class TestWarcReader_Diagnosis {
     @Test
     public void test_warcreader_diagnosis_record_garbage() {
         try {
-        	File testfile = TestHelpers.getTestResourceFile("invalid-warcfile-record-then-garbage.warc");
-        	RandomAccessFile raf = new RandomAccessFile(testfile, "r");
-        	RandomAccessFileInputStream rafIn = new RandomAccessFileInputStream(raf);
+            File testfile = TestHelpers.getTestResourceFile("invalid-warcfile-record-then-garbage.warc");
+            RandomAccessFile raf = new RandomAccessFile(testfile, "r");
+            RandomAccessFileInputStream rafIn = new RandomAccessFileInputStream(raf);
 
             WarcReader reader = WarcReaderFactory.getReaderUncompressed(rafIn);
             WarcRecord record = reader.getNextRecord();

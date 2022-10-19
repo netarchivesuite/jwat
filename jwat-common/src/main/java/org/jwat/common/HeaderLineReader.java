@@ -736,7 +736,7 @@ public class HeaderLineReader {
      * @param bfErrors bit field with indicated errors
      * @param diagnostics diagnostics object used to report diagnoses
      */
-    public static void report_error(int bfErrors, Diagnostics<Diagnosis> diagnostics) {
+    public static void report_error(int bfErrors, Diagnostics diagnostics) {
         if (diagnostics == null) {
             throw new IllegalArgumentException("'diagnostics' argument is null");
         }

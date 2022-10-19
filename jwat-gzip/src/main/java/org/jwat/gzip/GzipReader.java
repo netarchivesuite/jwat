@@ -17,12 +17,6 @@
  */
 package org.jwat.gzip;
 
-import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.common.Diagnosis;
-import org.jwat.common.DiagnosisType;
-import org.jwat.common.Diagnostics;
-import org.jwat.common.ISO8859_1;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -33,6 +27,12 @@ import java.util.Date;
 import java.util.zip.CRC32;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
+
+import org.jwat.common.ByteCountingPushBackInputStream;
+import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
+import org.jwat.common.Diagnostics;
+import org.jwat.common.ISO8859_1;
 
 /**
  * A reader for (multi-part) GZip files. Validates header and CRC's.
@@ -71,7 +71,7 @@ public class GzipReader implements Closeable {
     protected boolean bIsCompliant = true;
 
     /** Validation errors and warnings. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /** Entries read. */
     protected int entries = 0;

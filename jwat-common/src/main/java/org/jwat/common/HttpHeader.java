@@ -150,7 +150,7 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
         hh.in_pb = pbin;
         hh.totalLength = length;
         hh.digestAlgorithm = digestAlgorithm;
-        hh.diagnostics = new Diagnostics<Diagnosis>();
+        hh.diagnostics = new Diagnostics();
         hh.initProcess();
         return hh;
     }

@@ -151,7 +151,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
      */
     public static ArcVersionHeader processPayload(ByteCountingPushBackInputStream pbin,
             long length, String digestAlgorithm, ArcFieldParsers fieldParsers,
-            Diagnostics<Diagnosis> diagnostics) throws IOException {
+            Diagnostics diagnostics) throws IOException {
         if (pbin == null) {
             throw new IllegalArgumentException(
                     "The inputstream 'pbin' is null");
@@ -179,8 +179,7 @@ public class ArcVersionHeader extends PayloadWithHeaderAbstract {
     }
 
     @Override
-    protected boolean readHeader(MaxLengthRecordingInputStream in,
-            long payloadLength) throws IOException {
+    protected boolean readHeader(MaxLengthRecordingInputStream in, long payloadLength) throws IOException {
         ByteCountingPushBackInputStream pbin = new ByteCountingPushBackInputStream(in, PUSHBACK_BUFFER_SIZE);
         String versionLine = pbin.readLine();
         String blockDescLine = pbin.readLine();

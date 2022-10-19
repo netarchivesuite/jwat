@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.UriProfile;
@@ -175,7 +174,7 @@ public class TestArcFieldParsers {
 
     @Test
     public void test_arcfieldparsers() {
-        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        Diagnostics diagnostics = new Diagnostics();
         ArcFieldParsers fieldParsers = new ArcFieldParsers();
         fieldParsers.diagnostics = diagnostics;
 

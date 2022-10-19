@@ -237,7 +237,7 @@ public class TestWarcHeader extends TestWarcHeaderHelper {
                                 {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2}
                         }, null, new TestHeaderCallback() {
                             public void callback(WarcHeader header) {
-                                Assert.assertEquals(new Integer(WarcConstants.PROFILE_IDX_UNKNOWN), header.warcProfileIdx);
+                                Assert.assertEquals(new Integer(WarcConstants.WARC_PROFILE_IDX_UNKNOWN), header.warcProfileIdx);
                             }
                         }}
                 }},

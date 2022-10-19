@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.jwat.common.Diagnosis;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.HeaderLineReader;
 import org.jwat.common.UriProfile;
@@ -82,12 +81,18 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
     /** WARC field parser used. */
     protected WarcFieldParsers fieldParsers;
 
+    /** Report HTTP header errors on reader diagnosis list. */
+    protected boolean bReportHttpHeaderError = true;
+
     /*
      * State.
      */
 
+    /** Used for version based validation. */
+    public final WarcValidation validation = new WarcValidation();
+
     /** Reader level errors and warnings or when no record is available. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /** Compliance status for records parsed up to now. */
     protected boolean bIsCompliant = true;
@@ -372,6 +377,22 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
     }
 
     /**
+     * Get a boolean indicating whether HTTP header error reporting is enabled or disabled.
+     * @return boolean indicating whether HTTP header error reporting is enabled or disabled
+     */
+    public boolean getReportHttpHeaderErrors() {
+        return bReportHttpHeaderError;
+    }
+
+    /**
+     * Enable or disable the readers HTTP header error being included in the readers diagnosis list.
+     * @param bReportHttpHeaderError Enable or disable HTTP header error reporting
+     */
+    public void setReportHttpHeaderErrors(boolean bReportHttpHeaderError) {
+        this.bReportHttpHeaderError = bReportHttpHeaderError;
+    }
+
+    /**
      * Close current record resource(s) and input stream(s).
      */
     public abstract void close();
@@ -444,11 +465,11 @@ public abstract class WarcReader implements Closeable, Iterable<WarcRecord> {
     }
 
     public WarcRecordParserCallback getWarcRecordParserCallback() {
-    	return wrpCallback;
+        return wrpCallback;
     }
 
     public void setWarcRecordParserCallback(WarcRecordParserCallback wrpCallback) {
-    	this.wrpCallback = wrpCallback;
+        this.wrpCallback = wrpCallback;
     }
 
     /**

@@ -28,9 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.jwat.warc.WarcReader;
-import org.jwat.warc.WarcReaderFactory;
-import org.jwat.warc.WarcRecord;
 
 @RunWith(Parameterized.class)
 public class TestWarc_ContentTypeRecommended {
@@ -44,7 +41,9 @@ public class TestWarc_ContentTypeRecommended {
     public static Collection<Object[]> configs() {
         return Arrays.asList(new Object[][] {
                 {1, 0, 1, "invalid-warcfile-contenttype-warcinfo-recommended.warc"},
-                {7, 0, 1, "invalid-warcfile-contenttype-recommended.warc"},
+                //{7, 0, 1, "invalid-warcfile-contenttype-recommended.warc"},
+                // Improved version checking for profiles.
+                {7, 0, 2, "invalid-warcfile-contenttype-recommended.warc"},
                 {1, 0, 0, "valid-warcfile-contenttype-continuation.warc"}
         });
     }
@@ -91,16 +90,27 @@ public class TestWarc_ContentTypeRecommended {
                     warnings += record.diagnostics.getWarnings().size();
                 }
 
-                Assert.assertEquals(expected_errors, errors);
-                Assert.assertEquals(expected_warnings, warnings);
             }
-
             reader.close();
             in.close();
 
             if (bDebugOutput) {
                 TestBaseUtils.printStatus(records, errors, warnings);
             }
+
+            if (expected_errors != errors) {
+                System.out.println("Input: " + warcFile);
+                System.out.println("Errors got:");
+                TestBaseUtils.printDiagnoses(record.diagnostics.getErrors());
+            }
+            Assert.assertEquals(expected_errors, errors);
+
+            if (expected_warnings != warnings) {
+                System.out.println("Input: " + warcFile);
+                System.out.println("Warnings got:");
+                TestBaseUtils.printDiagnoses(record.diagnostics.getWarnings());
+            }
+            Assert.assertEquals(expected_warnings, warnings);
         } catch (FileNotFoundException e) {
             Assert.fail("Input file missing");
         } catch (IOException e) {

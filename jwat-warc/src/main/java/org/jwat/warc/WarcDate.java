@@ -497,6 +497,32 @@ public class WarcDate {
         return null;
     }
 
+    /**
+     * Adjust the precision and initialize the appropriate fields.
+     * @param newPrecision the new precision
+     */
+    public void adjustPrecisionTo(int newPrecision) {
+        if (newPrecision > precision) {
+            switch (precision) {
+            case P_FRACTION:
+            case P_SECOND:
+            case P_MINUTE:
+            case P_DAYOFMONTH:
+                if (dayOfMonth == 0) {
+                    dayOfMonth = 1;
+                }
+            case P_MONTH:
+                if (month == 0) {
+                    month = 1;
+                }
+            case P_YEAR:
+            default:
+                break;
+            }
+        }
+        precision = newPrecision;
+    }
+
     @Override
     public String toString() {
         char[] tmpStr = null;

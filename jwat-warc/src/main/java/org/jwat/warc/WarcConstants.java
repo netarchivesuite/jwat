@@ -69,10 +69,6 @@ public class WarcConstants {
     /** Suggested media-type for metadata records and others. */
     public static final String MEDIA_TYPE_METADATA = "warc-fields";
 
-    //"text/dns"
-    //"application/http;msgtype=request"
-    //"application/http;msgtype=response"
-
     /*
      * Voodoo magic constants.
      */
@@ -430,20 +426,30 @@ public class WarcConstants {
      * Warc revisit profile ids used in the WARC-Profile header (See ISO).
      */
 
-    /** Revisit WARC-Profile id for identical payload digest. */
-    public static final String PROFILE_IDENTICAL_PAYLOAD_DIGEST =
+    /** Revisit WARC-Profile id for identical payload digest (1.0). */
+    public static final String WARC10_PROFILE_IDENTICAL_PAYLOAD_DIGEST =
             "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest";
 
-    /** Revisit WARC-Profile id for server not modified. */
-    public static final String PROFILE_SERVER_NOT_MODIFIED =
+    /** Revisit WARC-Profile id for server not modified (1.0). */
+    public static final String WARC10_PROFILE_SERVER_NOT_MODIFIED =
             "http://netpreserve.org/warc/1.0/revisit/server-not-modified";
+
+    /** Revisit WARC-Profile id for identical payload digest (1.1). */
+    public static final String WARC11_PROFILE_IDENTICAL_PAYLOAD_DIGEST =
+            "http://netpreserve.org/warc/1.1/revisit/identical-payload-digest";
+
+    /** Revisit WARC-Profile id for server not modified (1.1). */
+    public static final String WARC11_PROFILE_SERVER_NOT_MODIFIED =
+            "http://netpreserve.org/warc/1.1/revisit/server-not-modified";
 
     /** WARC profile id to field name mapping table.
      *  Zero indexed array with all indexes used &gt; 1. (Index 0 is unused) */
     public static final String[] P_IDX_STRINGS = {
         null,
-        PROFILE_IDENTICAL_PAYLOAD_DIGEST,
-        PROFILE_SERVER_NOT_MODIFIED
+        WARC10_PROFILE_IDENTICAL_PAYLOAD_DIGEST,
+        WARC10_PROFILE_SERVER_NOT_MODIFIED,
+        WARC11_PROFILE_IDENTICAL_PAYLOAD_DIGEST,
+        WARC11_PROFILE_SERVER_NOT_MODIFIED
     };
 
     /*
@@ -451,12 +457,16 @@ public class WarcConstants {
      * The raw value is also available in case of unknown profiles.
      */
 
-    /** Warc reader id for unknown profile. */
-    public static final int PROFILE_IDX_UNKNOWN = 0;
-    /** Warc reader id for identical payload digest profile. */
-    public static final int PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST = 1;
-    /** Warc reader id for server not modified profile. */
-    public static final int PROFILE_IDX_SERVER_NOT_MODIFIED = 2;
+    /** WARC reader id for unknown profile. */
+    public static final int WARC_PROFILE_IDX_UNKNOWN = 0;
+    /** WARC/1.0 reader id for identical payload digest profile. */
+    public static final int WARC10_PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST = 1;
+    /** WARC/1.0 reader id for server not modified profile. */
+    public static final int WARC10_PROFILE_IDX_SERVER_NOT_MODIFIED = 2;
+    /** WARC/1.1 reader id for identical payload digest profile. */
+    public static final int WARC11_PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST = 3;
+    /** WARC/1.1 reader id for server not modified profile. */
+    public static final int WARC11_PROFILE_IDX_SERVER_NOT_MODIFIED = 4;
 
     /** Profile lookup map used to identify WARC-Profile values. */
     public static final Map<String, Integer> profileIdxMap = new HashMap<String, Integer>();
@@ -465,10 +475,14 @@ public class WarcConstants {
      * Populate the lookup map with known WARC-Profile ids.
      */
     static {
-        profileIdxMap.put(PROFILE_IDENTICAL_PAYLOAD_DIGEST.toLowerCase(),
-                PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST);
-        profileIdxMap.put(PROFILE_SERVER_NOT_MODIFIED.toLowerCase(),
-                PROFILE_IDX_SERVER_NOT_MODIFIED);
+        profileIdxMap.put(WARC10_PROFILE_IDENTICAL_PAYLOAD_DIGEST.toLowerCase(),
+                WARC10_PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST);
+        profileIdxMap.put(WARC10_PROFILE_SERVER_NOT_MODIFIED.toLowerCase(),
+                WARC10_PROFILE_IDX_SERVER_NOT_MODIFIED);
+        profileIdxMap.put(WARC11_PROFILE_IDENTICAL_PAYLOAD_DIGEST.toLowerCase(),
+                WARC11_PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST);
+        profileIdxMap.put(WARC11_PROFILE_SERVER_NOT_MODIFIED.toLowerCase(),
+                WARC11_PROFILE_IDX_SERVER_NOT_MODIFIED);
     }
 
     /*
@@ -488,106 +502,5 @@ public class WarcConstants {
     public static final int POLICY_MAY = 4;
     /** Warc header should not be present. */
     public static final int POLICY_MAY_NOT = 5;
-
-    /** A (Warc-Types x Warc-Header-Fields) matrix used for policy validation.
-     *  (See below) */
-    public static final int[][] field_policy;
-
-    /**
-     * The following section initializes the policy matrix used to check the
-     * usage of each known warc header line against each known warc record
-     * type.
-     * The ISO standard was used to build the data in the matrix.
-     */
-    static {
-        field_policy = new int[RT_INDEX_OF_LAST][FN_INDEX_OF_LAST];
-
-        // Warc-Record-id
-        // Warc-Type
-        // Warc-Date
-        // Content-Length
-        // Also required for unknown warc-types.
-        for (int i=0; i<=RT_NUMBER; ++i) {
-            field_policy[i][FN_IDX_WARC_RECORD_ID] = POLICY_MANDATORY;
-            field_policy[i][FN_IDX_WARC_TYPE] = POLICY_MANDATORY;
-            field_policy[i][FN_IDX_WARC_DATE] = POLICY_MANDATORY;
-            field_policy[i][FN_IDX_CONTENT_LENGTH] = POLICY_MANDATORY;
-        }
-
-        // Content-Type
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_CONTENT_TYPE] = POLICY_SHALL_NOT;
-
-        // Warc-Ip-Address
-        field_policy[RT_IDX_REQUEST][FN_IDX_WARC_IP_ADDRESS] = POLICY_MAY;
-        field_policy[RT_IDX_RESPONSE][FN_IDX_WARC_IP_ADDRESS] = POLICY_MAY;
-        field_policy[RT_IDX_RESOURCE][FN_IDX_WARC_IP_ADDRESS] = POLICY_MAY;
-        field_policy[RT_IDX_METADATA][FN_IDX_WARC_IP_ADDRESS] = POLICY_MAY;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_IP_ADDRESS] = POLICY_MAY;
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_IP_ADDRESS] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_CONVERSION][FN_IDX_WARC_IP_ADDRESS] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_IP_ADDRESS] = POLICY_SHALL_NOT;
-
-        // Warc-Concurrent-To
-        field_policy[RT_IDX_REQUEST][FN_IDX_WARC_CONCURRENT_TO] = POLICY_MAY;
-        field_policy[RT_IDX_RESPONSE][FN_IDX_WARC_CONCURRENT_TO] = POLICY_MAY;
-        field_policy[RT_IDX_RESOURCE][FN_IDX_WARC_CONCURRENT_TO] = POLICY_MAY;
-        field_policy[RT_IDX_METADATA][FN_IDX_WARC_CONCURRENT_TO] = POLICY_MAY;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_CONCURRENT_TO] = POLICY_MAY;
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_CONCURRENT_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_CONVERSION][FN_IDX_WARC_CONCURRENT_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_CONCURRENT_TO] = POLICY_SHALL_NOT;
-
-        // Warc-Refers-To
-        field_policy[RT_IDX_METADATA][FN_IDX_WARC_REFERS_TO] = POLICY_MAY;
-        field_policy[RT_IDX_CONVERSION][FN_IDX_WARC_REFERS_TO] = POLICY_MAY;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO] = POLICY_MAY;
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_REFERS_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_REQUEST][FN_IDX_WARC_REFERS_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_RESPONSE][FN_IDX_WARC_REFERS_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_RESOURCE][FN_IDX_WARC_REFERS_TO] = POLICY_SHALL_NOT;
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_REFERS_TO] = POLICY_SHALL_NOT;
-
-        // Warc-Target-Uri
-        field_policy[RT_IDX_REQUEST][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_RESPONSE][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_RESOURCE][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_CONVERSION][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL;
-        field_policy[RT_IDX_METADATA][FN_IDX_WARC_TARGET_URI] = POLICY_MAY;
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_TARGET_URI] = POLICY_SHALL_NOT;
-
-        // Warc-Warcinfo-Id
-        // Warc-Filename
-        // Warc-Profile
-        // Warc-Segment-Origin-Id
-        // Warc-Segment-Total-Length
-        for (int i=1; i<=RT_NUMBER; ++i) {
-            field_policy[i][FN_IDX_WARC_WARCINFO_ID] = POLICY_MAY;
-            field_policy[i][FN_IDX_WARC_FILENAME] = POLICY_SHALL_NOT;
-            field_policy[i][FN_IDX_WARC_PROFILE] = POLICY_IGNORE;
-            field_policy[i][FN_IDX_WARC_SEGMENT_ORIGIN_ID] = POLICY_SHALL_NOT;
-            field_policy[i][FN_IDX_WARC_SEGMENT_ORIGIN_ID] = POLICY_SHALL_NOT;
-        }
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_WARCINFO_ID] = POLICY_MAY_NOT;
-        field_policy[RT_IDX_WARCINFO][FN_IDX_WARC_FILENAME] = POLICY_MAY;
-        field_policy[RT_IDX_REVISIT][FN_IDX_WARC_PROFILE] = POLICY_MANDATORY;
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_ORIGIN_ID] = POLICY_MANDATORY;
-
-        // Warc-Segment-Number
-        field_policy[RT_IDX_CONTINUATION][FN_IDX_WARC_SEGMENT_NUMBER] = POLICY_MANDATORY;
-
-        // WARC-Refers-To-Target-URI
-        // WARC-Refers-To-Date
-        for (int i=1; i<=RT_NUMBER; ++i) {
-            //field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_SHALL_NOT;
-            //field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_SHALL_NOT;
-            // FIXME Ignore headers in WARC/1.0 - Add WARC/1.1 matrix.
-            field_policy[i][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
-            field_policy[i][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
-        }
-        //field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_TARGET_URI] = POLICY_MAY;
-        //field_policy[RT_IDX_REVISIT][FN_IDX_WARC_REFERS_TO_DATE] = POLICY_MAY;
-    }
 
 }

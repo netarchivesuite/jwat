@@ -493,12 +493,12 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                     break;
                 case 2:
                 case 5:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
-                    Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(1, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.ERROR, "http header", 1}
                     };
-                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNotNull(record.httpHeader);
                     Assert.assertFalse(record.httpHeader.isValid());
@@ -570,12 +570,12 @@ public class TestWarcRecord extends TestWarcRecordHelper {
                 case 3:
                 case 5:
                 case 6:
-                    Assert.assertEquals(1, record.diagnostics.getErrors().size());
-                    Assert.assertEquals(0, record.diagnostics.getWarnings().size());
+                    Assert.assertEquals(0, record.diagnostics.getErrors().size());
+                    Assert.assertEquals(1, record.diagnostics.getWarnings().size());
                     expectedDiagnoses = new Object[][] {
                             {DiagnosisType.ERROR, "http header", 1}
                     };
-                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getErrors());
+                    TestBaseUtils.compareDiagnoses(expectedDiagnoses, record.diagnostics.getWarnings());
                     Assert.assertNotNull(record.payload);
                     Assert.assertNotNull(record.httpHeader);
                     Assert.assertFalse(record.httpHeader.isValid());

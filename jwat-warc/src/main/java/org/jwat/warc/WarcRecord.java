@@ -64,7 +64,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
     protected long consumed;
 
     /** Validation errors and warnings. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /** Newline parser for counting/validating trailing newlines. */
     public NewlineParser nlp = new NewlineParser();
@@ -148,7 +148,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
         if (header.parseHeader(in)) {
             ++reader.records;
             if (reader.wrpCallback != null) {
-            	reader.wrpCallback.warcParsedRecordHeader(reader, record.startOffset, header);
+                reader.wrpCallback.warcParsedRecordHeader(reader, record.startOffset, header);
             }
             /*
              * Payload processing.
@@ -208,11 +208,9 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                         if (record.httpHeader != null) {
                             if (record.httpHeader.isValid()) {
                                 record.payload.setPayloadHeaderWrapped(record.httpHeader);
-                            } else {
-                                record.diagnostics.addError(
-                                        new Diagnosis(DiagnosisType.ERROR,
-                                                "http header",
-                                                "Unable to parse http header!"));
+                            } else if (reader.bReportHttpHeaderError) {
+                                record.diagnostics.addWarning(
+                                        DiagnosisType.ERROR, "http header", "Unable to parse http header!");
                             }
                         }
                     }
@@ -228,7 +226,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
             reader.bIsCompliant &= record.bIsCompliant;
         } else {
             // In case no record is found the errors/warnings in the record object are transfered to the Reader.
-        	long excess = in.getConsumed() - record.startOffset;
+            long excess = in.getConsumed() - record.startOffset;
             reader.consumed += excess;
             reader.diagnostics.addAll(record.diagnostics);
             if (record.diagnostics.hasErrors() || record.diagnostics.hasWarnings()) {
@@ -242,9 +240,9 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                 ++reader.errors;
                 reader.bIsCompliant = false;
             }
-        	if (excess != 0) {
-        		reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + record.startOffset + " - length=" + excess));
-        	}
+            if (excess != 0) {
+                reader.diagnostics.addError(new Diagnosis(DiagnosisType.UNDESIRED_DATA, "Trailing data", "Garbage data found at offset=" + record.startOffset + " - length=" + excess));
+            }
             // EOF
             record = null;
         }

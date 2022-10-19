@@ -182,10 +182,10 @@ public class TestDiagnosis {
          * Diagnostics.
          */
 
-        Diagnostics<Diagnosis> ds;
-        Diagnostics<Diagnosis> ds2;
+        Diagnostics ds;
+        Diagnostics ds2;
 
-        ds = new Diagnostics<Diagnosis>();
+        ds = new Diagnostics();
         Assert.assertFalse(ds.hasErrors());
         Assert.assertFalse(ds.hasWarnings());
         Assert.assertEquals(0, ds.getErrors().size());
@@ -243,8 +243,8 @@ public class TestDiagnosis {
          * addAll.
          */
 
-        ds = new Diagnostics<Diagnosis>();
-        ds2 = new Diagnostics<Diagnosis>();
+        ds = new Diagnostics();
+        ds2 = new Diagnostics();
 
         Assert.assertFalse(ds.hasErrors());
         Assert.assertFalse(ds.hasWarnings());

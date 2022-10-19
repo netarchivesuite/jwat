@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.jwat.common.Diagnosis;
+import org.jwat.common.DiagnosisType;
 
 public class TestBaseUtils {
 
@@ -54,6 +55,15 @@ public class TestBaseUtils {
         for (int i=0; i<diagnosisList.size(); ++i) {
             diagnosis = diagnosisList.get(i);
             System.out.println("[" + i + "]: " + diagnosis.type + " - " + diagnosis.entity + " - " + diagnosis.information.length);
+            for (int j=0; j<diagnosis.information.length; ++j) {
+                System.out.println("    " + diagnosis.information[j]);
+            }
+        }
+    }
+
+    public static void printDiagnoses(Object[][] diagnosisArray) {
+        for (int i=0; i<diagnosisArray.length; ++i) {
+            System.out.println("[" + i + "]: " + (DiagnosisType)diagnosisArray[i][0] + " - " + (String)diagnosisArray[i][1] + " - " + (Integer)diagnosisArray[i][2]);
         }
     }
 

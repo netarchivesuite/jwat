@@ -20,7 +20,6 @@ package org.jwat.warc;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
@@ -48,8 +47,8 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
         String contentTypeStr = "application/http; msgtype=response";
         ContentType contentTypeObj = ContentType.parseContentType(contentTypeStr);
 
-        String dateStr = "2012-05-17T00:14:47Z";
-        Date dateObj = WarcDateParser.getDate(dateStr);
+        String warcDateStr = "2012-05-17T00:14:47Z";
+        WarcDate warcDateObj = WarcDate.getWarcDate(warcDateStr);
 
         String inetAddressStr = "172.20.10.12";
         InetAddress inetAddressObj = null;
@@ -68,32 +67,32 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
          */
 
         header = getTestHeader();
-        headerLine = header.addHeader("X-Header1", dateObj, dateStr);
+        headerLine = header.addHeader("X-Header1", warcDateObj, warcDateStr);
         Assert.assertNotNull(headerLine);
         Assert.assertEquals("X-Header1", headerLine.name);
-        Assert.assertEquals(dateStr, headerLine.value);
-        headerLine = header.addHeader("X-Header2", dateObj, dateStr);
+        Assert.assertEquals(warcDateStr, headerLine.value);
+        headerLine = header.addHeader("X-Header2", warcDateObj, warcDateStr);
         Assert.assertNotNull(headerLine);
         Assert.assertEquals("X-Header2", headerLine.name);
-        Assert.assertEquals(dateStr, headerLine.value);
+        Assert.assertEquals(warcDateStr, headerLine.value);
 
         /*
          * Duplicate date headers.
          */
 
         header = getTestHeader();
-        headerLine = header.addHeader("WARC-Date", dateObj, dateStr);
+        headerLine = header.addHeader("WARC-Date", warcDateObj, warcDateStr);
         Assert.assertNotNull(headerLine);
         Assert.assertEquals("WARC-Date", headerLine.name);
-        Assert.assertEquals(dateStr, headerLine.value);
+        Assert.assertEquals(warcDateStr, headerLine.value);
         errors = header.diagnostics.getErrors();
         warnings = header.diagnostics.getWarnings();
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(0, warnings.size());
-        headerLine = header.addHeader("WARC-Date", dateObj, dateStr);
+        headerLine = header.addHeader("WARC-Date", warcDateObj, warcDateStr);
         Assert.assertNotNull(headerLine);
         Assert.assertEquals("WARC-Date", headerLine.name);
-        Assert.assertEquals(dateStr, headerLine.value);
+        Assert.assertEquals(warcDateStr, headerLine.value);
         errors = header.diagnostics.getErrors();
         warnings = header.diagnostics.getWarnings();
         Assert.assertEquals(1, errors.size());
@@ -135,7 +134,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
          * Date add header.
          */
 
-        cases = generate_invalid_datatype_cases(dateObj, dateStr, WarcConstants.FN_WARC_DATE, WarcConstants.FN_CONTENT_TYPE);
+        cases = generate_invalid_datatype_cases(warcDateObj, warcDateStr, WarcConstants.FN_WARC_DATE, WarcConstants.FN_CONTENT_TYPE);
         test_headeradd_object_cases(cases, WarcConstants.FDT_DATE);
 
         /*
@@ -218,14 +217,14 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
          * Date.
          */
 
-        dateStr = "2010-06-23T13:33:21Z";
-        dateObj = WarcDateParser.getDate(dateStr);
-        cases = generate_header_datatype_cases(dateObj, dateStr, WarcConstants.FN_WARC_DATE, "warcDateStr", "warcDate");
+        warcDateStr = "2010-06-23T13:33:21Z";
+        warcDateObj = WarcDate.getWarcDate(warcDateStr);
+        cases = generate_header_datatype_cases(warcDateObj, warcDateStr, WarcConstants.FN_WARC_DATE, "warcDateStr", "warcDate");
         test_headeradd_object_cases(cases, WarcConstants.FDT_DATE);
 
-        String refersToDateStr = "2010-06-23T13:33:21Z";
-        Date refersToDateObj = WarcDateParser.getDate(refersToDateStr);
-        cases = generate_header_datatype_cases(refersToDateObj, refersToDateStr, WarcConstants.FN_WARC_REFERS_TO_DATE, "warcRefersToDateStr", "warcRefersToDate");
+        String refersToWarcDateStr = "2010-06-23T13:33:21Z";
+        WarcDate refersToWarcDateObj = WarcDate.getWarcDate(refersToWarcDateStr);
+        cases = generate_header_datatype_cases(refersToWarcDateObj, refersToWarcDateStr, WarcConstants.FN_WARC_REFERS_TO_DATE, "warcRefersToDateStr", "warcRefersToDate");
         test_headeradd_object_cases(cases, WarcConstants.FDT_DATE);
 
         /*
@@ -280,7 +279,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
         cases = generate_multivalue_cases(concurrentHeaders, WarcConstants.FN_WARC_CONCURRENT_TO, "warcConcurrentToList");
         test_headeradd_multivalue_object_cases(cases, WarcConstants.FDT_URI);
 
-        String warcProfileStr = WarcConstants.PROFILE_IDENTICAL_PAYLOAD_DIGEST;
+        String warcProfileStr = WarcConstants.WARC10_PROFILE_IDENTICAL_PAYLOAD_DIGEST;
         Uri warcProfileObj = Uri.create(warcProfileStr);
         cases = generate_header_datatype_cases(warcProfileObj, warcProfileStr, WarcConstants.FN_WARC_PROFILE, "warcProfileStr", "warcProfileUri");
         test_headeradd_object_cases(cases, WarcConstants.FDT_URI);
@@ -571,7 +570,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
                     headerLine = header.addHeader(fieldName, (ContentType)fieldValue, fieldValueStr);
                     break;
                 case WarcConstants.FDT_DATE:
-                    headerLine = header.addHeader(fieldName, (Date)fieldValue, fieldValueStr);
+                    headerLine = header.addHeader(fieldName, (WarcDate)fieldValue, fieldValueStr);
                     break;
                 case WarcConstants.FDT_INETADDRESS:
                     headerLine = header.addHeader(fieldName, (InetAddress)fieldValue, fieldValueStr);
@@ -620,7 +619,7 @@ public class TestWarcHeaderAddDatatyped extends TestWarcHeaderHelper {
                     headerLine = header.addHeader(fieldName, (ContentType)fieldValue, fieldValueStr);
                     break;
                 case WarcConstants.FDT_DATE:
-                    headerLine = header.addHeader(fieldName, (Date)fieldValue, fieldValueStr);
+                    headerLine = header.addHeader(fieldName, (WarcDate)fieldValue, fieldValueStr);
                     break;
                 case WarcConstants.FDT_INETADDRESS:
                     headerLine = header.addHeader(fieldName, (InetAddress)fieldValue, fieldValueStr);

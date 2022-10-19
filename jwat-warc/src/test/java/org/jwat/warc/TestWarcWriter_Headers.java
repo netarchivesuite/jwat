@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,9 +71,9 @@ public class TestWarcWriter_Headers {
          * Date.
          */
         String dateStr = "2010-06-23T13:33:21Z";
-        Date dateObj = WarcDateParser.getDate(dateStr);
+        WarcDate warcDateObj = WarcDate.getWarcDate(dateStr);
         String refersToDateStr = "2010-06-23T12:23:11Z";
-        Date refersToDate = WarcDateParser.getDate(refersToDateStr);
+        WarcDate refersToWarcDate = WarcDate.getWarcDate(refersToDateStr);
         /*
          * InetAddress.
          */
@@ -117,8 +116,8 @@ public class TestWarcWriter_Headers {
         String warcFilenameStr = "BnF-cibl2010-20100623133319-00000-atlas20.bnf.fr.warc.gz";
         String warcTruncatedStr = WarcConstants.TT_LENGTH;
         Integer warcTruncatedObj = WarcConstants.TT_IDX_LENGTH;
-        String warcProfileStr = WarcConstants.PROFILE_IDENTICAL_PAYLOAD_DIGEST;
-        Integer warcProfileObj = WarcConstants.PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST;
+        String warcProfileStr = WarcConstants.WARC10_PROFILE_IDENTICAL_PAYLOAD_DIGEST;
+        Integer warcProfileObj = WarcConstants.WARC10_PROFILE_IDX_IDENTICAL_PAYLOAD_DIGEST;
         /*
          * Fields.
          */
@@ -200,7 +199,8 @@ public class TestWarcWriter_Headers {
             header.warcBlockDigest = blockDigestObj;
             header.warcPayloadDigest = payloadDigestObj;
             header.warcIdentifiedPayloadType = identifiedPayloadTypeObj;
-            header.warcDate = dateObj;
+            // FIXME Dodgy.
+            header.warcDate = warcDateObj;
             header.warcInetAddress = inetAddressObj;
             header.warcRecordIdUri = recordIdObj;
             header.warcRefersToUri = refersToObj;
@@ -218,7 +218,8 @@ public class TestWarcWriter_Headers {
             header.warcTruncatedIdx = warcTruncatedObj;
             header.warcProfileIdx = warcProfileObj;
             header.warcRefersToTargetUriUri = refersToTargetUriObj;
-            header.warcRefersToDate = refersToDate;
+            // FIXME Dodgy.
+            header.warcRefersToDate = refersToWarcDate;
 
             in = new ByteArrayInputStream(payload);
 
@@ -277,7 +278,7 @@ public class TestWarcWriter_Headers {
             header.addHeader(WarcConstants.FN_WARC_BLOCK_DIGEST, blockDigestObj, null);
             header.addHeader(WarcConstants.FN_WARC_PAYLOAD_DIGEST, payloadDigestObj, null);
             header.addHeader(WarcConstants.FN_WARC_IDENTIFIED_PAYLOAD_TYPE, identifiedPayloadTypeObj, null);
-            header.addHeader(WarcConstants.FN_WARC_DATE, dateObj, null);
+            header.addHeader(WarcConstants.FN_WARC_DATE, warcDateObj, null);
             header.addHeader(WarcConstants.FN_WARC_IP_ADDRESS, inetAddressObj, null);
             header.addHeader(WarcConstants.FN_WARC_RECORD_ID, recordIdObj, null);
             header.addHeader(WarcConstants.FN_WARC_REFERS_TO, refersToObj, null);
@@ -292,7 +293,7 @@ public class TestWarcWriter_Headers {
             header.addHeader(WarcConstants.FN_WARC_TRUNCATED, warcTruncatedStr);
             header.addHeader(WarcConstants.FN_WARC_PROFILE, warcProfileStr);
             header.addHeader(WarcConstants.FN_WARC_REFERS_TO_TARGET_URI, refersToTargetUriObj, null);
-            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_DATE, refersToDate, null);
+            header.addHeader(WarcConstants.FN_WARC_REFERS_TO_DATE, refersToWarcDate, null);
 
             in = new ByteArrayInputStream(payload);
 
@@ -343,8 +344,10 @@ public class TestWarcWriter_Headers {
                     Assert.assertEquals(payloadDigestObj, header.warcPayloadDigest);
                     Assert.assertEquals(identifiedPayloadTypeStr, header.warcIdentifiedPayloadTypeStr);
                     Assert.assertEquals(identifiedPayloadTypeObj, header.warcIdentifiedPayloadType);
+                    // Get the precision right with the new WarcDate object.
                     Assert.assertEquals(dateStr, header.warcDateStr);
-                    Assert.assertEquals(dateObj, header.warcDate);
+                    // This test uses the local time and not UTC!
+                    Assert.assertEquals(warcDateObj.getDateUTC().getTime(), header.warcDate.getDateUTC().getTime());
                     Assert.assertEquals(inetAddressStr, header.warcIpAddress);
                     Assert.assertEquals(inetAddressObj, header.warcInetAddress);
                     //Assert.assertEquals(recordIdStr, header.warcRecordIdStr);
@@ -374,7 +377,8 @@ public class TestWarcWriter_Headers {
                     Assert.assertEquals(refersToTargetUriStr, header.warcRefersToTargetUriStr);
                     Assert.assertEquals(refersToTargetUriObj, header.warcRefersToTargetUriUri);
                     Assert.assertEquals(refersToDateStr, header.warcRefersToDateStr);
-                    Assert.assertEquals(refersToDate, header.warcRefersToDate);
+                    // This test uses the local time and not UTC!
+                    Assert.assertEquals(refersToWarcDate.getDateUTC().getTime(), header.warcRefersToDate.getDateUTC().getTime());
                     break;
                 }
             }

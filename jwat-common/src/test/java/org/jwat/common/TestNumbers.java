@@ -122,41 +122,25 @@ public class TestNumbers {
                 --it;
             }
         }
-        /*
-        Assert.assertEquals("1".length(), Numbers.intStrLen(1));
-        Assert.assertEquals(Numbers.intStrLen(10) + " 10");
-        Assert.assertEquals(Numbers.intStrLen(100) + " 100");
-        Assert.assertEquals(Numbers.intStrLen(1000) + " 1000");
-        Assert.assertEquals(Numbers.intStrLen(10000) + " 10000");
-        Assert.assertEquals(Numbers.intStrLen(100000) + " 100000");
-        Assert.assertEquals(Numbers.intStrLen(1000000) + " 1000000");
-        Assert.assertEquals(Numbers.intStrLen(10000000) + " 10000000");
-        Assert.assertEquals(Numbers.intStrLen(100000000) + " 100000000");
-        Assert.assertEquals(Numbers.intStrLen(1000000000) + " 1000000000");
 
-        System.out.println(Numbers.intStrLen(1) + " 1");
-        System.out.println(Numbers.intStrLen(10) + " 10");
-        System.out.println(Numbers.intStrLen(100) + " 100");
-        System.out.println(Numbers.intStrLen(1000) + " 1000");
-        System.out.println(Numbers.intStrLen(10000) + " 10000");
-        System.out.println(Numbers.intStrLen(100000) + " 100000");
-        System.out.println(Numbers.intStrLen(1000000) + " 1000000");
-        System.out.println(Numbers.intStrLen(10000000) + " 10000000");
-        System.out.println(Numbers.intStrLen(100000000) + " 100000000");
-        System.out.println(Numbers.intStrLen(1000000000) + " 1000000000");
-        */
-
-        System.out.println(Numbers.intTrailingZeros(1000000000));
-        System.out.println(Numbers.intTrailingZeros(100000000));
-        System.out.println(Numbers.intTrailingZeros(10000000));
-        System.out.println(Numbers.intTrailingZeros(1000000));
-        System.out.println(Numbers.intTrailingZeros(100000));
-        System.out.println(Numbers.intTrailingZeros(10000));
-        System.out.println(Numbers.intTrailingZeros(1000));
-        System.out.println(Numbers.intTrailingZeros(100));
-        System.out.println(Numbers.intTrailingZeros(10));
-        System.out.println(Numbers.intTrailingZeros(1));
-        System.out.println(Numbers.intTrailingZeros(0));
+        int[][] tzCases = new int[][] {
+            {0, 0},
+            {0, 1},
+            {1, 10},
+            {2, 100},
+            {3, 1000},
+            {4, 10000},
+            {5, 100000},
+            {6, 1000000},
+            {7, 10000000},
+            {8, 100000000},
+            {9, 1000000000}
+        };
+        for (int i=0; i<tzCases.length; ++i) {
+            int tz = (int)tzCases[i][0];
+            int intVal = (int)tzCases[i][1];
+            Assert.assertEquals(tz, Numbers.intTrailingZeros(intVal));
+        }
     }
 
     @Test

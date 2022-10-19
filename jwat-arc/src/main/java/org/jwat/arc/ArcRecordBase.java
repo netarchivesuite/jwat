@@ -80,7 +80,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
     protected long consumed;
 
     /** Validation errors and warnings. */
-    public Diagnostics<Diagnosis> diagnostics;
+    public Diagnostics diagnostics;
 
     /** Newline parser for counting/validating trailing newlines. */
     public NewlineParser nlp = new NewlineParser();
@@ -142,7 +142,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
         ArcRecordBase record = null;
         long startOffset = in.getConsumed();
         // Initialize ArcHeader with required context.
-        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        Diagnostics diagnostics = new Diagnostics();
         ArcHeader header = ArcHeader.initHeader(reader, startOffset, diagnostics);
         // Initialize ArcFieldParser to report diagnoses here.
         reader.fieldParsers.diagnostics = diagnostics;

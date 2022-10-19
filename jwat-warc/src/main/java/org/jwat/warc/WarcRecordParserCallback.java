@@ -17,8 +17,9 @@
  */
 package org.jwat.warc;
 
+// FIXME Add javascript.
 public interface WarcRecordParserCallback {
 
-	public void warcParsedRecordHeader(WarcReader reader, long startOffset, WarcHeader header);
+    public void warcParsedRecordHeader(WarcReader reader, long startOffset, WarcHeader header);
 
 }

@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.ContentType;
-import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 import org.jwat.common.Uri;
@@ -54,7 +53,7 @@ public class TestArcHeader {
              * Writer.
              */
             out.reset();
-            Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+            Diagnostics diagnostics = new Diagnostics();
 
             writer = ArcWriterFactory.getWriter(out, false);
             writer.fieldParsers.diagnostics = diagnostics;

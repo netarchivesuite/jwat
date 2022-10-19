@@ -35,6 +35,7 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
          * Check fields.
          */
 
+        /*
         cases = new Object[][] {
             {new Object[][] {
                     {"WARC-Type", "hello_kitty"}
@@ -257,19 +258,341 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     }
             }
         };
+        */
+        cases = new Object[][] {
+            {new Object[][] {
+                    {"WARC-Type", "hello_kitty"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_RECORD_ID + "' header", 1},
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_DATE + "' header", 1},
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_CONTENT_LENGTH + "' header", 1}
+                        }, new Object[][] {
+                            {DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_TYPE + "' value", 1}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "warcinfo"},
+                    {"WARC-Record-ID", "<urn:uuid:0d5d5e9f-2222-4780-b5a4-bbcb3f28431f>"},
+                    {"WARC-Date", "2012-05-17T00:14:47Z"},
+                    {"Content-Length", "0"},
+                    {"Content-Type", "application/warc-fields"},
+                    {"WARC-Filename", "converted-IAH-20080430204825-00000-blackbook.warc"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "revisit"},
+                    {"WARC-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.htm"},
+                    {"WARC-Date", "2010-07-07T13:29:44Z"},
+                    {"WARC-Payload-Digest", "sha1:TTINQ47F6426Y5KPEZOUYEKE76BBVT56"},
+                    {"WARC-IP-Address", "170.143.36.24"},
+                    {"WARC-Profile", "http://netpreserve.org/warc/1.0/revisit/identical-payload-digest"},
+                    {"WARC-Truncated", "length"},
+                    {"WARC-Record-ID", "<urn:uuid:4b09f3c5-6aaa-460c-ba2c-b3c449394a1c>"},
+                    {"WARC-Refers-To-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.html"},
+                    {"WARC-Refers-To-Date", "2010-07-07T12:19:34Z"},
+                    {"Content-Type", "application/http; msgtype=response"},
+                    {"Content-Length", "206"},
+                    }, new Object[][] {
+                        {new int[][] {{1,0}},
+                            null, null, null
+                        },
+                        {new int[][] {{1,1}},
+                            null, new Object[][] {
+                            {DiagnosisType.ERROR_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                {"WARC-Type", "revisit"},
+                {"WARC-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.htm"},
+                {"WARC-Date", "2010-07-07T13:29:44Z"},
+                {"WARC-Payload-Digest", "sha1:TTINQ47F6426Y5KPEZOUYEKE76BBVT56"},
+                {"WARC-IP-Address", "170.143.36.24"},
+                {"WARC-Profile", "http://netpreserve.org/warc/1.1/revisit/identical-payload-digest"},
+                {"WARC-Truncated", "length"},
+                {"WARC-Record-ID", "<urn:uuid:4b09f3c5-6aaa-460c-ba2c-b3c449394a1c>"},
+                {"WARC-Refers-To-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.html"},
+                {"WARC-Refers-To-Date", "2010-07-07T12:19:34Z"},
+                {"Content-Type", "application/http; msgtype=response"},
+                {"Content-Length", "206"},
+                }, new Object[][] {
+                    {new int[][] {{1,0}},
+                        null, new Object[][] {
+                            {DiagnosisType.ERROR_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1}
+                        }, null
+                    },
+                    {new int[][] {{1,1}},
+                        null, null, null
+                    }
+                }
+        },
+            {new Object[][] {
+                    {"WARC-Type", "revisit"},
+                    {"WARC-Target-URI", "http://state.tn.us/sos/rules/0240/0240-04/0240-04.htm"},
+                    {"WARC-Date", "2010-07-07T13:29:44Z"},
+                    {"WARC-Payload-Digest", "sha1:TTINQ47F6426Y5KPEZOUYEKE76BBVT56"},
+                    {"WARC-IP-Address", "170.143.36.24"},
+                    {"WARC-Profile", "hello kitty"},
+                    {"WARC-Truncated", "length"},
+                    {"WARC-Record-ID", "<urn:uuid:4b09f3c5-6aaa-460c-ba2c-b3c449394a1c>"},
+                    {"WARC-Refers-To-Target-URI", "hello kitty"},
+                    {"WARC-Refers-To-Date", "hello kitty"},
+                    {"Content-Type", "application/http; msgtype=response"},
+                    {"Content-Length", "206"},
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_TARGET_URI + "' value", 2},
+                            {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_REFERS_TO_DATE + "' value", 2},
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1},
+                            }, new Object[][] {
+                            {DiagnosisType.UNKNOWN, "'" + WarcConstants.FN_WARC_PROFILE + "' value", 1}
+                            }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "warcinfo"},
+                    {"WARC-Date", "2008-04-30T20:48:25Z"},
+                    {"WARC-Filename", "IAH-20080430204825-00000-blackbook.warc.gz"},
+                    {"WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c>"},
+                    //{"Content-Type", "application/warc-fields"},
+                    {"Content-Length", "483"},
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, new Object[][] {
+                            {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        }, null                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "continuation"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Number", "42"},
+                    {"WARC-Segment-Total-Length", "1234"},
+                    {"WARC-Segment-Origin-ID", "<urn:uuid:ff728363-2d5f-4f5f-b832-9552de1a6037>"},
+                    {"Content-Length", "693"},
+                    {"WARC-Truncated", "length"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", 1}
+                        }, new Object[][] {
+                            {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"Content-Length", "693"},
+                    {"Content-Type", ""},
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_TYPE + "' header", 1}
+                        }, new Object[][] {
+                            {DiagnosisType.EMPTY, "'" + WarcConstants.FN_CONTENT_TYPE + "' field", 0},
+                            {DiagnosisType.RECOMMENDED_MISSING, "'" + WarcConstants.FN_CONTENT_TYPE + "' header", 0}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "warcinfo"},
+                    {"WARC-Record-ID", "<urn:uuid:0d5d5e9f-2222-4780-b5a4-bbcb3f28431f>"},
+                    {"WARC-Date", "2012-05-17T00:14:47Z"},
+                    {"Content-Length", "0"},
+                    {"Content-Type", "hello/warc-fields"},
+                    {"WARC-Filename", "converted-IAH-20080430204825-00000-blackbook.warc"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, new Object[][] {
+                            {DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' value", 2}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "warcinfo"},
+                    {"WARC-Record-ID", "<urn:uuid:0d5d5e9f-2222-4780-b5a4-bbcb3f28431f>"},
+                    {"WARC-Date", "2012-05-17T00:14:47Z"},
+                    {"Content-Length", "0"},
+                    {"Content-Type", "application/kitty"},
+                    {"WARC-Filename", "converted-IAH-20080430204825-00000-blackbook.warc"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, new Object[][] {
+                            {DiagnosisType.RECOMMENDED, "'" + WarcConstants.FN_CONTENT_TYPE + "' value", 2}
+                        }, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "response"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-IP-Address", "207.241.229.39"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"Content-Type", "application/http; msgtype=response"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "response"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-IP-Address", "207.241.229.39"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Number", "1"},
+                    {"Content-Type", "application/http; msgtype=response"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "response"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-IP-Address", "207.241.229.39"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Number", "2"},
+                    {"Content-Type", "application/http; msgtype=response"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value", 2}
+                        }, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "continuation"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Origin-ID", "<urn:uuid:ff728363-2d5f-4f5f-b832-9552de1a6037>"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.REQUIRED_INVALID, "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value", 1}
+                        }, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "continuation"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Number", "1"},
+                    {"WARC-Segment-Origin-ID", "<urn:uuid:ff728363-2d5f-4f5f-b832-9552de1a6037>"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            new Object[][] {
+                            {DiagnosisType.INVALID_EXPECTED, "'" + WarcConstants.FN_WARC_SEGMENT_NUMBER + "' value", 2}
+                        }, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "continuation"},
+                    {"WARC-Target-URI", "http://www.archive.org/"},
+                    {"WARC-Date", "2008-04-30T20:48:26Z"},
+                    {"WARC-Payload-Digest", "sha1:2WAXX5NUWNNCS2BDKCO5OVDQBJVNKIVV"},
+                    {"WARC-Record-ID", "<urn:uuid:4042c21b-d898-43f0-9c95-b50da2d1aa42>"},
+                    {"WARC-Segment-Number", "2"},
+                    {"WARC-Segment-Origin-ID", "<urn:uuid:ff728363-2d5f-4f5f-b832-9552de1a6037>"},
+                    {"Content-Length", "693"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, null
+                        }
+                    }
+            },
+            {new Object[][] {
+                    {"WARC-Type", "metadata"},
+                    {"WARC-Date", "2008-04-30T20:48:25Z"},
+                    {"WARC-Record-ID", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-1>"},
+                    {"Content-Length", "483"},
+                    {"Content-Type", "application/warc-fields"},
+                    {"WARC-Concurrent-To", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-2>"},
+                    {"WARC-Concurrent-To", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-3>"},
+                    {"WARC-Concurrent-To", "<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-4>"}
+                    }, new Object[][] {
+                        {new int[][] {{1,0}, {1,1}},
+                            null, null, new TestHeaderCallback() {
+                            public void callback(WarcHeader header) {
+                                Assert.assertEquals(3, header.warcConcurrentToList.size());
+                                WarcConcurrentTo concurrentTo;
+                                concurrentTo = header.warcConcurrentToList.get(0);
+                                Assert.assertEquals("<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-2>", concurrentTo.warcConcurrentToStr);
+                                concurrentTo = header.warcConcurrentToList.get(1);
+                                Assert.assertEquals("<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-3>", concurrentTo.warcConcurrentToStr);
+                                concurrentTo = header.warcConcurrentToList.get(2);
+                                Assert.assertEquals("<urn:uuid:35f02b38-eb19-4f0d-86e4-bfe95815069c-4>", concurrentTo.warcConcurrentToStr);
+                            }
+                        }
+                        }
+                    }
+            }
+        };
         test_checkfields_cases(cases);
 
         /*
          * Check fields policy.
          */
 
-        for (int rtype=1; rtype<WarcConstants.field_policy.length; ++rtype) {
-            for (int ftype=1; ftype<WarcConstants.field_policy[rtype].length; ++ftype) {
+        WarcValidatorBase warcValidator = new WarcValidator10(new int[] {1, 0});
+
+        for (int rtype=1; rtype<warcValidator.field_policy.length; ++rtype) {
+            for (int ftype=1; ftype<warcValidator.field_policy[rtype].length; ++ftype) {
                 header = getTestHeader();
-                header.checkFieldPolicy(rtype, ftype, null, null);
+                //header.checkFieldPolicy(rtype, ftype, null, null);
+                warcValidator.checkFieldPolicy(rtype, ftype, null, null, header.diagnostics);
                 errors = header.diagnostics.getErrors();
                 warnings = header.diagnostics.getWarnings();
-                switch (WarcConstants.field_policy[rtype][ftype]) {
+                switch (warcValidator.field_policy[rtype][ftype]) {
                 case WarcConstants.POLICY_MANDATORY:
                     Assert.assertEquals(1, errors.size());
                     Assert.assertEquals(0, warnings.size());
@@ -295,10 +618,11 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     break;
                 }
                 header = getTestHeader();
-                header.checkFieldPolicy(rtype, ftype, new Object(), null);
+                //header.checkFieldPolicy(rtype, ftype, new Object(), null);
+                warcValidator.checkFieldPolicy(rtype, ftype, new Object(), null, header.diagnostics);
                 errors = header.diagnostics.getErrors();
                 warnings = header.diagnostics.getWarnings();
-                switch (WarcConstants.field_policy[rtype][ftype]) {
+                switch (warcValidator.field_policy[rtype][ftype]) {
                 case WarcConstants.POLICY_SHALL_NOT:
                     Assert.assertEquals(1, errors.size());
                     Assert.assertEquals(0, warnings.size());
@@ -327,7 +651,9 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
         }
     }
 
+    /*
     public void test_checkfields_cases(Object[][] cases) {
+        WarcValidatorBase warcValidator = new WarcValidator10(new int[] {1, 0});
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             for (int i=0; i<cases.length; ++i) {
@@ -348,18 +674,86 @@ public class TestWarcHeaderFieldPolicy extends TestWarcHeaderHelper {
                     Assert.assertEquals(fieldName, headerLine.name);
                     Assert.assertEquals(fieldValue, headerLine.value);
 
+                    // Debug.
+                    System.out.println(fieldName + ": " + fieldValue);
+
                     out.write(fieldName.getBytes("ISO-8859-1"));
                     out.write(": ".getBytes("ISO-8859-1"));
                     out.write(fieldValue.getBytes("ISO-8859-1"));
                     out.write("\r\n".getBytes("ISO-8859-1"));
                 }
-                header.checkFields();
+                //header.checkFields();
+                warcValidator.checkFields(header);
                 test_result(expectedErrors, expectedWarnings, callback);
 
                 out.write("\r\n".getBytes("ISO-8859-1"));
 
                 // Save testfile.
                 SaveWarcTestFiles.saveTestWarcHeaderFieldPolicy(out.toByteArray());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail("Unexpected exception!");
+        }
+    }
+    */
+
+    public void test_checkfields_cases(Object[][] cases) {
+        WarcValidation warcValidation = new WarcValidation();
+        WarcValidatorBase warcValidator;
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            for (int i=0; i<cases.length; ++i) {
+                // debug
+                //System.out.println(i + 1);
+                Object[][] headers = (Object[][])cases[i][0];
+                Object[][] expectedByVersion = (Object[][])cases[i][1];
+
+                for (int j=0; j<expectedByVersion.length; ++j) {
+                    int[][] versions = (int[][])expectedByVersion[j][0];
+                    Object[][] expectedErrors = (Object[][])expectedByVersion[j][1];
+                    Object[][] expectedWarnings = (Object[][])expectedByVersion[j][2];
+                    TestHeaderCallback callback = (TestHeaderCallback)expectedByVersion[j][3];
+
+                    for (int k=0; k<versions.length; ++k) {
+                        header = getTestHeader();
+                        header.bVersionParsed = true;
+                        header.versionArr = versions[k];
+                        header.versionStr = versions[k][0] + "." + versions[k][1];
+                        header.major = versions[k][0];
+                        header.minor = versions[k][1];
+                        out.reset();
+                        //out.write("WARC/1.0\r\n".getBytes("ISO-8859-1"));
+                        out.write(("WARC/" + header.versionStr + "\r\n").getBytes("ISO-8859-1"));
+                        for (int l=0; l<headers.length; ++l) {
+                            String fieldName = (String)headers[l][0];
+                            String fieldValue = (String)headers[l][1];
+                            headerLine = header.addHeader(fieldName, fieldValue);
+                            Assert.assertNotNull(headerLine);
+                            Assert.assertEquals(fieldName, headerLine.name);
+                            Assert.assertEquals(fieldValue, headerLine.value);
+
+                            // Debug.
+                            //System.out.println(fieldName + ": " + fieldValue);
+
+                            out.write(fieldName.getBytes("ISO-8859-1"));
+                            out.write(": ".getBytes("ISO-8859-1"));
+                            out.write(fieldValue.getBytes("ISO-8859-1"));
+                            out.write("\r\n".getBytes("ISO-8859-1"));
+                        }
+                        out.write("\r\n".getBytes("ISO-8859-1"));
+                        // Debug.
+                        //System.out.println(out.toString("UTF-8"));
+
+                        warcValidator = warcValidation.getValidatorFor(header, null);
+                        //header.checkFields();
+                        warcValidator.checkFields(header);
+                        test_result(expectedErrors, expectedWarnings, callback);
+
+                        // Save testfile.
+                        SaveWarcTestFiles.saveTestWarcHeaderFieldPolicy(out.toByteArray());
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

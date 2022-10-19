@@ -41,7 +41,7 @@ public class TestWarcHeaderHelper {
         header.uriProfile = UriProfile.RFC3986;
         header.warcTargetUriProfile = UriProfile.RFC3986;
         header.fieldParsers = new WarcFieldParsers();
-        header.diagnostics = new Diagnostics<Diagnosis>();
+        header.diagnostics = new Diagnostics();
         header.fieldParsers.diagnostics = header.diagnostics;
         return header;
     }
@@ -52,8 +52,10 @@ public class TestWarcHeaderHelper {
 
     public void test_result(Object[][] expectedErrors, Object[][] expectedWarnings, TestHeaderCallback callback) {
         errors = header.diagnostics.getErrors();
+        assertEqualDiagnoses("Errors", expectedErrors, errors);
         // debug
         //TestBaseUtils.printDiagnoses(errors);
+        /*
         if (expectedErrors != null) {
             Assert.assertEquals(expectedErrors.length, errors.size());
             for (int k=0; k<expectedErrors.length; ++k) {
@@ -65,9 +67,12 @@ public class TestWarcHeaderHelper {
         } else {
             Assert.assertEquals(0, errors.size());
         }
+        */
         warnings = header.diagnostics.getWarnings();
+        assertEqualDiagnoses("Warnings", expectedWarnings, warnings);
         // debug
         //TestBaseUtils.printDiagnoses(warnings);
+        /*
         if (expectedWarnings != null) {
             Assert.assertEquals(expectedWarnings.length, warnings.size());
             for (int k=0; k<expectedWarnings.length; ++k) {
@@ -79,8 +84,52 @@ public class TestWarcHeaderHelper {
         } else {
             Assert.assertEquals(0, warnings.size());
         }
+        */
         if (callback != null) {
             callback.callback(header);
+        }
+    }
+
+    public void assertEqualDiagnoses(String type, Object[][] expectedDiagnoses, List<Diagnosis> diagnoses) {
+        boolean bShow;
+        if (expectedDiagnoses != null) {
+            if (expectedDiagnoses.length != diagnoses.size()) {
+                System.out.println(type + " expected:");
+                TestBaseUtils.printDiagnoses(expectedDiagnoses);
+                System.out.println(type + " got:");
+                TestBaseUtils.printDiagnoses(diagnoses);
+            }
+            Assert.assertEquals(expectedDiagnoses.length, diagnoses.size());
+            for (int k=0; k<expectedDiagnoses.length; ++k) {
+                diagnosis = diagnoses.get(k);
+                bShow = false;
+                if (((DiagnosisType)expectedDiagnoses[k][0]).ordinal() != diagnosis.type.ordinal()) {
+                    bShow = true;
+                }
+                if (((String)expectedDiagnoses[k][1]).compareTo(diagnosis.entity) != 0) {
+                    bShow = true;
+                }
+                if (((Integer)expectedDiagnoses[k][2]).compareTo(new Integer(diagnosis.information.length)) != 0) {
+                    bShow = true;
+                }
+                if (bShow) {
+                    System.out.println(type + " expected:");
+                    TestBaseUtils.printDiagnoses(expectedDiagnoses);
+                    System.out.println(type + " got:");
+                    TestBaseUtils.printDiagnoses(diagnoses);
+                }
+                Assert.assertEquals((DiagnosisType)expectedDiagnoses[k][0], diagnosis.type);
+                Assert.assertEquals((String)expectedDiagnoses[k][1], diagnosis.entity);
+                Assert.assertEquals((Integer)expectedDiagnoses[k][2], new Integer(diagnosis.information.length));
+            }
+        }
+        else {
+            if (diagnoses.size() > 0) {
+                System.out.println(type + " expected none.");
+                System.out.println(type + " got:");
+                TestBaseUtils.printDiagnoses(diagnoses);
+            }
+            Assert.assertEquals(0, diagnoses.size());
         }
     }
 

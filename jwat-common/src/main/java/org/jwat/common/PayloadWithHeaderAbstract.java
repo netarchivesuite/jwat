@@ -88,7 +88,7 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
     public long payloadLength = 0L;
 
     /** Validation errors and warnings. */
-    public Diagnostics<Diagnosis> diagnostics;
+    public Diagnostics diagnostics;
 
     protected void initProcess() throws IOException {
         in_flr = new MaxLengthRecordingInputStream(

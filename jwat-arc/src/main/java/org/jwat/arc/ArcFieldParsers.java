@@ -38,7 +38,7 @@ import org.jwat.common.UriProfile;
 public class ArcFieldParsers {
 
     /** Diagnostics used to report diagnoses. Must be set prior to calling the various methods. */
-    public Diagnostics<Diagnosis> diagnostics;
+    public Diagnostics diagnostics;
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid

@@ -34,7 +34,7 @@ public class TestNewlineParser {
     @Test
     public void test_parsenewlines_crlf() {
         NewlineParser nlp = new NewlineParser();
-        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        Diagnostics diagnostics = new Diagnostics();
         byte[] bytes;
         int expectedNewlines;
         boolean expectedMissingCr;
@@ -107,7 +107,7 @@ public class TestNewlineParser {
     @Test
     public void test_parsenewlines_lf() {
         NewlineParser nlp = new NewlineParser();
-        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        Diagnostics diagnostics = new Diagnostics();
         byte[] bytes;
         int expectedNewlines;
         boolean expectedMissingCr;

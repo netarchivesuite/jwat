@@ -75,7 +75,7 @@ public abstract class WarcWriter implements Closeable {
      */
 
     /** Writer level errors and warnings or when writing byte headers. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /** Current state of writer. */
     protected int state = S_INIT;
@@ -341,7 +341,12 @@ public abstract class WarcWriter implements Closeable {
          */
         String warcDateStr = null;
         if (header.warcDate != null) {
-            warcDateStr = WarcDateParser.getDateFormat().format(header.warcDate);
+            // FIXME Check..
+            //warcDateStr = WarcDateParser.getDateFormat().format(header.warcDate);
+            if (header.major == 1 && header.minor == 0 && header.warcDate.precision != WarcDate.P_SECOND) {
+                header.warcDate.adjustPrecisionTo(WarcDate.P_SECOND);
+            }
+            warcDateStr = header.warcDate.toString();
         } else if (header.warcDateStr != null) {
             warcDateStr = header.warcDateStr;
             // Warning...
@@ -641,7 +646,12 @@ public abstract class WarcWriter implements Closeable {
          */
         String warcRefersToDateStr = null;
         if (header.warcRefersToDate != null) {
-            warcRefersToDateStr = WarcDateParser.getDateFormat().format(header.warcRefersToDate);
+            //warcRefersToDateStr = WarcDateParser.getDateFormat().format(header.warcRefersToDate);
+            // FIXME Check..
+            if (header.major == 1 && header.minor == 0 && header.warcRefersToDate.precision != WarcDate.P_SECOND) {
+                header.warcRefersToDate.adjustPrecisionTo(WarcDate.P_SECOND);
+            }
+            warcRefersToDateStr = header.warcRefersToDate.toString();
         } else if (header.warcRefersToDateStr != null) {
             warcRefersToDateStr = header.warcRefersToDateStr;
             // Warning...

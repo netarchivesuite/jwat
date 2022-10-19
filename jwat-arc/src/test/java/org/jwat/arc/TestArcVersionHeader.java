@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.jwat.common.ByteCountingPushBackInputStream;
-import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
 
@@ -41,7 +40,7 @@ public class TestArcVersionHeader {
         ByteArrayInputStream in;
         ByteCountingPushBackInputStream pbin;
         ArcFieldParsers fieldParsers = new ArcFieldParsers();
-        Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+        Diagnostics diagnostics = new Diagnostics();
         fieldParsers.diagnostics = diagnostics;
         ArcVersionHeader header;
         byte[] bytes;

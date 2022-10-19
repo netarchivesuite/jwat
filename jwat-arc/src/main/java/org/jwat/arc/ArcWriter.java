@@ -67,7 +67,7 @@ public abstract class ArcWriter implements Closeable {
      */
 
     /** Writer level errors and warnings or when writing byte headers. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /** Current state of writer. */
     protected int state = S_INIT;

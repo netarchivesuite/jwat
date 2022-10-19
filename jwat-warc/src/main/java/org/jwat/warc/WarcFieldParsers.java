@@ -17,6 +17,9 @@
  */
 package org.jwat.warc;
 
+import java.net.InetAddress;
+import java.util.Date;
+
 import org.jwat.common.ContentType;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
@@ -24,9 +27,6 @@ import org.jwat.common.Diagnostics;
 import org.jwat.common.IPAddressParser;
 import org.jwat.common.Uri;
 import org.jwat.common.UriProfile;
-
-import java.net.InetAddress;
-import java.util.Date;
 
 /**
  * Separate class containing all the different types of field parser.
@@ -39,7 +39,7 @@ public class WarcFieldParsers {
 
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
-    public Diagnostics<Diagnosis> diagnostics;
+    public Diagnostics diagnostics;
 
     /**
      * Add an error diagnosis on the given entity stating that it is invalid
@@ -87,9 +87,7 @@ public class WarcFieldParsers {
                 iVal = Integer.valueOf(intStr);
             } catch (Exception e) {
                 // Invalid integer value.
-                addInvalidExpectedError("'" + field + "' value",
-                        intStr,
-                        "Numeric format");
+                addInvalidExpectedError("'" + field + "' value", intStr, "Numeric format");
             }
          } else {
              // Missing integer value.
@@ -112,9 +110,7 @@ public class WarcFieldParsers {
                 lVal = Long.valueOf(longStr);
             } catch (Exception e) {
                 // Invalid long value.
-                addInvalidExpectedError("'" + field + "' value",
-                        longStr,
-                        "Numeric format");
+                addInvalidExpectedError("'" + field + "' value", longStr, "Numeric format");
             }
          } else {
              // Missing long value.
@@ -136,9 +132,7 @@ public class WarcFieldParsers {
             contentType = ContentType.parseContentType(contentTypeStr);
             if (contentType == null) {
                 // Invalid content-type.
-                addInvalidExpectedError("'" + field + "' value",
-                        contentTypeStr,
-                        WarcConstants.CONTENT_TYPE_FORMAT);
+                addInvalidExpectedError("'" + field + "' value", contentTypeStr, WarcConstants.CONTENT_TYPE_FORMAT);
             }
         } else {
             // Missing content-type.
@@ -160,9 +154,7 @@ public class WarcFieldParsers {
             inetAddr = IPAddressParser.getAddress(ipAddress);
             if (inetAddr == null) {
                 // Invalid ip address.
-                addInvalidExpectedError("'" + field + "' value",
-                        ipAddress,
-                        "IPv4 or IPv6 format");
+                addInvalidExpectedError("'" + field + "' value", ipAddress, "IPv4 or IPv6 format");
             }
         } else {
             // Missing ip address.
@@ -261,21 +253,36 @@ public class WarcFieldParsers {
      * @return the formatted date or null, if unable to parse the value as a
      * WARC record date
      */
+    @Deprecated
     public Date parseDate(String dateStr, String field) {
         Date date = null;
         if (dateStr != null && dateStr.length() > 0) {
                 date = WarcDateParser.getDate(dateStr);
                 if (date == null) {
                     // Invalid date.
-                    addInvalidExpectedError("'" + field + "' value",
-                            dateStr,
-                            WarcConstants.WARC_DATE_FORMAT);
+                    addInvalidExpectedError("'" + field + "' value", dateStr, WarcConstants.WARC_DATE_FORMAT);
                 }
         } else {
             // Missing date.
             addEmptyWarning("'" + field + "' field");
         }
         return date;
+    }
+
+    // FIXME Don't show format string for WARC/1.1
+    public WarcDate parseWarcDate(String dateStr, String field) {
+        WarcDate warcDate = null;
+        if (dateStr != null && dateStr.length() > 0) {
+            warcDate = WarcDate.getWarcDate(dateStr);
+            if (warcDate == null) {
+                // Invalid date.
+                addInvalidExpectedError("'" + field + "' value", dateStr, WarcConstants.WARC_DATE_FORMAT);
+            }
+        } else {
+            // Missing date.
+            addEmptyWarning("'" + field + "' field");
+        }
+        return warcDate;
     }
 
     /**
@@ -291,9 +298,7 @@ public class WarcFieldParsers {
                 digest = WarcDigest.parseWarcDigest(labelledDigest);
                 if (digest == null) {
                     // Invalid digest.
-                    addInvalidExpectedError("'" + field + "' value",
-                            labelledDigest,
-                            WarcConstants.WARC_DIGEST_FORMAT);
+                    addInvalidExpectedError("'" + field + "' value", labelledDigest, WarcConstants.WARC_DIGEST_FORMAT);
                 }
         } else {
             // Missing digest.

@@ -17,9 +17,6 @@
  */
 package org.jwat.gzip;
 
-import org.jwat.common.Diagnosis;
-import org.jwat.common.Diagnostics;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +25,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.DataFormatException;
+
+import org.jwat.common.Diagnostics;
 
 /**
  * GZip entry container. Exposes methods for accessing the entry payload's
@@ -117,7 +116,7 @@ public class GzipEntry implements Closeable {
     protected boolean bEof = false;
 
     /** Validation errors and warnings. */
-    public final Diagnostics<Diagnosis> diagnostics = new Diagnostics<Diagnosis>();
+    public final Diagnostics diagnostics = new Diagnostics();
 
     /**
      * Construct GZip Entry object.

@@ -74,12 +74,12 @@ public class WarcFileWriter {
      * @return WARC file writer instance using the supplied configuration
      */
     public static WarcFileWriter getWarcWriterInstance(WarcFileNaming warcFileNaming, WarcFileWriterConfig warcFileConfig) {
-    	if (warcFileNaming == null) {
-    		throw new IllegalArgumentException("'warcFileNaming' is null!");
-    	}
-    	if (warcFileConfig == null) {
-    		throw new IllegalArgumentException("'warcFileConfig' is null!");
-    	}
+        if (warcFileNaming == null) {
+            throw new IllegalArgumentException("'warcFileNaming' is null!");
+        }
+        if (warcFileConfig == null) {
+            throw new IllegalArgumentException("'warcFileConfig' is null!");
+        }
         WarcFileWriter wfw = new WarcFileWriter();
         wfw.warcFileNaming = warcFileNaming;
         wfw.warcFileConfig = warcFileConfig;

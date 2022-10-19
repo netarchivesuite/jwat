@@ -55,7 +55,7 @@ public class ArcRecord extends ArcRecordBase {
     public static ArcRecord createRecord(ArcWriter writer) {
         ArcRecord ar = new ArcRecord();
         ar.trailingNewLines = 1;
-        ar.diagnostics = new Diagnostics<Diagnosis>();
+        ar.diagnostics = new Diagnostics();
         ar.header = ArcHeader.initHeader(writer, ar.diagnostics);
         writer.fieldParsers.diagnostics = ar.diagnostics;
         return ar;
@@ -72,10 +72,8 @@ public class ArcRecord extends ArcRecordBase {
      * @return an <code>ArcRecord</code>
      * @throws IOException I/O exception while processing possible payload
      */
-    public static ArcRecord parseArcRecord(ArcReader reader,
-            Diagnostics<Diagnosis> diagnostics,
-            ArcHeader header, ByteCountingPushBackInputStream in)
-                                                          throws IOException {
+    public static ArcRecord parseArcRecord(ArcReader reader, Diagnostics diagnostics,
+            ArcHeader header, ByteCountingPushBackInputStream in) throws IOException {
         ArcRecord ar = new ArcRecord();
         ar.recordType = RT_ARC_RECORD;
         ar.reader = reader;
@@ -113,11 +111,9 @@ public class ArcRecord extends ArcRecordBase {
                 if (httpHeader != null) {
                     if (httpHeader.isValid()) {
                         payload.setPayloadHeaderWrapped(httpHeader);
-                    } else {
-                        diagnostics.addError(
-                                new Diagnosis(DiagnosisType.ERROR,
-                                        "http header",
-                                        "Unable to parse http header!"));
+                    } else if (reader.bReportHttpHeaderError) {
+                        diagnostics.addWarning(
+                                DiagnosisType.ERROR, "http header", "Unable to parse http header!");
                     }
                 }
             }

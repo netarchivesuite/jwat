@@ -52,7 +52,7 @@ public class NewlineParser {
      * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
-    public int parseLFs(ByteCountingPushBackInputStream in, Diagnostics<Diagnosis> diagnostics) throws IOException {
+    public int parseLFs(ByteCountingPushBackInputStream in, Diagnostics diagnostics) throws IOException {
         bMissingCr = false;
         bMissingLf = false;
         bMisplacedCr = false;
@@ -132,7 +132,7 @@ public class NewlineParser {
      * @return newlines found in input stream
      * @throws IOException if an error occurs while reading data
      */
-    public int parseCRLFs(ByteCountingPushBackInputStream in, Diagnostics<Diagnosis> diagnostics) throws IOException {
+    public int parseCRLFs(ByteCountingPushBackInputStream in, Diagnostics diagnostics) throws IOException {
         bMissingCr = false;
         bMissingLf = false;
         bMisplacedCr = false;

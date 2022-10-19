@@ -31,7 +31,7 @@ import org.jwat.gzip.GzipReader;
 public class TestWarcReaders_Params {
 
     @SuppressWarnings("resource")
-	@Test
+    @Test
     public void test_parameters_readers() {
         InputStream is;
 

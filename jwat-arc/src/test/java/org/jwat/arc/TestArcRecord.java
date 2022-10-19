@@ -120,9 +120,9 @@ public class TestArcRecord {
                             int archiveLength = ((String)(test_case[1])).length();
                             return Integer.toString(archiveLength);
                         }
-                    }, new Object[][] {
-                            {DiagnosisType.ERROR, "http header", 1}
-                    }, new Object[][] {}},
+                    }, new Object[][] {}, new Object[][] {
+                        {DiagnosisType.ERROR, "http header", 1}
+                        }},
                     /*
                      * ArchiveLength=payload length.
                      */

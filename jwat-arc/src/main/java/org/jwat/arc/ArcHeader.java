@@ -45,7 +45,7 @@ public class ArcHeader {
 
     /** Diagnostics used to report diagnoses.
      * Must be set prior to calling the various methods. */
-    protected Diagnostics<Diagnosis> diagnostics;
+    protected Diagnostics diagnostics;
 
     /** URL URI profile. */
     protected UriProfile uriProfile;
@@ -135,7 +135,7 @@ public class ArcHeader {
      * @param diagnostics diagnostics object used by parser
      * @return a <code>ArcHeader</code> prepared for writing
      */
-    public static ArcHeader initHeader(ArcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics<Diagnosis> diagnostics) {
+    public static ArcHeader initHeader(ArcFieldParsers fieldParsers, UriProfile uriProfile, Diagnostics diagnostics) {
         ArcHeader header = new ArcHeader();
         header.fieldParsers = fieldParsers;
         header.uriProfile = uriProfile;
@@ -150,7 +150,7 @@ public class ArcHeader {
      * @param diagnostics diagnostics object used by writer
      * @return a <code>ArcHeader</code> prepared for writing
      */
-    public static ArcHeader initHeader(ArcWriter writer, Diagnostics<Diagnosis> diagnostics) {
+    public static ArcHeader initHeader(ArcWriter writer, Diagnostics diagnostics) {
         ArcHeader header = new ArcHeader();
         header.fieldParsers = writer.fieldParsers;
         header.diagnostics = diagnostics;
@@ -164,7 +164,7 @@ public class ArcHeader {
      * @param diagnostics diagnostics object used by reader
      * @return a <code>ArcHeader</code> prepared for reading
      */
-    public static ArcHeader initHeader(ArcReader reader, long startOffset, Diagnostics<Diagnosis> diagnostics) {
+    public static ArcHeader initHeader(ArcReader reader, long startOffset, Diagnostics diagnostics) {
         ArcHeader header = new ArcHeader();
         header.reader = reader;
         header.uriProfile = reader.uriProfile;

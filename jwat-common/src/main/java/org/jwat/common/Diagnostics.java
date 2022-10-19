@@ -17,91 +17,35 @@
  */
 package org.jwat.common;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
- * Class used to keep track of a collection of error and warning diagnosis
- * objects.
- *
- * @param <T> diagnosis class stored in this diagnostics instance.
+ * Class used to keep track of a collection of error and warning diagnosis objects.
  *
  * @author nicl
  */
-public class Diagnostics<T> {
-
-    /** List of error diagnoses. */
-    protected List<T> errors = new LinkedList<T>();
-
-    /** List of warning diagnoses. */
-    protected List<T> warnings = new LinkedList<T>();
+public class Diagnostics extends DiagnosticsGeneric<Diagnosis> {
 
     /**
-     * Resets the collection of errors and warnings. Use with care.
+     * Add an error diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
      */
-    public void reset() {
-        errors.clear();
-        warnings.clear();
+    public void addError(DiagnosisType type, String entity, String... information) {
+        addError(new Diagnosis(type, entity, information));
     }
 
     /**
-     * Does collection have an error diagnosis.
-     * @return boolean indicating the presence of an error diagnosis
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
      */
-    public boolean hasErrors() {
-        return !errors.isEmpty();
-    }
-
-    /**
-     * Does collection have a warning diagnosis.
-     * @return boolean indicating the presence of a warning diagnosis
-     */
-    public boolean hasWarnings() {
-        return !warnings.isEmpty();
-    }
-
-    /**
-     * Add all errors/warnings from supplied object to this one.
-     * @param diagnostics other diagnostics with errors/warnings
-     */
-    public void addAll(Diagnostics<T> diagnostics) {
-        if (diagnostics != null && diagnostics != this) {
-            errors.addAll(diagnostics.errors);
-            warnings.addAll(diagnostics.warnings);
-        }
-    }
-
-    /**
-     * Add errors diagnosis to the collection.
-     * @param d error diagnosis
-     */
-    public void addError(T d) {
-        errors.add(d);
-    }
-
-    /**
-     * Add warning diagnosis to the collection.
-     * @param d warning diagnosis
-     */
-    public void addWarning(T d) {
-        warnings.add(d);
-    }
-
-    /**
-     * Returns unmodifiable list of error diagnoses.
-     * @return unmodifiable list of error diagnoses
-     */
-    public List<T> getErrors() {
-        return Collections.unmodifiableList(errors);
-    }
-
-    /**
-     * Returns unmodifiable list of warning diagnoses.
-     * @return unmodifiable list of warning diagnoses
-     */
-    public List<T> getWarnings() {
-        return Collections.unmodifiableList(warnings);
+    public void addWarning(DiagnosisType type, String entity, String... information) {
+        addWarning(new Diagnosis(type, entity, information));
     }
 
 }

@@ -57,7 +57,7 @@ public class ArcVersionBlock extends ArcRecordBase {
     public static ArcVersionBlock createRecord(ArcWriter writer) {
         ArcVersionBlock vb = new ArcVersionBlock();
         vb.trailingNewLines = 1;
-        vb.diagnostics = new Diagnostics<Diagnosis>();
+        vb.diagnostics = new Diagnostics();
         vb.header = ArcHeader.initHeader(writer, vb.diagnostics);
         writer.fieldParsers.diagnostics = vb.diagnostics;
         return vb;
@@ -77,7 +77,7 @@ public class ArcVersionBlock extends ArcRecordBase {
      * version block
      */
     public static ArcVersionBlock parseVersionBlock(ArcReader reader,
-            Diagnostics<Diagnosis> diagnostics,
+            Diagnostics diagnostics,
             ArcHeader header, ArcFieldParsers fieldParsers,
             ByteCountingPushBackInputStream in) throws IOException {
         ArcVersionBlock vb = new ArcVersionBlock();
