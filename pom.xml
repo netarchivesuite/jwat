@@ -229,6 +229,7 @@
 				<configuration>
 					<!-- Needed by multi-module projects, see http://jira.codehaus.org/browse/MJAVADOC-276 -->
 					<preparationGoals>clean verify install</preparationGoals>
+					<useReleaseProfile>false</useReleaseProfile>
 				</configuration>
 			</plugin>
 
