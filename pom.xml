@@ -29,7 +29,7 @@
 
 	<scm>
 		<connection>scm:git:https://github.com/netarchivesuite/jwat.git</connection>
-		<developerConnection>scm:git:https://github.com/netarchivesuite/jwat.git</developerConnection>
+		<developerConnection>scm:git:git@github.com/netarchivesuite/jwat.git</developerConnection>
 		<url>https://github.com/netarchivesuite/jwat</url>
 	  <tag>HEAD</tag>
   </scm>
