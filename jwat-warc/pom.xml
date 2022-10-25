@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.jwat</groupId>
 		<artifactId>jwat</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jwat-warc</artifactId>
