@@ -257,7 +257,8 @@
 			</plugin>
 
 			<!-- Explicitly define maven-deploy-plugin after other to force exec order. -->
-			<plugin> 
+			<!--
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-deploy-plugin</artifactId> 
 				<version>${maven-deploy-plugin.version}</version>
@@ -271,6 +272,7 @@
 					</execution> 
 				</executions> 
 			</plugin>
+            -->
 
 			<plugin>
 				<groupId>org.jacoco</groupId>
