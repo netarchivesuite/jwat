@@ -123,7 +123,7 @@ public class Numbers {
 
     /**
      * Find the string length of the long without leading zeroes.
-     * @param i integer value
+     * @param l long value
      * @return string length of the long
      */
     public static int longStrLen(long l) {
