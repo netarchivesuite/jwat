@@ -208,6 +208,8 @@ public class TestWarcDate {
         Date d2;
         WarcDate wd1;
 
+        // JDK8 precision is millis. JDK9+ is nano precision.
+        // Converting from DateTime to Date on JDK9+ will therefore give precision errors unless compensated for.
         wd = WarcDate.now();
         //System.out.println(wd);
         //System.out.println("-");
@@ -218,8 +220,16 @@ public class TestWarcDate {
         //System.out.println("-");
         d2 = wd.getDateUTC();
         wd2 = WarcDate.fromUTCDate(d2);
-        //System.out.println(d2);
-        //System.out.println(wd2);
+        // Modify original date to millis precision.
+        wd.trimToMillis();
+        System.out.println(wd);
+        System.out.println(d1);
+        System.out.println(d2);
+        System.out.println(wd1);
+        System.out.println(wd2);
+        System.out.println(wd.debugString());
+        System.out.println(wd1.debugString());
+        System.out.println(wd2.debugString());
         Assert.assertEquals(wd, wd1);
         Assert.assertEquals(wd, wd2);
     }

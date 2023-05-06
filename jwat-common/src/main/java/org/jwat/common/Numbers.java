@@ -33,11 +33,16 @@ public class Numbers {
     /** Long array for long string length binary search. */
     protected static long[] lslArr;
 
+    protected static int[] imArr;
+
+    protected static long[] lmArr;
+
     /*
      * Initialize the internal comparison arrays for binary search.
      */
     static {
         boolean b;
+        // Pre-calc for integer value string length.
         List<Integer> islList = new ArrayList<Integer>();
         islList.add(0);
         islList.add(0);
@@ -65,6 +70,7 @@ public class Numbers {
             islArr[i] = islList.get(i);
             //System.out.println(islList.get(i));
         }
+        // Pre-calc for long value string length.
         List<Long> lslList = new ArrayList<Long>();
         lslList.add(0L);
         lslList.add(0L);
@@ -91,6 +97,23 @@ public class Numbers {
         for (i=0; i<lslList.size(); ++i) {
             lslArr[i] = lslList.get(i);
             //System.out.println(lslList.get(i));
+        }
+        // Pre-calc for modulo methods.
+        imArr = new int[10];
+        int idx = 0;
+        imArr[idx++] = 0;
+        i = 1;
+        while (idx < imArr.length) {
+            i = (i << 3) + (i << 1);
+            imArr[idx++] = i;
+        }
+        lmArr = new long[19];
+        idx = 0;
+        lmArr[idx++] = 0;
+        l = 1L;
+        while (idx < lmArr.length) {
+            l = (l << 3) + (l << 1);
+            lmArr[idx++] = l;
         }
     }
 
@@ -162,6 +185,30 @@ public class Numbers {
             }
         }
         return cnt;
+    }
+
+    public static int intModulo(int i, int digits) {
+        if (digits > 0) {
+            if (digits < imArr.length) {
+                i = i - (i % imArr[digits]);
+            }
+            else {
+                throw new IllegalArgumentException("Out of bounds!");
+            }
+        }
+        return i;
+    }
+
+    public static long longModulo(long l, int digits) {
+        if (digits > 0) {
+            if (digits < lmArr.length) {
+                l = l - (l % lmArr[digits]);
+            }
+            else {
+                throw new IllegalArgumentException("Out of bounds!");
+            }
+        }
+        return l;
     }
 
     /**
