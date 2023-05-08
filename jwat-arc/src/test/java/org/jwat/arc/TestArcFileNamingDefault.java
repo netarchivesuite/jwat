@@ -17,10 +17,6 @@
  */
 package org.jwat.arc;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -29,8 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(JUnit4.class)
 //@RunWith(PowerMockRunner.class)
@@ -41,15 +35,17 @@ public class TestArcFileNamingDefault {
     public void test_arcfilenaming_default() {
         ArcFileNamingDefault afn;
 
-        Date date = new Date();
-        String dateStr;
         String hostname = null;
         try {
+            // Get current date after this since this could maybe take several seconds in rare cases.
             hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
         }
         catch (UnknownHostException e) {
             Assert.fail("Unexpected exception!");
         }
+
+        Date date = new Date();
+        String dateStr;
 
         afn = new ArcFileNamingDefault(null, null, null, null);
         Assert.assertEquals("JWAT", afn.filePrefix);

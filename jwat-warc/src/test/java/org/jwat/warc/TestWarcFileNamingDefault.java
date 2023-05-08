@@ -33,15 +33,17 @@ public class TestWarcFileNamingDefault {
     public void test_warcfilenaming_default() {
         WarcFileNamingDefault wafn;
 
-        Date date = new Date();
-        String dateStr;
         String hostname = null;
         try {
+            // Get current date after this since this could maybe take several seconds in rare cases.
             hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
         }
         catch (UnknownHostException e) {
             Assert.fail("Unexpected exception!");
         }
+
+        Date date = new Date();
+        String dateStr;
 
         wafn = new WarcFileNamingDefault(null, null, null, null);
         Assert.assertEquals("JWAT", wafn.filePrefix);
