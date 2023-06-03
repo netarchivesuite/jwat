@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+// TODO Digest tests.
 @RunWith(JUnit4.class)
 public class TestHttpHeader {
 
@@ -77,7 +78,7 @@ public class TestHttpHeader {
             pbin = new  ByteCountingPushBackInputStream( new ByteArrayInputStream( srcArr ), 8192 );
             httpHeader = HttpHeader.processPayload( HttpHeader.HT_RESPONSE, pbin, 0, "shit1" );
             Assert.assertFalse(httpHeader.isValid());
-            Assert.assertNull( httpHeader.getDigest() );
+            Assert.assertNull( httpHeader.getPayloadDigest() );
             try {
                 httpHeader.getPayloadLength();
                 Assert.fail("Exception expected!");

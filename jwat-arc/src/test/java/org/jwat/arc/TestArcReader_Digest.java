@@ -180,7 +180,7 @@ public class TestArcReader_Digest {
                     payload_digest = md_payload.digest();
                     //System.out.println("p1: " + Base16.encodeArray(payload_digest));
                     //System.out.println("p2: " + Base16.encodeArray(payloadWithHeader.getDigest()));
-                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getPayloadDigest());
 
                     Assert.assertEquals(payloadAlgo, record.computedPayloadDigest.algorithm);
                     if (!"base2".equals(payloadBase)) {
@@ -188,7 +188,7 @@ public class TestArcReader_Digest {
                     } else {
                         Assert.assertNull(record.computedPayloadDigest.encoding);
                     }
-                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getPayloadDigest());
                 } else {
                     Assert.assertNull(record.computedPayloadDigest);
                 }
@@ -308,7 +308,7 @@ public class TestArcReader_Digest {
                     payload_digest = md_payload.digest();
                     //System.out.println("p1: " + Base16.encodeArray(payload_digest));
                     //System.out.println("p2: " + Base16.encodeArray(payloadWithHeader.getDigest()));
-                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getPayloadDigest());
 
                     Assert.assertEquals(payloadAlgo, record.computedPayloadDigest.algorithm);
                     if (!"base2".equals(payloadBase)) {
@@ -316,7 +316,7 @@ public class TestArcReader_Digest {
                     } else {
                         Assert.assertNull(record.computedPayloadDigest.encoding);
                     }
-                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getPayloadDigest());
                 } else {
                     Assert.assertNull(record.computedPayloadDigest);
                 }
@@ -436,7 +436,7 @@ public class TestArcReader_Digest {
                     payload_digest = md_payload.digest();
                     //System.out.println("p1: " + Base16.encodeArray(payload_digest));
                     //System.out.println("p2: " + Base16.encodeArray(payloadWithHeader.getDigest()));
-                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(payload_digest, payloadWithHeader.getPayloadDigest());
 
                     Assert.assertEquals(payloadAlgo, record.computedPayloadDigest.algorithm);
                     if (!"base2".equals(payloadBase)) {
@@ -444,7 +444,7 @@ public class TestArcReader_Digest {
                     } else {
                         Assert.assertNull(record.computedPayloadDigest.encoding);
                     }
-                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getDigest());
+                    Assert.assertArrayEquals(record.computedPayloadDigest.digestBytes, payloadWithHeader.getPayloadDigest());
                 } else {
                     Assert.assertNull(record.computedPayloadDigest);
                 }

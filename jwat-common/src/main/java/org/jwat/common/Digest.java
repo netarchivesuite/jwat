@@ -54,7 +54,7 @@ public class Digest {
     public String encoding;
 
     /** Cache length of algorithm digest output. */
-    protected static Map<String, Integer> digestAlgoLengthache = new TreeMap<String, Integer>();
+    protected static Map<String, Integer> digestAlgoLengthCache = new TreeMap<String, Integer>();
 
     /**
      * Returns the length of an algorithms digest output or -1 if it is an
@@ -66,7 +66,7 @@ public class Digest {
         if (digestAlgorithm == null || digestAlgorithm.length() == 0) {
             throw new IllegalArgumentException("'digestAlgorithm' is empty or null");
         }
-        Integer cachedLen = digestAlgoLengthache.get(digestAlgorithm);
+        Integer cachedLen = digestAlgoLengthCache.get(digestAlgorithm);
         if (cachedLen == null) {
             try {
                 MessageDigest md = MessageDigest.getInstance(digestAlgorithm);
@@ -78,7 +78,7 @@ public class Digest {
             if (cachedLen == null) {
                 cachedLen = -1;
             }
-            digestAlgoLengthache.put(digestAlgorithm,  cachedLen);
+            digestAlgoLengthCache.put(digestAlgorithm,  cachedLen);
         }
         return cachedLen;
     }
