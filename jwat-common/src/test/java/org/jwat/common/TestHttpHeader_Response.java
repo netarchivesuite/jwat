@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+// TODO Digest tests.
 @RunWith(Parameterized.class)
 public class TestHttpHeader_Response {
 
@@ -188,20 +189,20 @@ public class TestHttpHeader_Response {
                         if ( digestAlgorithm != null ) {
                             if ("sha1".equals( digestAlgorithm )) {
                                 Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                                Assert.assertNotNull( httpHeader.getDigest() );
+                                Assert.assertNotNull( httpHeader.getPayloadDigest() );
 
                                 md.reset();
                                 byte[] digest1 = md.digest( payloadArr );
 
-                                byte[] digest2 = httpHeader.getDigest();
+                                byte[] digest2 = httpHeader.getPayloadDigest();
 
                                 Assert.assertArrayEquals( digest1, digest2 );
                             } else {
                                 Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                                Assert.assertNull( httpHeader.getDigest() );
+                                Assert.assertNull( httpHeader.getPayloadDigest() );
                             }
                         } else {
-                            Assert.assertNull( httpHeader.getDigest() );
+                            Assert.assertNull( httpHeader.getPayloadDigest() );
                         }
                         /*
                          * HttpHeader Complete
@@ -277,20 +278,20 @@ public class TestHttpHeader_Response {
                         if ( digestAlgorithm != null ) {
                             if ("sha1".equals(digestAlgorithm)) {
                                 Assert.assertFalse( httpHeader.bNoSuchAlgorithmException );
-                                Assert.assertNotNull( httpHeader.getDigest() );
+                                Assert.assertNotNull( httpHeader.getPayloadDigest() );
 
                                 md.reset();
                                 byte[] digest1 = md.digest( payloadArr );
 
-                                byte[] digest2 = httpHeader.getDigest();
+                                byte[] digest2 = httpHeader.getPayloadDigest();
 
                                 Assert.assertArrayEquals( digest1, digest2 );
                             } else {
                                 Assert.assertTrue( httpHeader.bNoSuchAlgorithmException );
-                                Assert.assertNull( httpHeader.getDigest() );
+                                Assert.assertNull( httpHeader.getPayloadDigest() );
                             }
                         } else {
-                            Assert.assertNull( httpHeader.getDigest() );
+                            Assert.assertNull( httpHeader.getPayloadDigest() );
                         }
                     } catch (IOException e) {
                         Assert.fail( "Exception not expected!" );

@@ -107,6 +107,8 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
     /** Computed payload digest. */
     public WarcDigest computedPayloadDigest;
 
+    public WarcDigest computedChunkedDigest;
+
     /**
      * Non public constructor to allow unit testing.
      */
@@ -140,6 +142,11 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
         record.in = in;
         record.reader = reader;
         record.startOffset = in.getConsumed();
+        /*
+        if (record.startOffset == 569895) {
+            System.out.println("Debug point.");
+        }
+        */
         // Initialize WarcHeader with required context.
         record.header = WarcHeader.initHeader(reader, in.getConsumed(), record.diagnostics);
         WarcHeader header = record.header;
@@ -267,6 +274,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                  * Check block digest.
                  */
                 byte[] digest = payload.getDigest();
+                byte[] chunkedDigest;
                 // Check for computed block digest.
                 if (digest != null) {
                     computedBlockDigest = new WarcDigest();
@@ -274,11 +282,12 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                 }
                 // Auto detect encoding used in WARC header.
                 if (header.warcBlockDigest != null && header.warcBlockDigest.digestString != null) {
-                    isValidBlockDigest = processWarcDigest(header.warcBlockDigest, computedBlockDigest, "block");
+                    deduceWarcDigestEncoding(header.warcBlockDigest, "block");
+                    isValidBlockDigest = processWarcDigest(header.warcBlockDigest, computedBlockDigest, null, "block");
                 }
                 // Adjust information about computed block digest.
                 if (computedBlockDigest != null) {
-                    processComputedDigest(computedBlockDigest,
+                    encodeComputedDigest(computedBlockDigest,
                             reader.blockDigestAlgorithm, reader.blockDigestEncoding, "block");
                 }
                 // Revisit payload digest refers to the original. Continuation payload digest in first record also refers to original.
@@ -286,19 +295,25 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                     /*
                      * Check payload digest.
                      */
-                    digest = httpHeader.getDigest();
+                    digest = httpHeader.getPayloadDigest();
+                    chunkedDigest = httpHeader.getChunkedDigest();
                     // Check for computed payload digest.
                     if (digest != null) {
                         computedPayloadDigest = new WarcDigest();
                         computedPayloadDigest.digestBytes = digest;
                     }
+                    if (chunkedDigest != null) {
+                        computedChunkedDigest = new WarcDigest();
+                        computedChunkedDigest.digestBytes = chunkedDigest;
+                    }
                     // Auto detect encoding used in WARC header.
                     if (header.warcPayloadDigest != null && header.warcPayloadDigest.digestString != null ) {
-                        isValidPayloadDigest = processWarcDigest(header.warcPayloadDigest, computedPayloadDigest, "payload");
+                        deduceWarcDigestEncoding(header.warcPayloadDigest, "payload");
+                        isValidPayloadDigest = processWarcDigest(header.warcPayloadDigest, computedPayloadDigest, computedChunkedDigest, "payload");
                     }
                     // Adjust information about computed payload digest.
                     if (computedPayloadDigest != null) {
-                        processComputedDigest(computedPayloadDigest,
+                        encodeComputedDigest(computedPayloadDigest,
                                 reader.payloadDigestAlgorithm, reader.payloadDigestEncoding, "payload");
                     }
                 }
@@ -329,17 +344,8 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
         }
     }
 
-    /**
-     * Auto-detect encoding used in WARC digest header and compare it to the
-     * internal one, if it has been computed.
-     * @param warcDigest digest from WARC header
-     * @param computedDigest internally compute digest
-     * @param digestName used to identify the digest ("block" or "payload")
-     * @return WARC digest validity indication
-     */
-    protected Boolean processWarcDigest(WarcDigest warcDigest, WarcDigest computedDigest, String digestName) {
+    protected void deduceWarcDigestEncoding(WarcDigest warcDigest, String digestName) {
         byte[] digest;
-        Boolean isValidDigest = null;
         int digestAlgorithmLength = WarcDigest.digestAlgorithmLength(warcDigest.algorithm);
         digest = Base16.decodeToArray(warcDigest.digestString);
         if (digest != null && digest.length == digestAlgorithmLength) {
@@ -366,19 +372,48 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                     "Record " + digestName + " digest encoding scheme",
                     warcDigest.digestString);
         }
+    }
+
+    /**
+     * Auto-detect encoding used in WARC digest header and compare it to the
+     * internal one, if it has been computed.
+     * @param warcDigest digest from WARC header
+     * @param computedDigest internally compute digest
+     * @param digestName used to identify the digest ("block" or "payload")
+     * @return WARC digest validity indication
+     */
+    protected Boolean processWarcDigest(WarcDigest warcDigest, WarcDigest computedDigest, WarcDigest chunkedDigest, String digestName) {
+        Boolean isValidDigest = null;
+        String tmpStr;
         if (computedDigest != null) {
             computedDigest.algorithm = warcDigest.algorithm;
             computedDigest.encoding = warcDigest.encoding;
+            if (chunkedDigest != null) {
+                chunkedDigest.algorithm = warcDigest.algorithm;
+                chunkedDigest.encoding = warcDigest.encoding;
+            }
             if (warcDigest.digestBytes != null) {
-                if (!Arrays.equals(computedDigest.digestBytes, warcDigest.digestBytes)) {
-                    // Block digest - Computed block digest does not match
+                if (Arrays.equals(computedDigest.digestBytes, warcDigest.digestBytes)) {
+                    isValidDigest = true;
+                } else {
+                    isValidDigest = false;
+                }
+                if (!isValidDigest) {
+                    if (chunkedDigest != null) {
+                        if (Arrays.equals(chunkedDigest.digestBytes, warcDigest.digestBytes)) {
+                            isValidDigest = true;
+                        }
+                    }
+                }
+                if (!isValidDigest) {
+                    tmpStr = Base16.encodeArray(computedDigest.digestBytes);
+                    if (chunkedDigest != null) {
+                        tmpStr += "/" + Base16.encodeArray(chunkedDigest.digestBytes);
+                    }
                     addErrorDiagnosis(DiagnosisType.INVALID_EXPECTED,
                             "Incorrect " + digestName + " digest",
                             Base16.encodeArray(warcDigest.digestBytes),
-                            Base16.encodeArray(computedDigest.digestBytes));
-                    isValidDigest = false;
-                } else {
-                    isValidDigest = true;
+                            tmpStr);
                 }
             } else {
                 isValidDigest = false;
@@ -394,7 +429,7 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
      * @param digestEncoding default encoding
      * @param digestName used to identify the digest ("block" or "payload")
      */
-    protected void processComputedDigest(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding, String digestName) {
+    protected void encodeComputedDigest(WarcDigest computedDigest, String digestAlgorithm, String digestEncoding, String digestName) {
         if (computedDigest.algorithm == null) {
             computedDigest.algorithm = digestAlgorithm;
         }
