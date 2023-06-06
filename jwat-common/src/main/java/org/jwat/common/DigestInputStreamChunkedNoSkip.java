@@ -129,11 +129,29 @@ public class DigestInputStreamChunkedNoSkip extends InputStream {
         //System.out.println("<fillBuffer() - position: " + position + " - limit: " + limit + " - lastRead: " + lastRead);
     }
 
+    public static final int S_LENGTH = 0;
+    public static final int S_LENGTH_CR = 1;
+    public static final int S_LENGTH_LF = 2;
+    public static final int S_CHUNK_CR = 3;
+    public static final int S_CHUNK_LF = 4;
+    public static final int S_END_CR = 5;
+    public static final int S_END_LF = 6;
+    public static final int S_DONE = 7;
+    public static final int S_ERROR = 10;
+
     protected int state;
 
     protected int chunkLen;
 
     protected int overflow;
+
+    public int getState() {
+        return state;
+    }
+
+    public int getOverflow() {
+        return overflow;
+    }
 
     public void scanChunk() throws IOException {
         int idx;
@@ -151,7 +169,7 @@ public class DigestInputStreamChunkedNoSkip extends InputStream {
                 //System.out.println("state: " + state);
                 c = bytes[idx] & 255;
                 switch (state) {
-                case 0:
+                case S_LENGTH:
                     if (c >= '0' && c <= '9') {
                         chunkLen = (chunkLen << 4) + c - '0';
                         ++idx;
@@ -165,36 +183,36 @@ public class DigestInputStreamChunkedNoSkip extends InputStream {
                         ++idx;
                     }
                     else if (c == '\r') {
-                        state = 1;
+                        state = S_LENGTH_CR;
                         ++idx;
                     }
                     else if (c == '\n') {
                         // Debug
                         //System.out.println(chunkLen);
-                        state = 2;
+                        state = S_LENGTH_LF;
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 1:
+                case S_LENGTH_CR:
                     if (c == '\n') {
                         // Debug
                         //System.out.println(chunkLen + " - " + Integer.toHexString(chunkLen));
                         if (chunkLen > 0) {
-                            state = 2;
+                            state = S_LENGTH_LF;
                         }
                         else {
-                            state = 5;
+                            state = S_END_CR;
                         }
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 2:
+                case S_LENGTH_LF:
                     digestable = readLimit - idx;
                     if (digestable > chunkLen) {
                         digestable = chunkLen;
@@ -208,58 +226,60 @@ public class DigestInputStreamChunkedNoSkip extends InputStream {
                     idx += digestable;
                     chunkLen -= digestable;
                     if (chunkLen == 0) {
-                        state = 3;
+                        state = S_CHUNK_CR;
                     }
                     break;
-                case 3:
+                case S_CHUNK_CR:
                     if (c == '\r') {
-                        state = 4;
+                        state = S_CHUNK_LF;
                         ++idx;
                     }
                     else if (c == '\n') {
-                        state = 0;
+                        state = S_LENGTH;
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 4:
+                case S_CHUNK_LF:
                     if (c == '\n') {
-                        state = 0;
+                        state = S_LENGTH;
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 5:
+                case S_END_CR:
                     if (c == '\r') {
-                        state = 6;
+                        state = S_END_LF;
                         ++idx;
                     }
                     else if (c == '\n') {
-                        state = 7;
+                        state = S_DONE;
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 6:
+                case S_END_LF:
                     if (c == '\n') {
-                        state = 7;
+                        state = S_DONE;
                         ++idx;
                     }
                     else {
-                        state = 10;
+                        state = S_ERROR;
                     }
                     break;
-                case 7:
+                case S_DONE:
                     overflow = readLimit - idx;
                     idx = readLimit;
+                    state = S_ERROR;
                     break;
-                case 10:
+                case S_ERROR:
+                    overflow = readLimit - idx;
                     idx = readLimit;
                     // Debug
                     //System.out.println(c);
