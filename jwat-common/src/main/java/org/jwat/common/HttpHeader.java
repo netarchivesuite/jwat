@@ -110,6 +110,10 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
 
     public boolean chunked;
 
+    public DigestInputStreamNoSkip digestIS;
+
+    public DigestInputStreamChunkedNoSkip digestISChunked;
+
     /**
      * Non public constructor.
      */
@@ -135,10 +139,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     @Override
     protected InputStream getDigestInputStream() {
         if (!chunked) {
-            return new DigestInputStreamNoSkip(in_pb, payload_md);
+            digestIS = new DigestInputStreamNoSkip(in_pb, payload_md);
+            return digestIS;
         }
         else {
-            return new DigestInputStreamChunkedNoSkip(in_pb, chunked_md, payload_md, null);
+            digestISChunked = new DigestInputStreamChunkedNoSkip(in_pb, chunked_md, payload_md, null);
+            return digestISChunked;
         }
     }
 

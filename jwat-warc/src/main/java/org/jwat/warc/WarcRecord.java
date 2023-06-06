@@ -31,6 +31,7 @@ import org.jwat.common.ByteCountingPushBackInputStream;
 import org.jwat.common.Diagnosis;
 import org.jwat.common.DiagnosisType;
 import org.jwat.common.Diagnostics;
+import org.jwat.common.DigestInputStreamChunkedNoSkip;
 import org.jwat.common.HeaderLine;
 import org.jwat.common.HttpHeader;
 import org.jwat.common.NewlineParser;
@@ -414,6 +415,14 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
                             "Incorrect " + digestName + " digest",
                             Base16.encodeArray(warcDigest.digestBytes),
                             tmpStr);
+                    if (chunkedDigest != null) {
+                        if (httpHeader.digestISChunked.getState() != DigestInputStreamChunkedNoSkip.S_DONE) {
+                            addWarningDiagnosis(DiagnosisType.INVALID_ENCODING,
+                                    "Chunked HTTP payload",
+                                    "Invalid transfer-encoding",
+                                    "RFC 9112 - HTTP/1.1");
+                        }
+                    }
                 }
             } else {
                 isValidDigest = false;
@@ -575,6 +584,18 @@ public class WarcRecord implements PayloadOnClosedHandler, Closeable {
      */
     protected void addErrorDiagnosis(DiagnosisType type, String entity, String... information) {
         diagnostics.addError(new Diagnosis(type, entity, information));
+    }
+
+    /**
+     * Add a warning diagnosis of the given type on a specific entity with
+     * optional extra information. The information varies according to the
+     * diagnosis type.
+     * @param type diagnosis type
+     * @param entity entity examined
+     * @param information optional extra information
+     */
+    protected void addWarningDiagnosis(DiagnosisType type, String entity, String... information) {
+        diagnostics.addWarning(new Diagnosis(type, entity, information));
     }
 
 }
