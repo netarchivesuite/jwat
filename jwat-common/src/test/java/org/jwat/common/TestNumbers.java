@@ -122,7 +122,10 @@ public class TestNumbers {
                 --it;
             }
         }
+    }
 
+    @Test
+    public void test_trailingzeros() {
         int[][] tzCases = new int[][] {
             {0, 0},
             {0, 1},
@@ -140,6 +143,102 @@ public class TestNumbers {
             int tz = (int)tzCases[i][0];
             int intVal = (int)tzCases[i][1];
             Assert.assertEquals(tz, Numbers.intTrailingZeros(intVal));
+        }
+    }
+
+    @Test
+    public void test_modulo() {
+        int[] imod = {
+                0,
+                10,
+                100,
+                1000,
+                10000,
+                100000,
+                1000000,
+                10000000,
+                100000000,
+                1000000000
+        };
+        Assert.assertEquals(imod.length, Numbers.imArr.length);
+        for (int i=0; i<imod.length; ++i) {
+            Assert.assertEquals(imod[i], Numbers.imArr[i]);
+        }
+        Object[][] imodCases = new Object[][] {
+            {2147483647},
+            {2147483640},
+            {2147483600},
+            {2147483000},
+            {2147480000},
+            {2147400000},
+            {2147000000},
+            {2140000000},
+            {2100000000},
+            {2000000000}
+        };
+        for (int i=0; i<imodCases.length; ++i) {
+            Assert.assertEquals(imodCases[i][0], Numbers.intModulo(2147483647, i));
+        }
+        try {
+            Numbers.intModulo(2147483647, 10);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
+        }
+        long[] lmod = {
+                0L,
+                10L,
+                100L,
+                1000L,
+                10000L,
+                100000L,
+                1000000L,
+                10000000L,
+                100000000L,
+                1000000000L,
+                10000000000L,
+                100000000000L,
+                1000000000000L,
+                10000000000000L,
+                100000000000000L,
+                1000000000000000L,
+                10000000000000000L,
+                100000000000000000L,
+                1000000000000000000L
+        };
+        Assert.assertEquals(lmod.length, Numbers.lmArr.length);
+        for (int i=0; i<lmod.length; ++i) {
+            Assert.assertEquals(lmod[i], Numbers.lmArr[i]);
+        }
+        Object[][] lmodCases = new Object[][] {
+            {9223372036854775807L},
+            {9223372036854775800L},
+            {9223372036854775800L},
+            {9223372036854775000L},
+            {9223372036854770000L},
+            {9223372036854700000L},
+            {9223372036854000000L},
+            {9223372036850000000L},
+            {9223372036800000000L},
+            {9223372036000000000L},
+            {9223372030000000000L},
+            {9223372000000000000L},
+            {9223372000000000000L},
+            {9223370000000000000L},
+            {9223300000000000000L},
+            {9223000000000000000L},
+            {9220000000000000000L},
+            {9200000000000000000L},
+            {9000000000000000000L}
+        };
+        for (int i=0; i<lmodCases.length; ++i) {
+            Assert.assertEquals(lmodCases[i][0], Numbers.longModulo(9223372036854775807L, i));
+        }
+        try {
+            Numbers.longModulo(9223372036854775807L, 19);
+            Assert.fail("Exception expected!");
+        }
+        catch (IllegalArgumentException e) {
         }
     }
 

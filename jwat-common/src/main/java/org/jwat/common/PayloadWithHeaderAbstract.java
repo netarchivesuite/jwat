@@ -23,7 +23,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -63,14 +62,20 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
     /** The raw header read as bytes. */
     protected byte[] header;
 
-    /** Message digest object. */
-    protected MessageDigest md;
+    /** Payload message digest object. */
+    protected MessageDigest payload_md;
 
-    /** Digest bytes. */
-    protected byte[] digest;
+    /** Chunked message digest object. */
+    protected MessageDigest chunked_md;
+
+    /** Payload digest bytes. */
+    protected byte[] payloadDigest;
+
+    /** Chunked digest bytes. */
+    protected byte[] chunkedDigest;
 
     /** Automatic digesting of payload input stream. */
-    protected DigestInputStream in_digest;
+    protected InputStream in_digest;
 
     /** Boolean indicating no such algorithm exception under initialization. */
     protected boolean bNoSuchAlgorithmException;
@@ -90,9 +95,20 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
     /** Validation errors and warnings. */
     public Diagnostics diagnostics;
 
+    protected boolean isChunked() {
+        return false;
+    }
+
+    /**
+     * Override this method to support a partial digest of a stream.
+     * @return an input stream that calculate a digest
+     */
+    protected InputStream getDigestInputStream() {
+        return new DigestInputStreamNoSkip(in_pb, payload_md);
+    }
+
     protected void initProcess() throws IOException {
-        in_flr = new MaxLengthRecordingInputStream(
-                in_pb, in_pb.getPushbackSize());
+        in_flr = new MaxLengthRecordingInputStream(in_pb, in_pb.getPushbackSize());
         bIsValid = readHeader(in_flr, totalLength);
         if (bIsValid) {
             /*
@@ -100,13 +116,16 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
              */
             if (digestAlgorithm != null) {
                 try {
-                    md = MessageDigest.getInstance(digestAlgorithm);
+                    payload_md = MessageDigest.getInstance(digestAlgorithm);
+                    if (isChunked()) {
+                        chunked_md = MessageDigest.getInstance(digestAlgorithm);
+                    }
                 } catch (NoSuchAlgorithmException e) {
                     bNoSuchAlgorithmException = true;
                 }
             }
-            if (md != null) {
-                in_digest = new DigestInputStreamNoSkip(in_pb, md);
+            if (payload_md != null) {
+                in_digest = getDigestInputStream();
                 in_payload = in_digest;
             } else {
                 in_payload = in_pb;
@@ -177,14 +196,25 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
     }
 
     /**
-     * Returns the <code>MessageDigest</code> used on payload stream.
-     * @return <code>MessageDigest</code> used on payload stream
+     * Returns the <code>MessageDigest</code> used on complete payload stream.
+     * @return <code>MessageDigest</code> used on complete payload stream
      */
-    public byte[] getDigest() {
-        if (digest == null && md != null) {
-            digest = md.digest();
+    public byte[] getPayloadDigest() {
+        if (payloadDigest == null && payload_md != null) {
+            payloadDigest = payload_md.digest();
         }
-        return digest;
+        return payloadDigest;
+    }
+
+    /**
+     * Returns the <code>MessageDigest</code> used on chunked payload stream.
+     * @return <code>MessageDigest</code> used on chunked payload stream
+     */
+    public byte[] getChunkedDigest() {
+        if (chunkedDigest == null && chunked_md != null) {
+            chunkedDigest = chunked_md.digest();
+        }
+        return chunkedDigest;
     }
 
     /**
@@ -272,7 +302,7 @@ public abstract class PayloadWithHeaderAbstract implements Closeable {
      */
     public void close() throws IOException {
         if (!bClosed) {
-            if (md != null) {
+            if (payload_md != null) {
                 // Skip remaining unread bytes to ensure payload is completely
                 // digested. Skipping because the DigestInputStreamNoSkip
                 // has been altered to read when skipping.

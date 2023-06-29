@@ -31,6 +31,10 @@ import org.jwat.common.Numbers;
  * This class maintains the UTC date time internally along with other fields.
  * The old implementation just used the <code>Date</code> object directly leaving the timezone mess to the user.
  *
+ * Please note the following:
+ * JDK8 precision is millis. JDK9+ is nano precision.
+ * Converting from DateTime to Date on JDK9+ will therefore give precision errors unless compensated for.
+ *
  * Exampples:
  *
  * WARC-Date: 2016-01-11T23:24:25.412030Z
@@ -498,6 +502,27 @@ public class WarcDate {
     }
 
     /**
+     * Adjust internal state to millisecond precision.
+     * Mostly for debugging purposes since converting from DateTime to Date
+     * and back to Date loses fraction precision beyond milliseconds.
+     * JDK8 precision is millis. JDK9+ is nano precision.
+     * This method is for those occasions when you run into problems.
+     */
+    public void trimToMillis() {
+        int trimDigits;
+        if (nanoOfSecond != 0) {
+            nanoOfSecond = nanoOfSecond - (nanoOfSecond % 1000000);
+            ldt = ldt.withNano(nanoOfSecond);
+        }
+        if (fraction != 0) {
+            trimDigits = fractionLen - 3;
+            if (trimDigits > 0) {
+                fraction = Numbers.longModulo(fraction, trimDigits);
+            }
+        }
+    }
+
+    /**
      * Adjust the precision and initialize the appropriate fields.
      * @param newPrecision the new precision
      */
@@ -597,6 +622,47 @@ public class WarcDate {
             }
         }
         return new String(tmpStr);
+    }
+
+    /**
+     * For debugging purposes you can get a string of the internal fields and their values.
+     * @return the internal represented in string form
+     */
+    public String debugString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("precision: ");
+        sb.append(precision);
+        sb.append(" - ");
+        sb.append("year: ");
+        sb.append(year);
+        sb.append(" - ");
+        sb.append("month: ");
+        sb.append(month);
+        sb.append(" - ");
+        sb.append("dayOfMonth: ");
+        sb.append(dayOfMonth);
+        sb.append(" - ");
+        sb.append("hour: ");
+        sb.append(hour);
+        sb.append(" - ");
+        sb.append("minute: ");
+        sb.append(minute);
+        sb.append(" - ");
+        sb.append("second: ");
+        sb.append(second);
+        sb.append(" - ");
+        sb.append("nanoOfSecond: ");
+        sb.append(nanoOfSecond);
+        sb.append(" - ");
+        sb.append("fraction: ");
+        sb.append(fraction);
+        sb.append(" - ");
+        sb.append("fractionLen: ");
+        sb.append(fractionLen);
+        sb.append(" - ");
+        sb.append("ldt: ");
+        sb.append(ldt.toString());
+        return sb.toString();
     }
 
     @Override

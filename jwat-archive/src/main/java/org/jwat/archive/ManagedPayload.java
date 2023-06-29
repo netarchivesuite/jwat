@@ -314,11 +314,11 @@ public class ManagedPayload {
     }
 
     /**
-     * Closes the input stream after usage.
-     * @param in
-     * @param len
-     * @param bDigest
-     * @throws IOException
+     * Closes the input stream after usage. This method seems used though.
+     * @param in inputstream to mange
+     * @param len length of the inputstream
+     * @param bDigest optional switch to enable digest of inputstream data
+     * @throws IOException if an I/O Exception occurs while buffering inputstream data
      */
     public void managePayloadInputStream(InputStream in, long len, boolean bDigest) throws IOException {
         payloadLength = 0;

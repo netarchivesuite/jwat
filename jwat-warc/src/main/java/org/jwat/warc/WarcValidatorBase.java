@@ -67,6 +67,7 @@ public abstract class WarcValidatorBase extends WarcConstants {
     /**
      * Validate the WARC header relative to the WARC-Type and according to the
      * WARC ISO standard.
+     * @param header warc header to validate
      */
     protected void checkFields(WarcHeader header) {
         Diagnostics diagnostics = header.diagnostics;
@@ -281,6 +282,7 @@ public abstract class WarcValidatorBase extends WarcConstants {
      * @param fieldType WARC field type id
      * @param fieldObj WARC field
      * @param valueStr WARC raw field value
+     * @param diagnostics diagnostics object used to record warnings/errors
      */
     public void checkFieldPolicy(int recordType, int fieldType, Object fieldObj, String valueStr, Diagnostics diagnostics) {
         int policy = field_policy[recordType][fieldType];
