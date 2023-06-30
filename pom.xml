@@ -90,7 +90,7 @@
 		<powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
 		<powermock-api-mockito.version>1.7.4</powermock-api-mockito.version>
 
-		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
 		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 		<maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
@@ -187,8 +187,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<release>8</release>
+					<!--<source>1.8</source>
+					<target>1.8</target>-->
 				</configuration>
 			</plugin>
 
