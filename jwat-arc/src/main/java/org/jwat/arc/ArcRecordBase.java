@@ -274,7 +274,7 @@ public abstract class ArcRecordBase implements PayloadOnClosedHandler, Closeable
                     /*
                      * Check payload digest.
                      */
-                    digest = payloadHeaderWrapped.getDigest();
+                    digest = payloadHeaderWrapped.getPayloadDigest();
                     if (digest != null) {
                         computedPayloadDigest = new Digest();
                         computedPayloadDigest.digestBytes = digest;

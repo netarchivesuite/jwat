@@ -18,6 +18,7 @@
 package org.jwat.common;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +49,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     protected static final String HTTP_VERSION_SUFFIX = "HTTP/";
 
     /** Content-type header name. */
-    protected static final String CONTENT_TYPE = "Content-Type".toUpperCase();
+    protected static final String CONTENT_TYPE = "content-type".toUpperCase();
+
+    /** Content-type header name. */
+    protected static final String TRANSFER_ENCODING = "transfer-encoding".toUpperCase();
+
+    protected static final String CHUNKED = "chunked".toUpperCase();
 
     /** Header type of this object. */
     public int headerType;
@@ -102,6 +108,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     /** HTTP content Content-type. */
     public String contentType;
 
+    public boolean chunked;
+
+    public DigestInputStreamNoSkip digestIS;
+
+    public DigestInputStreamChunkedNoSkip digestISChunked;
+
     /**
      * Non public constructor.
      */
@@ -117,6 +129,23 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     public static boolean isSupported(String protocol) {
         return ((PROTOCOL_HTTP.equalsIgnoreCase(protocol)
                 || PROTOCOL_HTTPS.equalsIgnoreCase(protocol)));
+    }
+
+    @Override
+    protected boolean isChunked() {
+        return chunked;
+    }
+
+    @Override
+    protected InputStream getDigestInputStream() {
+        if (!chunked) {
+            digestIS = new DigestInputStreamNoSkip(in_pb, payload_md);
+            return digestIS;
+        }
+        else {
+            digestISChunked = new DigestInputStreamChunkedNoSkip(in_pb, chunked_md, payload_md, null);
+            return digestISChunked;
+        }
     }
 
     /**
@@ -156,8 +185,7 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
     }
 
     @Override
-    protected boolean readHeader(MaxLengthRecordingInputStream in, long payloadLength)
-                            throws IOException {
+    protected boolean readHeader(MaxLengthRecordingInputStream in, long payloadLength) throws IOException {
         // TODO too low!
         PushbackInputStream pbin = new PushbackInputStream(in, in_pb.getPushbackSize());
         HeaderLineReader hlr = HeaderLineReader.getHeaderLineReader();
@@ -184,6 +212,7 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
         hlr.bQuotedText = true;
         hlr.bEncodedWords = true;
         HeaderLine tmpLine;
+        String tmpStr;
         boolean bLoop = bValidHttpHeader;
         while (bLoop) {
             line = hlr.readLine(pbin);
@@ -193,8 +222,12 @@ public class HttpHeader extends PayloadWithHeaderAbstract {
                 case HeaderLine.HLT_HEADERLINE:
                     //System.out.println(line.name);
                     //System.out.println(line.value);
-                    if (CONTENT_TYPE.equals(line.name.toUpperCase())) {
+                    tmpStr = line.name.toUpperCase();
+                    if (CONTENT_TYPE.equals(tmpStr)) {
                         contentType = line.value;
+                    }
+                    else if (TRANSFER_ENCODING.equals(tmpStr) && CHUNKED.equals(line.value.toUpperCase())) {
+                        chunked = true;
                     }
                     // A HeaderLine object contains a list of additional lines.
                     tmpLine = headerMap.get(line.name.toLowerCase());

@@ -125,6 +125,7 @@ public class ArrayUtils {
      * Check if a byte array matches a specified case sensitive sub byte array at a certain index.
      * @param subArr case sensitive sub byte array to compare against
      * @param arr byte array to look in
+     * @param fIdx index to start looking from in <code>arr</code>
      * @return boolean indicating if there was a match
      */
     public static boolean equalsAt(byte[] subArr, byte[] arr, int fIdx) {
@@ -147,6 +148,7 @@ public class ArrayUtils {
      * Check if a byte array matches a specified case insensitive sub byte array at a certain index.
      * @param subArr case sensitive sub byte array to compare against
      * @param arr byte array to look in
+     * @param fIdx index to start looking from in <code>arr</code>
      * @return boolean indicating if there was a match
      */
     public static boolean equalsAtIgnoreCase(byte[] subArr, byte[] arr, int fIdx) {

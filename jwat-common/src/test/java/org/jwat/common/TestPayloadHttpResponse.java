@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+// TODO Digest tests.
 @RunWith(Parameterized.class)
 public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
 
@@ -206,13 +207,13 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getDigest() );
+                        Assert.assertNotNull( httpHeader.getPayloadDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getDigest();
+                        byte[] digest4 = httpHeader.getPayloadDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpHeader.getDigest() );
+                        Assert.assertNull( httpHeader.getPayloadDigest() );
                     }
                     /*
                      * Payload.
@@ -307,13 +308,13 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getDigest() );
+                        Assert.assertNotNull( httpHeader.getPayloadDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getDigest();
+                        byte[] digest4 = httpHeader.getPayloadDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
-                        Assert.assertNull( httpHeader.getDigest() );
+                        Assert.assertNull( httpHeader.getPayloadDigest() );
                     }
                     /*
                      * Payload.
@@ -386,10 +387,10 @@ public class TestPayloadHttpResponse implements PayloadOnClosedHandler {
                         byte[] digest2 = payload.getDigest();
                         Assert.assertArrayEquals( digest1, digest2 );
 
-                        Assert.assertNotNull( httpHeader.getDigest() );
+                        Assert.assertNotNull( httpHeader.getPayloadDigest() );
                         mdHttp.reset();
                         byte[] digest3 = mdHttp.digest( payloadArr );
-                        byte[] digest4 = httpHeader.getDigest();
+                        byte[] digest4 = httpHeader.getPayloadDigest();
                         Assert.assertArrayEquals( digest3, digest4 );
                     } else {
                         Assert.assertNull( payload.getDigest() );

@@ -254,6 +254,9 @@ public class WarcHeader {
 
     /**
      * Create a new <code>WarcHeader</code> for recreating a header object.
+     * @param recordHeaderMaxSize max size allowed for a record header
+     * @param lineReader line reader used to read version lines
+     * @param headerLineReader header line reader used to read the WARC headers
      * @param fieldParsers parsers used for the individual types
      * @param uriProfile uri profile used to validate urls
      * @param diagnostics diagnostics object used by parser
